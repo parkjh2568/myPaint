@@ -1,0 +1,19 @@
+{
+  "platform": "Linux x86_64 / Ubuntu 24.04 / Qt 6.4.2 / offscreen",
+  "exit_code": 0,
+  "smoke_elapsed_ms": 166.74,
+  "smoke_max_rss_kib": 37856,
+  "executable_bytes": 382584,
+  "note": "Smoke includes drawing, paste, undo/redo, window screenshot and a 100ms exit timer. Not startup time or maximum workload memory.",
+  "editing_probe": {
+    "canvas": "1920x1080",
+    "fill_ms": 4,
+    "history_bytes": 501760,
+    "project_load_ms": 27,
+    "project_save_ms": 68,
+    "qt": "6.4.2",
+    "stroke_commit_total_ms": 22,
+    "strokes": 20,
+    "undo_redo_40_total_ms": 10
+  }
+}
