@@ -1,0 +1,17 @@
+/build*/
+/dist/
+*.user
+*.rpaint
+*.png
+!docs/*.png
+/out/
+/CMakeUserPresets.json
+/.cache/
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+*.zip
+.env
+.env.*
+!.env.example
