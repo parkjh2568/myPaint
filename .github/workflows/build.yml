@@ -6,6 +6,33 @@ on:
 permissions:
   contents: read
 jobs:
+  format:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Check C++ format
+        run: |
+          clang-format-18 --version
+          clang-format-18 --dry-run --Werror src/*.cpp src/*.h tests/*.cpp tests/wasm_probe/*.cpp
+  minimum-qt:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install system Qt baseline
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build qt6-base-dev qt6-base-dev-tools qt6-qpa-plugins libgl1-mesa-dev fonts-nanum
+      - name: Build and test
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel 2
+          ctest --test-dir build --parallel 2 --output-on-failure
   build:
     strategy:
       fail-fast: false
@@ -53,4 +80,4 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel 2
       - name: Test
-        run: ctest --test-dir build -C Release --output-on-failure
+        run: ctest --test-dir build -C Release --parallel 2 --output-on-failure

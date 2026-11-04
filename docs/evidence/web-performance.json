@@ -1,0 +1,32 @@
+{
+  "browser": "156.0.8078.80",
+  "samples": [
+    {
+      "fill_ms": 28,
+      "image_bytes": 12605186,
+      "image_encode_ms": 105,
+      "pixels_match": true,
+      "project_bytes": 25210430,
+      "project_decode_ms": 59,
+      "project_encode_ms": 191
+    },
+    {
+      "fill_ms": 31,
+      "image_bytes": 12605186,
+      "image_encode_ms": 104,
+      "pixels_match": true,
+      "project_bytes": 25210430,
+      "project_decode_ms": 56,
+      "project_encode_ms": 187
+    },
+    {
+      "fill_ms": 30,
+      "image_bytes": 12605186,
+      "image_encode_ms": 110,
+      "pixels_match": true,
+      "project_bytes": 25210430,
+      "project_decode_ms": 60,
+      "project_encode_ms": 190
+    }
+  ]
+}

@@ -7,18 +7,47 @@
 #include <QImageWriter>
 #include <QPainter>
 #include <QSaveFile>
+#include <QStringDecoder>
 #include <algorithm>
 #include <cstring>
 #include <stdexcept>
+#include <type_traits>
 
 namespace paint {
 static void fail(const QString &message) { throw std::runtime_error(message.toStdString()); }
+class BoundedBuffer final : public QBuffer {
+  public:
+    BoundedBuffer(QByteArray *bytes, qint64 limit) : QBuffer(bytes), limit(limit) {}
+    bool seek(qint64 position) override {
+        if (position < 0 || position > limit) {
+            setErrorString(QStringLiteral("출력 버퍼 한도를 초과했습니다."));
+            return false;
+        }
+        return QBuffer::seek(position);
+    }
+
+  protected:
+    qint64 writeData(const char *data, qint64 length) override {
+        if (length < 0 || pos() < 0 || pos() > limit || length > limit - pos()) {
+            setErrorString(QStringLiteral("출력 버퍼 한도를 초과했습니다."));
+            return -1;
+        }
+        return QBuffer::writeData(data, length);
+    }
+
+  private:
+    qint64 limit;
+};
+
 void Document::validateSize(QSize size, qsizetype layerCount) {
-    if (size.width() < 1 || size.height() < 1 || size.width() > 32768 || size.height() > 32768 ||
-        layerCount < 1 || layerCount > MaxLayers || qint64(size.width()) * size.height() > MaxPixels ||
+    if (size.width() < 1 || size.height() < 1 || size.width() > MaxDimension ||
+        size.height() > MaxDimension || layerCount < 1 || layerCount > MaxLayers ||
+        qint64(size.width()) * size.height() > MaxPixels ||
         qint64(size.width()) * size.height() * layerCount > MaxDocumentPixels)
         fail(QStringLiteral(
-            "이미지 크기 또는 레이어 메모리 한도를 초과합니다 (이미지 32M / 레이어 합계 64M 픽셀)."));
+                 "이미지 크기 또는 레이어 메모리 한도를 초과합니다 (이미지 %1M / 레이어 합계 %2M 픽셀).")
+                 .arg(MaxPixels / 1024 / 1024)
+                 .arg(MaxDocumentPixels / 1024 / 1024));
 }
 QImage Document::allocate(QSize size, QColor fill) {
     validateSize(size);
@@ -35,10 +64,25 @@ void Document::validate(const State &s) {
     if (s.layers.isEmpty() || s.layers.size() > MaxLayers || s.active < 0 || s.active >= s.layers.size())
         fail(QStringLiteral("레이어 구성이 올바르지 않습니다."));
     validateSize(s.size, s.layers.size());
-    for (const auto &layer : s.layers)
+    qint64 decodedBytes = 0;
+    for (const auto &layer : s.layers) {
         if (layer.image.isNull() || layer.image.size() != s.size ||
-            layer.image.format() != QImage::Format_ARGB32_Premultiplied || layer.name.size() > 256)
+            layer.image.format() != QImage::Format_ARGB32_Premultiplied)
             fail(QStringLiteral("레이어 이미지가 올바르지 않습니다."));
+        decodedBytes += layer.image.sizeInBytes();
+        if (layer.image.sizeInBytes() > MaxPixels * 4 || decodedBytes > MaxDocumentPixels * 4)
+            fail(QStringLiteral("레이어 버퍼의 바이트 한도를 초과합니다."));
+        if (layer.name.size() > MaxNameUnits)
+            fail(QStringLiteral("레이어 이름은 256자 이내여야 합니다."));
+        for (qsizetype i = 0; i < layer.name.size(); ++i) {
+            if (layer.name[i].isHighSurrogate()) {
+                if (++i >= layer.name.size() || !layer.name[i].isLowSurrogate())
+                    fail(QStringLiteral("레이어 이름의 유니코드가 올바르지 않습니다."));
+            } else if (layer.name[i].isLowSurrogate()) {
+                fail(QStringLiteral("레이어 이름의 유니코드가 올바르지 않습니다."));
+            }
+        }
+    }
 }
 Document::Document(QSize size) : current(blank(size)) {}
 void Document::setActive(int index) {
@@ -55,30 +99,45 @@ void Document::reset(State state, QString filePath) {
     currentId = nextId++;
     savedId = currentId;
 }
-bool Document::commit(State candidate, const QString &label) {
+bool Document::commit(State candidate, const QString &label, CommitMode mode) {
+    auto edit = prepare(std::move(candidate), label, mode);
+    const bool modified = edit.changed();
+    install(std::move(edit));
+    return modified;
+}
+Document::PreparedEdit Document::prepare(State candidate, const QString &label, CommitMode mode) {
     validate(candidate);
-    Change change;
+    PreparedEdit edit;
+    edit.owner = this;
+    edit.baseId = currentId;
+    edit.baseCursor = cursor;
+    edit.baseActive = current.active;
+    edit.candidate = std::move(candidate);
+    const auto &candidateState = edit.candidate;
+    auto &change = edit.change;
     change.label = label;
     change.beforeId = currentId;
     change.afterId = nextId;
-    change.structural = current.size != candidate.size || current.background != candidate.background ||
-                        current.layers.size() != candidate.layers.size();
+    change.structural = mode == CommitMode::Structural || current.active != candidateState.active ||
+                        current.size != candidateState.size ||
+                        current.background != candidateState.background ||
+                        current.layers.size() != candidateState.layers.size();
     if (!change.structural) {
         for (int i = 0; i < current.layers.size(); ++i)
-            if (current.layers[i].name != candidate.layers[i].name ||
-                current.layers[i].visible != candidate.layers[i].visible)
+            if (current.layers[i].name != candidateState.layers[i].name ||
+                current.layers[i].visible != candidateState.layers[i].visible)
                 change.structural = true;
     }
     if (change.structural) {
         change.before = current;
-        change.after = candidate;
-        for (const auto &s : {current, candidate})
+        change.after = candidateState;
+        for (const auto &s : {current, candidateState})
             for (const auto &layer : s.layers)
                 change.bytes += layer.image.sizeInBytes();
     } else {
         for (int i = 0; i < current.layers.size(); ++i) {
             const auto &before = current.layers[i].image;
-            const auto &after = candidate.layers[i].image;
+            const auto &after = candidateState.layers[i].image;
             if (before.cacheKey() == after.cacheKey())
                 continue;
             int left = before.width(), right = -1, top = before.height(), bottom = -1;
@@ -108,24 +167,38 @@ bool Document::commit(State candidate, const QString &label) {
             change.patches.push_back({i, rect, std::move(a), std::move(b)});
         }
         if (change.patches.isEmpty())
-            return false;
+            return edit;
     }
     // Reserve first: allocation failures must not truncate the redo branch.
-    history.reserve(history.size() + 1);
+    if (history.capacity() < cursor + 1)
+        history.reserve(std::max(cursor + 1, std::max(size_t(8), history.capacity() * 2)));
+    edit.modified = true;
+    return edit;
+}
+void Document::install(PreparedEdit &&edit) {
+    if (edit.owner != this || edit.baseId != currentId || edit.baseCursor != cursor ||
+        edit.baseActive != current.active)
+        fail(QStringLiteral("준비한 편집의 문서가 변경되었습니다. 작업을 다시 시도하세요."));
+    edit.owner = nullptr;
+    if (!edit.modified)
+        return;
+    // Everything that can allocate was prepared before file replacement or redo truncation.
+    static_assert(std::is_nothrow_move_constructible_v<Change>);
+    static_assert(std::is_nothrow_move_assignable_v<Change>);
+    static_assert(std::is_nothrow_move_assignable_v<State>);
     for (size_t i = cursor; i < history.size(); ++i)
         retainedBytes -= history[i].bytes;
     history.erase(history.begin() + qptrdiff(cursor), history.end());
-    retainedBytes += change.bytes;
-    history.push_back(std::move(change));
-    current = std::move(candidate);
+    retainedBytes += edit.change.bytes;
+    history.push_back(std::move(edit.change));
+    current = std::move(edit.candidate);
     currentId = nextId++;
     cursor = history.size();
-    while (retainedBytes > budget && history.size() > 1) {
+    while ((retainedBytes > budget || history.size() > MaxHistoryChanges) && history.size() > 1) {
         retainedBytes -= history.front().bytes;
         history.erase(history.begin());
         --cursor;
     }
-    return true;
 }
 void Document::apply(const Change &change, bool forward) {
     State candidate = current;
@@ -155,7 +228,19 @@ void Document::redo() {
         ++cursor;
     }
 }
-void Document::setHistoryBudget(qint64 bytes) { budget = std::max(qint64(0), bytes); }
+void Document::setHistoryBudget(qint64 bytes) {
+    budget = std::max(qint64(0), bytes);
+    while (retainedBytes > budget && history.size() > 1) {
+        if (cursor > 0) {
+            retainedBytes -= history.front().bytes;
+            history.erase(history.begin());
+            --cursor;
+        } else {
+            retainedBytes -= history.back().bytes;
+            history.pop_back();
+        }
+    }
+}
 QImage Document::flatten(const State &s) {
     validate(s);
     QImage image = allocate(s.size);
@@ -169,6 +254,8 @@ QImage Document::composite() const { return flatten(current); }
 State Document::resized(const State &state, QSize size, bool scale, bool smooth) {
     validate(state);
     validateSize(size, state.layers.size());
+    if (size == state.size)
+        return state;
     State result = state;
     result.size = size;
     for (int i = 0; i < result.layers.size(); ++i) {
@@ -191,8 +278,21 @@ State Document::resized(const State &state, QSize size, bool scale, bool smooth)
 }
 State Document::readImage(const QString &path) {
     QFile file(path);
-    if (!QFileInfo(path).isFile() || !file.open(QIODevice::ReadOnly) || file.size() > 300LL * 1024 * 1024)
-        fail(QStringLiteral("읽을 수 없거나 너무 큰 이미지 파일입니다 (최대 300 MiB)."));
+    if (!QFileInfo(path).isFile() || !file.open(QIODevice::ReadOnly) || file.size() > MaxInputBytes)
+        fail(QStringLiteral("읽을 수 없거나 너무 큰 이미지 파일입니다 (최대 %1 MiB).")
+                 .arg(MaxInputBytes / 1024 / 1024));
+    return readImageData(file);
+}
+State Document::readImageBytes(const QByteArray &bytes) {
+    if (bytes.size() > MaxInputBytes)
+        fail(QStringLiteral("이미지 입력 바이트 한도를 초과했습니다."));
+    QBuffer file;
+    file.setData(bytes);
+    if (!file.open(QIODevice::ReadOnly))
+        fail(file.errorString());
+    return readImageData(file);
+}
+State Document::readImageData(QIODevice &file) {
     const QByteArray header = file.peek(12);
     QByteArray format;
     if (header.startsWith(QByteArray::fromHex("89504e470d0a1a0a")))
@@ -209,7 +309,7 @@ State Document::readImage(const QString &path) {
     reader.setAutoDetectImageFormat(false);
     reader.setDecideFormatFromContent(false);
     reader.setAutoTransform(true);
-    reader.setAllocationLimit(128);
+    reader.setAllocationLimit(int(MaxPixels * 4 / 1024 / 1024));
     const QSize size = reader.size();
     validateSize(size);
     QImage image = reader.read();
@@ -223,6 +323,28 @@ State Document::readImage(const QString &path) {
     return state;
 }
 void Document::writeImage(const State &state, const QString &path, const QByteArray &format) {
+    auto file = stageImage(state, path, format);
+    if (!file->commit())
+        fail(file->errorString());
+}
+std::unique_ptr<QSaveFile> Document::stageImage(const State &state, const QString &path,
+                                                const QByteArray &format) {
+    auto file = std::make_unique<QSaveFile>(path);
+    file->setDirectWriteFallback(false);
+    if (!file->open(QIODevice::WriteOnly))
+        fail(file->errorString());
+    writeImageData(state, *file, format);
+    return file;
+}
+QByteArray Document::imageBytes(const State &state, const QByteArray &format) {
+    QByteArray bytes;
+    BoundedBuffer file(&bytes, MaxInputBytes);
+    if (!file.open(QIODevice::WriteOnly))
+        fail(file.errorString());
+    writeImageData(state, file, format);
+    return bytes;
+}
+void Document::writeImageData(const State &state, QIODevice &file, const QByteArray &format) {
     if (format != "png" && format != "jpg" && format != "jpeg" && format != "bmp")
         fail(QStringLiteral("PNG, JPEG, BMP 형식으로 저장하세요."));
     QImage image = flatten(state);
@@ -232,50 +354,91 @@ void Document::writeImage(const State &state, const QString &path, const QByteAr
         painter.drawImage(0, 0, image);
         painter.end();
         image = opaque.convertToFormat(QImage::Format_RGB32);
+        if (image.isNull())
+            throw std::bad_alloc();
     }
-    QSaveFile file(path);
-    file.setDirectWriteFallback(false);
-    if (!file.open(QIODevice::WriteOnly))
-        fail(file.errorString());
     QImageWriter writer(&file, format);
     writer.setQuality(95);
+#ifdef Q_OS_WASM
+    if (format == "png")
+        writer.setCompression(0);
+#endif
     if (!writer.write(image))
         fail(writer.errorString());
-    if (!file.commit())
-        fail(file.errorString());
 }
 void Document::writeProject(const State &state, const QString &path) {
+    auto file = stageProject(state, path);
+    if (!file->commit())
+        fail(file->errorString());
+}
+std::unique_ptr<QSaveFile> Document::stageProject(const State &state, const QString &path,
+                                                  const std::function<bool()> &cancel) {
     validate(state);
-    QSaveFile file(path);
-    file.setDirectWriteFallback(false);
+    auto file = std::make_unique<QSaveFile>(path);
+    file->setDirectWriteFallback(false);
+    if (!file->open(QIODevice::WriteOnly))
+        fail(file->errorString());
+    writeProjectData(state, *file, cancel);
+    return file;
+}
+QByteArray Document::projectBytes(const State &state, const std::function<bool()> &cancel) {
+    QByteArray bytes;
+    BoundedBuffer file(&bytes, MaxInputBytes);
     if (!file.open(QIODevice::WriteOnly))
         fail(file.errorString());
+    writeProjectData(state, file, cancel);
+    return bytes;
+}
+void Document::writeProjectData(const State &state, QIODevice &file, const std::function<bool()> &cancel) {
+    validate(state);
     QDataStream stream(&file);
     stream.setByteOrder(QDataStream::LittleEndian);
     stream.writeRawData("RPAINT01", 8);
     stream << quint32(state.size.width()) << quint32(state.size.height()) << quint32(state.layers.size())
            << quint32(state.active) << quint32(state.background.rgba());
     for (const auto &layer : state.layers) {
+        if (cancel && cancel())
+            fail(QStringLiteral("저장을 취소했습니다."));
         const auto name = layer.name.toUtf8();
         QByteArray png;
-        QBuffer buffer(&png);
+        BoundedBuffer buffer(&png, MaxLayerEncodedBytes);
         buffer.open(QIODevice::WriteOnly);
-        if (!layer.image.save(&buffer, "PNG"))
+        QImageWriter writer(&buffer, "png");
+#ifdef Q_OS_WASM
+        writer.setCompression(0);
+#endif
+        if (!writer.write(layer.image))
             fail(QStringLiteral("레이어 인코딩 실패"));
+        if (png.isEmpty() || png.size() > MaxLayerEncodedBytes || name.size() > MaxNameBytes)
+            fail(QStringLiteral("프로젝트 레코드가 너무 큽니다."));
         stream << quint32(name.size());
         stream.writeRawData(name.constData(), name.size());
         stream << quint8(layer.visible) << quint32(png.size());
         stream.writeRawData(png.constData(), png.size());
+        if (file.pos() > MaxInputBytes)
+            fail(QStringLiteral("프로젝트 파일이 너무 큽니다."));
     }
-    if (stream.status() != QDataStream::Ok || !file.commit())
+    if (stream.status() != QDataStream::Ok)
         fail(QStringLiteral("프로젝트 저장 실패"));
 }
 State Document::readProject(const QString &path) {
     QFile file(path);
     if (!QFileInfo(path).isFile() || !file.open(QIODevice::ReadOnly))
         fail(file.errorString());
-    if (file.size() > 300LL * 1024 * 1024)
+    if (file.size() > MaxInputBytes)
         fail(QStringLiteral("프로젝트 파일이 너무 큽니다."));
+    return readProjectData(file);
+}
+State Document::readProjectBytes(const QByteArray &bytes) {
+    if (bytes.size() > MaxInputBytes)
+        fail(QStringLiteral("프로젝트 입력 바이트 한도를 초과했습니다."));
+    QBuffer file;
+    file.setData(bytes);
+    if (!file.open(QIODevice::ReadOnly))
+        fail(file.errorString());
+    return readProjectData(file);
+}
+State Document::readProjectData(QIODevice &file) {
     QDataStream stream(&file);
     stream.setByteOrder(QDataStream::LittleEndian);
     char magic[8];
@@ -283,7 +446,7 @@ State Document::readProject(const QString &path) {
         fail(QStringLiteral("올바른 RetroPaint 프로젝트가 아닙니다."));
     quint32 w = 0, h = 0, count = 0, active = 0, background = 0;
     stream >> w >> h >> count >> active >> background;
-    if (stream.status() != QDataStream::Ok || w < 1 || h < 1 || w > 32768 || h > 32768 ||
+    if (stream.status() != QDataStream::Ok || w < 1 || h < 1 || w > MaxDimension || h > MaxDimension ||
         quint64(w) * h > MaxPixels || count < 1 || count > MaxLayers || active >= count ||
         quint64(w) * h * count > MaxDocumentPixels)
         fail(QStringLiteral("프로젝트 크기 또는 레이어 정보가 잘못되었습니다."));
@@ -291,14 +454,18 @@ State Document::readProject(const QString &path) {
     for (quint32 i = 0; i < count; ++i) {
         quint32 length = 0;
         stream >> length;
-        if (length > 1024 || length > file.bytesAvailable())
+        if (length > MaxNameBytes || length > file.bytesAvailable())
             fail(QStringLiteral("레이어 이름이 잘못되었습니다."));
         QByteArray name(length, Qt::Uninitialized);
         if (stream.readRawData(name.data(), int(length)) != int(length))
             fail(QStringLiteral("잘린 프로젝트"));
+        QStringDecoder decoder(QStringDecoder::Utf8, QStringDecoder::Flag::Stateless);
+        const QString layerName = decoder(name);
+        if (decoder.hasError() || layerName.size() > MaxNameUnits)
+            fail(QStringLiteral("레이어 이름의 UTF-8 또는 길이가 올바르지 않습니다."));
         quint8 visible = 0;
         stream >> visible >> length;
-        if (visible > 1 || length == 0 || length > 140U * 1024 * 1024 || length > file.bytesAvailable())
+        if (visible > 1 || length == 0 || length > MaxLayerEncodedBytes || length > file.bytesAvailable())
             fail(QStringLiteral("레이어 데이터가 잘못되었습니다."));
         QByteArray bytes(length, Qt::Uninitialized);
         if (stream.readRawData(bytes.data(), int(length)) != int(length))
@@ -306,15 +473,14 @@ State Document::readProject(const QString &path) {
         QBuffer buffer(&bytes);
         buffer.open(QIODevice::ReadOnly);
         QImageReader reader(&buffer, "PNG");
-        reader.setAllocationLimit(128);
+        reader.setAutoDetectImageFormat(false);
+        reader.setDecideFormatFromContent(false);
+        reader.setAllocationLimit(int(MaxPixels * 4 / 1024 / 1024));
         if (reader.size() != state.size)
             fail(QStringLiteral("레이어 크기 불일치"));
         QImage image = reader.read().convertToFormat(QImage::Format_ARGB32_Premultiplied);
         if (image.isNull())
             fail(QStringLiteral("레이어 디코딩 실패"));
-        const QString layerName = QString::fromUtf8(name);
-        if (layerName.size() > 256)
-            fail(QStringLiteral("레이어 이름이 너무 깁니다."));
         state.layers.push_back({layerName, image, bool(visible)});
     }
     if (stream.status() != QDataStream::Ok || !file.atEnd())
@@ -323,6 +489,9 @@ State Document::readProject(const QString &path) {
     return state;
 }
 bool Document::flood(QImage &image, QPoint start, QColor color, const std::function<bool()> &cancel) {
+    validateSize(image.size());
+    if (image.sizeInBytes() > MaxPixels * 4)
+        fail(QStringLiteral("채우기 이미지 버퍼가 너무 큽니다."));
     if (image.format() != QImage::Format_ARGB32_Premultiplied)
         fail(QStringLiteral("채우기는 내부 32비트 이미지 형식만 지원합니다."));
     if (!image.rect().contains(start))

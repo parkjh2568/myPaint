@@ -4,6 +4,9 @@
 #include <QPainterPath>
 #include <QTimer>
 #include <QWidget>
+#include <exception>
+class QTextEdit;
+class QPainter;
 
 namespace paint {
 enum class Tool {
@@ -40,7 +43,10 @@ class Canvas : public QWidget {
     void setTool(Tool next);
     void setZoom(double value);
     void paste(QImage image);
-    bool settle();
+    void pasteClipboard();
+    void settle();
+    State pendingState() const;
+    void recoverAfterError();
     void cancel();
     void copy(bool cut);
     void selectAll();
@@ -48,7 +54,12 @@ class Canvas : public QWidget {
     void crop();
     void transformSelection(const QTransform &transform);
     bool hasSelection() const { return !selection.isNull(); }
+    bool hasActiveGesture() const { return dragging; }
     bool hasPendingEdit() const { return dragging || hasSelection() || textEditor || !points.isEmpty(); }
+#ifdef Q_OS_WASM
+    void completeTextCut();
+    void insertClipboardText(const QString &text);
+#endif
     void beginText();
     void updateTextStyle();
   signals:
@@ -56,6 +67,12 @@ class Canvas : public QWidget {
     void positionChanged(QPoint point);
     void colorPicked(QColor color);
     void fileDropped(QString path);
+    void errorOccurred(QString message);
+#ifdef Q_OS_WASM
+    void clipboardWriteRequested(QImage image, bool cut, State candidate);
+    void clipboardTextWriteRequested(QString text, bool cut);
+    void clipboardReadRequested(bool textMode);
+#endif
 
   protected:
     void paintEvent(QPaintEvent *) override;
@@ -77,6 +94,7 @@ class Canvas : public QWidget {
     State working;
     bool dragging = false, moving = false, resizingSelection = false, resizingCanvas = false;
     bool rightButton = false;
+    Qt::MouseButton gestureButton = Qt::NoButton;
     bool panning = false, resizeWidth = false, resizeHeight = false;
     bool selectionFromDocument = false, selectionModified = false;
     QPoint start, last, hover, selectionOffset;
@@ -87,13 +105,16 @@ class Canvas : public QWidget {
     int curvePhase = 0;
     QSize canvasPreview;
     QTimer spray;
-    QWidget *textEditor = nullptr;
+    QTextEdit *textEditor = nullptr;
+    bool textComposing = false;
     QPoint textPosition;
     QPoint documentPoint(QPointF point) const;
     QPoint constrained(QPoint point, Qt::KeyboardModifiers modifiers) const;
     void drawStroke(QPoint from, QPoint to);
-    void drawShape(QImage &image, QPoint end);
+    void drawShape(QPainter &painter, QPoint end) const;
     void liftSelection(QPainterPath mask, QRect rect);
     void fillAt(QPoint point);
+    QImage selectionImage() const;
+    void reportError(const std::exception &error) noexcept;
 };
 } // namespace paint

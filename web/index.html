@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="data:,">
+<title>myPaint 웹 그림판</title>
+<style>
+html,body{height:100%;margin:0;overflow:hidden}body{display:flex;flex-direction:column;background:#c0c0c0;font:14px system-ui,sans-serif;color:#111}header{padding:6px 12px;border-bottom:1px solid #808080;display:flex;gap:16px;flex-wrap:wrap}header small{align-self:center}#downloads:empty{display:none}#downloads{padding:8px 12px;background:#fff7cc}button{font:inherit;min-height:30px;margin:0 4px}#screen{flex:1;min-height:0}#status{position:absolute;top:20%;left:10%;right:10%;padding:16px;background:white;border:1px solid #808080}a{color:#000080}
+</style>
+</head>
+<body>
+<header><strong>myPaint</strong><small>기기 안에서 편집 · 파일은 업로드하지 않습니다 · 다운로드한 파일을 확인하세요</small><small id="shortcuts" hidden>Mac에서는 Ctrl 표시 대신 ⌘ 키를 사용하세요</small><a href="licenses.html" target="_blank" rel="noopener">라이선스</a></header>
+<div id="downloads" role="status" aria-live="polite"></div>
+<div id="status" role="status">그림판을 준비하고 있습니다…<noscript>JavaScript를 켜야 사용할 수 있습니다.</noscript></div>
+<div id="screen"></div>
+<script src="retropaint.js"></script>
+<script src="qtloader.js"></script>
+<script>
+(async () => {
+    const status = document.getElementById('status');
+    try {
+        document.getElementById('shortcuts').hidden = !navigator.platform.includes('Mac');
+        const screen = document.getElementById('screen');
+        window.retropaint = await qtLoad({qt:{entryFunction:window.retropaint_entry,containerElements:[document.getElementById('screen')],onLoaded:()=>{status.hidden=true;},onExit:data=>{status.hidden=false;status.textContent='그림판 실행이 중단되었습니다. 새로고침 후 복구 사본을 확인하세요.';}}});
+        // The Qt screen must follow header/download layout changes as well as window resizing.
+        const observer = new ResizeObserver(() => window.retropaint.qtResizeContainerElement(screen));
+        observer.observe(screen);
+        for (const event of ['contextlost', 'webglcontextlost']) screen.firstElementChild?.shadowRoot?.addEventListener(event, () => {
+            status.hidden = false;
+            status.textContent = '그림판 화면 연결이 중단되었습니다. 가능한 경우 프로젝트를 다운로드하세요. 새로고침하면 마지막 브라우저 복구 사본을 확인할 수 있습니다.';
+        }, true);
+    } catch(error) {
+        status.hidden=false;
+        status.textContent='그림판을 시작할 수 없습니다. 최신 브라우저에서 새로고침해 주세요. '+String(error.message||error);
+    }
+})();
+</script>
+</body>
+</html>

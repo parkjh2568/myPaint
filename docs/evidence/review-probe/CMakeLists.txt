@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.22)
+project(RetroPaintReviewProbe LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 20)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Core Gui Widgets Test)
+add_subdirectory(../../.. retropaint-source EXCLUDE_FROM_ALL)
+add_executable(review_probe review_probe.cpp)
+target_link_libraries(review_probe PRIVATE paintui Qt6::Test)

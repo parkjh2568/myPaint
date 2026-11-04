@@ -8,7 +8,9 @@
 #include <cstdio>
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
-    paint::Document document(QSize(1920, 1080));
+    const QSize size =
+        app.arguments().contains(QStringLiteral("--large")) ? QSize(4096, 4096) : QSize(1920, 1080);
+    paint::Document document(size);
     QElapsedTimer timer;
     timer.start();
     for (int i = 0; i < 20; ++i) {
@@ -20,7 +22,7 @@ int main(int argc, char **argv) {
         document.commit(std::move(candidate), "stroke");
     }
     QJsonObject result{{"qt", qVersion()},
-                       {"canvas", "1920x1080"},
+                       {"canvas", QStringLiteral("%1x%2").arg(size.width()).arg(size.height())},
                        {"strokes", 20},
                        {"stroke_commit_total_ms", timer.elapsed()},
                        {"history_bytes", document.historyBytes()}};

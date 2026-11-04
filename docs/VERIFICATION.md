@@ -1,5 +1,7 @@
 # 구현 및 검증 보고서
 
+2026-11-03의 후속 수정과 macOS ARM64 검증은 [구현 결과](IMPLEMENTATION_RESULTS.md)를 참고하세요. 아래는 최초 Linux 구현의 역사적 검증 기록입니다.
+
 기준일: 2026-10-30 (한국 시간). 버전: 0.1.0 개발 버전.
 
 ## 결과
@@ -108,3 +110,7 @@ ASAN_OPTIONS=detect_leaks=0 UBSAN_OPTIONS=halt_on_error=1 \
 - https://doc.qt.io/qt-6.8/cmake-deployment.html
 - https://doc.qt.io/qt-6.8/licensing.html
 - https://aqtinstall.readthedocs.io/en/v3.3.0/cli.html
+
+## 웹 이식 후 검증
+
+2026-11-03 macOS ARM64에서 공통 코어/UI 변경 후 CTest 5개 그룹과 ASan/UBSan core·ui를 통과했다. Chrome의 실제 `/mypaint/` 경로, 저장소 실패 주입, 폴더 반영 보존·복원과 성능 결과는 [웹 구현 결과](WEB_IMPLEMENTATION_RESULTS.md)에 기록한다. 다른 브라우저·실제 OS IME·공개 Pages 인수와 원격 CI는 별도다.

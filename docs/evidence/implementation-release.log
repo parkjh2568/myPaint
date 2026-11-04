@@ -1,0 +1,207 @@
+Start testing: Nov 03 12:57 KST
+----------------------------------------------------------
+2/4 Testing: allocation_failure
+2/4 Test: allocation_failure
+Command: "/Users/jhpark/code/myPaint/build-audit/allocation_tests"
+Directory: /Users/jhpark/code/myPaint/build-audit
+"allocation_failure" start time: Nov 03 12:57 KST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   1.60 sec
+----------------------------------------------------------
+Test Passed.
+"allocation_failure" end time: Nov 03 12:57 KST
+"allocation_failure" time elapsed: 00:00:01
+----------------------------------------------------------
+
+3/4 Testing: smoke
+3/4 Test: smoke
+Command: "/Users/jhpark/code/myPaint/build-audit/retropaint.app/Contents/MacOS/retropaint" "--smoke"
+Directory: /Users/jhpark/code/myPaint/build-audit
+"smoke" start time: Nov 03 12:57 KST
+Output:
+----------------------------------------------------------
+qt.qpa.fonts: Populating font family aliases took 66 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
+This plugin does not support propagateSizeHints()
+<end of output>
+Test time =   0.34 sec
+----------------------------------------------------------
+Test Passed.
+"smoke" end time: Nov 03 12:57 KST
+"smoke" time elapsed: 00:00:00
+----------------------------------------------------------
+
+1/4 Testing: core
+1/4 Test: core
+Command: "/Users/jhpark/code/myPaint/build-audit/core_tests"
+Directory: /Users/jhpark/code/myPaint/build-audit
+"core" start time: Nov 03 12:57 KST
+Output:
+----------------------------------------------------------
+********* Start testing of CoreTests *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (arm64-little_endian-lp64 shared (dynamic) release build; by Apple LLVM 21.0.0 (clang-2100.3.34.2)), macos 27.0.0
+PASS   : CoreTests::initTestCase()
+PASS   : CoreTests::preparedEditPreservesRedo()
+PASS   : CoreTests::historyLimitsAtUndoPosition()
+PASS   : CoreTests::invalidUtf8Project()
+libpng error: Not a PNG file
+PASS   : CoreTests::projectRecordBounds()
+PASS   : CoreTests::stagedWriteCancellation()
+PASS   : CoreTests::gifFirstFrame()
+PASS   : CoreTests::reorderedIdenticalLayers()
+PASS   : CoreTests::pixelUndoRedo()
+PASS   : CoreTests::savedBranch()
+PASS   : CoreTests::resizeRestoresCroppedPixels()
+PASS   : CoreTests::projectRoundTrip()
+PASS   : CoreTests::malformedProject()
+PASS   : CoreTests::failedSavePreservesOriginal()
+PASS   : CoreTests::floodBoundariesAndCancellation()
+PASS   : CoreTests::memoryLimits()
+PASS   : CoreTests::historyBudget()
+PASS   : CoreTests::imageFormats()
+PASS   : CoreTests::truncatedAndForgedProjects()
+PASS   : CoreTests::layerHistory()
+PASS   : CoreTests::cancelledFillDoesNotCommit()
+SKIP   : CoreTests::partialWritePreservesOriginal() File-size resource limit fault injection runs on Linux only
+   Loc: [/Users/jhpark/code/myPaint/tests/core_tests.cpp(451)]
+PASS   : CoreTests::cleanupTestCase()
+Totals: 22 passed, 0 failed, 1 skipped, 0 blacklisted, 63ms
+********* Finished testing of CoreTests *********
+<end of output>
+Test time =   0.34 sec
+----------------------------------------------------------
+Test Passed.
+"core" end time: Nov 03 12:57 KST
+"core" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/4 Testing: ui
+4/4 Test: ui
+Command: "/Users/jhpark/code/myPaint/build-audit/ui_tests"
+Directory: /Users/jhpark/code/myPaint/build-audit
+"ui" start time: Nov 03 12:57 KST
+Output:
+----------------------------------------------------------
+********* Start testing of UiTests *********
+Config: Using QtTest library 6.12.0, Qt 6.12.0 (arm64-little_endian-lp64 shared (dynamic) release build; by Apple LLVM 21.0.0 (clang-2100.3.34.2)), macos 27.0.0
+PASS   : UiTests::initTestCase()
+QWARN  : UiTests::textClipboardDoesNotCutLayer() qt.qpa.fonts: Populating font family aliases took 66 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
+QWARN  : UiTests::textClipboardDoesNotCutLayer() This plugin does not support propagateSizeHints()
+PASS   : UiTests::textClipboardDoesNotCutLayer()
+QWARN  : UiTests::exportKeepsPendingState() This plugin does not support propagateSizeHints()
+QWARN  : UiTests::exportKeepsPendingState() This plugin does not support propagateSizeHints()
+PASS   : UiTests::exportKeepsPendingState()
+QWARN  : UiTests::recoveryPathIsProtected() This plugin does not support propagateSizeHints()
+PASS   : UiTests::recoveryPathIsProtected()
+QWARN  : UiTests::cancelStagedSavePreservesFile() This plugin does not support propagateSizeHints()
+QWARN  : UiTests::cancelStagedSavePreservesFile() This plugin does not support propagateSizeHints()
+PASS   : UiTests::cancelStagedSavePreservesFile()
+QWARN  : UiTests::recoveryDiscardsStaleSnapshot() This plugin does not support propagateSizeHints()
+PASS   : UiTests::recoveryDiscardsStaleSnapshot()
+PASS   : UiTests::rejectedSelectionMoveIsUnchanged()
+PASS   : UiTests::textBoundsAndZoom()
+PASS   : UiTests::preeditCannotBeSilentlyDiscarded()
+QWARN  : UiTests::pendingCommandsPreserveState(13_save_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(13_save_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(13_save_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(13_save_failure) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(13_save_failure) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(13_save_failure) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(13_save_failure)
+QWARN  : UiTests::pendingCommandsPreserveState(13_close_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(13_close_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(13_close_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(13_resize_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(13_resize_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(13_resize_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(15_save_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(15_save_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(15_save_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(15_save_failure) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(15_save_failure) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(15_save_failure) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(15_save_failure)
+QWARN  : UiTests::pendingCommandsPreserveState(15_close_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(15_close_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(15_close_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(15_resize_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(15_resize_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(15_resize_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(12_save_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(12_save_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(12_save_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(12_save_failure) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(12_save_failure) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(12_save_failure) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(12_save_failure)
+QWARN  : UiTests::pendingCommandsPreserveState(12_close_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(12_close_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(12_close_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(12_resize_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(12_resize_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(12_resize_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(8_save_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(8_save_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(8_save_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(8_save_failure) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(8_save_failure) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(8_save_failure) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(8_save_failure)
+QWARN  : UiTests::pendingCommandsPreserveState(8_close_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(8_close_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(8_close_cancel)
+QWARN  : UiTests::pendingCommandsPreserveState(8_resize_cancel) This plugin does not support propagateSizeHints()
+QWARN  : UiTests::pendingCommandsPreserveState(8_resize_cancel) This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingCommandsPreserveState(8_resize_cancel)
+QWARN  : UiTests::savePendingRoundTrip() This plugin does not support propagateSizeHints()
+PASS   : UiTests::savePendingRoundTrip()
+PASS   : UiTests::gestureOwnsItsButton()
+PASS   : UiTests::cutUsesActiveLayer()
+PASS   : UiTests::resizedSelectionCopyAndRotate()
+PASS   : UiTests::cropIncludesPendingExtent()
+QWARN  : UiTests::pendingActionsAndReleaseModifiers() This plugin does not support propagateSizeHints()
+PASS   : UiTests::pendingActionsAndReleaseModifiers()
+PASS   : UiTests::pencilAndUndo()
+PASS   : UiTests::cancelledStroke()
+PASS   : UiTests::pasteMoveResizeUndo()
+PASS   : UiTests::unchangedTransparentSelection()
+PASS   : UiTests::cutAndCancel()
+PASS   : UiTests::selectionTransform()
+PASS   : UiTests::singleEdgeCanvasResize()
+PASS   : UiTests::panDoesNotEdit()
+PASS   : UiTests::shapes(7)
+PASS   : UiTests::shapes(9)
+PASS   : UiTests::shapes(10)
+PASS   : UiTests::shapes(11)
+PASS   : UiTests::curveAndPolygon()
+PASS   : UiTests::fillAndHiddenLayer()
+PASS   : UiTests::koreanTextCommit()
+PASS   : UiTests::clipboardRoundTrip()
+PASS   : UiTests::layerSwitchSettlesPaste()
+PASS   : UiTests::badOpenPreservesWork()
+PASS   : UiTests::zoomedRenderIsBounded()
+PASS   : UiTests::brushEraserAndPicker()
+PASS   : UiTests::freeSelectionKeepsOutsidePixels()
+PASS   : UiTests::lostMouseGrabStopsSpray()
+QWARN  : UiTests::closeCancelKeepsDocument() This plugin does not support propagateSizeHints()
+QWARN  : UiTests::closeCancelKeepsDocument() This plugin does not support propagateSizeHints()
+PASS   : UiTests::closeCancelKeepsDocument()
+QWARN  : UiTests::damagedRecoveryIsPreserved() This plugin does not support propagateSizeHints()
+PASS   : UiTests::damagedRecoveryIsPreserved()
+QWARN  : UiTests::hiddenSingleLayerRequiresProjectSave() This plugin does not support propagateSizeHints()
+PASS   : UiTests::hiddenSingleLayerRequiresProjectSave()
+QWARN  : UiTests::discardedDocumentClearsOldRecovery() This plugin does not support propagateSizeHints()
+PASS   : UiTests::discardedDocumentClearsOldRecovery()
+PASS   : UiTests::cleanupTestCase()
+Totals: 58 passed, 0 failed, 0 skipped, 0 blacklisted, 1060ms
+********* Finished testing of UiTests *********
+<end of output>
+Test time =   2.53 sec
+----------------------------------------------------------
+Test Passed.
+"ui" end time: Nov 03 12:57 KST
+"ui" time elapsed: 00:00:02
+----------------------------------------------------------
+
+End testing: Nov 03 12:57 KST

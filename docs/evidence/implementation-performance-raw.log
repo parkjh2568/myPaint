@@ -1,0 +1,185 @@
+1080p sample 1
+{
+    "canvas": "1920x1080",
+    "fill_ms": 3,
+    "history_bytes": 501760,
+    "project_load_ms": 5,
+    "project_save_ms": 63,
+    "qt": "6.12.0",
+    "stroke_commit_total_ms": 16,
+    "strokes": 20,
+    "undo_redo_40_total_ms": 8
+}
+        0.16 real         0.10 user         0.02 sys
+            47349760  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2956  page reclaims
+                 462  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   1  voluntary context switches
+                 537  involuntary context switches
+          1500962783  instructions retired
+           381830099  cycles elapsed
+            30442120  peak memory footprint
+
+1080p sample 2
+{
+    "canvas": "1920x1080",
+    "fill_ms": 3,
+    "history_bytes": 501760,
+    "project_load_ms": 4,
+    "project_save_ms": 59,
+    "qt": "6.12.0",
+    "stroke_commit_total_ms": 10,
+    "strokes": 20,
+    "undo_redo_40_total_ms": 10
+}
+        0.11 real         0.10 user         0.01 sys
+            47382528  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3396  page reclaims
+                  21  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   2  voluntary context switches
+                  91  involuntary context switches
+          1456035207  instructions retired
+           354678963  cycles elapsed
+            30442072  peak memory footprint
+
+1080p sample 3
+{
+    "canvas": "1920x1080",
+    "fill_ms": 3,
+    "history_bytes": 501760,
+    "project_load_ms": 4,
+    "project_save_ms": 58,
+    "qt": "6.12.0",
+    "stroke_commit_total_ms": 10,
+    "strokes": 20,
+    "undo_redo_40_total_ms": 7
+}
+        0.11 real         0.10 user         0.01 sys
+            47349760  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3395  page reclaims
+                  21  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   2  voluntary context switches
+                  96  involuntary context switches
+          1455446509  instructions retired
+           350118910  cycles elapsed
+            30409304  peak memory footprint
+
+4096 sample 1
+{
+    "canvas": "4096x4096",
+    "fill_ms": 25,
+    "history_bytes": 501760,
+    "project_load_ms": 31,
+    "project_save_ms": 456,
+    "qt": "6.12.0",
+    "stroke_commit_total_ms": 106,
+    "strokes": 20,
+    "undo_redo_40_total_ms": 64
+}
+        0.72 real         0.68 user         0.04 sys
+           223756288  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               14187  page reclaims
+                  21  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   2  voluntary context switches
+                 300  involuntary context switches
+          9909664695  instructions retired
+          2275060445  cycles elapsed
+           207176472  peak memory footprint
+
+4096 sample 2
+{
+    "canvas": "4096x4096",
+    "fill_ms": 26,
+    "history_bytes": 501760,
+    "project_load_ms": 33,
+    "project_save_ms": 460,
+    "qt": "6.12.0",
+    "stroke_commit_total_ms": 95,
+    "strokes": 20,
+    "undo_redo_40_total_ms": 70
+}
+        0.73 real         0.68 user         0.04 sys
+           222429184  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               14304  page reclaims
+                  21  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   1  voluntary context switches
+                 443  involuntary context switches
+          9918984001  instructions retired
+          2303003043  cycles elapsed
+           207209216  peak memory footprint
+
+4096 sample 3
+{
+    "canvas": "4096x4096",
+    "fill_ms": 26,
+    "history_bytes": 501760,
+    "project_load_ms": 29,
+    "project_save_ms": 441,
+    "qt": "6.12.0",
+    "stroke_commit_total_ms": 113,
+    "strokes": 20,
+    "undo_redo_40_total_ms": 74
+}
+        0.73 real         0.69 user         0.03 sys
+           224067584  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               14162  page reclaims
+                  38  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   3  voluntary context switches
+                  94  involuntary context switches
+          9904027078  instructions retired
+          2316518837  cycles elapsed
+           207225576  peak memory footprint

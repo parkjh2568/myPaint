@@ -1,0 +1,30 @@
+{
+  "browser": "156.0.8078.80",
+  "url": "http://127.0.0.1:8912/mypaint/",
+  "checks": [
+    "Versioned package license and corresponding-source links resolve",
+    "Real save shortcut defers during an active gesture without cancelling the stroke",
+    "Actual stroke and downloaded project pixels",
+    "Download preserves Undo/Redo",
+    "Project/PNG downloads include pending selection without committing or creating Redo",
+    "Invalid project preserves current pixels and history",
+    "File chooser cancellation preserves document",
+    "Oversized File rejected before arrayBuffer",
+    "Denied clipboard cut preserves pixels",
+    "IndexedDB committed snapshot survives reload and restores exact pixels",
+    "Same-origin application requests only; no page errors",
+    "Canvas context-loss guidance: synthetic raster context-loss event",
+    "Wasm load failure presents a startup error"
+  ],
+  "errors": [],
+  "requests": [
+    "http://127.0.0.1:8912/mypaint/",
+    "http://127.0.0.1:8912/mypaint/releases/2c6e8b800f0b183a3fadc1c8/retropaint.js",
+    "http://127.0.0.1:8912/mypaint/releases/2c6e8b800f0b183a3fadc1c8/qtloader.js",
+    "http://127.0.0.1:8912/mypaint/releases/2c6e8b800f0b183a3fadc1c8/retropaint.wasm",
+    "http://127.0.0.1:8912/mypaint/",
+    "http://127.0.0.1:8912/mypaint/releases/2c6e8b800f0b183a3fadc1c8/retropaint.js",
+    "http://127.0.0.1:8912/mypaint/releases/2c6e8b800f0b183a3fadc1c8/qtloader.js",
+    "http://127.0.0.1:8912/mypaint/releases/2c6e8b800f0b183a3fadc1c8/retropaint.wasm"
+  ]
+}

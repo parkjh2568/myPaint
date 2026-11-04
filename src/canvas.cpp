@@ -4,6 +4,8 @@
 #include <QClipboard>
 #include <QDragEnterEvent>
 #include <QDropEvent>
+#include <QInputMethod>
+#include <QInputMethodEvent>
 #include <QKeyEvent>
 #include <QMimeData>
 #include <QMouseEvent>
@@ -20,20 +22,27 @@
 #include <QtMath>
 #include <atomic>
 #include <cmath>
+#include <cstdio>
 #include <future>
 #include <numbers>
+#include <stdexcept>
 
 namespace paint {
 Canvas::Canvas(Document &document, QWidget *parent) : QWidget(parent), doc(document) {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
     setAcceptDrops(true);
-    textFont = QFont(QStringLiteral("Sans Serif"), 18);
+    textFont = QApplication::font();
+    textFont.setPointSize(18);
     spray.setInterval(35);
     connect(&spray, &QTimer::timeout, this, [this] {
-        if (dragging) {
-            drawStroke(hover, hover);
-            update();
+        try {
+            if (dragging) {
+                drawStroke(hover, hover);
+                update();
+            }
+        } catch (const std::exception &error) {
+            reportError(error);
         }
     });
     refresh();
@@ -59,13 +68,23 @@ void Canvas::refresh() {
         display = doc.composite();
         displayRevision = doc.revision();
     }
-    resize(qCeil(doc.state().size.width() * zoom) + 10, qCeil(doc.state().size.height() * zoom) + 10);
+    QSize size = doc.state().size;
+    if (!selection.isNull())
+        size = size.expandedTo(QSize(selectionRect.right() + 1, selectionRect.bottom() + 1));
+    resize(qCeil(size.width() * zoom) + 10, qCeil(size.height() * zoom) + 10);
     update();
 }
 void Canvas::setZoom(double value) {
-    if (textEditor)
-        settle();
+    if (!std::isfinite(value))
+        throw std::runtime_error("확대율이 올바르지 않습니다.");
+    const double previous = zoom;
     zoom = std::clamp(value, 0.015625, 16.0);
+    if (textEditor) {
+        textEditor->setGeometry(qRound(textPosition.x() * zoom), qRound(textPosition.y() * zoom),
+                                std::max(1, qRound(textEditor->width() * zoom / previous)),
+                                std::max(1, qRound(textEditor->height() * zoom / previous)));
+        updateTextStyle();
+    }
     refresh();
     emit changed();
 }
@@ -73,10 +92,12 @@ void Canvas::setTool(Tool next) {
     settle();
     tool = next;
     setCursor(next == Tool::Pan ? Qt::OpenHandCursor : Qt::CrossCursor);
+    emit changed();
 }
 void Canvas::cancel() {
     spray.stop();
     dragging = moving = resizingSelection = resizingCanvas = panning = false;
+    gestureButton = Qt::NoButton;
     selectionFromDocument = selectionModified = false;
     selection = {};
     selectionRect = {};
@@ -84,86 +105,115 @@ void Canvas::cancel() {
     curvePhase = 0;
     working = {};
     if (textEditor) {
+        QGuiApplication::inputMethod()->reset();
+        textComposing = false;
+        textEditor->hide();
         textEditor->deleteLater();
         textEditor = nullptr;
     }
     refresh();
     emit changed();
 }
-bool Canvas::settle() {
+void Canvas::recoverAfterError() {
     spray.stop();
-    if (textEditor) {
-        auto *editor = static_cast<QTextEdit *>(textEditor);
-        if (!editor->toPlainText().isEmpty()) {
-            State candidate = doc.state();
-            auto &image = candidate.layers[candidate.active].image;
-            candidate.layers[candidate.active].visible = true;
-            QPainter painter(&image);
-            QRect rect(textPosition, QSize(qRound(editor->width() / zoom), qRound(editor->height() / zoom)));
-            if (!transparentText)
-                painter.fillRect(rect, background);
-            painter.translate(rect.topLeft());
-            QTextDocument document;
-            document.setDefaultFont(textFont);
-            document.setPlainText(editor->toPlainText());
-            document.setTextWidth(rect.width());
-            QAbstractTextDocumentLayout::PaintContext context;
-            context.palette.setColor(QPalette::Text, foreground);
-            document.documentLayout()->draw(&painter, context);
-            painter.end();
-            doc.commit(std::move(candidate), QStringLiteral("문자"));
-        }
-        editor->deleteLater();
-        textEditor = nullptr;
-        refresh();
-        emit changed();
+    dragging = moving = resizingSelection = resizingCanvas = panning = false;
+    gestureButton = Qt::NoButton;
+    if (selection.isNull() && points.isEmpty())
+        working = {};
+    refresh();
+    emit changed();
+}
+void Canvas::reportError(const std::exception &error) noexcept {
+    try {
+        recoverAfterError();
+        emit errorOccurred(QString::fromUtf8(error.what()));
+    } catch (...) {
+        std::fprintf(stderr, "RetroPaint: insufficient resources to report an editing error\n");
     }
-    if (!selection.isNull()) {
+}
+State Canvas::pendingState() const {
+    if (textEditor && textComposing)
+        throw std::runtime_error("문자 조합이 아직 끝나지 않았습니다. 입력을 확정한 뒤 다시 시도하세요.");
+    State candidate = doc.state();
+    if (textEditor && !textEditor->toPlainText().isEmpty()) {
+        auto &layer = candidate.layers[candidate.active];
+        layer.visible = true;
+        if (!layer.image.bits())
+            throw std::bad_alloc();
+        QPainter painter(&layer.image);
+        const qreal frame = textEditor->frameWidth() / zoom;
+        const QRectF rect(QPointF(textPosition) + QPointF(frame, frame),
+                          QSizeF(textEditor->viewport()->size()) / zoom);
+        painter.setClipRect(rect);
+        if (!transparentText)
+            painter.fillRect(rect, background);
+        const QPointF scroll(textEditor->horizontalScrollBar()->value() / zoom,
+                             textEditor->verticalScrollBar()->value() / zoom);
+        painter.translate(rect.topLeft() - scroll);
+        QTextDocument document;
+        document.setDefaultFont(textFont);
+        document.setDocumentMargin(4);
+        document.setPlainText(textEditor->toPlainText());
+        document.setTextWidth(rect.width());
+        QAbstractTextDocumentLayout::PaintContext context;
+        context.palette.setColor(QPalette::Text, foreground);
+        context.clip = QRectF(scroll, rect.size());
+        document.documentLayout()->draw(&painter, context);
+    } else if (!selection.isNull()) {
         // Merely selecting transparent pixels must not replace them with the background.
-        if (selectionFromDocument && !selectionModified) {
-            selection = {};
-            selectionRect = {};
-            working = {};
-            update();
-            emit changed();
-            return true;
-        }
-        State candidate = working;
-        QSize needed(std::max(candidate.size.width(), selectionRect.right() + 1),
-                     std::max(candidate.size.height(), selectionRect.bottom() + 1));
+        if (selectionFromDocument && !selectionModified)
+            return candidate;
+        candidate = working;
+        const QSize needed(std::max(candidate.size.width(), selectionRect.right() + 1),
+                           std::max(candidate.size.height(), selectionRect.bottom() + 1));
         if (needed != candidate.size)
             candidate = Document::resized(candidate, needed, false);
-        candidate.layers[candidate.active].visible = true;
-        QPainter painter(&candidate.layers[candidate.active].image);
+        auto &layer = candidate.layers[candidate.active];
+        layer.visible = true;
+        if (!layer.image.bits())
+            throw std::bad_alloc();
+        QPainter painter(&layer.image);
         painter.drawImage(selectionRect, selection);
-        painter.end();
-        doc.commit(std::move(candidate), QStringLiteral("선택 / 붙여넣기"));
-        selection = {};
-        selectionRect = {};
-        working = {};
-        refresh();
-        emit changed();
+    } else if (!points.isEmpty() || (dragging && !panning && !resizingCanvas && tool != Tool::Select &&
+                                     tool != Tool::FreeSelect)) {
+        if (points.isEmpty())
+            candidate = working;
+        auto &layer = candidate.layers[candidate.active];
+        layer.visible = true;
+        if (!layer.image.bits())
+            throw std::bad_alloc();
+        QPainter painter(&layer.image);
+        drawShape(painter, hover);
+    } else if (resizingCanvas) {
+        candidate = Document::resized(candidate, canvasPreview, false);
     }
-    if (!points.isEmpty()) {
-        State candidate = doc.state();
-        candidate.layers[candidate.active].visible = true;
-        drawShape(candidate.layers[candidate.active].image, hover);
-        doc.commit(std::move(candidate), QStringLiteral("도형"));
-        points.clear();
-        curvePhase = 0;
-        refresh();
-        emit changed();
-    }
-    return true;
+    return candidate;
+}
+void Canvas::settle() {
+    if (!hasPendingEdit())
+        return;
+    if (textEditor)
+        QGuiApplication::inputMethod()->commit();
+    doc.commit(pendingState(), textEditor          ? QStringLiteral("문자")
+                               : hasSelection()    ? QStringLiteral("선택 / 붙여넣기")
+                               : !points.isEmpty() ? QStringLiteral("도형")
+                                                   : QStringLiteral("그리기"));
+    cancel();
 }
 void Canvas::paste(QImage image) {
     if (image.isNull())
         return;
     Document::validateSize(image.size());
-    settle();
+    if (image.sizeInBytes() > MaxInputBytes)
+        throw std::runtime_error("붙여넣을 이미지 버퍼가 너무 큽니다.");
     image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    if (image.bytesPerLine() != image.width() * 4)
+        image = image.copy();
     if (image.isNull())
         throw std::bad_alloc();
+    const auto base = pendingState();
+    Document::validateSize(base.size.expandedTo(image.size()), base.layers.size());
+    settle();
     selection = std::move(image);
     selectionRect = QRect(QPoint(0, 0), selection.size());
     working = doc.state();
@@ -174,6 +224,21 @@ void Canvas::paste(QImage image) {
     setFocus();
     update();
     emit changed();
+}
+void Canvas::pasteClipboard() {
+#ifdef Q_OS_WASM
+    emit clipboardReadRequested(textEditor != nullptr);
+    return;
+#else
+    if (textEditor) {
+        textEditor->paste();
+        return;
+    }
+    const QImage image = QApplication::clipboard()->image();
+    if (image.isNull())
+        throw std::runtime_error("클립보드에 이미지가 없습니다.");
+    paste(image);
+#endif
 }
 void Canvas::liftSelection(QPainterPath mask, QRect rect) {
     rect = rect.intersected(QRect(QPoint(0, 0), doc.state().size));
@@ -214,17 +279,87 @@ void Canvas::selectAll() {
     liftSelection(path, QRect(QPoint(0, 0), doc.state().size));
 }
 void Canvas::copy(bool cut) {
-    if (selection.isNull()) {
-        QApplication::clipboard()->setImage(doc.composite());
-        if (cut) {
-            selectAll();
-            removeSelection();
-        }
+    if (textEditor) {
+#ifdef Q_OS_WASM
+        QGuiApplication::inputMethod()->commit();
+        if (textComposing)
+            throw std::runtime_error("문자 조합을 먼저 확정하세요.");
+        if (textEditor->textCursor().hasSelection())
+            emit clipboardTextWriteRequested(
+                textEditor->textCursor().selectedText().replace(QChar(0x2029), QChar(10)), cut);
+#else
+        if (cut)
+            textEditor->cut();
+        else
+            textEditor->copy();
+#endif
         return;
     }
-    QApplication::clipboard()->setImage(selection);
-    if (cut)
-        removeSelection();
+    if (!cut) {
+#ifdef Q_OS_WASM
+        emit clipboardWriteRequested(
+            selection.isNull() ? Document::flatten(pendingState()) : selectionImage(), false, {});
+#else
+        QApplication::clipboard()->setImage(selection.isNull() ? Document::flatten(pendingState())
+                                                               : selectionImage());
+#endif
+        return;
+    }
+    State candidate = selection.isNull() ? pendingState() : working;
+    QImage copied = selection.isNull() ? candidate.layers[candidate.active].image : selectionImage();
+    if (selection.isNull()) {
+        if (transparentSelection) {
+            if (!copied.bits())
+                throw std::bad_alloc();
+            const QRgb key = qPremultiply(background.rgba());
+            for (int y = 0; y < copied.height(); ++y) {
+                auto *row = reinterpret_cast<QRgb *>(copied.scanLine(y));
+                for (int x = 0; x < copied.width(); ++x)
+                    if (row[x] == key)
+                        row[x] = 0;
+            }
+        }
+        if (!candidate.layers[candidate.active].image.bits())
+            throw std::bad_alloc();
+        candidate.layers[candidate.active].image.fill(candidate.layers.size() == 1 ? background
+                                                                                   : QColor(Qt::transparent));
+    }
+#ifdef Q_OS_WASM
+    emit clipboardWriteRequested(copied, true, std::move(candidate));
+#else
+    auto edit = doc.prepare(std::move(candidate), QStringLiteral("잘라내기"));
+    QApplication::clipboard()->setImage(copied);
+    doc.install(std::move(edit));
+    cancel();
+#endif
+}
+#ifdef Q_OS_WASM
+void Canvas::completeTextCut() {
+    if (!textEditor)
+        throw std::runtime_error("문자 편집이 변경되었습니다.");
+    auto cursor = textEditor->textCursor();
+    cursor.removeSelectedText();
+    emit changed();
+}
+void Canvas::insertClipboardText(const QString &text) {
+    if (!textEditor || textComposing ||
+        textEditor->document()->characterCount() - 1 - textEditor->textCursor().selectedText().size() +
+                text.size() >
+            65536)
+        throw std::runtime_error("문자 조합 상태 또는 붙여넣기 크기를 확인하세요 (최대 65536자).");
+    textEditor->insertPlainText(text);
+    emit changed();
+}
+#endif
+QImage Canvas::selectionImage() const {
+    Document::validateSize(selectionRect.size());
+    QImage image =
+        selection.size() == selectionRect.size()
+            ? selection
+            : selection.scaled(selectionRect.size(), Qt::IgnoreAspectRatio, Qt::FastTransformation);
+    if (image.isNull())
+        throw std::bad_alloc();
+    return image;
 }
 void Canvas::removeSelection() {
     if (selection.isNull())
@@ -239,39 +374,40 @@ void Canvas::removeSelection() {
 void Canvas::crop() {
     if (selection.isNull())
         return;
-    const QRect rect = selectionRect.intersected(QRect(QPoint(0, 0), doc.state().size));
+    State candidate = pendingState();
+    const QRect rect = selectionRect.intersected(QRect(QPoint(0, 0), candidate.size));
     if (rect.isEmpty())
         return;
-    settle();
-    State candidate = doc.state();
     candidate.size = rect.size();
-    for (auto &layer : candidate.layers)
+    for (auto &layer : candidate.layers) {
         layer.image = layer.image.copy(rect);
+        if (layer.image.isNull())
+            throw std::bad_alloc();
+    }
     doc.commit(std::move(candidate), QStringLiteral("자르기"));
-    refresh();
-    emit changed();
+    cancel();
 }
 void Canvas::transformSelection(const QTransform &transform) {
     if (!selection.isNull()) {
-        const QRectF bounds = transform.mapRect(QRectF(QPointF(0, 0), selection.size()));
-        if (!std::isfinite(bounds.width()) || !std::isfinite(bounds.height()) || bounds.width() > 32768 ||
-            bounds.height() > 32768)
+        const QRectF bounds = transform.mapRect(QRectF(QPointF(0, 0), selectionRect.size()));
+        if (!std::isfinite(bounds.width()) || !std::isfinite(bounds.height()) ||
+            bounds.width() > MaxDimension || bounds.height() > MaxDimension)
             throw std::runtime_error("선택 변형 크기가 너무 큽니다.");
         Document::validateSize(QSize(qCeil(bounds.width()), qCeil(bounds.height())));
-        QImage transformed = selection.transformed(transform, Qt::FastTransformation);
+        QImage transformed = selectionImage().transformed(transform, Qt::FastTransformation);
         if (transformed.isNull() || qint64(transformed.width()) * transformed.height() > MaxPixels)
             throw std::runtime_error("선택 변형 크기가 너무 큽니다.");
         selection = transformed;
         selectionRect.setSize(selection.size());
         selectionModified = true;
-        update();
+        refresh();
+        emit changed();
         return;
     }
-    settle();
-    State candidate = doc.state();
+    State candidate = pendingState();
     const QRectF bounds = transform.mapRect(QRectF(QPointF(0, 0), candidate.size));
-    if (!std::isfinite(bounds.width()) || !std::isfinite(bounds.height()) || bounds.width() > 32768 ||
-        bounds.height() > 32768)
+    if (!std::isfinite(bounds.width()) || !std::isfinite(bounds.height()) || bounds.width() > MaxDimension ||
+        bounds.height() > MaxDimension)
         throw std::runtime_error("변형 결과의 레이어 메모리가 너무 큽니다.");
     Document::validateSize(QSize(qCeil(bounds.width()), qCeil(bounds.height())), candidate.layers.size());
     for (auto &layer : candidate.layers) {
@@ -281,15 +417,14 @@ void Canvas::transformSelection(const QTransform &transform) {
     }
     candidate.size = candidate.layers.front().image.size();
     doc.commit(std::move(candidate), QStringLiteral("이미지 변형"));
-    refresh();
-    emit changed();
+    cancel();
 }
 void Canvas::drawStroke(QPoint from, QPoint to) {
     auto &image = working.layers[working.active].image;
+    if (!image.bits())
+        throw std::bad_alloc();
     const QColor color = rightButton ? background : foreground;
     if (tool == Tool::ColorEraser) {
-        if (!image.bits())
-            throw std::bad_alloc();
         const QRect rect = QRect(from, to)
                                .normalized()
                                .adjusted(-thickness, -thickness, thickness, thickness)
@@ -335,8 +470,7 @@ void Canvas::drawStroke(QPoint from, QPoint to) {
             painter.drawPoint(to);
     }
 }
-void Canvas::drawShape(QImage &image, QPoint end) {
-    QPainter painter(&image);
+void Canvas::drawShape(QPainter &painter, QPoint end) const {
     painter.setPen(outlineShape ? QPen(rightButton ? background : foreground, thickness) : QPen(Qt::NoPen));
     painter.setBrush(fillShape ? QBrush(rightButton ? foreground : background) : QBrush(Qt::NoBrush));
     QRect rect(start, end);
@@ -382,8 +516,18 @@ void Canvas::drawShape(QImage &image, QPoint end) {
 }
 void Canvas::fillAt(QPoint point) {
     State candidate = doc.state();
+    const auto revision = doc.revision();
     const int active = candidate.active;
     const QColor color = rightButton ? background : foreground;
+#ifdef Q_OS_WASM
+    if (Document::flood(candidate.layers[active].image, point, color)) {
+        candidate.layers[active].visible = true;
+        doc.commit(std::move(candidate), QStringLiteral("채우기"));
+        refresh();
+        emit changed();
+    }
+    Q_UNUSED(revision);
+#else
     std::atomic_bool cancelled = false;
     auto future = std::async(
         std::launch::async, [image = candidate.layers[active].image, point, color, &cancelled]() mutable {
@@ -404,8 +548,10 @@ void Canvas::fillAt(QPoint point) {
     connect(&progress, &QProgressDialog::canceled, &progress, [&] { cancelled = true; });
     timer.start();
     progress.exec();
-    cancelled = progress.wasCanceled();
+    cancelled = cancelled.load() || progress.wasCanceled();
     auto result = future.get();
+    if (doc.revision() != revision || doc.state().active != active)
+        throw std::runtime_error("채우기 중 문서가 변경되었습니다. 다시 시도하세요.");
     if (result.first && !cancelled) {
         candidate.layers[active].image = std::move(result.second);
         candidate.layers[active].visible = true;
@@ -413,8 +559,9 @@ void Canvas::fillAt(QPoint point) {
         refresh();
         emit changed();
     }
+#endif
 }
-void Canvas::paintEvent(QPaintEvent *event) {
+void Canvas::paintEvent(QPaintEvent *event) try {
     QPainter painter(this);
     painter.fillRect(rect(), QColor(128, 128, 128));
     const QSize size =
@@ -434,10 +581,11 @@ void Canvas::paintEvent(QPaintEvent *event) {
         tool != Tool::Select && tool != Tool::FreeSelect && tool != Tool::Pan) {
         for (int i = 0; i < working.layers.size(); ++i)
             if (working.layers[i].visible) {
-                if (i == working.active && tool >= Tool::Line && tool <= Tool::Polygon) {
-                    QImage preview = working.layers[i].image;
-                    drawShape(preview, hover);
-                    painter.drawImage(0, 0, preview);
+                if (i == working.active) {
+                    painter.drawImage(0, 0, working.layers[i].image);
+                    painter.save();
+                    drawShape(painter, hover);
+                    painter.restore();
                 } else
                     painter.drawImage(0, 0, working.layers[i].image);
             }
@@ -452,11 +600,15 @@ void Canvas::paintEvent(QPaintEvent *event) {
                     painter.drawImage(selectionRect, selection);
             }
     } else if (!points.isEmpty()) {
-        QImage preview = doc.state().layers[doc.state().active].image;
-        drawShape(preview, hover);
-        for (int i = 0; i < doc.state().layers.size(); ++i)
-            if (doc.state().layers[i].visible)
-                painter.drawImage(0, 0, i == doc.state().active ? preview : doc.state().layers[i].image);
+        for (int i = 0; i < doc.state().layers.size(); ++i) {
+            if (doc.state().layers[i].visible || i == doc.state().active)
+                painter.drawImage(0, 0, doc.state().layers[i].image);
+            if (i == doc.state().active) {
+                painter.save();
+                drawShape(painter, hover);
+                painter.restore();
+            }
+        }
     } else
         painter.drawImage(0, 0, display);
     if (grid && zoom >= 4) {
@@ -484,14 +636,20 @@ void Canvas::paintEvent(QPaintEvent *event) {
     painter.setPen(Qt::black);
     painter.setBrush(Qt::white);
     painter.drawRect(QRect(paper.right() + 1, paper.bottom() + 1, 7, 7));
+} catch (const std::exception &error) {
+    reportError(error);
 }
-void Canvas::mousePressEvent(QMouseEvent *event) {
+void Canvas::mousePressEvent(QMouseEvent *event) try {
+    if (dragging)
+        return;
     setFocus();
     hover = documentPoint(event->position());
     rightButton = event->button() == Qt::RightButton;
+    gestureButton = event->button();
     if (event->button() == Qt::MiddleButton || tool == Tool::Pan) {
         start = event->globalPosition().toPoint();
         dragging = panning = true;
+        emit changed();
         return;
     }
     if (event->button() != Qt::LeftButton && !rightButton)
@@ -502,16 +660,19 @@ void Canvas::mousePressEvent(QMouseEvent *event) {
         if (handle.contains(hover)) {
             resizingSelection = true;
             dragging = true;
+            emit changed();
             return;
         }
         if (selectionRect.contains(hover)) {
             moving = true;
             dragging = true;
             selectionOffset = hover - selectionRect.topLeft();
+            emit changed();
             return;
         }
         settle();
     }
+    gestureButton = event->button();
     if (hover.x() >= doc.state().size.width() || hover.y() >= doc.state().size.height()) {
         resizeWidth = hover.x() >= doc.state().size.width();
         resizeHeight = hover.y() >= doc.state().size.height();
@@ -519,6 +680,7 @@ void Canvas::mousePressEvent(QMouseEvent *event) {
         canvasPreview = doc.state().size;
         resizingCanvas = true;
         dragging = true;
+        emit changed();
         return;
     }
     if (tool == Tool::Text) {
@@ -549,6 +711,7 @@ void Canvas::mousePressEvent(QMouseEvent *event) {
         points << hover;
         working = doc.state();
         dragging = false;
+        emit changed();
         update();
         return;
     }
@@ -562,14 +725,25 @@ void Canvas::mousePressEvent(QMouseEvent *event) {
         selectionMask = {};
         selectionMask.moveTo(start);
     }
-    if (tool <= Tool::ColorEraser) {
+    switch (tool) {
+    case Tool::Pencil:
+    case Tool::Brush:
+    case Tool::Spray:
+    case Tool::Eraser:
+    case Tool::ColorEraser:
         drawStroke(start, start);
         if (tool == Tool::Spray)
             spray.start();
+        break;
+    default:
+        break;
     }
     update();
+    emit changed();
+} catch (const std::exception &error) {
+    reportError(error);
 }
-void Canvas::mouseMoveEvent(QMouseEvent *event) {
+void Canvas::mouseMoveEvent(QMouseEvent *event) try {
     hover = documentPoint(event->position());
     emit positionChanged(hover);
     if (!dragging) {
@@ -586,34 +760,74 @@ void Canvas::mouseMoveEvent(QMouseEvent *event) {
         }
         return;
     }
-    if (moving) {
-        selectionRect.moveTopLeft(hover - selectionOffset);
+    if (moving || resizingSelection) {
+        QRect candidate = selectionRect;
+        if (moving) {
+            const QPoint position = hover - selectionOffset;
+            candidate.moveTopLeft(QPoint(std::clamp(position.x(), -MaxDimension, MaxDimension),
+                                         std::clamp(position.y(), -MaxDimension, MaxDimension)));
+        } else {
+            candidate.setBottomRight(
+                QPoint(std::max(hover.x(), candidate.left()), std::max(hover.y(), candidate.top())));
+        }
+        Document::validateSize(candidate.size());
+        Document::validateSize(
+            doc.state().size.expandedTo(QSize(candidate.right() + 1, candidate.bottom() + 1)),
+            doc.state().layers.size());
+        selectionRect = candidate;
         selectionModified = true;
-    } else if (resizingSelection) {
-        selectionRect.setBottomRight(
-            QPoint(std::max(hover.x(), selectionRect.left()), std::max(hover.y(), selectionRect.top())));
-        selectionModified = true;
+        refresh();
     } else if (resizingCanvas)
-        canvasPreview = QSize(resizeWidth ? std::clamp(hover.x(), 1, 32768) : doc.state().size.width(),
-                              resizeHeight ? std::clamp(hover.y(), 1, 32768) : doc.state().size.height());
+        canvasPreview =
+            QSize(resizeWidth ? std::clamp(hover.x(), 1, MaxDimension) : doc.state().size.width(),
+                  resizeHeight ? std::clamp(hover.y(), 1, MaxDimension) : doc.state().size.height());
     else if (tool == Tool::FreeSelect)
         selectionMask.lineTo(hover);
-    else if (tool <= Tool::ColorEraser) {
-        drawStroke(last, hover);
-        last = hover;
-    } else
-        hover = constrained(hover, event->modifiers());
+    else {
+        switch (tool) {
+        case Tool::Pencil:
+        case Tool::Brush:
+        case Tool::Spray:
+        case Tool::Eraser:
+        case Tool::ColorEraser:
+            drawStroke(last, hover);
+            last = hover;
+            break;
+        default:
+            hover = constrained(hover, event->modifiers());
+            break;
+        }
+    }
     update();
+} catch (const std::exception &error) {
+    reportError(error);
 }
-void Canvas::mouseReleaseEvent(QMouseEvent *event) {
-    if (!dragging)
+void Canvas::mouseReleaseEvent(QMouseEvent *event) try {
+    if (!dragging || event->button() != gestureButton)
         return;
-    if (documentPoint(event->position()) != hover)
+    if (documentPoint(event->position()) != hover) {
         mouseMoveEvent(event);
+        if (!dragging)
+            return;
+    } else if (!moving && !resizingSelection && !resizingCanvas && !panning) {
+        switch (tool) {
+        case Tool::Line:
+        case Tool::Curve:
+        case Tool::Rectangle:
+        case Tool::RoundRectangle:
+        case Tool::Ellipse:
+            hover = constrained(hover, event->modifiers());
+            break;
+        default:
+            break;
+        }
+    }
     spray.stop();
     dragging = false;
+    gestureButton = Qt::NoButton;
     if (panning) {
         panning = false;
+        emit changed();
         return;
     }
     if (moving || resizingSelection) {
@@ -622,11 +836,9 @@ void Canvas::mouseReleaseEvent(QMouseEvent *event) {
         return;
     }
     if (resizingCanvas) {
-        resizingCanvas = false;
-        settle();
-        doc.commit(Document::resized(doc.state(), canvasPreview, false), QStringLiteral("캔버스 크기"));
-        refresh();
-        emit changed();
+        State candidate = Document::resized(pendingState(), canvasPreview, false);
+        doc.commit(std::move(candidate), QStringLiteral("캔버스 크기"));
+        cancel();
         return;
     }
     if (tool == Tool::Pan)
@@ -641,27 +853,49 @@ void Canvas::mouseReleaseEvent(QMouseEvent *event) {
             selectionMask.closeSubpath();
             rect = selectionMask.boundingRect().toAlignedRect();
         }
-        liftSelection(selectionMask, rect);
+        if (rect.isEmpty()) {
+            working = {};
+            emit changed();
+        } else {
+            liftSelection(selectionMask, rect);
+        }
         return;
     }
     if (tool == Tool::Curve) {
         points = {start, hover};
         curvePhase = 1;
         update();
+        emit changed();
         return;
     }
-    if (tool >= Tool::Line && tool <= Tool::Ellipse)
-        drawShape(working.layers[working.active].image, hover);
-    doc.commit(std::move(working), QStringLiteral("그리기"));
+    switch (tool) {
+    case Tool::Line:
+    case Tool::Rectangle:
+    case Tool::RoundRectangle:
+    case Tool::Ellipse: {
+        if (!working.layers[working.active].image.bits())
+            throw std::bad_alloc();
+        QPainter painter(&working.layers[working.active].image);
+        drawShape(painter, hover);
+        break;
+    }
+    default:
+        break;
+    }
+    doc.commit(working, QStringLiteral("그리기"));
     working = {};
     refresh();
     emit changed();
+} catch (const std::exception &error) {
+    reportError(error);
 }
-void Canvas::mouseDoubleClickEvent(QMouseEvent *) {
+void Canvas::mouseDoubleClickEvent(QMouseEvent *) try {
     if (tool == Tool::Polygon && points.size() >= 3)
         settle();
+} catch (const std::exception &error) {
+    reportError(error);
 }
-void Canvas::keyPressEvent(QKeyEvent *event) {
+void Canvas::keyPressEvent(QKeyEvent *event) try {
     if (event->key() == Qt::Key_Escape) {
         cancel();
         return;
@@ -686,51 +920,76 @@ void Canvas::keyPressEvent(QKeyEvent *event) {
             delta = {0, 1};
         if (event->modifiers() & Qt::ShiftModifier)
             delta *= 10;
+        QRect candidate = selectionRect.translated(delta);
+        const QPoint position = candidate.topLeft();
+        candidate.moveTopLeft(QPoint(std::clamp(position.x(), -MaxDimension, MaxDimension),
+                                     std::clamp(position.y(), -MaxDimension, MaxDimension)));
+        Document::validateSize(
+            doc.state().size.expandedTo(QSize(candidate.right() + 1, candidate.bottom() + 1)),
+            doc.state().layers.size());
+        selectionRect = candidate;
         if (!delta.isNull())
             selectionModified = true;
-        selectionRect.translate(delta);
-        update();
+        refresh();
     } else
         QWidget::keyPressEvent(event);
+} catch (const std::exception &error) {
+    reportError(error);
 }
-void Canvas::wheelEvent(QWheelEvent *event) {
+void Canvas::wheelEvent(QWheelEvent *event) try {
     if (event->modifiers() & Qt::ControlModifier) {
         setZoom(zoom * (event->angleDelta().y() > 0 ? 1.25 : 0.8));
         event->accept();
     } else
         event->ignore();
+} catch (const std::exception &error) {
+    reportError(error);
 }
 void Canvas::dragEnterEvent(QDragEnterEvent *event) {
     if (event->mimeData()->hasImage() || event->mimeData()->hasUrls())
         event->acceptProposedAction();
 }
-void Canvas::dropEvent(QDropEvent *event) {
+void Canvas::dropEvent(QDropEvent *event) try {
     const auto *mime = event->mimeData();
     if (mime->hasImage())
         paste(qvariant_cast<QImage>(mime->imageData()));
     else if (mime->hasUrls() && !mime->urls().isEmpty() && mime->urls().first().isLocalFile())
         emit fileDropped(mime->urls().first().toLocalFile());
     event->acceptProposedAction();
+} catch (const std::exception &error) {
+    reportError(error);
 }
 void Canvas::beginText() {
     auto *editor = new QTextEdit(this);
     textEditor = editor;
+    textComposing = false;
     editor->setPlainText({});
     editor->setFont(textFont);
     editor->setTextColor(foreground);
     updateTextStyle();
     editor->setAcceptRichText(false);
+#ifdef Q_OS_WASM
+    // Use the permission-aware Edit menu/shortcuts instead of QTextEdit's native clipboard actions.
+    editor->setContextMenuPolicy(Qt::NoContextMenu);
+    editor->setAcceptDrops(false);
+#endif
+    editor->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    editor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    editor->setToolTip(
+        QStringLiteral("Ctrl+Enter 확정 / Esc 취소. 현재 문자 영역에 보이는 내용만 확정합니다."));
     editor->setGeometry(qRound(textPosition.x() * zoom), qRound(textPosition.y() * zoom),
                         std::max(120, qRound(260 * zoom)), std::max(70, qRound(120 * zoom)));
-    editor->setStyleSheet(QStringLiteral("QTextEdit { border: 1px dashed black; background: white; }"));
     editor->installEventFilter(this);
     editor->show();
     editor->setFocus();
+    emit changed();
 }
 void Canvas::updateTextStyle() {
     if (!textEditor)
         return;
-    auto *editor = static_cast<QTextEdit *>(textEditor);
+    auto *editor = textEditor;
+    editor->setStyleSheet(QStringLiteral("QTextEdit { border: 1px dashed black; background: %1; }")
+                              .arg(transparentText ? QStringLiteral("transparent") : background.name()));
     QFont font = textFont;
     if (font.pixelSize() > 0)
         font.setPixelSize(std::max(1, qRound(font.pixelSize() * zoom)));
@@ -746,9 +1005,38 @@ void Canvas::updateTextStyle() {
     editor->mergeCurrentCharFormat(format);
     editor->setTextCursor(cursor);
 }
-bool Canvas::eventFilter(QObject *object, QEvent *event) {
+bool Canvas::eventFilter(QObject *object, QEvent *event) try {
+    if (object == textEditor && event->type() == QEvent::InputMethod) {
+        auto *input = static_cast<QInputMethodEvent *>(event);
+#ifdef Q_OS_WASM
+        const auto length = textEditor->document()->characterCount() - 1;
+        const auto replaced = input->replacementLength() ? input->replacementLength()
+                                                         : textEditor->textCursor().selectedText().size();
+        if (input->preeditString().size() > 65536 || length - replaced + input->commitString().size() > 65536)
+            throw std::runtime_error("문자는 65536자 이내로 입력하세요.");
+#endif
+        textComposing = !input->preeditString().isEmpty();
+    }
     if (object == textEditor && event->type() == QEvent::KeyPress) {
         auto *key = static_cast<QKeyEvent *>(event);
+#ifdef Q_OS_WASM
+        if (key->matches(QKeySequence::Copy) || key->matches(QKeySequence::Cut)) {
+            copy(key->matches(QKeySequence::Cut));
+            return true;
+        }
+        if (key->matches(QKeySequence::Paste)) {
+            pasteClipboard();
+            return true;
+        }
+        if (!key->text().isEmpty() && !(key->modifiers() & (Qt::ControlModifier | Qt::MetaModifier)) &&
+            key->key() != Qt::Key_Backspace && key->key() != Qt::Key_Delete &&
+            textEditor->document()->characterCount() - 1 - textEditor->textCursor().selectedText().size() +
+                    key->text().size() >
+                65536)
+            throw std::runtime_error("문자는 65536자 이내로 입력하세요.");
+#endif
+        if (textComposing && (key->key() == Qt::Key_Escape || key->key() == Qt::Key_Return))
+            return QWidget::eventFilter(object, event);
         if (key->key() == Qt::Key_Escape) {
             cancel();
             setFocus();
@@ -761,12 +1049,19 @@ bool Canvas::eventFilter(QObject *object, QEvent *event) {
         }
     }
     return QWidget::eventFilter(object, event);
+} catch (const std::exception &error) {
+    reportError(error);
+    return true;
 }
 bool Canvas::event(QEvent *event) {
-    // A lost mouse grab must not leave the spray timer running indefinitely.
-    if ((event->type() == QEvent::WindowDeactivate || event->type() == QEvent::UngrabMouse) && dragging) {
-        cancel();
+    try {
+        // A lost mouse grab must not leave the spray timer running indefinitely.
+        if ((event->type() == QEvent::WindowDeactivate || event->type() == QEvent::UngrabMouse) && dragging)
+            recoverAfterError();
+        return QWidget::event(event);
+    } catch (const std::exception &error) {
+        reportError(error);
+        return true;
     }
-    return QWidget::event(event);
 }
 } // namespace paint
