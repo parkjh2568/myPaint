@@ -1,0 +1,170 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "QF-16 JPEG EXIF 8방향의 실제 공개 UI 검증을 영구 회귀로 추가. 제품 디코더/엔진 변경 없음; 전체 이미지 형식·OS·실기기 인수는 아니다.",
+  "QF-16": "partial",
+  "overallGoal": "active",
+  "source": {
+    "web-app/tests/jpeg-orientation.mjs": "3b7d61dbd5f787cbb087fea5850065635115a5d620e7a23f410496329810c2ce",
+    "web-app/package.json": "65ae2aa8a849b5bd6972c2678c66345dcc4e7494ad284d8cfb2f82681a37f8e0",
+    ".github/workflows/studio.yml": "a71b2a6900d57e03a4a4e22caf89e94b009a9f7dc9a10cdda71138341a931b09"
+  },
+  "implementation": {
+    "script": "npm --prefix web-app run test:jpeg-orientation",
+    "fixture": "jpeg-js 0.4.4로 literal 6x4 grayscale를 quality100 인코딩한 동일 JPEG에 APP1 Exif/TIFF Orientation SHORT count1 삽입. 입력/기대값은 출력 폴더에 생성하며 저장소에 바이너리를 추가하지 않는다.",
+    "expected": "브라우저가 읽은 no-EXIF 손실 디코딩 base를 별도 literal index-row 표로 재배열. 제품 rotate/flip/EXIF 변환 함수를 재사용하지 않는다.",
+    "CI": "기존 staged /mypaint/ public suites에 test:jpeg-orientation 추가",
+    "environment": [
+      "PAINT_TEST_URL",
+      "PAINT_BROWSER_PATH",
+      "PLAYWRIGHT_MODULE",
+      "PAINT_JPEG_ORIENTATION_OUTPUT"
+    ]
+  },
+  "verification": {
+    "portableFinal": {
+      "cases": 11,
+      "orientationCases": 8,
+      "noExifControl": 1,
+      "HTMLCanvasFallback": 1,
+      "decoderRejection": 1,
+      "browser": "156.0.8078.80",
+      "pageErrors": 0,
+      "consoleErrors": 0,
+      "HTTPResponses": 44,
+      "HTTPFailures": 0,
+      "raw": {
+        "path": "build-web-work/task-planning/jpeg-orientation/portable/results.json",
+        "sha256": "29530f22cc26b6699fc8cdfcf4210f5c6c6da94da85fc0b12c6e29138ad73e91"
+      },
+      "runLog": {
+        "path": "build-web-work/task-planning/jpeg-orientation/portable-run.log",
+        "sha256": "8f861ac07483505dada963111c540779b64f4a0f22a3434f4525e02b6d94d42d"
+      },
+      "runner": {
+        "path": "build-web-work/task-planning/jpeg-orientation/run-local.py",
+        "sha256": "0bb17f012364a54183c4fe917aaa53505bb418aa0246456cd9673c3450e2cfd5"
+      },
+      "runnerCleanup": {
+        "scope": "single local portable test execution against same frozen staged runtime",
+        "url": "http://127.0.0.1:49202/mypaint/",
+        "exitCode": 0,
+        "serverClosed": true
+      },
+      "fixtureManifest": {
+        "path": "build-web-work/task-planning/jpeg-orientation/portable/fixture-manifest.json",
+        "sha256": "8ab4c6c381cf791b2bf8ed0305287b1f365a3d2a6004d51a25f2475ad9f3c9de"
+      }
+    },
+    "independentInitial": {
+      "cases": 11,
+      "runs": 1,
+      "report": {
+        "path": "build-web-work/task-planning/jpeg-orientation/independent/summary.json",
+        "sha256": "ebbf1ae2fbb0bfa683e452db40aba14373c832154a2676a43dd12753b63bcec5"
+      },
+      "driver": {
+        "path": "build-web-work/task-planning/jpeg-orientation/independent/run.mjs",
+        "sha256": "153bc3adb7d155ae6d9cda6aae5f3b7fb8f430f7d06cb2c901235b4e7f56877a"
+      },
+      "generator": {
+        "path": "build-web-work/task-planning/jpeg-orientation/independent/fixtures.mjs",
+        "sha256": "5a7b224e662034828605d578cabb0326fd66ef06c4b82f67f1e4d443d446aa91"
+      },
+      "separateTIFFStructureReview": {
+        "path": "build-web-work/task-planning/jpeg-orientation/independent/fixture-structure-review.json",
+        "sha256": "a52444775a902f3c914f4e74d42c84086b1cad32db3804d4ab82462f9c647213"
+      },
+      "scope": "최초 독립 임시 driver; 영구 회귀의 최종 실행과 별도로 기록"
+    },
+    "review": {
+      "report": {
+        "path": "build-web-work/task-planning/jpeg-orientation/final-review.json",
+        "sha256": "ed3aae6c29eae904d007849151a677202e4937004346ee3c3e480061d70b6221"
+      },
+      "openBlocker": 0,
+      "openMajor": 0,
+      "openMinor": 0,
+      "scope": "TIFF 구조/방향표/손실 기준/자원 수명/CI 읽기; 리뷰어는 초기 portable 원문을 읽었으며 최종 재실행은 root가 수행"
+    },
+    "finalBuild": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/jpeg-orientation/build-final.log",
+        "sha256": "1c12ea6bdbdee4a4f91991bcac5d7a5350678acec64857762b2ffc51a6da9d7f"
+      },
+      "typeCheckIncluded": true,
+      "payloadFiles": 9,
+      "payloadBytes": 276578,
+      "sourceInventoryExact": true,
+      "bundle": {
+        "path": "build-web-work/task-planning/jpeg-orientation/frozen-bundle/bundle.json",
+        "sha256": "d89a38df79af5a2d3c70a0e522558b42d36f755a45c48a2b8c3448126c1e2771",
+        "originalPath": "dist/studio/bundle.json"
+      }
+    },
+    "format": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/jpeg-orientation/format-final.log",
+        "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+      }
+    },
+    "integrity": {
+      "runtime17Unchanged": true,
+      "canonicalAssets8Unchanged": true,
+      "sourceAndHomepageGitIndexConfig4Unchanged": true,
+      "all9FixturesSameAsIndependentBytes": true,
+      "stageToolsUnchanged": true
+    },
+    "earlierPortable": {
+      "cases": 11,
+      "raw": {
+        "path": "build-web-work/task-planning/jpeg-orientation/portable-initial/results.json",
+        "sha256": "d5749a2f24f90667f3e1dcdb6ad179e4cf417c1cce59d6e52ec597125d2684e6"
+      },
+      "driver": {
+        "path": "build-web-work/task-planning/jpeg-orientation/portable-driver-before-citation.mjs",
+        "sha256": "f36beea0fc76015d1276eb52db56be1f618dced740508d05eed98828a9b64deb"
+      },
+      "note": "공식 출처 URL 교정 전 실행; 최종 실행과 합산하지 않는다."
+    }
+  },
+  "references": [
+    {
+      "title": "CIPA Exif Orientation(274), SHORT, count1, 1..8 row/column table",
+      "url": "https://www.cipa.jp/std/documents/e/DC-008-2012_E_C.pdf",
+      "source": "independent reviewer verified primary PDF"
+    },
+    {
+      "title": "WHATWG imageOrientation from-image",
+      "url": "https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#dom-imagebitmapoptions-imageorientation"
+    }
+  ],
+  "limits": [
+    "실제 Chrome 156.0.8078.80의 작은 little-endian Exif fixture, WebKit/Safari/Windows/Android 실기기 결과가 아니다.",
+    "오류 주입은 bitmap 생성 전에 거부하며 기본 clean 800×600 white RGBA·active·visibility 보존을 확인한다. 복잡 metadata/Redo/pending 보존으로 확대하지 않는다.",
+    "대용량/손상 EXIF·복수 APP1·big-endian TIFF·ICC/다양한 JPEG 변형·파일 드롭/사진 삽입 전체 계약은 이번 fixture 범위 밖이다.",
+    "HTMLCanvas fallback은 OffscreenCanvas가 없는 경로다. JPEG decoder 대체 구현을 시험한 것이 아니다.",
+    "createImageBitmap from-image 호출과 성공 시 close1회/거부 시 close0을 관찰했다. 브라우저 내부 모든 메모리 해제나 RSS 상한의 증명은 아니다.",
+    "원격 CI·공개 홈페이지 게시를 실행하지 않았다. source/runtime 동작을 변경하지 않아 단위229/Qt6그룹은 직전 동일 소스 근거를 재사용하고 재시험 수에 합산하지 않는다."
+  ],
+  "cleanup": {
+    "ownedBrowserClosed": true,
+    "localServerClosed": true,
+    "noActualHomepageOrGitMutation": true
+  },
+  "next": "QF-13 실제 Qt/Canvas 기하 비교와 정책, QF-17 출력 바탕 미리보기, QF-20 실제 표적·입력 인수",
+  "evidenceCorrection": {
+    "severity": "Minor",
+    "resolved": true,
+    "cause": "Mutable dist/studio/bundle.json reference changed after next phase source-metadata rebuild",
+    "fix": "Use phase-owned immutable bundle snapshot instead of mutable dist path",
+    "previousReport": {
+      "path": "build-web-work/task-planning/jpeg-orientation/report-before-evidence-path-fix.json",
+      "sha256": "285cd807c9027f29ed77cbf00a985136e21a95524cdbfdbb395755efc1d78ffb"
+    },
+    "payloadChanged": false,
+    "note": "Current bundle copied byte-for-byte before any later rebuild."
+  }
+}

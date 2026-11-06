@@ -1,0 +1,531 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "대형 선택 핸들 resize의 동기 입력 지연을 줄이면서 기존 nearest 픽셀·후보 소유권·취소·이력 계약을 유지한 국소 변경이다. 전체 코드검사·플랫폼·출시 목표 완료가 아니다.",
+  "source": {
+    "before": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/before-source.json",
+      "sha256": "1c41e119c7e2ab7e2e13ac3a43fc2014f20239c4d0a4d8bedd8e5a559ddf1b6e"
+    },
+    "candidate": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/candidate-source.json",
+      "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+    },
+    "beforeAssets": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/before-assets.json",
+      "sha256": "00c178d714f53793d9a6d3f07bd8b817de266f3fec331df2313d97041c975d8e"
+    },
+    "candidateAssets": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/candidate-assets.json",
+      "sha256": "d54cc881361fb7392cd7829b534a4f5a4c818715329170dc405acf646ab712e0"
+    },
+    "changedRuntimeSources": [
+      "web-app/src/engine/operations.ts",
+      "web-app/src/main.ts",
+      "web-app/src/style.css"
+    ],
+    "newRuntimeModules": 0,
+    "newDependencies": 0,
+    "existingFormatAndWorkerProtocolChanged": false,
+    "newSharedAlgorithm": "resizeNearestSteps: 동기 resizeState와 UI가 같은 nearest kernel을 사용한다.",
+    "newResourceOwner": "Studio.resizeSelection: 한 gesture의 최신 target, 커서, 채널·대기·시간초과·정리 수명을 소유한다.",
+    "mainSHA256": "3a2bc5a682e6d66066a13f85df1e5f649344d1953d7fe0bb45354b470b0bab4a",
+    "operationsSHA256": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334"
+  },
+  "rca": {
+    "trigger": "데스크톱 한도의32Mi 픽셀 출력을 핸들로 요청하면 pointerMove가 전체 nearest 결과를 동기로 만든다. 이전 exact2 콜백56.2ms, 일반 비율65.4–74.8ms가 관측됐다.",
+    "cause": "결과가 완성될 때까지 이벤트 루프가 다음 입력·취소를 처리할 수 없었다. Worker로 live base를 transfer하면 detach되고, owned64MiB slice는 별도의 동기 복사다.",
+    "decision": "기존 pure nearest kernel을 generator로 한 곳에 두고 동기 API는 즉시 drain, UI는 MessageChannel을 통해 작은 행 묶음씩 진행한다. 소스 복사/전송 Worker를 새로 만들지 않는다.",
+    "limits": "한번의 next는 최대65536 출력 픽셀을 처리한다. validation·Xmap·단일128MiB output 할당·GC의 시간 상한은 아니며4ms/50ms 전체 보장은 아니다."
+  },
+  "behavior": {
+    "latestTarget": "표시 중인 q의 크기와 최신 requested 크기를 분리한다. 한 커서와 최신 슬롯 하나만 소유하고 새 target이면 이전 private 후보를 폐기한다. 같은 원본의 결과가 완성돼야 한 번에 게시한다.",
+    "identityFastPaths": "현재/gesture 시작/base 크기 복귀는 기존 작업을 먼저 무효화하고 기존 backing/modified/resizeSource를 복원하거나 재사용한다. A→B→A의 늦은 B 게시를 방지한다.",
+    "release": "pointerUp은 void를 유지한다. 마지막 좌표와 포인터 bookkeeping은 동기로 처리하고, 계산이 남으면 released drag를 유지해 command/도구 변경/native close가 미완성 결과를 소비하지 못하게 한다.",
+    "cancel": "Esc·취소 버튼·blur·hidden·pointer cancel은 marker를 먼저 무효화하고 대기 Promise를 settle한 뒤 같은 gesture의 snapshot을 복원한다. 새 문서/선택/gesture에는 오래된 rollback을 적용하지 않는다.",
+    "stale": "job/drag/selection identity·epoch/revision/active·문서 픽셀과 크기·q geometry/backing/source/mask·base를 확인한다. timeout보다 stale 여부를 먼저 검사하며 예외에서도 소유권을 재검사한다. old pointer/capture만 정리한다.",
+    "consumptionFence": "계산 중 Enter·Arrow·저장/Undo/도구 단축키 등 Escape 외 키 입력을 막는다. pendingState도 미완성 결과 소비를 거부한다. 취소는 일반 busy task로 화면을 덮지 않는다.",
+    "responsiveUi": "완성된 raster를 유지하고 요청 크기 윤곽·핸들을 표시한다. 기존SVGclose를 쓰는 취소 버튼은 workspace에 절대 배치해 레이아웃을 바꾸지 않는다. 기존 touch density와 skin 규칙을 따른다.",
+    "smallSync": "262144 출력 픽셀 미만의 새 작업은 기존 동기 경로를 유지한다. 큰 gesture가 이미 있으면 작은 최신 요청도 같은 owner에서 처리한다."
+  },
+  "verification": {
+    "unit": {
+      "tests": 229,
+      "newTests": 12,
+      "log": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/node-final.log",
+        "sha256": "f01de59a629ab26f65d334a3e7a0d5d6c17a2d133cbe3de8c6dbcf2b27a71748"
+      },
+      "test": {
+        "path": "web-app/tests/selection-resize.test.ts",
+        "sha256": "f752169052de51b09b9231b3a89ca29776d54b018209f57ce43c9832aa37006a"
+      },
+      "scope": "기존217+커서/제스처12. 전체BigInt raw/offset/다층·private 후보 폐기·레이어 경계 진행량·latest/Up·A/B/A·취소·stale/timeout·실패·새gesture·기존Redo/revision을 검사한다. AST 모델의 스케줄러/가속 timeout은 실제기기 시험과 구분한다."
+    },
+    "check": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/check-final.log",
+      "sha256": "86fd21d3a4c331af9cda136fdaa8bc8807301aedba733d35beae2083e7cce6d8"
+    },
+    "format": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/format-final.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "public": {
+      "result": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/public/results.json",
+        "sha256": "e367c1390cc3f0c22b7ca404bb8a39e41f2a0559b37a5a97c60aaa698d9f35a7"
+      },
+      "driver": {
+        "path": "web-app/tests/selection-resize-contract.mjs",
+        "sha256": "77e9ff93bfdef3903f6b23ee6bed6d4a9eedfba236417f585dc2f94477e59c76"
+      },
+      "cases": 10,
+      "scope": "공개 파일 메뉴·실제mouse down/capture와 합성이동/Up, 실제PNG Worker/클립보드 PNG 및전체raw 비교. held channel/설정실패/실제20초 timeout·Enter/CtrlS/Delete·다운로드 없음·늦은 delivery·모바일 메뉴/취소 버튼을 확인한다.",
+      "mobileScreenshot": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/public/mobile-pending.png",
+        "sha256": "cd1757a9bade6c6058bccc281c650d321daaa1afa14095fd6a8c1f815619d524"
+      },
+      "mobileLimits": "390px isMobile/hasTouch 환경의 에뮬레이션 레이아웃과44px이상 취소 버튼 검사다. 입력은mouse이므로 실제touch/Android/태블릿 인수가 아니다.",
+      "ci": {
+        "package": {
+          "path": "web-app/package.json",
+          "sha256": "1c9e7d94dda3fea78d0ccfd726d4ed54ccad0722a7fbb4bb7fa9b2d9e4a9ce43"
+        },
+        "workflow": {
+          "path": ".github/workflows/studio.yml",
+          "sha256": "1eda5b87dea0ad3662f4fc53d8af102d380a53710827b4965418480534996b28"
+        },
+        "portableBrowserFix": {
+          "files": [
+            {
+              "path": "web-app/tests/selection-resize-contract.mjs",
+              "sha256": "77e9ff93bfdef3903f6b23ee6bed6d4a9eedfba236417f585dc2f94477e59c76"
+            },
+            {
+              "path": "web-app/tests/selection-preparation-contract.mjs",
+              "sha256": "e340b932c6710ea699982bc1500da0befc35d96f984eb775de6df25a9b8ee64f"
+            }
+          ],
+          "meaning": "두 실행기의 macOS 고정 기본경로를 PAINT_BROWSER_PATH||undefined로 교정했다. 기존CI의Playwright 설치 경로를 사용한다. 새테스트 기본URL도8922로 맞췄다. 원격Ubuntu CI를 실제 실행했다는 뜻은 아니다."
+        }
+      }
+    },
+    "tenSuites": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/regression-results.json",
+      "sha256": "18198728a2e7ba7d0596c26e8c68c74d39cd1e4a08541922a873cd66ca7fe20b"
+    },
+    "scene": {
+      "candidate": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/scene-candidate/results.json",
+        "sha256": "c1d7242effbf51158814565bba1cf0e34671d5cee5994df11309b28fca011067"
+      },
+      "reference": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/scene-before/results.json",
+        "sha256": "c8e752dae62240ff1bc0c8a66e9c1841345cb7b131a38909b1c1977068acb8f9"
+      },
+      "provenance": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/scene-before/provenance.json",
+        "sha256": "28c15b8067a756fbb8b0b4967dc9f81f334b07bc702a9feaf40eee32077c2a8f"
+      },
+      "frames": 56,
+      "documents": 12,
+      "faultRetriesPerSide": 2,
+      "scope": "후보는 새 실행이다. 이전 실제결과는 현재before와 source17/asset8이 같은 것을 확인해 재사용했으며 새baseline실행으로 세지 않는다. 전체Canvas raw와PNG bytes/입력 RPaint 보존을 검사한다."
+    },
+    "WK": {
+      "result": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/native-probe/results.json",
+        "sha256": "9a4c74e3b865113a19944a0903e92dc43e0e27696ca53c8584dabd138f4d7bf7"
+      },
+      "overlay": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/native-probe/overlay.json",
+        "sha256": "767d8bd87b4e380d12c3e06cd18aafcd443aabc733a8cf1c1cfc20450be395a4"
+      },
+      "cases": 4,
+      "scope": "실제WK의별도사본에서 Studio와실제MessageChannel을 사용했다. 8191×4096 near-max 출력 전체word/raw4채널, latest/released, 대기 취소, foreign 문서, Enter/Esc를 검사했다. 정확한32Mi 전체출력/공개 native gesture/물리입력·성능/RSS 인수와 구분한다."
+    },
+    "ordinaryMacOS": {
+      "result": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/native-desktop.json",
+        "sha256": "628465c8e16d84b775f94ce0cd3129dc6661372945396006e095c07b0a315b42"
+      },
+      "foreground": {
+        "path": "build-web-work/task-planning/bounded-selection-resize/native-desktop.json.foreground.json",
+        "sha256": "1dfd08d20cd004a22f6e9732e2abe54d59410b862738eeb10b51752f2d5b795d"
+      },
+      "phases": 4,
+      "sceneChecks": 21,
+      "binarySHA256": "c0e6bdcae05787378e56a9fd87c2ddd99c6df814311b7bdcd3dd60876486f0a8",
+      "defaultAndFrozenOrdinaryMatch": true
+    }
+  },
+  "performance": {
+    "ui": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/sre/pair-summary.json",
+      "sha256": "79c0f9043c63cf66e69b945811b21ddfbc0a2df208b5dc8ef638d3fbe1ee0331"
+    },
+    "uiManifest": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/sre/candidate-manifest.json",
+      "sha256": "22dec090240e1ef69210a44e941c72a8e04f024bd5af638f4ea655d52f66a0f3"
+    },
+    "uiPairs": [
+      {
+        "variant": "h8192",
+        "baseline": {
+          "callbackMs": [
+            56.199999928474426
+          ],
+          "readyMs": 758.3000000715256,
+          "longtasks": [
+            {
+              "start": 5632.200000047684,
+              "ms": 56
+            }
+          ],
+          "max10msSentinelGapMs": 66.20000004768372,
+          "uploadCalls": 50,
+          "uploadBytes": 38159232
+        },
+        "baselineAllCurrentSourceSamples": {
+          "count": 1,
+          "callbackMs": [
+            56.199999928474426
+          ],
+          "readyMs": [
+            758.3000000715256
+          ]
+        },
+        "candidate": {
+          "callbackMs": [
+            0.3999999761581421
+          ],
+          "readyMs": 698.7000000476837,
+          "rafMs": [
+            5.5,
+            6.700000047683716
+          ],
+          "messageCallbacks": 641,
+          "resolverOnlyMessageSumMs": 608.2000000476837,
+          "resolverOnlyMessageMaxMs": 12.699999928474426,
+          "longtasks": [],
+          "max10msSentinelGapMs": 20.300000071525574,
+          "largeOutputRequests": 1,
+          "uploadCalls": 50,
+          "uploadBytes": 38159232,
+          "resourceConstructors": 100,
+          "geometryWorkers": 0
+        },
+        "raw": {
+          "path": "/private/tmp/mypaint-bounded-selection-resize-sre-20261106/initial-candidate-three-esm/h8192/results.json",
+          "sha256": "7827e69fd4eafbdf999459b29d394374e02052d80a4df071752849e1e55e8be8"
+        }
+      },
+      {
+        "variant": "h8191",
+        "baseline": {
+          "callbackMs": [
+            74.80000007152557
+          ],
+          "readyMs": 692.6000000238419,
+          "longtasks": [
+            {
+              "start": 5559.100000023842,
+              "ms": 76
+            }
+          ],
+          "max10msSentinelGapMs": 85.5,
+          "uploadCalls": 50,
+          "uploadBytes": 38159232
+        },
+        "baselineAllCurrentSourceSamples": {
+          "count": 3,
+          "callbackMs": [
+            74.80000007152557,
+            68.70000004768372,
+            65.39999997615814
+          ],
+          "readyMs": [
+            692.6000000238419,
+            725.9000000953674,
+            716.3999999761581
+          ]
+        },
+        "candidate": {
+          "callbackMs": [
+            0.7999999523162842
+          ],
+          "readyMs": 689.1000000238419,
+          "rafMs": [
+            5.300000071525574,
+            1.2000000476837158,
+            6.399999976158142
+          ],
+          "messageCallbacks": 642,
+          "resolverOnlyMessageSumMs": 591.8000003099442,
+          "resolverOnlyMessageMaxMs": 6.600000023841858,
+          "longtasks": [],
+          "max10msSentinelGapMs": 22.100000023841858,
+          "largeOutputRequests": 1,
+          "uploadCalls": 50,
+          "uploadBytes": 38159232,
+          "resourceConstructors": 100,
+          "geometryWorkers": 0
+        },
+        "raw": {
+          "path": "/private/tmp/mypaint-bounded-selection-resize-sre-20261106/initial-candidate-three-esm/h8191/results.json",
+          "sha256": "4a546e210b3193e12a6cf6a92f39e1aabb151f8ccc0060e2a93309f601788c66"
+        }
+      },
+      {
+        "variant": "v8192",
+        "baseline": {
+          "callbackMs": [
+            24.399999976158142
+          ],
+          "readyMs": 700.9000000953674,
+          "longtasks": [],
+          "max10msSentinelGapMs": 26.40000009536743,
+          "uploadCalls": 50,
+          "uploadBytes": 38159232
+        },
+        "baselineAllCurrentSourceSamples": {
+          "count": 1,
+          "callbackMs": [
+            24.399999976158142
+          ],
+          "readyMs": [
+            700.9000000953674
+          ]
+        },
+        "candidate": {
+          "callbackMs": [
+            0.5
+          ],
+          "readyMs": 682.7000000476837,
+          "rafMs": [
+            3.4000000953674316,
+            5.300000071525574
+          ],
+          "messageCallbacks": 650,
+          "resolverOnlyMessageSumMs": 628.0999993085861,
+          "resolverOnlyMessageMaxMs": 10.799999952316284,
+          "longtasks": [],
+          "max10msSentinelGapMs": 17.799999952316284,
+          "largeOutputRequests": 1,
+          "uploadCalls": 50,
+          "uploadBytes": 38159232,
+          "resourceConstructors": 100,
+          "geometryWorkers": 0
+        },
+        "raw": {
+          "path": "/private/tmp/mypaint-bounded-selection-resize-sre-20261106/initial-candidate-three-esm/v8192/results.json",
+          "sha256": "ad5f6ccbcae2082be6372e05c12456262f12ad6535737d7214b2ec653a93bd5c"
+        }
+      }
+    ],
+    "uiScope": "새후보 각n1, 같은v3 driver와 source-exact 역사적 현행5표본을 대조한다. 과거7cde5표본을 현재baseline에 섞지 않고 새baseline실행으로 세지 않는다. main onmessage 계측은 resolver 반환까지만 포함해 await 뒤 커서 microtask 시간으로 해석하면 안 된다.",
+    "sync": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/sync-sre/initial-comparison/summary.json",
+      "sha256": "38f14fdc2a96d184a25f3408668bf701bb6dce4eb4d74132a221148cd5a2e874"
+    },
+    "syncReview": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/sync-sre/review.json",
+      "sha256": "19bc7535099f446fa11aa702d190719c643f8d6d0c76d10464645eb75aa6bf97"
+    },
+    "syncManifest": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/sync-sre/manifest.json",
+      "sha256": "c605f67461193b255221c07904fab9dec03f09dade8bf914431fa92901418d94"
+    },
+    "syncPairs": [
+      {
+        "fixture": "vertical-max32Mi",
+        "order": [
+          "before",
+          "candidate"
+        ],
+        "before": {
+          "samples": 4,
+          "minMs": 6.630792000000156,
+          "medianMs": 7.06666649999994,
+          "maxMs": 7.247624999999971,
+          "coldMs": 26.68633299999999
+        },
+        "candidate": {
+          "samples": 4,
+          "minMs": 6.692874999999958,
+          "medianMs": 6.708916999999985,
+          "maxMs": 7.269999999999982,
+          "coldMs": 14.282916999999998
+        },
+        "medianDeltaMs": -0.3577494999999544,
+        "wholeRgbaAndSourceExact": true
+      },
+      {
+        "fixture": "horizontal-max32Mi",
+        "order": [
+          "candidate",
+          "before"
+        ],
+        "before": {
+          "samples": 4,
+          "minMs": 29.439750000000004,
+          "medianMs": 29.80783299999996,
+          "maxMs": 30.092540999999983,
+          "coldMs": 36.301458
+        },
+        "candidate": {
+          "samples": 4,
+          "minMs": 25.71704100000011,
+          "medianMs": 25.87250000000006,
+          "maxMs": 26.03749999999991,
+          "coldMs": 39.033457999999996
+        },
+        "medianDeltaMs": -3.9353329999999005,
+        "wholeRgbaAndSourceExact": true
+      },
+      {
+        "fixture": "axischange-max32Mi",
+        "order": [
+          "before",
+          "candidate"
+        ],
+        "before": {
+          "samples": 4,
+          "minMs": 29.1329589999998,
+          "medianMs": 29.238792000000103,
+          "maxMs": 30.40062499999999,
+          "coldMs": 38.446000000000026
+        },
+        "candidate": {
+          "samples": 4,
+          "minMs": 25.181375000000116,
+          "medianMs": 25.328583500000036,
+          "maxMs": 25.456416999999874,
+          "coldMs": 36.768208000000016
+        },
+        "medianDeltaMs": -3.910208500000067,
+        "wholeRgbaAndSourceExact": true
+      },
+      {
+        "fixture": "small-api-identity1x1",
+        "order": [
+          "candidate",
+          "before"
+        ],
+        "before": {
+          "samples": 4,
+          "minMs": 0.027667000000008102,
+          "medianMs": 0.03689550000001418,
+          "maxMs": 0.052209000000004835,
+          "coldMs": 0.22008300000000247
+        },
+        "candidate": {
+          "samples": 4,
+          "minMs": 0.03012499999999818,
+          "medianMs": 0.03200049999999521,
+          "maxMs": 0.038624999999996135,
+          "coldMs": 0.2533329999999978
+        },
+        "medianDeltaMs": -0.0048950000000189675,
+        "wholeRgbaAndSourceExact": true
+      },
+      {
+        "fixture": "typical-target512square",
+        "order": [
+          "before",
+          "candidate"
+        ],
+        "before": {
+          "samples": 4,
+          "minMs": 0.23158300000000054,
+          "medianMs": 0.8836664999999897,
+          "maxMs": 2.7717079999999896,
+          "coldMs": 1.8859580000000022
+        },
+        "candidate": {
+          "samples": 4,
+          "minMs": 0.17195899999998687,
+          "medianMs": 0.20189599999999075,
+          "maxMs": 0.23954100000000267,
+          "coldMs": 1.5675419999999889
+        },
+        "medianDeltaMs": -0.681770499999999,
+        "wholeRgbaAndSourceExact": true
+      }
+    ],
+    "syncScope": "동기API의공유generator drain 퇴행 가능성을 별도측정했다. fixture별before/candidate fresh10child, 각cold1/warm2/timed4, 전체70회raw/source/소스전용 GC guard를 확인했다. 이번timed중앙값은5종모두퇴행이관측안됐지만 H cold36.30→39.03ms와512표본분산을 보존한다. UI/Worker 통신/p95/전체무퇴행/RSS로 확대하지 않는다.",
+    "findings": [
+      "새UI 세종의 첫 콜백0.4/0.8/0.5ms,10ms sentinel 최대gap20.3/22.1/17.8ms, 측정 구간LongTask0. 이는해당n1관측이며전역50ms달성이나p95보장이아니다.",
+      "준비완료698.7/689.1/682.7ms는앱ready 표식이며OS실제표시와다르다. 여전히약0.7초다.",
+      "모든기하·전체phaseCanvas/raw/PNG·원본·cancel/oldRedo가동등하고, 업로드50회/38,159,232B 및명목ImageData/surface각50개는같다."
+    ]
+  },
+  "resourceLedger": {
+    "activeOutputOwners": 1,
+    "latestTargetSlots": 1,
+    "extraFullSourceClone": 0,
+    "maxSingleOutputBytes": 134217728,
+    "maxXMapBytes": 131072,
+    "layerChunkPixels": 65536,
+    "maxLogicalDistinctPlaneExampleBytes": 536870912,
+    "meaning": "이미128MiB로변형한 선택의새gesture에서 문서64+base64+시작snapshot128+표시current128+부분candidate128MiB가서로다르면512MiB다. 같은 backing 별칭을중복계산하지 않는다. 폐기한partial의실제메모리가GC전남을수있다. 단일active owner는물리peak/RSS상한이아니다. Worker추가clone회피는대안과의설계비교이며현재대비측정된메모리절감주장이아니다."
+  },
+  "review": {
+    "architect": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/architect/review.json",
+      "sha256": "53f81a7e50347fe5fb8acc5de061fd030fd9f403f9803fdd175b5886e3957131"
+    },
+    "delta": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/architect/delta-review.json",
+      "sha256": "bbfe3abd8bf23cc901a448f16f7c53cb9bcbc201ae04c2f53330b8c39bf15234"
+    },
+    "graph": {
+      "path": "docs/evidence/studio-module-graph.json",
+      "sha256": "c418e86e73eb46f0b6516c2fe496f9a920db6f6f16aaa315744eb5ce252cfd0d"
+    },
+    "reviewer": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/reviewer-delta/delta-final-review.json",
+      "sha256": "5fe5259b8e0b172a4e1e3d25fbd6c146949003ddc1d5df070d66f70fd5c868d3"
+    },
+    "kernelProof": "yield제거후기존Qt Xmap/raw kernel·레이어 metadata·smooth/padding·나머지engine AST와일치한다. 새순환·runtime모듈·의존성없음.",
+    "resolved": [
+      "초안다층tail진행량: 레이어끝yield와회귀로해결. 초안live-read와보존source시점의차이는독립리뷰에서정정한다.",
+      "대기outline/handle 위치불일치: 요청치로통일했다.",
+      "stale+timeout/catch oldcapture: stale선검사·전체owner guard·oldpointer정리와회귀로해결.",
+      "LinuxCI실행기macOS경로/임시URL: 두fallback과기본8922를교정했다."
+    ]
+  },
+  "developmentFailures": {
+    "esm": "첫SRE시도는source/package.json의ESM경계누락으로앱/브라우저진입전에terminal1, 측정0이었다. 경계만복사후새출력에서3회완료했다. 원문은sre/initial-candidate-three에보존한다.",
+    "mobileHarness": "첫mobile보강은desktop context를사용해44px검사실패, 이후390px에서는숨겨진topbar열기를기다려filechooser미생성으로실패했다. 모바일메뉴를사용하고두Promise를함께기다리게교정했다. 초기결과/로그와최종10PASS를분리한다. 제품픽셀회귀로세지않는다."
+  },
+  "remaining": [
+    {
+      "priority": "P1",
+      "issue": "약0.7초cold축소미리보기의누적준비비용을분리·개선한다. 새입력콜백개선을전체완료개선으로일반화하지않는다."
+    },
+    {
+      "priority": "P1–P2",
+      "issue": "연속최신target의near-max폐기/재할당과후속gesture backing공존, 장기RSS/GC·실제입력cadence를측정한다. 현재검사는단일target과작은held-latest경합을구분한다."
+    },
+    {
+      "priority": "P2",
+      "issue": "실제Android웹/Safari/Windows·OSpicker/IME·디스크교체실패·원격CI·서명/공증·게시인수는남아있다."
+    }
+  ],
+  "policy": {
+    "mobileTablet": "웹만, Android/iOS native project/package 없음",
+    "desktopPackages": [
+      "Windows",
+      "macOS"
+    ],
+    "commitPushPublish": false,
+    "wholeGoalComplete": false,
+    "cppChangedThisPhase": false,
+    "freshCTest": false
+  },
+  "cleanup": {
+    "path": "build-web-work/task-planning/bounded-selection-resize/cleanup.json",
+    "sha256": "066883d320b8252918846a170bb5b4c791a1a606c6d3f3b0842409d2302b21b2"
+  }
+}

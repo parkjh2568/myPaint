@@ -1,0 +1,1230 @@
+{
+  "recordedAt": "2026-11-05",
+  "status": "Implemented and verified for the listed input cases. Overall migration remains active and is not release-approved.",
+  "platformScope": "Mobile/tablet web only; Windows/macOS native packages only. Actual native run here is macOS arm64.",
+  "sourceSha256": {
+    "web-app/src/engine/document.ts": "2917f4e47d16c9d842fb39147f5dcaad2b097e4103dd36b9b3f55348233a3936",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "f42c5606383df251dc4c3aaecdc9def32e8c4626020614ea923f11478d515a23",
+    "web-app/src/platform/codec.ts": "90ed15cbb74916b79f495ee7d97acc15ab4c05db3af4bf86d1da8773d6cd5831",
+    "web-app/src/platform/native-smoke.ts": "2e7f65b1bff6bc6d28048bb4c6fb83666a807d77aec9576ae4ffe8f744d45c1b",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "26bbc7fdde53233026ec05d2a7dfafa6b43c545b1868eacf6250fc0ec9a1fa63",
+    "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "sourceManifest": {
+    "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/source.json",
+    "sha256": "53d449ef1bbcd7a3cdf7af28bc818ce981ade4d6dc63983c292a72abedb65287"
+  },
+  "webBundle": {
+    "root": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/candidate-site/mypaint",
+    "manifest": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/manifest.json",
+      "sha256": "ad99cee384060116504fbfb21ff01fd346bceb66553f2679d18e14eee0623734"
+    },
+    "sha256": {
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/buffer-DyZedAtx.js": "eb04a57dbb4dfe75682a503da2659932e135648d527e26c4e00ddc21a4f4ad79",
+      "assets/codec.worker-Bo-_aV3G.js": "f4195f84d994821913c5f5f8a3e580f32585a5631f7bae9a5126454ff38c5ec9",
+      "assets/encoder-Ygiwl0RX.js": "16950585094af9d3e4a2bb026da7559d0808b92847178029e0b9b031fc0d838f",
+      "assets/index-DIVSyTmJ.js": "630e699efa1a485f21666fbf8323442536b6036a3e3ad4a0fc841f3c08a46a70",
+      "assets/index-aClAeViE.css": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601",
+      "assets/native-smoke-n6K34RRh.js": "3a0319c2c2c9da2f75eaa066b5e5a7d82b3766228d73381b126fc6225abd35e2",
+      "index.html": "de2edfb8a068aa718ff5b201598c4ddbb63ddc363f3c7dc080cfd1475f8f49a3"
+    }
+  },
+  "changes": [
+    {
+      "priority": "Major / P1",
+      "cost": "S",
+      "issue": "GIF logical-screen validation missed a larger or offset first image descriptor before native decoding.",
+      "implementation": "Inline bounded GIF header/global-palette/extension traversal stops at the first image descriptor and validates max(logical width,left+width) × max(logical height,top+height). Existing bitmap postcheck and close/release remain.",
+      "compatibility": "Bounded out-of-screen first frames still reach the platform decoder; their returned pixels/dimensions are not rewritten. Animation retains the first-frame policy; later frames are not newly banned or scanned."
+    },
+    {
+      "priority": "Major / P1",
+      "cost": "S",
+      "issue": "The new synchronous prefix scan delayed cancellation on millions of empty extension blocks.",
+      "implementation": "At each256KiB progress checkpoint, compare elapsed time to a4ms soft budget. Yield a timer task only when needed, then recheck cancellation; check cancellation again before Blob/bitmap. No helper extraction or new dependency.",
+      "tradeoff": "Better cancellation responsiveness increases total completion time on extreme empty-extension prefixes. Fast payload-block inputs produced no unnecessary yields in the recorded experiment."
+    }
+  ],
+  "before": {
+    "codec": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/codec-before.ts",
+      "sha256": "c4083e2d19745bd0d69032489a06af253f9d6c9f8d6dd466a248e19300748fb4"
+    },
+    "chrome": {
+      "path": "/private/tmp/mypaint-gif-review-vyQ4qr/results.json",
+      "sha256": "c6aa1508105fe98366c3fb700227948586342ecc045221239ce1e600f446095f",
+      "browser": "156.0.8078.80",
+      "fixtureRecords": 31,
+      "metadataOnlyCases": 5,
+      "realDecodeSafety": "All decoded axes/offsets at most32; overlimit metadata spy forbids original decoder."
+    },
+    "imageIO": {
+      "path": "/private/tmp/mypaint-gif-source-architect/imageio-results.json",
+      "sha256": "dbf5dc7268a16efad422e4630921126596e42445b63afa332def1ff0c11ff315",
+      "cases": 26,
+      "successfullyDecoded": 16,
+      "safeFixtureOnly": true,
+      "scope": "ImageIO CGImageSource direct frame0, macOS27.0; not Safari/WKWebView or native RSS."
+    },
+    "dimensionExamples": [
+      {
+        "fixture": "full-8x6",
+        "chromeNative": {
+          "ok": true,
+          "width": 8,
+          "height": 6
+        },
+        "imageIO": {
+          "height": 6,
+          "decoded": true,
+          "width": 8,
+          "frameCount": 1
+        }
+      },
+      {
+        "fixture": "first-larger-than-logical",
+        "chromeNative": {
+          "ok": true,
+          "width": 12,
+          "height": 10
+        },
+        "imageIO": {
+          "height": 6,
+          "decoded": true,
+          "width": 8,
+          "frameCount": 1
+        }
+      },
+      {
+        "fixture": "first-offset-outside-logical",
+        "chromeNative": {
+          "ok": true,
+          "width": 11,
+          "height": 8
+        },
+        "imageIO": {
+          "height": 6,
+          "decoded": true,
+          "width": 8,
+          "frameCount": 1
+        }
+      },
+      {
+        "fixture": "first-offset-far",
+        "chromeNative": {
+          "ok": true,
+          "width": 28,
+          "height": 23
+        },
+        "imageIO": {
+          "height": 6,
+          "decoded": true,
+          "width": 8,
+          "frameCount": 1
+        }
+      },
+      {
+        "fixture": "later-larger-than-logical",
+        "chromeNative": {
+          "ok": true,
+          "width": 8,
+          "height": 6
+        },
+        "imageIO": {
+          "height": 6,
+          "decoded": true,
+          "width": 8,
+          "frameCount": 2
+        }
+      },
+      {
+        "fixture": "later-offset-outside-logical",
+        "chromeNative": {
+          "ok": true,
+          "width": 8,
+          "height": 6
+        },
+        "imageIO": {
+          "height": 6,
+          "decoded": true,
+          "width": 8,
+          "frameCount": 2
+        }
+      },
+      {
+        "fixture": "animation-red-then-green",
+        "chromeNative": {
+          "ok": true,
+          "width": 8,
+          "height": 6
+        },
+        "imageIO": {
+          "height": 6,
+          "decoded": true,
+          "width": 8,
+          "frameCount": 2
+        }
+      },
+      {
+        "fixture": "unsupported-version",
+        "chromeNative": {
+          "ok": false,
+          "error": "The source image could not be decoded."
+        },
+        "imageIO": {
+          "decoded": false,
+          "frameCount": 0
+        }
+      }
+    ],
+    "scope": "Tiny actual Chromium and direct ImageIO observations are separate. Oversized metadata used a spy that never invokes a real decoder. ImageIO is not an actual WKWebView test."
+  },
+  "primarySources": {
+    "manifest": {
+      "path": "/private/tmp/mypaint-gif-source-architect/source-manifest.json",
+      "sha256": "5f4aca5c9712e45058332f7a6117622f7b6ec762bb874ad758d3a52d75fa89a8"
+    },
+    "scope": "Primary-source snapshots from official upstream main branches, not evidence of the exact locally installed binary revision. No product edits or decoder execution.",
+    "sources": [
+      {
+        "url": "https://www.w3.org/Graphics/GIF/spec-gif89a.txt",
+        "sha256": "c0e48c12e3e91b1e78090caffb1d1ffe8e7d0face4350da675044a9a4be02aa3"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/main/third_party/blink/renderer/platform/image-decoders/gif/gif_image_decoder.cc",
+        "sha256": "dcbea8f8ea5ae1574255e3b939d58d617de2c7696a8e39b2eb79bc1592c1e624"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/main/third_party/blink/renderer/platform/image-decoders/skia/skia_image_decoder_base.cc",
+        "sha256": "b7acaaead6d8d5920ba4ab6101bbbaa648a270751832cd872f376d9d984209fa"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/main/skia/BUILD.gn",
+        "sha256": "f9fa8078ca002c425d290df4d26603ca83fcf3a243ba3e796bb9eef4f969923e"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/google/skia/main/src/codec/SkWuffsCodec.cpp",
+        "sha256": "cf33e55e77ccc1ae736508a8dff5f8bde0740dfdd6dee87c04379cc5ce4b2a8f"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/google/wuffs/main/std/gif/decode_gif.wuffs",
+        "sha256": "7c55d5f3676d830b906535857be8aa64d407ca4b7983faa7f16b398e2395f770"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/google/wuffs/main/std/gif/decode_quirks.wuffs",
+        "sha256": "809de8b89ec2d76b9dc58bd4f9584a19fa4dc91be3c0f30a9aa2992da9fda02b"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/WebKit/WebKit/main/Source/WebCore/platform/image-decoders/gif/GIFImageReader.cpp",
+        "sha256": "35730a88501e0ff7ef89f8935810199bf2fa5614e8e0b0d8d93c847337b7b61e"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/WebKit/WebKit/main/Source/WebCore/platform/graphics/cg/ImageDecoderCG.cpp",
+        "sha256": "e35e36e5f3582ddf6e74e939518685bdc034712770212496cde8acbb33549c1a"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/main/third_party/blink/renderer/core/imagebitmap/image_bitmap.cc",
+        "sha256": "85a485eb835f98e17cb69745523e9b7b89989598550a6f51a5643f529a163b2e"
+      }
+    ],
+    "bitmapFirstFrameContract": "https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#createImageBitmap"
+  },
+  "verification": {
+    "node": {
+      "tests": 166,
+      "passed": 166,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/node-final.log",
+        "sha256": "42aa4beb5c22db9ada7ef7955435d275afe2a8c6b877c679bef0ab34a32443cf"
+      },
+      "newGifBoundaryTests": 11,
+      "test": {
+        "path": "/Users/jhpark/code/myService/myPaint/web-app/tests/gif-boundaries.test.ts",
+        "sha256": "8ff9c90f177934efc5ba7db398611d0f1b83af01c79232a3411f29e56f3191ef"
+      },
+      "scope": "Native-entry suppression, first-frame axes/offset/area, safe prefix traversal, malformed structures, bounded compatibility, deterministic clock-controlled cancellation plus prior suites."
+    },
+    "gifPublicUi": {
+      "checks": 22,
+      "errors": [],
+      "failures": [],
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/ui-final.json",
+        "sha256": "b88a39bc11e6d0488509770cf07846b1fb671565a07331e6d6e095e096a4b028"
+      },
+      "test": {
+        "path": "/Users/jhpark/code/myService/myPaint/web-app/tests/gif-input.mjs",
+        "sha256": "2d87fda11ab160b49fbbb4ab26c47eb6f11966bc987f508d0ce94cef8eeb6626"
+      },
+      "fixtures": {
+        "path": "/Users/jhpark/code/myService/myPaint/web-app/tests/fixtures/gif-input.json",
+        "sha256": "6aeced81af06fef9ad42ddf4221685d4543d62271176e2a1255ad5b909b4df72"
+      },
+      "scope": "Production public UI with actual tiny Chromium GIF decoding and modeled native file IPC. Literal fixture RGBA runs are the first-frame oracle. This is not a WebKit/ImageIO or browser-intermediate-memory guarantee. Metadata-only oversized fixtures are blocked by an init-installed bitmap spy before any real decoder call if app preflight regresses.",
+      "cases": [
+        "GIF first-frame import: 87a-global-palette",
+        "GIF first-frame import: 89a-global-palette",
+        "GIF first-frame import: comment-subblocks-before-image",
+        "GIF first-frame import: transparent-indices",
+        "GIF first-frame import: local-palette-only",
+        "GIF first-frame import: interlaced-distinct-rows",
+        "GIF first-frame import: first-frame-expands-size",
+        "GIF first-frame import: first-frame-expands-offset",
+        "GIF first-frame import: animation-first-red-later-green",
+        "GIF first-frame import: animation-later-larger",
+        "GIF first-frame import: animation-later-offset",
+        "GIF first-frame import: first-complete-later-truncated",
+        "GIF invalid input preserves original: truncated-logical-header",
+        "GIF invalid input preserves original: truncated-global-palette",
+        "GIF invalid input preserves original: truncated-extension-subblock",
+        "GIF invalid input preserves original: truncated-first-descriptor",
+        "GIF invalid input preserves original: truncated-first-lzw-data",
+        "GIF invalid input preserves original: oversized-first-width",
+        "GIF invalid input preserves original: oversized-first-offset",
+        "GIF invalid input preserves original: oversized-first-height",
+        "Oversized first offset preserves original, clean state and the existing Redo branch",
+        "Oversized first height preserves pending polygon, pixels, color and one-history continuation"
+      ],
+      "provenance": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/ui-provenance.json",
+        "sha256": "5b5069da5e8684c974786952cfa0abb5b2b64b028f872110ac82c18c824c3c1b"
+      }
+    },
+    "basicBrowser": {
+      "checks": 10,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/browser/results.json",
+        "sha256": "30347c0d5d39dc49c95231e7c07d6875d4e10162279e19fbefeba49a8e87c360"
+      },
+      "scope": "Existing web editing, skins, mobile gesture and tablet layout emulation."
+    },
+    "actualMacOS": {
+      "processes": 4,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/native-final.json",
+        "sha256": "d4ac0911ccf85d1c3c4635c482e5a11d10c229ac91f9a2ff09eb421c36485cca"
+      },
+      "binary": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/native-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "binarySha256": "8a1ac4c485cf487f0306e63a754cc485348d23276ed132363629ded598517f55",
+      "gifChecks": {
+        "codec": true,
+        "checks": [
+          "gif-static-red-8x6",
+          "gif-animation-first-red",
+          "gif-transparent-rgba"
+        ]
+      },
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform.",
+      "binaryAtExecution": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop"
+    },
+    "typecheckAndBuild": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/build-final.log",
+      "sha256": "8d7de282c957f8c06e9c0706b8c0ea63d01975b74d3fa3c1062c2d477e266441"
+    },
+    "format": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/format-final.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "nativeBuild": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/native-build.log",
+      "sha256": "4a61e2880e87a3a403f254b5dab3b7854c2036e3d988102c9a8b515f106cdc82"
+    }
+  },
+  "prefixResponsiveness": {
+    "syncPreflightSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/gif-input/codec-sync-preflight.ts",
+      "sha256": "a2a02ca230b3185d7d3d98dfdb34bf17d1197f493b79df788a1db8e4473fd350"
+    },
+    "before": {
+      "path": "/private/tmp/mypaint-gif-prefix-sre-g2zs4c8l/summary.json",
+      "sha256": "db31e7c9d3b158d890b5446d30342df2b66bbbb95e4c4d293140eeb8f937874a"
+    },
+    "after": {
+      "path": "/private/tmp/mypaint-gif-prefix-after-sre-8_xwcb6t/summary.json",
+      "sha256": "771c24f72f4edc062afbb81315b3b923b1453c670ae092a7de745651c23808dc"
+    },
+    "beforeRaw": {
+      "path": "/private/tmp/mypaint-gif-prefix-sre-g2zs4c8l/results.json",
+      "sha256": "dbb86316f4a87acacaec6ff46ed0e7307877663c234187fa294f3a514c03bbb9"
+    },
+    "afterRaw": {
+      "path": "/private/tmp/mypaint-gif-prefix-after-sre-8_xwcb6t/results.json",
+      "sha256": "32ff11deac5139c2486809adc40f547f66796a5cc4bf74fcf2356f6b18f1b3fc"
+    },
+    "beforeProbe": {
+      "path": "/private/tmp/mypaint-gif-prefix-sre-g2zs4c8l/probe.mjs",
+      "sha256": "d759a3ff71438d47611b3286f8fa283f773363d024b7bfe41453e125543785c3"
+    },
+    "afterProbe": {
+      "path": "/private/tmp/mypaint-gif-prefix-after-sre-8_xwcb6t/probe.mjs",
+      "sha256": "8a6952cd1137bc7cf013c5a2706adf18ad87c8ffc80ff92d6c4f1f8820e16a6a"
+    },
+    "runtime": {
+      "node": "v24.22.1",
+      "os": "27.0.0",
+      "cpu": "Apple M1 Pro",
+      "gcAvailable": true
+    },
+    "afterRuns": 48,
+    "rows": [
+      {
+        "nominalMiB": 1,
+        "pattern": "payload255",
+        "bytes": 1048358,
+        "prefixBytes": 1048323,
+        "extensions": 1,
+        "subBlocks": 4096,
+        "sha256": "fa348ea27136783526236d435a4ddebec91832872475e8a7a2a1141bc943dcc3",
+        "cancel": true,
+        "n": 3,
+        "scanWallMs": {
+          "min": 0.23945799999998485,
+          "median": 0.2487079999999935,
+          "max": 0.3246249999999975
+        },
+        "yieldCounts": [
+          0,
+          0,
+          0
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 0.5763330000000053,
+        "readToSettledMs": [
+          0.5763330000000053,
+          0.44795799999999986,
+          0.34695799999997234
+        ],
+        "cancelTimerDelayMs": [
+          0.9178330000000017,
+          0.5685000000000002,
+          0.41279199999999605
+        ],
+        "scheduledYieldWaitMs": [
+          0,
+          0,
+          0
+        ],
+        "observedRunSpansSumMs": [
+          0.5763330000000053,
+          0.44795799999999986,
+          0.34695799999997234
+        ],
+        "beforeScanWallMedianMs": 0.22124999999999773
+      },
+      {
+        "nominalMiB": 1,
+        "pattern": "payload255",
+        "bytes": 1048358,
+        "prefixBytes": 1048323,
+        "extensions": 1,
+        "subBlocks": 4096,
+        "sha256": "fa348ea27136783526236d435a4ddebec91832872475e8a7a2a1141bc943dcc3",
+        "cancel": false,
+        "n": 3,
+        "scanWallMs": {
+          "min": 0.07800000000000296,
+          "median": 0.23799999999999955,
+          "max": 0.24575000000001523
+        },
+        "yieldCounts": [
+          0,
+          0,
+          0
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 0.3720829999999751,
+        "readToSettledMs": [
+          0.3720829999999751,
+          0.35191700000001447,
+          0.19470800000001987
+        ],
+        "cancelTimerDelayMs": [
+          null,
+          null,
+          null
+        ],
+        "scheduledYieldWaitMs": [
+          0,
+          0,
+          0
+        ],
+        "observedRunSpansSumMs": [
+          0.3720829999999751,
+          0.35191700000001447,
+          0.19470800000001987
+        ],
+        "beforeScanWallMedianMs": 0.22124999999999773,
+        "afterFullScanMedianDividedByBefore": 1.0757062146892746
+      },
+      {
+        "nominalMiB": 1,
+        "pattern": "empty-extensions",
+        "bytes": 1048574,
+        "prefixBytes": 1048539,
+        "extensions": 349513,
+        "subBlocks": 349513,
+        "sha256": "cfb6834032a8a9030947eb9d66ac11a10f098a64be55f43484a51031291611a5",
+        "cancel": true,
+        "n": 3,
+        "scanWallMs": {
+          "min": 5.561250000000001,
+          "median": 5.741374999999977,
+          "max": 6.014583000000016
+        },
+        "yieldCounts": [
+          1,
+          1,
+          1
+        ],
+        "bitmapEntryCalls": [
+          0,
+          0,
+          0
+        ],
+        "blobConstructedCalls": 0,
+        "maxObservedRunSpanMs": 4.525875000000013,
+        "readToSettledMs": [
+          6.014583000000016,
+          5.741374999999977,
+          5.561250000000001
+        ],
+        "cancelTimerDelayMs": [
+          4.626082999999994,
+          4.385291999999993,
+          4.260084000000006
+        ],
+        "scheduledYieldWaitMs": [
+          1.4253329999999949,
+          1.4049579999999935,
+          1.3853330000000028
+        ],
+        "observedRunSpansSumMs": [
+          4.589250000000021,
+          4.336416999999983,
+          4.175916999999998
+        ],
+        "beforeScanWallMedianMs": 7.474999999999994
+      },
+      {
+        "nominalMiB": 1,
+        "pattern": "empty-extensions",
+        "bytes": 1048574,
+        "prefixBytes": 1048539,
+        "extensions": 349513,
+        "subBlocks": 349513,
+        "sha256": "cfb6834032a8a9030947eb9d66ac11a10f098a64be55f43484a51031291611a5",
+        "cancel": false,
+        "n": 3,
+        "scanWallMs": {
+          "min": 9.906916999999993,
+          "median": 10.427166999999997,
+          "max": 10.763875000000013
+        },
+        "yieldCounts": [
+          1,
+          1,
+          1
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 5.669959000000006,
+        "readToSettledMs": [
+          10.91095900000002,
+          10.04525000000001,
+          10.59091699999999
+        ],
+        "cancelTimerDelayMs": [
+          null,
+          null,
+          null
+        ],
+        "scheduledYieldWaitMs": [
+          1.3724160000000154,
+          1.3607080000000167,
+          1.342375000000004
+        ],
+        "observedRunSpansSumMs": [
+          9.538543000000004,
+          8.684541999999993,
+          9.248541999999986
+        ],
+        "beforeScanWallMedianMs": 7.474999999999994,
+        "afterFullScanMedianDividedByBefore": 1.3949387290969906
+      },
+      {
+        "nominalMiB": 4,
+        "pattern": "payload255",
+        "bytes": 4194086,
+        "prefixBytes": 4194051,
+        "extensions": 1,
+        "subBlocks": 16384,
+        "sha256": "0e413b9f06adef47ce2ca7263abf16be54b8987ab8b4aaf5c8ce4ffaa9aa5535",
+        "cancel": true,
+        "n": 3,
+        "scanWallMs": {
+          "min": 0.22137499999999477,
+          "median": 0.22674999999998136,
+          "max": 0.23058299999999576
+        },
+        "yieldCounts": [
+          0,
+          0,
+          0
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 0.787290999999982,
+        "readToSettledMs": [
+          0.787290999999982,
+          0.45445799999998826,
+          0.42079200000000583
+        ],
+        "cancelTimerDelayMs": [
+          0.8863749999999868,
+          0.5234579999999767,
+          0.4814579999999751
+        ],
+        "scheduledYieldWaitMs": [
+          0,
+          0,
+          0
+        ],
+        "observedRunSpansSumMs": [
+          0.787290999999982,
+          0.45445799999998826,
+          0.42079200000000583
+        ],
+        "beforeScanWallMedianMs": 0.7982080000000167
+      },
+      {
+        "nominalMiB": 4,
+        "pattern": "payload255",
+        "bytes": 4194086,
+        "prefixBytes": 4194051,
+        "extensions": 1,
+        "subBlocks": 16384,
+        "sha256": "0e413b9f06adef47ce2ca7263abf16be54b8987ab8b4aaf5c8ce4ffaa9aa5535",
+        "cancel": false,
+        "n": 3,
+        "scanWallMs": {
+          "min": 0.222582999999986,
+          "median": 0.22554199999999014,
+          "max": 0.31245799999999235
+        },
+        "yieldCounts": [
+          0,
+          0,
+          0
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 0.5394579999999962,
+        "readToSettledMs": [
+          0.5394579999999962,
+          0.4286249999999825,
+          0.4242919999999799
+        ],
+        "cancelTimerDelayMs": [
+          null,
+          null,
+          null
+        ],
+        "scheduledYieldWaitMs": [
+          0,
+          0,
+          0
+        ],
+        "observedRunSpansSumMs": [
+          0.5394579999999962,
+          0.4286249999999825,
+          0.4242919999999799
+        ],
+        "beforeScanWallMedianMs": 0.7982080000000167,
+        "afterFullScanMedianDividedByBefore": 0.2825604353752223
+      },
+      {
+        "nominalMiB": 4,
+        "pattern": "empty-extensions",
+        "bytes": 4194302,
+        "prefixBytes": 4194267,
+        "extensions": 1398089,
+        "subBlocks": 1398089,
+        "sha256": "ac8299fca7cb43c635553054e6477e6d7b348bd103b5ba3df262e6d145eb82d6",
+        "cancel": true,
+        "n": 3,
+        "scanWallMs": {
+          "min": 5.583000000000027,
+          "median": 6.7097499999999854,
+          "max": 6.7370840000000385
+        },
+        "yieldCounts": [
+          1,
+          1,
+          1
+        ],
+        "bitmapEntryCalls": [
+          0,
+          0,
+          0
+        ],
+        "blobConstructedCalls": 0,
+        "maxObservedRunSpanMs": 5.384292000000016,
+        "readToSettledMs": [
+          5.583000000000027,
+          6.7097499999999854,
+          6.7370840000000385
+        ],
+        "cancelTimerDelayMs": [
+          4.249124999999992,
+          5.414291999999989,
+          5.458332999999982
+        ],
+        "scheduledYieldWaitMs": [
+          1.3590839999999957,
+          1.3571659999999497,
+          1.3462499999999977
+        ],
+        "observedRunSpansSumMs": [
+          4.223916000000031,
+          5.352584000000036,
+          5.390834000000041
+        ],
+        "beforeScanWallMedianMs": 32.58299999999997
+      },
+      {
+        "nominalMiB": 4,
+        "pattern": "empty-extensions",
+        "bytes": 4194302,
+        "prefixBytes": 4194267,
+        "extensions": 1398089,
+        "subBlocks": 1398089,
+        "sha256": "ac8299fca7cb43c635553054e6477e6d7b348bd103b5ba3df262e6d145eb82d6",
+        "cancel": false,
+        "n": 3,
+        "scanWallMs": {
+          "min": 34.80220800000001,
+          "median": 34.86904099999998,
+          "max": 37.121459000000016
+        },
+        "yieldCounts": [
+          5,
+          5,
+          5
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 5.813333999999998,
+        "readToSettledMs": [
+          37.440958999999964,
+          35.050040999999965,
+          34.99037500000003
+        ],
+        "cancelTimerDelayMs": [
+          null,
+          null,
+          null
+        ],
+        "scheduledYieldWaitMs": [
+          6.496082999999942,
+          6.3906240000000025,
+          6.403041999999971
+        ],
+        "observedRunSpansSumMs": [
+          30.944876000000022,
+          28.659416999999962,
+          28.587333000000058
+        ],
+        "beforeScanWallMedianMs": 32.58299999999997,
+        "afterFullScanMedianDividedByBefore": 1.070160543841881
+      },
+      {
+        "nominalMiB": 16,
+        "pattern": "payload255",
+        "bytes": 16776998,
+        "prefixBytes": 16776963,
+        "extensions": 1,
+        "subBlocks": 65536,
+        "sha256": "c8d6a1c6268568bda43b92a69ace07393a0f0625527f52bb4c9896b1f6d617fc",
+        "cancel": true,
+        "n": 3,
+        "scanWallMs": {
+          "min": 0.9191670000000158,
+          "median": 0.9869580000000155,
+          "max": 1.4088750000000232
+        },
+        "yieldCounts": [
+          0,
+          0,
+          0
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 3.49675000000002,
+        "readToSettledMs": [
+          3.49675000000002,
+          1.7797909999999888,
+          1.689707999999996
+        ],
+        "cancelTimerDelayMs": [
+          3.5849589999999694,
+          1.865791999999999,
+          1.8072080000000028
+        ],
+        "scheduledYieldWaitMs": [
+          0,
+          0,
+          0
+        ],
+        "observedRunSpansSumMs": [
+          3.49675000000002,
+          1.7797909999999888,
+          1.689707999999996
+        ],
+        "beforeScanWallMedianMs": 0.8207920000000399
+      },
+      {
+        "nominalMiB": 16,
+        "pattern": "payload255",
+        "bytes": 16776998,
+        "prefixBytes": 16776963,
+        "extensions": 1,
+        "subBlocks": 65536,
+        "sha256": "c8d6a1c6268568bda43b92a69ace07393a0f0625527f52bb4c9896b1f6d617fc",
+        "cancel": false,
+        "n": 3,
+        "scanWallMs": {
+          "min": 0.9184999999999945,
+          "median": 0.9297080000000051,
+          "max": 1.2062500000000114
+        },
+        "yieldCounts": [
+          0,
+          0,
+          0
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 3.0420420000000377,
+        "readToSettledMs": [
+          3.0420420000000377,
+          1.6917500000000132,
+          1.6826249999999732
+        ],
+        "cancelTimerDelayMs": [
+          null,
+          null,
+          null
+        ],
+        "scheduledYieldWaitMs": [
+          0,
+          0,
+          0
+        ],
+        "observedRunSpansSumMs": [
+          3.0420420000000377,
+          1.6917500000000132,
+          1.6826249999999732
+        ],
+        "beforeScanWallMedianMs": 0.8207920000000399,
+        "afterFullScanMedianDividedByBefore": 1.1326962251093575
+      },
+      {
+        "nominalMiB": 16,
+        "pattern": "empty-extensions",
+        "bytes": 16777214,
+        "prefixBytes": 16777179,
+        "extensions": 5592393,
+        "subBlocks": 5592393,
+        "sha256": "134e8494a77be5d479e246a346d8279b5ec59e90f199dfce4a1da991a54202dd",
+        "cancel": true,
+        "n": 3,
+        "scanWallMs": {
+          "min": 6.716042000000016,
+          "median": 6.7652910000000475,
+          "max": 6.790209000000004
+        },
+        "yieldCounts": [
+          1,
+          1,
+          1
+        ],
+        "bitmapEntryCalls": [
+          0,
+          0,
+          0
+        ],
+        "blobConstructedCalls": 0,
+        "maxObservedRunSpanMs": 5.379333999999972,
+        "readToSettledMs": [
+          6.790209000000004,
+          6.716042000000016,
+          6.7652910000000475
+        ],
+        "cancelTimerDelayMs": [
+          5.480000000000018,
+          5.414332999999942,
+          5.443167000000017
+        ],
+        "scheduledYieldWaitMs": [
+          1.3741249999999923,
+          1.3546249999999418,
+          1.3737499999999727
+        ],
+        "observedRunSpansSumMs": [
+          5.416084000000012,
+          5.361417000000074,
+          5.391541000000075
+        ],
+        "beforeScanWallMedianMs": 54.111625000000004
+      },
+      {
+        "nominalMiB": 16,
+        "pattern": "empty-extensions",
+        "bytes": 16777214,
+        "prefixBytes": 16777179,
+        "extensions": 5592393,
+        "subBlocks": 5592393,
+        "sha256": "134e8494a77be5d479e246a346d8279b5ec59e90f199dfce4a1da991a54202dd",
+        "cancel": false,
+        "n": 3,
+        "scanWallMs": {
+          "min": 138.08220900000003,
+          "median": 140.86437500000005,
+          "max": 141.12012500000003
+        },
+        "yieldCounts": [
+          21,
+          21,
+          21
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 5.570124999999962,
+        "readToSettledMs": [
+          141.75966699999998,
+          141.90695800000003,
+          138.88408400000003
+        ],
+        "cancelTimerDelayMs": [
+          null,
+          null,
+          null
+        ],
+        "scheduledYieldWaitMs": [
+          26.857543999999905,
+          26.85295600000029,
+          24.147500000000377
+        ],
+        "observedRunSpansSumMs": [
+          114.90212300000007,
+          115.05400199999974,
+          114.73658399999965
+        ],
+        "beforeScanWallMedianMs": 54.111625000000004,
+        "afterFullScanMedianDividedByBefore": 2.6032183472590233
+      },
+      {
+        "nominalMiB": 40,
+        "pattern": "payload255",
+        "bytes": 41942566,
+        "prefixBytes": 41942531,
+        "extensions": 1,
+        "subBlocks": 163839,
+        "sha256": "5a9f69b5dd739bcd7a90c165ed483d7620d463dd6bc7317808e9302fb42ebfbc",
+        "cancel": true,
+        "n": 3,
+        "scanWallMs": {
+          "min": 2.9663329999999632,
+          "median": 3.1219590000000608,
+          "max": 3.194166999999993
+        },
+        "yieldCounts": [
+          0,
+          0,
+          0
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 8.492000000000075,
+        "readToSettledMs": [
+          8.492000000000075,
+          5.063582999999994,
+          4.635874999999942
+        ],
+        "cancelTimerDelayMs": [
+          8.62454200000002,
+          5.1717499999999745,
+          4.7694589999999835
+        ],
+        "scheduledYieldWaitMs": [
+          0,
+          0,
+          0
+        ],
+        "observedRunSpansSumMs": [
+          8.492000000000075,
+          5.063582999999994,
+          4.635874999999942
+        ],
+        "beforeScanWallMedianMs": 2.955459000000019
+      },
+      {
+        "nominalMiB": 40,
+        "pattern": "payload255",
+        "bytes": 41942566,
+        "prefixBytes": 41942531,
+        "extensions": 1,
+        "subBlocks": 163839,
+        "sha256": "5a9f69b5dd739bcd7a90c165ed483d7620d463dd6bc7317808e9302fb42ebfbc",
+        "cancel": false,
+        "n": 3,
+        "scanWallMs": {
+          "min": 2.964708000000087,
+          "median": 3.143374999999992,
+          "max": 3.4257089999999835
+        },
+        "yieldCounts": [
+          0,
+          0,
+          0
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 7.9305420000000595,
+        "readToSettledMs": [
+          7.9305420000000595,
+          4.669916999999941,
+          4.477375000000052
+        ],
+        "cancelTimerDelayMs": [
+          null,
+          null,
+          null
+        ],
+        "scheduledYieldWaitMs": [
+          0,
+          0,
+          0
+        ],
+        "observedRunSpansSumMs": [
+          7.9305420000000595,
+          4.669916999999941,
+          4.477375000000052
+        ],
+        "beforeScanWallMedianMs": 2.955459000000019,
+        "afterFullScanMedianDividedByBefore": 1.0635826786972757
+      },
+      {
+        "nominalMiB": 40,
+        "pattern": "empty-extensions",
+        "bytes": 41942783,
+        "prefixBytes": 41942748,
+        "extensions": 13980916,
+        "subBlocks": 13980916,
+        "sha256": "0aa008c17b2a53732e6e405f1062b7b36d6469a995319338d5757b2920a7c8d1",
+        "cancel": true,
+        "n": 3,
+        "scanWallMs": {
+          "min": 6.750250000000051,
+          "median": 6.7569579999999405,
+          "max": 6.808708000000024
+        },
+        "yieldCounts": [
+          1,
+          1,
+          1
+        ],
+        "bitmapEntryCalls": [
+          0,
+          0,
+          0
+        ],
+        "blobConstructedCalls": 0,
+        "maxObservedRunSpanMs": 5.388541999999916,
+        "readToSettledMs": [
+          6.808708000000024,
+          6.750250000000051,
+          6.7569579999999405
+        ],
+        "cancelTimerDelayMs": [
+          5.472874999999931,
+          5.451665999999932,
+          5.445582999999942
+        ],
+        "scheduledYieldWaitMs": [
+          1.388832999999977,
+          1.3653329999999642,
+          1.374084000000039
+        ],
+        "observedRunSpansSumMs": [
+          5.419875000000047,
+          5.384917000000087,
+          5.382873999999902
+        ],
+        "beforeScanWallMedianMs": 136.3393339999999
+      },
+      {
+        "nominalMiB": 40,
+        "pattern": "empty-extensions",
+        "bytes": 41942783,
+        "prefixBytes": 41942748,
+        "extensions": 13980916,
+        "subBlocks": 13980916,
+        "sha256": "0aa008c17b2a53732e6e405f1062b7b36d6469a995319338d5757b2920a7c8d1",
+        "cancel": false,
+        "n": 3,
+        "scanWallMs": {
+          "min": 352.09633399999984,
+          "median": 352.2219170000001,
+          "max": 353.15200000000004
+        },
+        "yieldCounts": [
+          53,
+          53,
+          53
+        ],
+        "bitmapEntryCalls": [
+          1,
+          1,
+          1
+        ],
+        "blobConstructedCalls": 3,
+        "maxObservedRunSpanMs": 5.60370799999987,
+        "readToSettledMs": [
+          354.1251249999998,
+          355.01070900000013,
+          354.37850000000003
+        ],
+        "cancelTimerDelayMs": [
+          null,
+          null,
+          null
+        ],
+        "scheduledYieldWaitMs": [
+          66.62437900000077,
+          66.65733200000113,
+          67.68966700000078
+        ],
+        "observedRunSpansSumMs": [
+          287.500745999999,
+          288.353376999999,
+          286.68883299999925
+        ],
+        "beforeScanWallMedianMs": 136.3393339999999,
+        "afterFullScanMedianDividedByBefore": 2.5834211350922422
+      }
+    ],
+    "invariants": {
+      "sameFixtureShaAsBefore": true,
+      "allInputsWithin40MiB": true,
+      "actualPixelDecodeCalls": 0,
+      "cancelledEmptyPrefixBitmapEntries": 0,
+      "cancelledEmptyPrefixBlobConstructions": 0,
+      "payloadYieldCalls": 0,
+      "noncancelledBitmapEntries": 24
+    },
+    "maxObservedRunSpansMs": {
+      "cancelledEmpty": 5.388541999999916,
+      "noncancelledEmpty": 5.813333999999998,
+      "allIncludingBlob": 8.492000000000075
+    },
+    "limits": [
+      "Native-free Node actual clocks and timers; no browser/native/app/LongTask observation.",
+      "Observed spans are read-return to yield-request and yield-callback to next request/settled, including microtask bookkeeping; upper-bound wall segments, not formal OS tasks or CPU cycles. First span includes header/Promise resume; final span may include actual Blob copy and spy rejection.",
+      "Before24cancel-only trials and after24cancel+24noncancel controls were separate source-frozen processes, same8 fixture hashes; n3 percase, no stable tails or threshold assertions.",
+      "Additional timer-wrapper overhead is not calibrated. GC outside timing only; no causation claim from GC/JIT/runtime.",
+      "4ms is a soft yield budget; observed spans exceeded it and slow devices/timer clamping need separate acceptance. No yield variant product edits by SRE."
+    ],
+    "interpretation": "This compares synchronous first-frame preflight with cooperative first-frame preflight, not the original unsafe header-only path. Real-clock native-free Node; no actual image decoding, browser LongTask, physical-input or process-RSS claims."
+  },
+  "preparedNextMeasurement": {
+    "prototype": {
+      "path": "/private/tmp/mypaint-wk-timing-design-sre-d6r9m6nd/prototype.json",
+      "sha256": "93320b692fe590ec005b5d27cc58dc6cb1a4f4f498293ae487f616c166f27464"
+    },
+    "plan": {
+      "path": "/private/tmp/mypaint-wk-timing-design-sre-d6r9m6nd/execution-plan.json",
+      "sha256": "4f2164ae0733ab75148d1145cf0548cade5f63663ee2aadee7cc721b3138fc11"
+    },
+    "patch": {
+      "path": "/private/tmp/mypaint-wk-timing-design-sre-d6r9m6nd/minimum-native-smoke.diff",
+      "sha256": "28fccb30100d6d62a114a71b86b35484e879eec4d972bb140fb3a355cddc9b0c"
+    },
+    "applied": false,
+    "scope": "Readback-free WK timing batch before independent correctness replay. Only temporary prototype typecheck passed; no app benchmark executed. Rebase on the current GIF smoke before applying."
+  },
+  "remaining": [
+    "Native GIF animation metadata/intermediate buffers and whole-process memory remain unproven; first-frame return does not prove O(1) native allocation.",
+    "Actual WK cold/mip, broad dirty regions and long gestures require isolated timing/correctness phases.",
+    "Remaining tool options, physical Android/Safari web, Windows execution, OS dialogs/IME/clipboard, staging/rollback and signing/notarization."
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "published": false,
+    "goalComplete": false
+  },
+  "renderFollowUpEvidence": {
+    "path": "docs/evidence/studio-wk-render.json",
+    "scope": "Later actual WK timing and adopted uniform-scan optimization; this GIF record remains its own historical snapshot."
+  }
+}

@@ -1,0 +1,351 @@
+{
+  "date": "2026-11-05",
+  "status": "Adopted within tested scope; overall migration and performance acceptance remain active",
+  "platformScope": {
+    "mobileAndTablet": "Web browsers only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "nativeMeasurement": "Actual macOS WKWebView; Windows and physical Android not exercised"
+  },
+  "problem": "Active final-scene cache initialized and uploaded offscreen source regions of otherwise visible 510px tiles. Prior API profiling identified putImageData and ImageData allocation as major observed cold costs.",
+  "change": {
+    "file": "web-app/src/platform/tiles.ts",
+    "strategy": "Only the active scene source cache at factor1 crops ImageData to inverse whole backing Canvas bounds plus the existing halo. Surface dimensions, origin, source grid and device clips remain unchanged.",
+    "ownership": "Crop bounds are part of owner identity; changed bounds discard source tiles. Default source/mip/fallback caching remains uncropped. Dirty updates intersect cropped source bounds; transform still receives absolute source coordinates.",
+    "memory": "Each tile accounts for full Canvas area plus cropped ImageData area, times four bytes. Source failure releases allocated Canvas/source storage; main.draw owns scene clear and backing reset.",
+    "structure": "Inline sequential logic in existing draw/prepare ownership; no new helper, worker, runtime API or platform package."
+  },
+  "provenance": {
+    "baselineRenderer": "a49c915995101078885f1e90d902eca485d96b091770ca4b7c0d7bab28c51281",
+    "failedSurfaceCropRenderer": "8da0d60f8d701d73c850a0a6aa608814811545109c0310947fca02d17a1862d0",
+    "measuredCandidateRenderer": "a701eb27c11f5318b475bbf0cb112759006525d5626d0fceaa3bec808aa20382",
+    "finalRenderer": "e6ffd785c927cc1d97327b0274a16385d0625305f722b5c6cec7367d436e5809",
+    "formatEquivalence": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/format-equivalence.json",
+      "sha256": "aa35df13a59c469b238412be4f37b328ba5c036ff8bca70ae2ec3c9b0ecaa021"
+    },
+    "candidateSourceManifest": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/candidate-source.json",
+      "sha256": "95ae12d53b510b941418603b98077c7fed08985df39adfbb2910fe89d9863d25"
+    },
+    "finalSourceManifest": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-source.json",
+      "sha256": "f6dae84a52dc02353044f86e3e30a00678f3975ff7f8043c432a9c5b89042a88"
+    },
+    "finalAssetManifest": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-manifest.json",
+      "sha256": "637598b4f82c8171d4fc5a6f2be15f10e9875770f79e2df6e2b6a79cbec85b83"
+    },
+    "sourceFiles": 17,
+    "assetFiles": 8,
+    "baselineSourceRetainedAt": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/baseline-source-root",
+    "candidateRoot": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/candidate-root",
+    "ordinaryBuildBinary": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+    "ordinaryBuildBinarySHA256": "017f625b28c15864b6238d52f2d8e3887de0714ae748a7c9d19a49562cfb5322",
+    "runtimeIdentity": "Measured candidate and ordinary final build have all eight identical assets. Final repository formatting changed source wrapping/trailing commas only; normalized emitted JavaScript and all eight rebuilt assets are byte-equal. The final native binary differs from the isolated measurement binary and passed its own four-process smoke."
+  },
+  "rejectedExperiment": {
+    "surfaceCropping": "Cropping Canvas size/origin as well as ImageData failed ten existing strict pixel comparisons and fifteen of eighteen independent comparisons. Kept as rejected; no pixel tolerance weakened.",
+    "existingResults": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/existing-tiles/results.json",
+      "sha256": "85822963fb04dbc3047047c09765c4a152b0d74bfcdaa7d58500b38608d110d8"
+    },
+    "independentResults": {
+      "path": "/private/tmp/mypaint-viewport-reviewer/results-before-functional.json",
+      "sha256": "0af00e835e5c0aa2ea3925ecd877840bcf11cab3c691957311e689964f0d8167"
+    },
+    "harnessCorrection": "Initial ImageData-failure extension wrongly required caller-owned scene storage to vanish before main.draw cleanup. Source was already released. Corrected harness checks source release, then actual caller-equivalent clear/reset, then retry. Not recorded as a product leak."
+  },
+  "functional": {
+    "independentProvenance": {
+      "path": "/private/tmp/mypaint-viewport-reviewer/image-data-provenance.json",
+      "sha256": "097dd0415bdcd60dd1902405ade845d8393c7199a45533fe69c183b8c3a17734"
+    },
+    "existingUnchanged": {
+      "checks": 78,
+      "mandatory": 74,
+      "informational": 4,
+      "result": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/image-data-existing-tiles/results.json",
+        "sha256": "c4603acaca35e80c3d5737a2a0542be394205d8bb776169d765ef30458298a57"
+      }
+    },
+    "frozenBaselineComparisons": {
+      "unchanged18": {
+        "path": "/private/tmp/mypaint-viewport-reviewer/image-data-functional.json",
+        "sha256": "79d0ad3f14de61877b5eafa7ccfb055e3eb723836ed7a0a1a2ddb7bbcab68fb1"
+      },
+      "extended23": {
+        "path": "/private/tmp/mypaint-viewport-reviewer/image-data-extended-final.json",
+        "sha256": "8ee6b8a4ed9f768d6c13781f9e157e5089b03b7ff192f77d938444f1be7800fa"
+      },
+      "allExact": true,
+      "pageErrors": 0
+    },
+    "permanent": {
+      "test": {
+        "path": "/Users/jhpark/code/myService/myPaint/web-app/tests/tiles.mjs",
+        "sha256": "dbc1e485e24f4793bf09d0a9fe6aa63a0382e975b1084aa7b706981ef0c5b34d"
+      },
+      "result": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/permanent-tiles/results.json",
+        "sha256": "4163c65164ddb68424d4fd4c119f9cac9ef38daee7c53be2460e16e41b839207"
+      },
+      "mandatory": 82,
+      "exactCanvasComparisons": 71,
+      "boundaryContractChecks": 9,
+      "informational": 4,
+      "newExactCases": 8,
+      "pageErrors": 0,
+      "oracle": "Existing uncropped PixelTileCache plus shared paint/compare harness. Frozen baseline renderer comparisons are separate transition evidence; no renderer copy added to permanent tests.",
+      "cases": [
+        "narrow fractional smoothing off/on",
+        "fractional paper edge",
+        "same owner simultaneous offsets and cached repeat",
+        "actual outside source pixel contributes one-pixel bilinear halo and rollback",
+        "ImageData failure releases preceding source Canvas; caller cleanup and retry"
+      ],
+      "failureAndAllocationResourceChecks": 2
+    },
+    "scope": "Functional comparisons are exact Canvas RGBA on the tested cases, preserving authoritative raw RGBA. Source-level fractional matrix ratios do not certify actual fractional-DPR devices."
+  },
+  "performance": {
+    "raw": {
+      "path": "/private/tmp/mypaint-wk-viewport-interleave-final-sre-20261105/results.json",
+      "sha256": "bdbadd67e1120db8b30cac578273ebfd85e5159c2d10d9f402653986264b0a99"
+    },
+    "order": [
+      "A",
+      "B",
+      "B",
+      "A",
+      "A",
+      "B"
+    ],
+    "environment": {
+      "platform": "darwin",
+      "architecture": "arm64",
+      "node": "v24.22.1",
+      "osRelease": "27.0.0",
+      "osVersion": "Darwin Kernel Version 27.0.0: Tue Aug 11 21:22:49 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6000",
+      "cpu": "Apple M1 Pro",
+      "cpuCount": 10,
+      "totalMemoryBytes": 17179869184
+    },
+    "workload": {
+      "width": 2048,
+      "height": 2048,
+      "layers": 16,
+      "authorityBytes": 268435456,
+      "geometry": {
+        "canvas": [
+          1904,
+          1436
+        ],
+        "view": [
+          952,
+          718
+        ],
+        "derivedPaperMatrix": [
+          2,
+          0,
+          0,
+          2,
+          -602.5,
+          -307
+        ],
+        "devicePixelRatio": 2
+      }
+    },
+    "variants": {
+      "A": {
+        "name": "fullsource-final-baseline",
+        "coldMs": [
+          119,
+          98,
+          97
+        ],
+        "coldMedianMs": 98,
+        "dirtyMs": [
+          12,
+          15,
+          12
+        ],
+        "rollbackMs": [
+          1,
+          1,
+          1
+        ],
+        "coldRequestedBytes": [
+          100499520,
+          100499520,
+          100499520
+        ],
+        "dirtyRequestedBytes": [
+          10466304,
+          10466304,
+          10466304
+        ],
+        "coldLogicalCacheBytes": [
+          111436096,
+          111436096,
+          111436096
+        ],
+        "timingPeakLogicalCacheBytes": [
+          111436096,
+          111436096,
+          111436096
+        ],
+        "replayMaxLogicalCacheBytes": [
+          111436096,
+          111436096,
+          111436096
+        ],
+        "binarySHA256": "b3b0c8e2e2b36085238d51587a2a9a481f5c5741919712be4fc5a07ef49f4ff9"
+      },
+      "B": {
+        "name": "viewport-source-candidate",
+        "coldMs": [
+          85,
+          83,
+          84
+        ],
+        "coldMedianMs": 84,
+        "dirtyMs": [
+          12,
+          12,
+          10
+        ],
+        "rollbackMs": [
+          1,
+          1,
+          1
+        ],
+        "coldRequestedBytes": [
+          44374848,
+          44374848,
+          44374848
+        ],
+        "dirtyRequestedBytes": [
+          7353344,
+          7353344,
+          7353344
+        ],
+        "coldLogicalCacheBytes": [
+          83373760,
+          83373760,
+          83373760
+        ],
+        "timingPeakLogicalCacheBytes": [
+          86268304,
+          86268304,
+          86268304
+        ],
+        "replayMaxLogicalCacheBytes": [
+          86268304,
+          86268304,
+          86268304
+        ],
+        "binarySHA256": "9a77f345b52fe32d9e9451d30f44b8b61a1b0ddc7f67852fdc2aef3bc6557a13"
+      }
+    },
+    "coldMedianReductionPercent": 14.285714285714285,
+    "coldRequestedByteReductionPercent": 55.84571150190568,
+    "contracts": {
+      "nativeChecksPerProcess": 18,
+      "separateCorrectnessReplayPhases": 14,
+      "authorityDigests": 16,
+      "timedSamplesPerProcess": 12,
+      "unchangedUploadsAndCaptures": 0,
+      "coldPutCalls": 96,
+      "coldSceneCaptures": 16,
+      "dirtyPutCalls": 11,
+      "dirtySceneCaptures": 2,
+      "rollbackRequestedBytes": 1024,
+      "maxTiles": 64,
+      "byteBudget": 134217728,
+      "largestSurface": 512
+    },
+    "interpretation": "Three fresh processes per side, six interleaved sequential runs in a quiet window. All samples retained. Renderer synchronous API return time includes production Canvas-to-Canvas scene capture; test readback/reference/hash work runs outside timing. Cold logical cache size differs from timed/replay maximum. Request bytes are not measured GPU transfer; logical cache bytes are not RSS/VRAM. No p95/tail/physical input or presentation claim.",
+    "summary": {
+      "path": "/private/tmp/mypaint-wk-viewport-interleave-final-sre-20261105/summary.json",
+      "sha256": "6cf8ad1c132ca76cf8a10492ccb35a7baea4e6312e808b4329a2a141d4f2771a"
+    },
+    "contractValidation": {
+      "path": "/private/tmp/mypaint-wk-viewport-interleave-final-sre-20261105/contract-validation.json",
+      "sha256": "2aa3d0c2a3bb568ffa859126f02fc6e4cf7d082ab4cc4da44b706973e94b8977"
+    }
+  },
+  "finalVerification": {
+    "node": {
+      "passed": 166,
+      "log": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-node.log",
+        "sha256": "af2f72d79cf1ff8b05c1ccd095cb503bba68cc3287cc2b542adc1e4209816834"
+      }
+    },
+    "typecheckAndBuild": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-formatted-build.log",
+      "sha256": "9d2b2254aa1e1bf882875a0c6cfec65e7291890dab9152f10868dc351e5a02e8"
+    },
+    "format": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-format-verified.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "web": {
+      "checks": 10,
+      "errors": 0,
+      "result": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-browser/results.json",
+        "sha256": "30347c0d5d39dc49c95231e7c07d6875d4e10162279e19fbefeba49a8e87c360"
+      },
+      "url": "http://127.0.0.1:8990/mypaint/"
+    },
+    "actualMacOS": {
+      "processes": 4,
+      "result": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-native.json",
+        "sha256": "a844c860ec5e4258004ba46401ebedc1a69b2fa9f06ef8f1482c7af45c50f1f2"
+      },
+      "sceneChecks": 18,
+      "codecGifChecks": 3,
+      "filesystemRecoveryBytes": 67126671,
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform."
+    },
+    "formatTiming": "Node, permanent tiles and native/browser regressions ran before whitespace normalization. Typecheck/build/format ran afterward; normalized emitted code and all built assets remained byte-identical. No functional retest counted twice."
+  },
+  "remaining": [
+    "Cold median84ms exceeds the50ms target; no complete performance acceptance.",
+    "8K×4K×2 mip initial rendering, broad/corner/disjoint dirty, long sessions and process-memory/input latency remain.",
+    "Same owner with different crop bounds can cause source tile churn; normal layer/cut/selection owners are distinct.",
+    "Physical Android/Safari web, Windows execution, OS dialogs/IME/clipboard and signing/notarization remain unverified.",
+    "Remaining tool options, GIF native metadata/RSS and manifest staging/rollback into the separate homepage repository remain."
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "published": false,
+    "goalComplete": false
+  },
+  "architecture": {
+    "moduleGraph": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-module-graph.json",
+      "sha256": "256a290fbb561e2915c0ea0b8ae30ccf2d9bb5296e73c70270cd1e87f36972d8",
+      "originalPath": "/Users/jhpark/code/myService/myPaint/docs/evidence/studio-module-graph.json"
+    },
+    "review": {
+      "path": "/private/tmp/mypaint-final-smoke-audit-architect/viewport-graph-review.json",
+      "sha256": "da4b8a329c63ee00c16a2d785b3d962fe8ea86e4c2a1765bfbf323771c5cfae0"
+    },
+    "scope": "Source dependency boundaries and emitted load/static cycle counts preserved; source17/assets8 and format/runtime equivalence checked.",
+    "linkCorrection": {
+      "previousReport": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/report-before-graph-archive.json",
+        "sha256": "d078f5b8dbad7cae38cf320452a4495ad08a38b2340dd8ba681d3aa5693b9f86"
+      },
+      "scope": "Only the module-graph link is changed to its immutable byte-identical archive. Original source, assets, tests, performance and decisions are unchanged."
+    }
+  }
+}

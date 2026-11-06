@@ -1,0 +1,206 @@
+{
+  "date": "2026-11-06",
+  "goalComplete": false,
+  "status": "Two confirmed ownership defects fixed and scoped regressions passed; current actual macOS GUI acceptance did not pass and is awaiting an unlocked display.",
+  "platformScope": "Mobile/tablet browser only; Windows/macOS executables only. Offline bundled desktop; no homepage writes/commit/push/publication.",
+  "sources": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "b7b9d26c48cb8f8f0634ffd178702613c60455bbc256907adb1f9241e21c5288",
+    "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+    "web-app/src/platform/native-smoke.ts": "4c318c88435b82982addb8876c4169e8e6564c0b6738ed3a6867f2b2e516d2d8",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "4d46f4cbf2d02db6add183af5d4cd6232fac9417fadff627ce3dba85dd0992fd"
+  },
+  "changedProductionSources": [
+    "web-app/src/main.ts",
+    "web-app/src-tauri/src/persistence.rs"
+  ],
+  "issues": [
+    {
+      "severity": "Major",
+      "cost": "S",
+      "name": "Post-save binding adopts a different file version",
+      "trigger": "Controlled temporary-file replacement immediately after atomic Stage.commit and before binding capture. Original copied Rust module and exact permanent-regression baseline both reproduce. This is a deterministic interleaving, not an observed spontaneous user-data incident.",
+      "before": "Second ordinary Save accepts the replacement as its baseline and writes RPAINT01second over external fixture bytes.",
+      "after": "Bind only the published file held by stage.file; next claim rejects a later replacement and preserves its bytes/stamp. Metadata failure clears binding but preserves already committed successful receipt.",
+      "test": "Rust permanent test covers initially new and existing targets, unchanged external bytes/stamp and no stage leak; normal repeated project save and fresh recovery-ticket lifetime controls pass.",
+      "reproductionDetail": {
+        "copiedOriginalProbe": "The second save was executed and committed over the external fixture; final bytes RPAINT01second.",
+        "permanentRegressionWithBaselineExpression": "The next claim unexpectedly succeeded and the assertion failed before executing that second write. Fixed production test rejects the claim and preserves external bytes/stamp."
+      }
+    },
+    {
+      "severity": "Minor",
+      "cost": "S",
+      "name": "Startup and manual recovery lists revoke the displayed selection",
+      "trigger": "500ms startup request overlaps manual dialog or pending startup list overlaps manual request; actual Rust list clears earlier ticket map. Old IPC model omitted that reset.",
+      "before": "Four public UI race cases reject unchanged backup selections. Source/history/Redo preserved; no original data loss.",
+      "after": "One recoveryOpening owner from before first await through the full dialog/read/clear/replacement flow, released in finally. Startup also skips an already-open modal. IPC model now resets tickets like Rust.",
+      "test": "Independent same-driver before4fail+3controls pass to after7pass/errors0. Portable permanent7 repeats pass and is connected to npm/CI."
+    }
+  ],
+  "verification": {
+    "rustTests": 19,
+    "nodeTests": 323,
+    "clippy": "pass,all-targets,-Dwarnings",
+    "types": "pass",
+    "format": "pass",
+    "browser": {
+      "basic": 13,
+      "concurrency": 3,
+      "editing": 13,
+      "storage": 13,
+      "shear": 6
+    },
+    "nativeClientModel": 15,
+    "independentRecoveryUi": 7,
+    "permanentRecoveryUi": 7,
+    "sameScenarioRepeatNotSummed": true
+  },
+  "nativeGui": {
+    "currentBinarySha256": "9f01dfc2822f45e1693a87e2188dc2daecd6cf128246677130d00ebcdc494275",
+    "currentFullSuitePassed": false,
+    "directRunFailure": {
+      "stage": "project-read-large",
+      "elapsedMs": 37961,
+      "stageElapsedMs": 20109,
+      "visibilityAtFailure": "hidden",
+      "focusAtFailure": false
+    },
+    "foregroundControl": "LaunchServices120s watchdog ended without JS result while screen lock was independently observed. Owned process and temp directory cleaned.",
+    "cause": "Unproven. Screen lock observed later cannot establish the historical cause of the earlier20s Worker timeout. Worker/format/codec bytes unchanged.",
+    "next": "Repeat actual GUI suite on an unlocked display, preserve codec20s deadline; inspect implicated Worker lifecycle only if timing failure persists. User unlock question remains pending."
+  },
+  "ioMemory": {
+    "sampleCount": 1,
+    "binarySha256": "9f01dfc2822f45e1693a87e2188dc2daecd6cf128246677130d00ebcdc494275",
+    "scope": "One actual frozen macOS release Rust executable --io-smoke before Tauri context/GUI/WK initialization.65 then300MiB sequential recovery write/read. Kernel child rusage only; Python sampler/time supervisor excluded. Not total Tauri+WK/JS/Worker/IPC/GPU memory, file-UI timing, Android, tail/p95, durability certification or absolute budget acceptance.",
+    "metrics": {
+      "timeMaxRSSBytes": 397049856,
+      "timeMaxRSSMiB": 378.65625,
+      "timePeakPhysicalFootprintBytes": 389628744,
+      "timePeakPhysicalFootprintMiB": 371.5789260864258,
+      "sampledCurrentRSSMaxBytes": 397049856,
+      "sampledCurrentPhysFootprintMaxBytes": 389612360,
+      "sampledLifetimePhysFootprintMaxBytes": 389612360,
+      "pollCount": 11,
+      "ownedChildIdentities": {
+        "19795": {
+          "path": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+          "procStartAbstime": 18852015272557,
+          "uuid": "86aa9fa7872c38418ab3df9b5c55453a"
+        }
+      },
+      "timeVsSampleLifetimePeakDeltaBytes": 16384,
+      "hostPageSizeBytes": 16384,
+      "timeRealSecondsFromRaw": 0.65,
+      "timeUserSecondsFromRaw": 0.16,
+      "timeSystemSecondsFromRaw": 0.21,
+      "supervisorObservedSeconds": 0.6998188749421388,
+      "driverSecondsIncludingPostExitVerification": 0.9149569579167292,
+      "samplerErrors": []
+    },
+    "verification": {
+      "exitCode": 0,
+      "nativeFullByte65And300": {
+        "sizesBytes": [
+          68157440,
+          314572800
+        ],
+        "markers": [
+          "myPaint IO smoke: 65 MiB binary recovery roundtrip passed",
+          "myPaint IO smoke: 300 MiB binary recovery roundtrip passed"
+        ],
+        "method": "Frozen main.rs io_smoke creates RPAINT01+0x5a payload, writes/commits then drops source, reads and checks exact length,magic,and every remaining byte for both65/300MiB. Original65 envelope is then replaced by300 under the same key. This source-path assertion is distinct from the external independent final300 comparison below."
+      },
+      "independentFinal300": {
+        "sizeBytes": 314572800,
+        "sha256": "30cba0fde232bafc0f0034df2d043a203525b55b6c52d7b93d25579d40b788b0",
+        "fullStreamByteComparison": true,
+        "metadata": {
+          "key": "io-document",
+          "sequence": 300,
+          "size": 314572800,
+          "name": "300 MiB 실파일",
+          "at": 1793935128283
+        },
+        "envelopeBytes": 314572911,
+        "scope": "External post-exit full final300MiB check in1MiB chunks; excluded from native/time memory and duration.65MiB full-byte check is in the frozen native branch, not re-extracted externally."
+      },
+      "methodBoundary": "Binary source branch checks every byte for both65 and300 and emits two exact markers. Only final300 is independently re-read after exit: full envelope/meta/size and all payload bytes in1MiB chunks.65 has been replaced; no claim of independent external65 re-read. Payload digest is recorded but streaming equality, not digest-only, is the independent comparison.",
+      "branchBeforeGui": "main io_smoke argument branch returns before tauri::generate_context! and Builder; no WK initialization route exercised.",
+      "verificationExcludedFromMemory": "Parent post-exit validation/JSON generation is outside time-l child resource accounting.",
+      "payloadFormatScope": "Synthetic persistence payload is RPAINT01 magic followed by0x5a bytes, not a valid decoded project/image. This measures native binary recovery transport/storage only; no maximum-document decode/render memory is covered."
+    },
+    "cleanup": {
+      "ownedTemporaryRootRemoved": true,
+      "timeSupervisorExited": true,
+      "noGuiOrWkLaunchInThisBranch": true,
+      "otherProcessesUntouched": true
+    },
+    "budgetStatus": "QF03/QF24 remain partial; no target-device choice or absolute memory/input budget supplied, no threshold invented."
+  },
+  "payload": {
+    "files": 9,
+    "bytes": 291639,
+    "sourceInputs": 115,
+    "entry": "assets/index-DLvOR2As.js",
+    "workerSha256": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739"
+  },
+  "gitIndexConfigUnchanged": true,
+  "references": {
+    "build-web-work/task-planning/native-capability-ownership/source-before.json": "52740d5588a8ed8192c353e207a411c135e8fcb8024a88ee66e1895c8639b0e3",
+    "build-web-work/task-planning/native-capability-ownership/accepted-source.json": "96a9d8cb02d5bf535dbb1d49fcf468397800fa8edef0699499ca3dbd7442df2a",
+    "build-web-work/task-planning/native-capability-ownership/binding-probe.json": "c4fd3043d3af0a95a260f36794a41c148fdb501283ba20f260e038188e10e012",
+    "build-web-work/task-planning/native-capability-ownership/binding-before.log": "7cfcd833804ac5b3e4321e90a86c2b7bb35dab98c67bee10d12b86ec5d14585a",
+    "build-web-work/task-planning/native-capability-ownership/binding-test-baseline.rs": "1a1d4aeccc54ae6718543804109643b02c618c2f95a08ab5104ebc5e8b0c776c",
+    "build-web-work/task-planning/native-capability-ownership/binding-regression-before.log": "de461e51f679e5c2f6d9e810460fdde173f6b30ebdbb713cab1d1e7172d225d0",
+    "build-web-work/task-planning/native-capability-ownership/rust-tests.log": "c76c9c214df41638d05b5c4d8f99cc187f840044d33abb7b5ec30bc8439685ef",
+    "build-web-work/task-planning/native-capability-ownership/typecheck.log": "86fd21d3a4c331af9cda136fdaa8bc8807301aedba733d35beae2083e7cce6d8",
+    "build-web-work/task-planning/native-capability-ownership/clippy.log": "c733d441f5cb21ace2ad852c060d212d6f3acf0b258efffcd7aaa804566a6878",
+    "build-web-work/task-planning/native-capability-ownership/unit.log": "72ddcecfc9950dc5156c9df5ac738e654980634d576b033507990676dacda82b",
+    "build-web-work/task-planning/native-capability-ownership/format.log": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae",
+    "build-web-work/task-planning/native-capability-ownership/native-build.log": "7c854e2af662052307b5d689c28158fca61aa1bf3f35173b499280f7a794f405",
+    "build-web-work/task-planning/native-capability-ownership/studio-build.log": "35e64418ddbd21a50c82bde3a54759ad0f5393c63160618314e5015bfdc2523f",
+    "build-web-work/task-planning/native-capability-ownership/candidate-binary.json": "7e3dcc60c3667cedb5018c2b19954b24acf9863c07304015a11dce17524bdea6",
+    "build-web-work/task-planning/native-capability-ownership/candidate-ui/verification-manifest.json": "43e0c1deb51962252ee056f79d62fb8dec019668d9300575165bba5ffd5ea5a3",
+    "build-web-work/task-planning/native-capability-ownership/candidate-ui/results.json": "e8a68ad49bc8cea58ded67eeea3e1103ccb11ae19889fa2dd0bad1362121713a",
+    "build-web-work/task-planning/native-capability-ownership/before-ui-final3/results.json": "fe11baa7eb053356e638af308e991f959fadc829f3f73e864124c58900ec2c0a",
+    "build-web-work/task-planning/native-capability-ownership/native-client.json": "23c1a437f7fe09476ce86100eac6ff21978ff6ae7ea6ca33c99b33a9bf8b09b1",
+    "build-web-work/task-planning/native-capability-ownership/browser/results.json": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19",
+    "build-web-work/task-planning/native-capability-ownership/browser/concurrency.json": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5",
+    "build-web-work/task-planning/native-capability-ownership/editing.json": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a",
+    "build-web-work/task-planning/native-capability-ownership/storage/results.json": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a",
+    "build-web-work/task-planning/native-capability-ownership/shear/results.json": "028726e1a509606d8c97ca609a730059e46c3fc166687808e20b5c6804411f12",
+    "build-web-work/task-planning/native-capability-ownership/native-desktop.json": "d98d30f5a8047671687a3905a6a6c0f067285a71be452b1481be1fb42350aec1",
+    "build-web-work/task-planning/native-capability-ownership/native-foreground.json": "c80c492ce9ee93417e34a0e9947e26338dd267561eaba5f92d471d6f65273399",
+    "build-web-work/task-planning/native-capability-ownership/native-probe-cleanup.json": "dcf90fef3b81af706aa73fbc537d365deaab37b76a37b86b37043b8b73a18eb7",
+    "build-web-work/task-planning/native-capability-ownership/native-failure-environment.json": "c7d16cd866760d6f812abb1b14dd76a0c847f1d89d0332f394a5195247c4a159",
+    "build-web-work/task-planning/native-capability-ownership/io-memory/summary.json": "b33cbdbeff47c15f7a1377751c153ba87a6b8f04a97be57dbc6207c69daeb508",
+    "build-web-work/task-planning/native-capability-ownership/io-memory/archive-manifest.json": "5652b3e8fc1da58be4d319fa209cb7b41b2a5d7a9c63db08274588e1282067ae",
+    "build-web-work/task-planning/native-capability-ownership/io-memory/independent-code-review.json": "b762c27c7d4309e5b74fb3b40e668056363c69fda6d24fc62fdbb849e67cf7b7",
+    "build-web-work/task-planning/native-capability-ownership/reviews/architecture-review.json": "c2fd72589e1a94e3d406eca3665fb1c87ce9d09993f930977438fa581fb46d24",
+    "build-web-work/task-planning/native-capability-ownership/reviews/binding-read-review.json": "95cbd5bc401ba3d12ab2c3d79c1724be72c9dbfbe7590f3b412a92abdbdc0b23",
+    "build-web-work/task-planning/native-capability-ownership/final-bundle/bundle.json": "c4754e899d5da2ec69621d63136b86db06b4215ebfc6577ce9dc2bb4944dd000",
+    "build-web-work/task-planning/native-capability-ownership/git-metadata.json": "a31195fc016379a2ca79a11bec67957ed9523a9550222079af499eb3067ac2ff",
+    "build-web-work/task-planning/native-capability-ownership/permanent-ui-final/results.json": "b464af64172d61e1467dd393481af1210cbf40fcb2f34e97aa1a06765d66e23c",
+    "build-web-work/task-planning/native-capability-ownership/permanent-ui-final.log": "574488904ad354ccacb8ea6d9a642ca6d6acd2b9febc102c826bbcd9b19dfa7e",
+    "build-web-work/task-planning/native-capability-ownership/studio-build-final.log": "15cbe69128d1c6aabad7e7922a172f729646e38ba5ac6e27496569bec99ce304",
+    "build-web-work/task-planning/native-capability-ownership/frozen-tests/web-app/tests/native-recovery-flow.mjs": "f62e8845d58de9cb0566019edaa2b5fe8cba85c3c929cba8dd20eae9dc04e085",
+    "build-web-work/task-planning/native-capability-ownership/frozen-tests/web-app/tests/native-harness.mjs": "25b12a4d318e3c1f79c0f694722c6dd8c6d92c7301c01b401da1f44ee7c3b95d",
+    "build-web-work/task-planning/native-capability-ownership/frozen-tests/web-app/package.json": "fefa29ed5f21ed43f14bd3051bbf9c6e3bf202a26486715290b82cabc9e521c0",
+    "build-web-work/task-planning/native-capability-ownership/frozen-tests/.github/workflows/studio.yml": "0704b82564a3a21b5b5c8a3e893334e6ab9411e66274f095367641fb45b5a16d",
+    "build-web-work/task-planning/native-capability-ownership/server-cleanup.json": "4dfcce74ce47132d4246d0309dd00e8b8e6b79eee996c0bf9c0ae4b422618080"
+  }
+}

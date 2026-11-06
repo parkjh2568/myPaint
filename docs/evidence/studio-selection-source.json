@@ -1,0 +1,383 @@
+{
+  "date": "2026-11-05",
+  "status": "One confirmed selection Source-clear/raw-background defect and false-history trigger fixed. Source-less paste transform boundary verified. Full migration/acceptance remains open.",
+  "scope": {
+    "mobileTablet": "Web only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "noCommitPushDeployment": true
+  },
+  "issue": {
+    "severity": "Major",
+    "cost": "S",
+    "name": "Binary selection Source-clear zeros background hidden RGB and creates false history",
+    "trigger": "One layer with background[37,59,61,0]; selection delete/cut/move. An already-background delete also loses existing Redo through a false edit.",
+    "rootCause": "clearSelectionSource kept a coverage-blend formula. With binary mask=1 and target alpha=0, output alpha is0 and formula forces RGB0 instead of assigning the documented raw background. Preview and no-selection cut already directly use target RGBA.",
+    "baseline": {
+      "path": "build-web-work/task-planning/selection-source/baseline-ui/results.json",
+      "sha256": "aa50a2bcec1b5a24e5b722810950db8e258b765222d3589e2c169486f4c7b61f"
+    },
+    "differenceAudit": {
+      "path": "build-web-work/task-planning/selection-source/baseline-ui/difference-audit.json",
+      "sha256": "0e7eaacc4a77560ca1ae2bd8c71fc241d6dd23acba91c48e1b9cdf492a4e3a69"
+    },
+    "provenance": {
+      "path": "build-web-work/task-planning/selection-source/baseline-ui/provenance.json",
+      "sha256": "762f990b8cbff3a5d2a941bddb3fb1b5c998a218367f3adc9beac84b17516716"
+    },
+    "baselineCases": 7,
+    "baselineContractFailures": 7,
+    "baselinePageErrors": 0,
+    "differenceScope": "Only selected original-source RGB channels differ; outside mask/alpha/dimensions/background metadata controls are unchanged. Existing copy, canceled save, failed clipboard, original/Redo and actual-result Undo/Redo controls pass.",
+    "fix": "Inside the owning function: preserve source-less early return; use binary mask guard, cache row offsets and target RGBA, assign all4 channels directly. No helper/new API/dependency.",
+    "sourcePolicy": "background is the erase/expansion raw RGBA. Single-layer selection source clearing assigns it; multiple layers assign transparent RGBA0. Not a change to rounded brush coverage blending or already-transparent eraser NoOp.",
+    "noOpPolicy": "If every selected byte already equals the explicit target, prepareState detects identical state and preserves saved revision and previous Redo; selection is still dismissed."
+  },
+  "architecture": {
+    "runtimeSourcesChanged": [
+      "Studio.clearSelectionSource"
+    ],
+    "studioMembers": 127,
+    "changedStudioMembers": 1,
+    "helpersAdded": 0,
+    "exportsAdded": 0,
+    "dependenciesAdded": 0,
+    "engineFormatRustProfileImportsUnchanged": true,
+    "audit": {
+      "path": "build-web-work/task-planning/selection-source/static-review/method-review.json",
+      "sha256": "7448b9848f2394a414ac8bb7bee24d65838a98cc26ce18a54ee3696c7dbe4c3d"
+    },
+    "graph": {
+      "path": "build-web-work/task-planning/selection-source/static-review/module-graph.json",
+      "sha256": "529df9ba93b4b13dea3c408b613f30563bd085678deb25c8a65ebea9d0562e3b"
+    },
+    "reviewer": {
+      "path": "build-web-work/task-planning/selection-source/final-reviewer.json",
+      "sha256": "0e203010bde53ff1bfbbd3515228083e4ea477aa780151ad1c97bc34d14bf81a"
+    },
+    "architectQtPolicy": {
+      "path": "build-web-work/task-planning/selection-source/qt-oracle/review.json",
+      "sha256": "5e9c5e6a8a202ce0f4871acdd33fcf44dba157795fdd07d682583a13555a46ed"
+    }
+  },
+  "qtScope": {
+    "cases": 4,
+    "assertions": 34,
+    "report": {
+      "path": "build-web-work/task-planning/selection-source/qt-oracle/qt-oracle.json",
+      "sha256": "5b13dba8a758a3536912211c54e401f2e6f079c8045577ffe75b5df3d35e62e7"
+    },
+    "manifest": {
+      "path": "build-web-work/task-planning/selection-source/qt-oracle/manifest.json",
+      "sha256": "0834fb8837b77f6543e8ea5969f855f0b336fb89879012104d4c2254e6e8753f"
+    },
+    "sourceDefinition": "https://doc.qt.io/qt-6/qpainter.html#CompositionMode-enum",
+    "limits": "Actual Qt6.12 Source replacement/alpha/history only. Qt premultiplied transparent RGB0 is not imposed on the TS straight-RGBA background contract. The initial exploratory optional-field fixture error is excluded; explicit-null final4 only."
+  },
+  "verification": {
+    "node": {
+      "passed": 192,
+      "report": {
+        "path": "build-web-work/task-planning/selection-source/node-final.log",
+        "sha256": "b39ea6cb5fb71f183cc95d7173b4e1719c9daccdbaedb3c62b6820178cd291b8"
+      },
+      "scope": "Fresh unchanged-engine regression. UI class fix is exercised by public7 and actual WK6, not inferred from Node count."
+    },
+    "newCIEntry": {
+      "command": "npm run test:selection-source",
+      "log": {
+        "path": "build-web-work/task-planning/selection-source/new-contracts.log",
+        "sha256": "f05bb8ea4374e2513651909498e095a5b2640d790f8997756e3e18271991b914"
+      },
+      "source": {
+        "cases": 7,
+        "report": {
+          "path": "build-web-work/task-planning/selection-source/candidate-ui/results.json",
+          "sha256": "b58f7610310c9eac191285f000301f21a3da32bcf34b663c57858dffc32feeeb"
+        },
+        "scope": "Rect/lasso×delete/cut/negative move-settle plus identical-background NoOp. Actual codec Workers/RPAINT raw and ClipboardItem PNG, independent zlib PNG reader, modeled file IPC/clipboard delivery. Cut rejection1×2, SaveAs cancel, original/Redo/retry/oneUndoRedo explicit.",
+        "test": {
+          "path": "web-app/tests/selection-source-contract.mjs",
+          "sha256": "5800eef57fc331c4b72e3473ef6f458daab5fd3db0e6fcf857c3218c2d0e208a"
+        }
+      },
+      "paste": {
+        "cases": 4,
+        "baseline": {
+          "path": "build-web-work/task-planning/selection-source/paste-baseline/results.json",
+          "sha256": "b78be4fa5bb2ebf116e20cdb120ca64102e6c3543bb7754fb59d8a1bc920e64e"
+        },
+        "candidate": {
+          "path": "build-web-work/task-planning/selection-source/paste-candidate/results.json",
+          "sha256": "457adfe1ca409ad61036d487a8aa0d112f67cb31c139170fb78f6f8959a66dc2"
+        },
+        "baselineSummary": {
+          "path": "build-web-work/task-planning/selection-source/paste-evidence/baseline-summary.json",
+          "sha256": "913c14e3098f19680d0f2f670f518d7e74e8905e9d3b926de6fea8a304e6577b"
+        },
+        "scope": "Existing correct behavior confirmed: source-less actual PNG paste, rotate/flip/resize orders and4rotations/Qt tie, negative move, geometry wrong-profile failure/retry, save cancel/Escape/original/Redo and settle oneUndoRedo. Source-less cut is document/history NoOp, not an artificial new Undo. Alpha0 input becomesRGBA0 at composite, separately from raw document retention.",
+        "test": {
+          "path": "web-app/tests/paste-transform-contract.mjs",
+          "sha256": "f28c984a8e2068a64326381ff9ac9559d5bcd1bf024c7342c4ea5d0e0554549b"
+        }
+      }
+    },
+    "existingSelection": {
+      "passed": 18,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/selection-source/selection-regression/ui/results.json",
+          "sha256": "ea83be70b6bd8acde87eba66d319dc079b5e23f42ac5132c859a50b59380702e"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-source/selection-regression/crop/results.json",
+          "sha256": "3ef6474920772ba0843d721d46194b2685b16184a4286fc6ce67ff04c224ac2a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-source/selection-regression/failure/results.json",
+          "sha256": "1f7f16a869c077870a72e10bb3153dcc4a8329a33f55410018353b78bf361798"
+        }
+      ]
+    },
+    "existingFinalRegressions": {
+      "webPassed": 48,
+      "pendingPassed": 36,
+      "clipboardPassed": 4,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/selection-source/browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-source/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-source/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-source/storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-source/shear/results.json",
+          "sha256": "0bf5d4c2a2d187c6db51ac479285363c52d4da808a8aeeb0b099990384a77afe"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-source/pending/results.json",
+          "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-source/clipboard/results.json",
+          "sha256": "ed168cd449a9b327201247d02b910988c8efb58dca1b38bc1879215e9df92c05"
+        }
+      ]
+    },
+    "WKDiagnostic": {
+      "cases": 6,
+      "report": {
+        "path": "build-web-work/task-planning/selection-source/native-source/results.json",
+        "sha256": "58144b698f7e16441d4f4c7ea6cebe5a7c8df89a49b7c0d8330ee0cf14ac09e3"
+      },
+      "source": {
+        "path": "build-web-work/task-planning/selection-source/native-source/source.json",
+        "sha256": "337d6b92d6b76db2496cc004b3cd031cad1505da99befaef104328ef8fb68d47"
+      },
+      "overlay": {
+        "path": "build-web-work/task-planning/selection-source/native-source/overlay.json",
+        "sha256": "74b5e9c4c07b0679cf4b6b7b44c4d3a89a5ecadc8c3d6b0bfeb280cd524ac588"
+      },
+      "assets": {
+        "path": "build-web-work/task-planning/selection-source/native-source/assets.json",
+        "sha256": "24b31a4c20329162c6a5c1334d44667b417bf772ff3d4a8b850e70550a6a6f0a"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/selection-source/native-source/app.json",
+        "sha256": "c394f35af6e55ee57b606a78fd5b4acce58d4f380f61cc6f4507d135a8b6a6d2"
+      },
+      "scope": "Actual WK Studio.clearSelectionSource on owned candidates, including single transparent rect/mask, identical-background PaintDocument NoOp/Redo, source-less NoOp, multi hidden layer and half-alpha control. Root-authored temporary render-mode overlay; no public UI/clipboard/physical/OS/performance acceptance. Ordinary suffix byte-exact."
+    },
+    "macOSOrdinary": {
+      "phasesPassed": 4,
+      "sceneChecks": 21,
+      "report": {
+        "path": "build-web-work/task-planning/selection-source/native-desktop.json",
+        "sha256": "8f2d38349dccb7b687c946289121762013b9883186a6056c925f485ac3777183"
+      },
+      "foreground": {
+        "path": "build-web-work/task-planning/selection-source/native-desktop.json.foreground.json",
+        "sha256": "5c69e42c36ecc8df7dfd7acba69c0d2057c6dc76c6fef4fd09500f5babf8ae7f"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/selection-source/final-app.json",
+        "sha256": "8e7484812d79b744c47df5b25ced51a8749a107f20f3107cde11fa3d1924c2e4"
+      },
+      "binarySHA256": "37845223396385c7743d96cbb758804b4663f8b1483e7531bbef5c4a183e79e5",
+      "scope": "Standard-build app without overlay. Original recovery/codec/quit/scene checks; isolated persistence and activation adapter. Not OS chooser, signing, physical input or performance acceptance."
+    },
+    "format": {
+      "path": "build-web-work/task-planning/selection-source/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "webBuild": {
+      "path": "build-web-work/task-planning/selection-source/build-v1.log",
+      "sha256": "f9342451f7685556420ebc11d27086bd17caed8180336719a1fa3a716b1f4c29"
+    },
+    "desktopBuild": {
+      "path": "build-web-work/task-planning/selection-source/final-desktop-build.log",
+      "sha256": "a146f2d710cb21b1ac1d30c0cb6e699940f8434c71922255d4895210a2002d73"
+    }
+  },
+  "performance": {
+    "finalActualMethod": {
+      "raw": {
+        "path": "build-web-work/task-planning/selection-source/clear-performance/final/results.json",
+        "sha256": "77d34ecef5e917ce9376db8caf270827c80921d6c0e2c5d6f1b095b23d89462a"
+      },
+      "sources": {
+        "path": "build-web-work/task-planning/selection-source/clear-performance/final/sources.json",
+        "sha256": "cbb557e2cb065a675c00d15d50eb26fff05c26729a8cd5e1308579173100e611"
+      },
+      "summary": {
+        "path": "build-web-work/task-planning/selection-source/clear-performance/final/summary.json",
+        "sha256": "cc1793c5f9cdb0d8686589faa1db7ae207a0b46d988b609b05bb9cc5a447017f"
+      },
+      "samples": 96,
+      "method": "TypeScript AST-extracted exact before/final Studio methods, own cloned state/fixtures prepared outside timing. Source512/1024, sourceRect inset8, no mask/one-pixel ring, opaque/half/transparent-zero targets. Four interleaved samples per side,2warmups; GC/setup/hashes excluded.",
+      "excludedSemanticTarget": [
+        37,
+        59,
+        61,
+        0
+      ],
+      "median1024ms": [
+        {
+          "mask": "none",
+          "target": "opaque",
+          "sourceRect": {
+            "x": 8,
+            "y": 8,
+            "width": 1008,
+            "height": 1008
+          },
+          "before": 11.162916499999994,
+          "after": 4.563041500000054
+        },
+        {
+          "mask": "none",
+          "target": "half",
+          "sourceRect": {
+            "x": 8,
+            "y": 8,
+            "width": 1008,
+            "height": 1008
+          },
+          "before": 11.304791500000022,
+          "after": 4.517333000000008
+        },
+        {
+          "mask": "none",
+          "target": "transparent-zero",
+          "sourceRect": {
+            "x": 8,
+            "y": 8,
+            "width": 1008,
+            "height": 1008
+          },
+          "before": 6.762187500000039,
+          "after": 4.446187499999951
+        },
+        {
+          "mask": "one-pixel-ring",
+          "target": "opaque",
+          "sourceRect": {
+            "x": 8,
+            "y": 8,
+            "width": 1008,
+            "height": 1008
+          },
+          "before": 3.0370625000000473,
+          "after": 1.1981040000001713
+        },
+        {
+          "mask": "one-pixel-ring",
+          "target": "half",
+          "sourceRect": {
+            "x": 8,
+            "y": 8,
+            "width": 1008,
+            "height": 1008
+          },
+          "before": 3.214958499999966,
+          "after": 1.2151039999999966
+        },
+        {
+          "mask": "one-pixel-ring",
+          "target": "transparent-zero",
+          "sourceRect": {
+            "x": 8,
+            "y": 8,
+            "width": 1008,
+            "height": 1008
+          },
+          "before": 3.0179580000000215,
+          "after": 1.2241669999999658
+        }
+      ],
+      "exact": "96/96 full output/source/mask bytes exact on unchanged-output targets; changed transparent nonzero-RGB target is covered by public correctness tests, not a like-for-like timing comparison.",
+      "limits": "Pure synchronous clear method only; excludes source lifting, clone/prepare/history, UI/frame/Worker/OS/physical latency and RSS. n4/side and JIT/outliers retained; no p95/stable ratio/universal speedup."
+    },
+    "exploratoryChoice": {
+      "raw": {
+        "path": "build-web-work/task-planning/selection-source/clear-performance/results.json",
+        "sha256": "3a3affe1456cfe86bad278ea5df2adc05dc66d22c295703b065c58b2b0aeafed"
+      },
+      "summary": {
+        "path": "build-web-work/task-planning/selection-source/clear-performance/summary.json",
+        "sha256": "bf74491126f60afe9dddeb35bf5dc6d1f40d885900c77209caf72c5a2d5ec5e3"
+      },
+      "samples": 144,
+      "scope": "Three separate candidates before/set/assign4 with old loop guard; used to choose4direct assignments. These numbers are not final production timings after boolean guard/row/RGBA caching."
+    },
+    "recovery": "SRE completed final96 raw ok=true and saved all artifacts before its final narration errored with workspace credits. Root recovered files, verified current main/method hashes and recomputed all12medians; authoritative process/cwd query confirms task process terminal/absent. Recovery is not another independent run. Final correctness Reviewer separately completed normally."
+  },
+  "snapshots": {
+    "before": {
+      "path": "build-web-work/task-planning/selection-source/before-source.json",
+      "sha256": "bf63407a1d7ccddb30b6b2cb10fb3d6aaf24a18027bbf20a6583ab471976ed22"
+    },
+    "finalSource17": {
+      "path": "build-web-work/task-planning/selection-source/final-source.json",
+      "sha256": "59e54241df43d633aa90152bb91c4c57e6c3012d97bf127d6ee3c5da4762415d"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/selection-source/candidate-assets.json",
+      "sha256": "7e8b9d2cf59fe1b6bdfc9e85850ac355b88201debe813c17edc0564df018315b"
+    },
+    "testsAndCI": {
+      "path": "build-web-work/task-planning/selection-source/final-tests.json",
+      "sha256": "415ac80b2f6a93f59c3bd4864632087ba8d1d786e7fef6536df79a5438028518"
+    },
+    "frontendFiles": 14,
+    "rustFiles": 3
+  },
+  "diagnosticNotes": [
+    "Qt exploratory fixture with omitted optional field is not product evidence; final explicit-null4case is preserved.",
+    "Method.ts artifacts append one LF; SRE methodSha hashes TypeScript AST getText without that LF. Root initial whole-file assertion failure was an aggregation convention mistake, not a benchmark/product failure; both hashes and original files retained.",
+    "The temporary WK verification was authored/run by root; independent end-to-end source7 and paste4 were authored before the implementation. No independent public-UI/hardware claim is inferred from the WK diagnostic."
+  ],
+  "cleanup": {
+    "path": "build-web-work/task-planning/selection-source/cleanup.json",
+    "sha256": "835d45596d9a7ad8d980f71b6e6ef6978ff679db9caead0a3426751b24d9fe89"
+  },
+  "openGates": [
+    "Original-source masked selection rotate/flip/resize ordering and remaining explicit F06/F01–F10/tool-format combinations",
+    "Nondegenerate huge path synchronous CPU, max documents/long-session/RSS, matched-DPR WK checker and broad/disjoint dirty rendering",
+    "Android physical web input/recovery, Safari web, Windows executable, actual OS clipboard/picker/IME and disk/atomic-replacement failure acceptance",
+    "Native GIF internal memory, remote CI, signing/notarization and safe homepage staging/rollback/public release",
+    "Repeated independent PNG fixture readers can be consolidated as shared test semantics after data acceptance; production decoders must remain independent of test oracles"
+  ]
+}

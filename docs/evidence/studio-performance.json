@@ -1,0 +1,1049 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-04",
+  "status": "Measured development snapshots; not full migration, physical-device or production-release acceptance",
+  "repository": {
+    "commit": "11fbde198c6b2d5c4d1d2c791667c734cfeb2fc7",
+    "worktreeWasDirty": true
+  },
+  "environment": {
+    "os": "darwin",
+    "release": "27.0.0",
+    "architecture": "arm64",
+    "cpu": "Apple M1 Pro",
+    "node": "v24.22.1",
+    "browser": "156.0.8078.80",
+    "viewport": {
+      "width": 1400,
+      "height": 1000
+    },
+    "rendering": "Chrome headless with ANGLE SwiftShader (--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader)",
+    "externalLoad": "Native compiler processes were absent during CPU measurements. Other desktop applications were running; this is not an isolated hardware certification."
+  },
+  "provenance": {
+    "nodeBeforeEngineSha256": {
+      "src/engine/document.ts": "8f7a12d3b11bb53fafb084db9b44361d55ca1dd310c61a5522397471453480ce",
+      "src/engine/operations.ts": "b738456c7d42173604ba72582bac5afe24532faca779266177759b210e6abc70",
+      "src/engine/format.ts": "5f137d7a2b107939c54bd7b4ecfe5d26528da21bee8b050f1321225287382c92"
+    },
+    "nodeAfterEngineSha256": {
+      "src/engine/document.ts": "5200a76f8fa821fb295c1146c3adb7390d9f4d1fd02678e5ed2e954256dbbd6d",
+      "src/engine/operations.ts": "b738456c7d42173604ba72582bac5afe24532faca779266177759b210e6abc70",
+      "src/engine/format.ts": "5f137d7a2b107939c54bd7b4ecfe5d26528da21bee8b050f1321225287382c92"
+    },
+    "uiBefore": {
+      "browser": "156.0.8078.80",
+      "entry": "http://127.0.0.1:8923/mypaint/",
+      "assets": [
+        {
+          "url": "http://127.0.0.1:8923/mypaint/assets/index-kde4YfvC.js",
+          "sha256": "60e6cdba49124001f702d186ebbacc4a66d2d307fbfe46b75e723b52a04bd3aa"
+        },
+        {
+          "url": "http://127.0.0.1:8923/mypaint/assets/index-aClAeViE.css",
+          "sha256": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601"
+        }
+      ],
+      "worker": null
+    },
+    "uiAfter": {
+      "browser": "156.0.8078.80",
+      "entry": "http://127.0.0.1:8933/mypaint/",
+      "assets": [
+        {
+          "url": "http://127.0.0.1:8933/mypaint/assets/index-bvpgIeMe.js",
+          "sha256": "a6fb5f7189988df27de17b17fe57abdd1752226b3b779c485769ac3438320d11"
+        },
+        {
+          "url": "http://127.0.0.1:8933/mypaint/assets/index-aClAeViE.css",
+          "sha256": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601"
+        }
+      ],
+      "worker": {
+        "url": "http://127.0.0.1:8933/mypaint/assets/codec.worker-B2uBySDy.js",
+        "sha256": "42a3c985d5515336b22c43d9f93b541079626a3debbfd87d1ce4de5ac37de428"
+      }
+    },
+    "fixedAfterSnapshotSourceHashes": {
+      "src/main.ts": "fa58c6aa2199c0296a770489b92daa529c8fc7f331a59e69bd1d3a2574686076",
+      "src/env.d.ts": "0265db48338c859915a92bfefdb1988787cc06b0cbe2cd4625295552a62287a8",
+      "src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+      "src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+      "src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+      "src/platform/codec.ts": "e44d84d799b289ce8a3ceeff55c45d10de08d0f94fa5d114b60887e6f3c03b96",
+      "src/platform/storage.ts": "9b8ec02afb2a9aea571cff858d94fe270f5ba8c35e3b7034e640db030ff72cc5",
+      "src/platform/native.ts": "bafc036544744562aa7fd75ad723bfd602f472cba3627f79ea6b4182ee4e98ee",
+      "src/workers/codec.worker.ts": "c78c63bbda89098af70c2f9ab9ec19ff5e1885ba65f2b6c14f85db95ee38a3b4",
+      "src/engine/document.ts": "5200a76f8fa821fb295c1146c3adb7390d9f4d1fd02678e5ed2e954256dbbd6d",
+      "src/engine/operations.ts": "b738456c7d42173604ba72582bac5afe24532faca779266177759b210e6abc70",
+      "src/engine/format.ts": "5f137d7a2b107939c54bd7b4ecfe5d26528da21bee8b050f1321225287382c92"
+    },
+    "harnessAtAfterRunSha256": "69230de2dea824cb7dbdc4e57fe95672e9fcd9def31ee5ec4526acfa877ac509",
+    "currentHarnessSha256": "c96650975341f41f710cc23c4a585a470acbed6d36d7a70a33f1c3961607d695",
+    "note": "Node module hashes and served UI bundle hashes are distinct. The UI baseline used a frozen static build while main.ts implementation continued. Current worktree may contain later changes beyond these snapshots."
+  },
+  "method": {
+    "core": "Node24 warm V8 operations, one excluded warm-up and7 measured repetitions per operation; brush7 measured strokes with120 moves per stroke after one warm-up stroke.",
+    "ui": "Trusted automated mouse,800x600 document,3strokes x90moves per size;12px and100px. Matching input in two frozen static builds.",
+    "worker": "Actual shipped same-origin module Worker;2048x2048,one layer; startup/transfer/compute included, input setup excluded. Protocol exercised directly rather than full runCodec queue.",
+    "clonedCandidate": "20 measured repetitions after3warm-ups; equal pixels use separate ArrayBuffers; clone setup excluded for compare-only and included for clone+compare.",
+    "memory": "Sum of distinct reachable engine ArrayBuffer.byteLength values. Canvas backing stores, compression buffers,Worker snapshots,GC and RSS peak are excluded.",
+    "percentiles": "Nearest-rank percentile; p95/p99 of7core operation samples are the maximum and are descriptive,not stable tail estimates.",
+    "uploadBytes": "Sum of requested putImageData dirty-rectangle areas x4. This does not measure GPU bus transfers or completed display pixels.",
+    "deadlineMs": 90000,
+    "notMeasured": [
+      "Physical touch-to-photon or pen latency",
+      "Android physical web/iPad Safari acceptance",
+      "WKWebView or WebView2 execution performance",
+      "Hardware GPU throughput",
+      "End-to-end cold network startup",
+      "Complete peak process/GPU memory",
+      "Long-session leak acceptance"
+    ]
+  },
+  "uiBrushComparison": [
+    {
+      "size": 12,
+      "putImageDataRequestedBytesBefore": 85844992,
+      "putImageDataRequestedBytesAfter": 26207232,
+      "requestedByteReductionPercent": 69.47144919065285,
+      "moveP95BeforeMs": 0.20000004768371582,
+      "moveP95AfterMs": 0.20000004768371582,
+      "renderCallbackP95BeforeMs": 0.40000009536743164,
+      "renderCallbackP95AfterMs": 0.30000007152557373,
+      "longTaskCountsBeforeAfter": [
+        0,
+        0
+      ]
+    },
+    {
+      "size": 100,
+      "putImageDataRequestedBytesBefore": 140370944,
+      "putImageDataRequestedBytesAfter": 48161792,
+      "requestedByteReductionPercent": 65.68962875963847,
+      "moveP95BeforeMs": 0.7999999523162842,
+      "moveP95AfterMs": 0.8000000715255737,
+      "renderCallbackP95BeforeMs": 0.40000009536743164,
+      "renderCallbackP95AfterMs": 0.3999999761581421,
+      "longTaskCountsBeforeAfter": [
+        0,
+        0
+      ]
+    }
+  ],
+  "coreBrushCpuTradeoff": [
+    {
+      "width": 800,
+      "height": 600,
+      "size": 12,
+      "moveP95BeforeMs": 0.0957080000000019,
+      "moveP95AfterMs": 0.10379199999999855,
+      "changePercent": 8.446524846404158
+    },
+    {
+      "width": 800,
+      "height": 600,
+      "size": 100,
+      "moveP95BeforeMs": 1.0026670000000877,
+      "moveP95AfterMs": 1.1027919999999085,
+      "changePercent": 9.985867690849703
+    },
+    {
+      "width": 2048,
+      "height": 2048,
+      "size": 12,
+      "moveP95BeforeMs": 0.08324999999990723,
+      "moveP95AfterMs": 0.09016700000006495,
+      "changePercent": 8.308708708907409
+    },
+    {
+      "width": 2048,
+      "height": 2048,
+      "size": 100,
+      "moveP95BeforeMs": 1.0447080000001279,
+      "moveP95AfterMs": 1.087916999999834,
+      "changePercent": 4.135988237833033
+    }
+  ],
+  "coreOperationComparison": [
+    {
+      "operation": "smooth-brush",
+      "width": 800,
+      "height": 600,
+      "size": 12,
+      "beforeMs": {
+        "count": 840,
+        "p50": 0.057749999999998636,
+        "p95": 0.0957080000000019,
+        "p99": 0.4319589999999778,
+        "max": 0.8385829999999999
+      },
+      "afterMs": {
+        "count": 840,
+        "p50": 0.0574579999999969,
+        "p95": 0.10379199999999855,
+        "p99": 0.4274160000000222,
+        "max": 0.8381250000000477
+      }
+    },
+    {
+      "operation": "smooth-brush",
+      "width": 800,
+      "height": 600,
+      "size": 100,
+      "beforeMs": {
+        "count": 840,
+        "p50": 0.9159590000000435,
+        "p95": 1.0026670000000877,
+        "p99": 1.070291999999995,
+        "max": 2.596208000000047
+      },
+      "afterMs": {
+        "count": 840,
+        "p50": 0.9629170000000613,
+        "p95": 1.1027919999999085,
+        "p99": 1.8056669999999713,
+        "max": 49.273416999999995
+      }
+    },
+    {
+      "operation": "smooth-brush",
+      "width": 2048,
+      "height": 2048,
+      "size": 12,
+      "beforeMs": {
+        "count": 840,
+        "p50": 0.05379199999993034,
+        "p95": 0.08324999999990723,
+        "p99": 0.11566599999991922,
+        "max": 0.18787499999984902
+      },
+      "afterMs": {
+        "count": 840,
+        "p50": 0.05875000000014552,
+        "p95": 0.09016700000006495,
+        "p99": 0.1514999999999418,
+        "max": 0.36416699999995217
+      }
+    },
+    {
+      "operation": "smooth-brush",
+      "width": 2048,
+      "height": 2048,
+      "size": 100,
+      "beforeMs": {
+        "count": 840,
+        "p50": 0.9275829999999132,
+        "p95": 1.0447080000001279,
+        "p99": 1.1231659999998556,
+        "max": 1.546875
+      },
+      "afterMs": {
+        "count": 840,
+        "p50": 0.9518749999999727,
+        "p95": 1.087916999999834,
+        "p99": 1.214958999999908,
+        "max": 2.340291999999863
+      }
+    },
+    {
+      "operation": "composite",
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 7.84375,
+        "p95": 9.630540999999994,
+        "p99": 9.630540999999994,
+        "max": 9.630540999999994
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 7.815583999999944,
+        "p95": 9.078625000000102,
+        "p99": 9.078625000000102,
+        "max": 9.078625000000102
+      }
+    },
+    {
+      "operation": "fill-solid",
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 24.56841600000007,
+        "p95": 68.33987499999967,
+        "p99": 68.33987499999967,
+        "max": 68.33987499999967
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 23.11416599999984,
+        "p95": 63.453665999999885,
+        "p99": 63.453665999999885,
+        "max": 63.453665999999885
+      }
+    },
+    {
+      "operation": "resize-nearest",
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 19.910624999999982,
+        "p95": 20.91091600000027,
+        "p99": 20.91091600000027,
+        "max": 20.91091600000027
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 18.176666999999725,
+        "p95": 20.218500000000404,
+        "p99": 20.218500000000404,
+        "max": 20.218500000000404
+      }
+    },
+    {
+      "operation": "resize-smooth",
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 20.62908299999981,
+        "p95": 21.073957999999948,
+        "p99": 21.073957999999948,
+        "max": 21.073957999999948
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 18.711375000000317,
+        "p95": 18.962125000000015,
+        "p99": 18.962125000000015,
+        "max": 18.962125000000015
+      }
+    },
+    {
+      "operation": "rotate-right",
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 19.92166700000007,
+        "p95": 26.6427920000001,
+        "p99": 26.6427920000001,
+        "max": 26.6427920000001
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 16.42483399999992,
+        "p95": 17.452666000000136,
+        "p99": 17.452666000000136,
+        "max": 17.452666000000136
+      }
+    },
+    {
+      "operation": "project-encode",
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 28.7334579999997,
+        "p95": 93.73187499999995,
+        "p99": 93.73187499999995,
+        "max": 93.73187499999995
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 24.56925000000001,
+        "p95": 30.718083000000206,
+        "p99": 30.718083000000206,
+        "max": 30.718083000000206
+      }
+    },
+    {
+      "operation": "project-decode",
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 72.76312499999995,
+        "p95": 125.40604200000007,
+        "p99": 125.40604200000007,
+        "max": 125.40604200000007
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 52.47875000000022,
+        "p95": 59.643583000000035,
+        "p99": 59.643583000000035,
+        "max": 59.643583000000035
+      }
+    },
+    {
+      "operation": "candidate-no-op",
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 17.667415999999776,
+        "p95": 27.002583999999842,
+        "p99": 27.002583999999842,
+        "max": 27.002583999999842
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 0.0011249999997744453,
+        "p95": 0.008709000000180822,
+        "p99": 0.008709000000180822,
+        "max": 0.008709000000180822
+      },
+      "interpretation": "Same pixel-buffer identity. Historical implementation scanned it; optimized implementation skips the scan. Cloned candidate timings are listed separately."
+    },
+    {
+      "operation": "composite",
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 66.76987499999996,
+        "p95": 69.52708299999995,
+        "p99": 69.52708299999995,
+        "max": 69.52708299999995
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 65.25108400000045,
+        "p95": 73.71258299999954,
+        "p99": 73.71258299999954,
+        "max": 73.71258299999954
+      }
+    },
+    {
+      "operation": "fill-solid",
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 209.7704590000003,
+        "p95": 234.62720799999988,
+        "p99": 234.62720799999988,
+        "max": 234.62720799999988
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 200.12604199999987,
+        "p95": 203.08120899999994,
+        "p99": 203.08120899999994,
+        "max": 203.08120899999994
+      }
+    },
+    {
+      "operation": "resize-nearest",
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 166.85166599999957,
+        "p95": 212.76100000000042,
+        "p99": 212.76100000000042,
+        "max": 212.76100000000042
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 156.73570800000016,
+        "p95": 158.83508399999937,
+        "p99": 158.83508399999937,
+        "max": 158.83508399999937
+      }
+    },
+    {
+      "operation": "resize-smooth",
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 176.8640409999989,
+        "p95": 181.2435829999995,
+        "p99": 181.2435829999995,
+        "max": 181.2435829999995
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 161.350292000001,
+        "p95": 171.01291700000002,
+        "p99": 171.01291700000002,
+        "max": 171.01291700000002
+      }
+    },
+    {
+      "operation": "rotate-right",
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 157.8160829999997,
+        "p95": 167.717458000001,
+        "p99": 167.717458000001,
+        "max": 167.717458000001
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 142.0383750000001,
+        "p95": 144.19612499999857,
+        "p99": 144.19612499999857,
+        "max": 144.19612499999857
+      }
+    },
+    {
+      "operation": "project-encode",
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 158.66516600000068,
+        "p95": 170.22529199999917,
+        "p99": 170.22529199999917,
+        "max": 170.22529199999917
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 164.75829199999862,
+        "p95": 215.71958300000006,
+        "p99": 215.71958300000006,
+        "max": 215.71958300000006
+      }
+    },
+    {
+      "operation": "project-decode",
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 397.34929100000045,
+        "p95": 399.5707089999996,
+        "p99": 399.5707089999996,
+        "max": 399.5707089999996
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 410.5130420000005,
+        "p95": 423.79762500000106,
+        "p99": 423.79762500000106,
+        "max": 423.79762500000106
+      }
+    },
+    {
+      "operation": "candidate-no-op",
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "beforeMs": {
+        "count": 7,
+        "p50": 142.0710829999989,
+        "p95": 147.94037500000013,
+        "p99": 147.94037500000013,
+        "max": 147.94037500000013
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 0.001082999999198364,
+        "p95": 0.0021249999990686774,
+        "p99": 0.0021249999990686774,
+        "max": 0.0021249999990686774
+      },
+      "interpretation": "Same pixel-buffer identity. Historical implementation scanned it; optimized implementation skips the scan. Cloned candidate timings are listed separately."
+    },
+    {
+      "operation": "composite",
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "beforeMs": {
+        "count": 7,
+        "p50": 61.44024999999965,
+        "p95": 63.5435830000024,
+        "p99": 63.5435830000024,
+        "max": 63.5435830000024
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 62.88708399999996,
+        "p95": 65.46612499999901,
+        "p99": 65.46612499999901,
+        "max": 65.46612499999901
+      }
+    },
+    {
+      "operation": "fill-solid",
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "beforeMs": {
+        "count": 7,
+        "p50": 147.70958400000018,
+        "p95": 152.69641700000284,
+        "p99": 152.69641700000284,
+        "max": 152.69641700000284
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 154.57874999999694,
+        "p95": 273.3561249999984,
+        "p99": 273.3561249999984,
+        "max": 273.3561249999984
+      }
+    },
+    {
+      "operation": "resize-nearest",
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "beforeMs": {
+        "count": 7,
+        "p50": 231.32916600000317,
+        "p95": 241.4499169999981,
+        "p99": 241.4499169999981,
+        "max": 241.4499169999981
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 238.39604099999997,
+        "p95": 265.53170800000225,
+        "p99": 265.53170800000225,
+        "max": 265.53170800000225
+      }
+    },
+    {
+      "operation": "resize-smooth",
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "beforeMs": {
+        "count": 7,
+        "p50": 214.94858300000124,
+        "p95": 219.541500000003,
+        "p99": 219.541500000003,
+        "max": 219.541500000003
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 222.94687500000146,
+        "p95": 230.3147080000017,
+        "p99": 230.3147080000017,
+        "max": 230.3147080000017
+      }
+    },
+    {
+      "operation": "rotate-right",
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "beforeMs": {
+        "count": 7,
+        "p50": 212.12966700000106,
+        "p95": 214.32258300000103,
+        "p99": 214.32258300000103,
+        "max": 214.32258300000103
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 215.85654099999738,
+        "p95": 222.68295800000124,
+        "p99": 222.68295800000124,
+        "max": 222.68295800000124
+      }
+    },
+    {
+      "operation": "project-encode",
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "beforeMs": {
+        "count": 7,
+        "p50": 252.21354099999735,
+        "p95": 259.6230829999986,
+        "p99": 259.6230829999986,
+        "max": 259.6230829999986
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 251.46654200000194,
+        "p95": 262.4292910000004,
+        "p99": 262.4292910000004,
+        "max": 262.4292910000004
+      }
+    },
+    {
+      "operation": "project-decode",
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "beforeMs": {
+        "count": 7,
+        "p50": 616.2544999999991,
+        "p95": 653.2199590000018,
+        "p99": 653.2199590000018,
+        "max": 653.2199590000018
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 702.7902080000022,
+        "p95": 754.916459,
+        "p99": 754.916459,
+        "max": 754.916459
+      }
+    },
+    {
+      "operation": "candidate-no-op",
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "beforeMs": {
+        "count": 7,
+        "p50": 224.68704100000105,
+        "p95": 244.99750000000495,
+        "p99": 244.99750000000495,
+        "max": 244.99750000000495
+      },
+      "afterMs": {
+        "count": 7,
+        "p50": 0.0012920000008307397,
+        "p95": 0.0023330000003625173,
+        "p99": 0.0023330000003625173,
+        "max": 0.0023330000003625173
+      },
+      "interpretation": "Same pixel-buffer identity. Historical implementation scanned it; optimized implementation skips the scan. Cloned candidate timings are listed separately."
+    }
+  ],
+  "clonedEqualCandidates": [
+    {
+      "width": 800,
+      "height": 600,
+      "layerCount": 1,
+      "preclonedCompareMs": {
+        "count": 20,
+        "p50": 0.504209000000003,
+        "p95": 0.569041999999996,
+        "p99": 0.5841250000000002
+      },
+      "cloneAndCompareMs": {
+        "count": 20,
+        "p50": 0.7024590000000046,
+        "p95": 0.9873330000000067,
+        "p99": 1.000916000000018
+      }
+    },
+    {
+      "width": 2048,
+      "height": 2048,
+      "layerCount": 1,
+      "preclonedCompareMs": {
+        "count": 20,
+        "p50": 4.431833999999981,
+        "p95": 4.58708299999995,
+        "p99": 4.656542000000002
+      },
+      "cloneAndCompareMs": {
+        "count": 20,
+        "p50": 5.410624999999982,
+        "p95": 8.856875000000002,
+        "p99": 9.004750000000001
+      }
+    },
+    {
+      "width": 1536,
+      "height": 2048,
+      "layerCount": 2,
+      "preclonedCompareMs": {
+        "count": 20,
+        "p50": 6.625084000000015,
+        "p95": 6.679709000000003,
+        "p99": 6.92941600000006
+      },
+      "cloneAndCompareMs": {
+        "count": 20,
+        "p50": 7.6248749999999745,
+        "p95": 10.263292000000092,
+        "p99": 13.965415999999891
+      }
+    }
+  ],
+  "pickerActualUiComparison": {
+    "workload": "2048x2048 one layer,13trusted mouse clicks,first click excluded from callback distribution",
+    "beforeMs": {
+      "count": 12,
+      "p50": 63.700000047683716,
+      "p95": 70.5
+    },
+    "afterMs": {
+      "count": 12,
+      "p50": 0.19999992847442627,
+      "p95": 0.5
+    },
+    "result": "Full-document CPU composite is removed from picker; remaining post-JS/native-render long tasks are not claimed fixed."
+  },
+  "workerResponsiveness": {
+    "before": [
+      {
+        "operation": "project-write",
+        "elapsedMs": 148.40000009536743,
+        "rafGapsMs": {
+          "count": 12,
+          "p50": 16.69999999999709,
+          "p95": 16.799999999999272,
+          "p99": 16.799999999999272,
+          "max": 16.799999999999272
+        },
+        "longTasks": []
+      },
+      {
+        "operation": "project-read",
+        "elapsedMs": 435.60000002384186,
+        "rafGapsMs": {
+          "count": 29,
+          "p50": 16.69999999999709,
+          "p95": 16.799999999999272,
+          "p99": 16.799999999999272,
+          "max": 16.799999999999272
+        },
+        "longTasks": []
+      },
+      {
+        "operation": "fill",
+        "elapsedMs": 197.79999995231628,
+        "rafGapsMs": {
+          "count": 13,
+          "p50": 16.69999999999709,
+          "p95": 16.700000000000728,
+          "p99": 16.700000000000728,
+          "max": 16.700000000000728
+        },
+        "longTasks": []
+      }
+    ],
+    "after": [
+      {
+        "operation": "project-write",
+        "elapsedMs": 151.70000004768372,
+        "rafGapsMs": {
+          "count": 12,
+          "p50": 16.600000000002183,
+          "p95": 16.799999999999272,
+          "p99": 16.799999999999272,
+          "max": 16.799999999999272
+        },
+        "longTasks": []
+      },
+      {
+        "operation": "project-read",
+        "elapsedMs": 422.7999999523163,
+        "rafGapsMs": {
+          "count": 28,
+          "p50": 16.69999999999709,
+          "p95": 16.799999999999272,
+          "p99": 16.799999999999272,
+          "max": 16.799999999999272
+        },
+        "longTasks": []
+      },
+      {
+        "operation": "fill",
+        "elapsedMs": 171.69999992847443,
+        "rafGapsMs": {
+          "count": 12,
+          "p50": 16.69999999999709,
+          "p95": 16.799999999999272,
+          "p99": 16.799999999999272,
+          "max": 16.799999999999272
+        },
+        "longTasks": []
+      }
+    ],
+    "interpretation": "One job per operation in each run;codec source and served Worker hash are unchanged. Timing variation is not a codec speedup claim."
+  },
+  "reachableEngineMemory": [
+    {
+      "width": 2048,
+      "height": 2048,
+      "layers": 1,
+      "documentPixelBytes": 16777216,
+      "historyBudget": 33554432,
+      "historyBytes": 33554432,
+      "retainedUniqueBufferBytes": 50331648,
+      "note": "Canvas backing stores, worker and compression buffers excluded; one oversized last item retained by policy"
+    },
+    {
+      "width": 1536,
+      "height": 2048,
+      "layers": 2,
+      "documentPixelBytes": 25165824,
+      "historyBudget": 33554432,
+      "historyBytes": 50331648,
+      "retainedUniqueBufferBytes": 75497472,
+      "note": "Canvas backing stores, worker and compression buffers excluded; one oversized last item retained by policy"
+    }
+  ],
+  "isolatedPickerRedrawExperiment": {
+    "scope": "Only /tmp copy changed; no additional product source changes.",
+    "change": "run.finally skips this.draw() only for ownsPointer && tool===picker. pointerDown.settle and other direct draw paths unchanged; not adopted in product.",
+    "controlMainSha256": "fa58c6aa2199c0296a770489b92daa529c8fc7f331a59e69bd1d3a2574686076",
+    "experimentMainSha256": "3fcb10a31e70012f00fc71ff7162e49fad1016fedfa20e8cf6620f85037d5d50",
+    "runs": [
+      {
+        "label": "control-1",
+        "callbackP95Ms": 0.7999999523162842,
+        "longTaskCount": 3,
+        "longTaskTotalMs": 882,
+        "longTaskDurationsMs": [
+          513,
+          278,
+          91
+        ],
+        "renderCallbacks": 5,
+        "maxInstrumentedJsPhaseMs": 1,
+        "servedAssets": [
+          "http://127.0.0.1:8933/mypaint/assets/index-bvpgIeMe.js",
+          "http://127.0.0.1:8933/mypaint/assets/index-aClAeViE.css"
+        ]
+      },
+      {
+        "label": "skip-1",
+        "callbackP95Ms": 0.30000007152557373,
+        "longTaskCount": 2,
+        "longTaskTotalMs": 206,
+        "longTaskDurationsMs": [
+          147,
+          59
+        ],
+        "renderCallbacks": 1,
+        "maxInstrumentedJsPhaseMs": 0.5,
+        "servedAssets": [
+          "http://127.0.0.1:8934/mypaint/assets/index-BQlcE2eH.js",
+          "http://127.0.0.1:8934/mypaint/assets/index-aClAeViE.css"
+        ]
+      },
+      {
+        "label": "control-2",
+        "callbackP95Ms": 0.20000004768371582,
+        "longTaskCount": 4,
+        "longTaskTotalMs": 495,
+        "longTaskDurationsMs": [
+          131,
+          94,
+          182,
+          88
+        ],
+        "renderCallbacks": 5,
+        "maxInstrumentedJsPhaseMs": 0.5,
+        "servedAssets": [
+          "http://127.0.0.1:8933/mypaint/assets/index-bvpgIeMe.js",
+          "http://127.0.0.1:8933/mypaint/assets/index-aClAeViE.css"
+        ]
+      },
+      {
+        "label": "skip-2",
+        "callbackP95Ms": 0.3999999761581421,
+        "longTaskCount": 2,
+        "longTaskTotalMs": 212,
+        "longTaskDurationsMs": [
+          125,
+          87
+        ],
+        "renderCallbacks": 1,
+        "maxInstrumentedJsPhaseMs": 0.6000000238418579,
+        "servedAssets": [
+          "http://127.0.0.1:8934/mypaint/assets/index-BQlcE2eH.js",
+          "http://127.0.0.1:8934/mypaint/assets/index-aClAeViE.css"
+        ]
+      }
+    ],
+    "finding": "Control3/4long tasks versus skip2/2;render callbacks5versus1. Long tasks persist and variation is large. Instrumented JS phases stayed below10ms;CPU profile was predominantly idle. Underlying native-render/compositor/host cause is unproven.",
+    "decision": "Do not adopt this additional product change solely as a long-task fix without stronger attribution."
+  },
+  "remainingGatesAtMeasuredSnapshot": [
+    "Large structural/pixel operations remain synchronous in main UI and measured150-245ms",
+    "Physical Android touch/pen and desktop WKWebView/WebView2 latency unmeasured",
+    "Long-session resource and peak memory acceptance beyond deterministic buffer accounting",
+    "Full warm/cold network startup profile not measured",
+    "Post-JS long tasks in2k software-rendered picker scenario need attribution"
+  ],
+  "reproduction": {
+    "cwd": "web-app",
+    "command": "node --import tsx tests/performance.mjs",
+    "environment": [
+      "PLAYWRIGHT_MODULE=absolute path to playwright/index.mjs",
+      "PAINT_BROWSER_PATH=absolute path to Chrome executable",
+      "PAINT_TEST_URL=http://127.0.0.1:PORT/mypaint/",
+      "PAINT_PERFORMANCE_OUTPUT=output directory",
+      "PAINT_PERFORMANCE_LABEL=before or after"
+    ],
+    "optional": [
+      "PAINT_BENCH_BROWSER_ONLY=1",
+      "PAINT_BENCH_SKIP_BROWSER=1",
+      "PAINT_BENCH_SAMPLES=3..15",
+      "PAINT_BENCH_LIMIT_MS=10000..120000"
+    ],
+    "artifactPolicy": "Raw local evidence below is in ignored build-web-work. Summary and harness are reviewable; raw traces can be retained as CI/release artifacts rather than added to the runtime bundle."
+  },
+  "localRawEvidence": [
+    {
+      "path": "build-web-work/task-planning/performance/before/results.json",
+      "sha256": "4e3c19414caf6fbedb743356bad392cf9a5992a761329a5366bb41c31c0c407d"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/before-worker/results.json",
+      "sha256": "11fc44a1fe57296292936b04101fbc398186fde7d30bcfe0e616e64893b29dac"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/after/results.json",
+      "sha256": "d0db7e816f01c927db80d60e86b17cad7bac3efe3ce9f9e28c50fa4c8b08575a"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/after/cloned-candidate.json",
+      "sha256": "51bc55d604f251ef79020b786542ac1e4b296abe702b77679950d954bebf95b4"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/after/snapshot.json",
+      "sha256": "365e0faba4c9bc3b06d8097906d1e70b2c587698bc16f4a6f4938b29abcb6d96"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/memory.json",
+      "sha256": "2d9f761f7f3f38a79fb044fe17ddc2863fa0982862ad4de547c10403a85c7beb"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/picker-results.json",
+      "sha256": "6d04174c1de757ccf21cdae0c38cd0d1f8e3273c21f63d02d220475d37f59275"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/picker-diagnostic-results.json",
+      "sha256": "e6f9f403678ccdd5bc7a18e579e1c7f890421764002f193746338338dd7c26f8"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/picker-after-cpu.json",
+      "sha256": "87f9ce459ea39e545258261d7895f8daa76179691577ea13aaca6bc0abcffec5"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/picker-skip/results.json",
+      "sha256": "517efa418a3cdeffa71e33b69b05dc76d549da589bef56d6841f359364825cd6"
+    },
+    {
+      "path": "build-web-work/task-planning/performance/picker-skip/snapshot.json",
+      "sha256": "a75f69af09739b9ac28d5b3cbb2c772a549f335709b477880d40500662406fa3"
+    }
+  ]
+}

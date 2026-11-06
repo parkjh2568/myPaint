@@ -1,0 +1,1131 @@
+{
+  "generatedAt": "2026-11-04T12:43:46.970790+00:00",
+  "status": "Verified P0 contract checkpoint; full migration and performance/platform gates remain open.",
+  "scope": "Mobile/tablet web; Windows/macOS packages. Chromium functional failure/clipboard models and actual macOS bundle are separate evidence.",
+  "sourceSha256": {
+    ".github/workflows/studio.yml": "28b2857f50ec2d50f2c8c6624b3a5ae4fb6137a0d495e3054d239d1c5b624b41",
+    "web-app/package.json": "7601e212163bd5356c11b777906ec05a60026c125910763e92d8ea882c77768a",
+    "web-app/src/engine/document.ts": "8b6885a0632ed2d544db95d02a7276052b7e5d9812ea09d83806e04ac4d2ea6b",
+    "web-app/src/engine/format.ts": "a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2",
+    "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "c6e2bfc7c7b2d2bef775ce3c61e1b2f297d90da4f51905bacad510e2fba8835f",
+    "web-app/src/platform/codec.ts": "afd7a3a42b88f6dfa528889c7a5af99ef664cbbbe666132f657f3b4484d5284e",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "f3f67b8254a2f70b16d5487d0a54333898a49482e2d31b599bc692cc6af35f8f",
+    "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "190956b1d91f5b7c6d5b9519094f184bfd9380bb75b9d9050542f0451855bddf",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "b9cc04428821becdc5fd7b61b025d796ac4276585ee2903952648d08c68378a3",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f",
+    "web-app/tests/clipboard-contract.mjs": "3cf53c266026d738635ca388b423af9a0183171ae76910d926bf5c4b75b4483f",
+    "web-app/tests/pending-contract.mjs": "731d0fc2264cf9d3e30d2d8646894a9001678426e187f6b9d2cd3b5a55749124"
+  },
+  "webBundle": {
+    "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+    "assets/buffer-BvsCVyfC.js": "15101c626c886c28b5971dfc441b581217a249352d662e3e41990d1680d07a51",
+    "assets/codec.worker-DVetkR7m.js": "0e59d27aa99149daa81d1e02b0c01055922e10f5b41abe10f49ce9110e3e3cbe",
+    "assets/encoder-j251LOjw.js": "5e3bfc15993c41ed9995b24daf2689d3cef838672a2e3e404ae983522df62c36",
+    "assets/index-DqAJBzmA.js": "8c76008c782877426560476a728c6607b170615155e848e31d636a5f4b58fdb7",
+    "assets/index-aClAeViE.css": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601",
+    "index.html": "9bf41c832e1dc819fe25470662ed4984e54fcce434e6415c752fdf3bed9629f6"
+  },
+  "baselineBundle": {
+    "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+    "assets/buffer-BvsCVyfC.js": "15101c626c886c28b5971dfc441b581217a249352d662e3e41990d1680d07a51",
+    "assets/codec.worker-DVetkR7m.js": "0e59d27aa99149daa81d1e02b0c01055922e10f5b41abe10f49ce9110e3e3cbe",
+    "assets/encoder-j251LOjw.js": "5e3bfc15993c41ed9995b24daf2689d3cef838672a2e3e404ae983522df62c36",
+    "assets/index-Bshc9KRt.js": "a9456d4e02e18ef495c46c6a987422cc21a2dd045a41b762dbaa678f2dc070e0",
+    "assets/index-aClAeViE.css": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601",
+    "index.html": "0d00ac2a6f50490ab82d1476f53c6d81e7fd92b367fac5327aeefdd8114a168d"
+  },
+  "checks": {
+    "pendingMatrix": 24,
+    "pendingRedoShortcuts": 12,
+    "clipboardPayloadContracts": 4,
+    "existingEditing": 13,
+    "existingConcurrency": 3,
+    "browserPageErrors": 0,
+    "actualMacOSPhases": 3,
+    "typescript": "pass",
+    "prettier": "pass",
+    "actualAPFSEnospc": "save+recovery OS28, originals/metadata/binding/tokens/stages preserved, retry passes, own volume removed"
+  },
+  "redoRca": {
+    "severity": "Major / small localized fix",
+    "trigger": "Clean document with an existing Redo branch, followed by provisional paste/selection/text/curve/polygon and Ctrl+Shift+Z or Ctrl+Y",
+    "cause": "Header disables Redo while pending, but keyboard routing called command redo and mutated the committed document underneath the provisional edit.",
+    "fix": "An inline hasPending guard in the redo command preserves both pending ownership and document history. Nonpending replay is unchanged.",
+    "baseline": {
+      "checks": [],
+      "failures": [
+        {
+          "name": "paste / pending Control+Shift+z preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "640ff665e42bad548bf4ba84b0428539d597c74e61e03fc7fb8958ce4f631c3f",
+              "canvasSha256": "21af24bb26823cb2e9cfb827a2ad01e90741d8fb414b7a6a562686c32eb7f65e",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "5e0d4d95e1ce9cc32e5320a38ac59a09c9c26e2072c08206f1287a022f57cddf",
+              "canvasSha256": "3195f8a6b3eae45dd96510d61e41914ad847be717ba0e6989c6ae752aa43d8c1",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     49,\n+     149,\n+     248,\n+     166,\n+     179,\n+     234,\n+     228,\n+     93,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "paste / pending Control+y preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "640ff665e42bad548bf4ba84b0428539d597c74e61e03fc7fb8958ce4f631c3f",
+              "canvasSha256": "21af24bb26823cb2e9cfb827a2ad01e90741d8fb414b7a6a562686c32eb7f65e",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "5e0d4d95e1ce9cc32e5320a38ac59a09c9c26e2072c08206f1287a022f57cddf",
+              "canvasSha256": "3195f8a6b3eae45dd96510d61e41914ad847be717ba0e6989c6ae752aa43d8c1",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     49,\n+     149,\n+     248,\n+     166,\n+     179,\n+     234,\n+     228,\n+     93,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "selection / pending Control+Shift+z preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "96a5a5f81dadee838a3d0843f047aa667e22d5285137c69f3de5c8c568ce80b6",
+              "canvasSha256": "ce7748023249a7c007d64b83a9f8bf568bc6212761d4afe85eb887d4e7f438df",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "ef25a497db4081ff833d5f8926bc4bdccca3b9a9a48b92aaf72c93b4d6d2e1ef",
+              "canvasSha256": "5182136cbd6c58611dcd8d17bbb6b5b5e5cc4cef54bd5d18c1d80db9cc81a332",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     81,\n+     130,\n+     19,\n+     108,\n+     189,\n+     108,\n+     88,\n+     97,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "selection / pending Control+y preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "96a5a5f81dadee838a3d0843f047aa667e22d5285137c69f3de5c8c568ce80b6",
+              "canvasSha256": "ce7748023249a7c007d64b83a9f8bf568bc6212761d4afe85eb887d4e7f438df",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "ef25a497db4081ff833d5f8926bc4bdccca3b9a9a48b92aaf72c93b4d6d2e1ef",
+              "canvasSha256": "5182136cbd6c58611dcd8d17bbb6b5b5e5cc4cef54bd5d18c1d80db9cc81a332",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     81,\n+     130,\n+     19,\n+     108,\n+     189,\n+     108,\n+     88,\n+     97,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "text / pending Control+Shift+z preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "a540c8c6f811163de55e39765debd4dada072120f9e8a41d4f5616448e5aff99",
+              "canvasSha256": "5068e18825006b7432d5a2ef12a8b3a320de1021c7e57a8458b7c8b19e8cd344",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "635ef128fedb0c44d8072e33322e9189c03596600fe3451755bff4f8a1107dbc",
+              "canvasSha256": "a0b0e5cd433eb2f0c6c0f0b19825e3b2da72333e3b5a730481336b561e08723e",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: {\n      height: '120px',\n      left: '508px',\n...\n    frame: [\n+     160,\n+     176,\n+     229,\n+     205,\n+     67,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "text / pending Control+y preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "a540c8c6f811163de55e39765debd4dada072120f9e8a41d4f5616448e5aff99",
+              "canvasSha256": "5068e18825006b7432d5a2ef12a8b3a320de1021c7e57a8458b7c8b19e8cd344",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "635ef128fedb0c44d8072e33322e9189c03596600fe3451755bff4f8a1107dbc",
+              "canvasSha256": "a0b0e5cd433eb2f0c6c0f0b19825e3b2da72333e3b5a730481336b561e08723e",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: {\n      height: '120px',\n      left: '508px',\n...\n    frame: [\n+     160,\n+     176,\n+     229,\n+     205,\n+     67,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "curve0 / pending Control+Shift+z preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "6b75ee740adaca7eb448ec6c4a80e6310ced5ab97ddf54fa550d3bd7184696a8",
+              "canvasSha256": "5edfa3e04a551e473d065732d114511f327c4c77fe256104cd837a72db4f61ce",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "454a15e5b22b31db7cb3d732b92712e678613ebecf6576d1ecf9b7d20f0154ba",
+              "canvasSha256": "cf8ae6139edfe5f40a8f03d9be85f308d6fd7bfb9d87c3b074729dda41549334",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     207,\n+     138,\n+     230,\n+     19,\n+     158,\n-     94,\n      223,\n+     229,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "curve0 / pending Control+y preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "6b75ee740adaca7eb448ec6c4a80e6310ced5ab97ddf54fa550d3bd7184696a8",
+              "canvasSha256": "5edfa3e04a551e473d065732d114511f327c4c77fe256104cd837a72db4f61ce",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "454a15e5b22b31db7cb3d732b92712e678613ebecf6576d1ecf9b7d20f0154ba",
+              "canvasSha256": "cf8ae6139edfe5f40a8f03d9be85f308d6fd7bfb9d87c3b074729dda41549334",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     207,\n+     138,\n+     230,\n+     19,\n+     158,\n-     94,\n      223,\n+     229,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "curve1 / pending Control+Shift+z preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "b23db0e83a5ec6191a741382a9ad8a17bf334a043a75c34d61aadaf84369d4da",
+              "canvasSha256": "bbaabd524fa9c3aa6d7940cb592ff355646bfca5f60d81b0c7b0c59e4027e4e4",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "5644670e80f162a973edd6f48d26943f7488f84167b3edb14b995ea66f2a84d8",
+              "canvasSha256": "ddec2df65fd7999f58f88a94968058060cf76240425caa6368a6f3fc05c845b7",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     221,\n+     236,\n+     45,\n+     246,\n+     95,\n+     215,\n+     153,\n+     159,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "curve1 / pending Control+y preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "b23db0e83a5ec6191a741382a9ad8a17bf334a043a75c34d61aadaf84369d4da",
+              "canvasSha256": "bbaabd524fa9c3aa6d7940cb592ff355646bfca5f60d81b0c7b0c59e4027e4e4",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "5644670e80f162a973edd6f48d26943f7488f84167b3edb14b995ea66f2a84d8",
+              "canvasSha256": "ddec2df65fd7999f58f88a94968058060cf76240425caa6368a6f3fc05c845b7",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     221,\n+     236,\n+     45,\n+     246,\n+     95,\n+     215,\n+     153,\n+     159,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "polygon / pending Control+Shift+z preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "66ef8ed72efb3447ef069ceceaf95b09afd04b1f09db7187adbef651ab28c170",
+              "canvasSha256": "afd36dfa54849111a84d1ac97f068df5f5a40593e183f9ee3df81e07dacacb61",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "23719569bb9887d9937c64624ff9dce68506d3afedf37aee43d2b09ea7dafda9",
+              "canvasSha256": "3dd2a263fca0e70ebb1a1133088a3ef56b694633645d85ccadf6c6aef40055cc",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     61,\n+     210,\n+     162,\n+     99,\n+     252,\n+     160,\n+     231,\n+     14,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        },
+        {
+          "name": "polygon / pending Control+y preserves pending and Redo",
+          "observation": {
+            "before": {
+              "rawStateSha256": "66ef8ed72efb3447ef069ceceaf95b09afd04b1f09db7187adbef651ab28c170",
+              "canvasSha256": "afd36dfa54849111a84d1ac97f068df5f5a40593e183f9ee3df81e07dacacb61",
+              "title": "pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            },
+            "after": {
+              "rawStateSha256": "23719569bb9887d9937c64624ff9dce68506d3afedf37aee43d2b09ea7dafda9",
+              "canvasSha256": "3dd2a263fca0e70ebb1a1133088a3ef56b694633645d85ccadf6c6aef40055cc",
+              "title": "* pending.rpaint — myPaint",
+              "pendingTitle": "pending.rpaint · 편집 중",
+              "undo": true,
+              "redo": false
+            }
+          },
+          "error": "AssertionError [ERR_ASSERTION]: Disabled Redo must preserve the pending edit and document\n+ actual - expected\n... Skipped lines\n\n  {\n    active: '활성 잉크',\n    editor: null,\n    frame: [\n+     61,\n+     210,\n+     162,\n+     99,\n+     252,\n+     160,\n+     231,\n+     14,\n    at <anonymous> (/Users/jhpark/code/myService/myPaint/web-app/tests/pending-contract.mjs:413:24)"
+        }
+      ],
+      "errors": [],
+      "browser": "156.0.8078.80",
+      "scope": "Production public UI with modeled native IPC/clipboard. Passive observation copies the small real codec Worker input without changing it; no Studio/document hooks. Raw state, actual PNG output, saved/dirty UI and observable Undo/Redo are checked. Numeric revision IDs and actual OS write failures are not directly inspected."
+    },
+    "expectedBehavior": "No-op while pending. The disabled QAction state in mainwindow.cpp and the actual Qt key fixture override an interpretation based only on its dormant callback body.",
+    "qtDisabledAction": {
+      "checks": [
+        {
+          "disabledBlocks": true,
+          "enabledDelivers": true,
+          "sequence": "Ctrl+Y"
+        },
+        {
+          "disabledBlocks": true,
+          "enabledDelivers": true,
+          "sequence": "Alt+Shift+Backspace"
+        },
+        {
+          "disabledBlocks": true,
+          "enabledDelivers": true,
+          "sequence": "Ctrl+Shift+Z"
+        },
+        {
+          "disabledBlocks": true,
+          "enabledDelivers": true,
+          "sequence": "Redo"
+        }
+      ],
+      "disabledTriggerBlocks": true,
+      "ok": true,
+      "qt": "6.12.0"
+    }
+  },
+  "qtOriginalMatrix": {
+    "command": [
+      "/usr/bin/sandbox-exec",
+      "-f",
+      "/private/tmp/mypaint-f05-qt-architect/qt.sb",
+      "/Users/jhpark/code/myService/myPaint/build-native-relocated/ui_tests",
+      "pendingCommandsPreserveState"
+    ],
+    "workingDirectory": "/private/tmp/mypaint-f05-qt-architect",
+    "environment": {
+      "QT_QPA_PLATFORM": "offscreen"
+    },
+    "sandboxProfile": "/private/tmp/mypaint-f05-qt-architect/qt.sb",
+    "blockedRecoveryRoots": [
+      "/Users/jhpark/Library/Application Support/RetroPaint-tests",
+      "/Users/jhpark/Library/Application Support/RetroPaint"
+    ],
+    "exitCode": 0,
+    "log": "/private/tmp/mypaint-f05-qt-architect/qt16.log",
+    "sourceSha256": {
+      "tests/ui_tests.cpp": "9792703bd736fbd154d9f27e223b565d6acf668b0d4290db55b4c6f5aa45d9d9",
+      "src/mainwindow.cpp": "d0f6ae0ce5ceb8a5f3d60ef5fc0aafd6c1ba6565262cc6e1ab91e5327061225c",
+      "src/canvas.cpp": "6782894aea37ccf431cb562a2cfa241500088e7e055dbdcd6bc4ed3dce229870",
+      "src/document.cpp": "89bbb0aad6c8a74c59436aa79ba114fa99b8b39e4f18be72ac506e57bb91f13a",
+      "build-native-relocated/ui_tests": "a0463784e6bf67285bd4d78c774e12359ec036bd277e06cee6ce1dfe518a1159"
+    },
+    "productChanged": false,
+    "result": {
+      "matrixRowsPassed": 16,
+      "totalPassedIncludingSetupCleanup": 18,
+      "failed": 0,
+      "skipped": 0,
+      "qt": "6.12.0",
+      "platform": "macOS 27.0.0 arm64",
+      "durationMs": 548
+    },
+    "isolation": {
+      "existingNamespaces": "All file access denied by macOS sandbox-exec; no directory list/read/hash or recovery mutation allowed.",
+      "homeOverride": "A metadata-only QStandardPaths preflight showed that macOS ignores temporary HOME/XDG for this AppLocalDataLocation. Initial UI run was aborted before dispatch.",
+      "effect": "MainWindow recovery folder initialization is denied. These results cover pending editing contracts, not recovery functionality."
+    },
+    "scope": {
+      "selection": "7x6 red paste; not lifted/cut/lasso selection",
+      "text": "plain committed string 보존 ABC; not native IME preedit",
+      "polygon": "three vertices pending; not closed polygon or duplicate vertices",
+      "curve": "endpoint stage only; not all control-point phases",
+      "saveCancel": "Qt offscreen QFileDialog rejection before staging",
+      "saveFailure": "nonexistent parent directory causes pre-commit staged-file error; not ENOSPC, flush, rename, or commit-after-response races",
+      "closeCancel": "window.close() rejected in Qt maybeSave; not macOS application Quit",
+      "resizeCancel": "canvas size dialog rejected before Document::resized; not geometry Worker cancellation"
+    },
+    "verifiedQtAssertions": [
+      "revision unchanged",
+      "project path unchanged",
+      "base composite unchanged",
+      "document remains clean",
+      "no Undo entry is created",
+      "pending edit remains present",
+      "pending first-layer QImage unchanged"
+    ],
+    "unverifiedByOriginalMatrix": [
+      "active layer",
+      "saved revision ID itself",
+      "preexisting Redo branch and history bytes",
+      "existing on-disk project bytes",
+      "all raw RGBA including hidden RGB",
+      "post-cancel ability to finish pending edit once and Undo/Redo it",
+      "all curve control phases and selection origins"
+    ],
+    "independentOracleRecommendations": [
+      "Use a known two-layer raw-RGBA fixture with active index 1 and hidden RGB under alpha zero, plus a preexisting Redo branch. Ensure pending output differs from the committed source before testing abort.",
+      "Capture every layer RGBA/name/visibility, background/dimensions/active, revision/saved identity, history cursor/length and pending geometry/text/source bytes before each boundary; compare unchanged after abort.",
+      "Preserve native modeled project binding and existing file bytes on picker cancellation and pre-commit failure. Test successful commit with delayed response separately.",
+      "After each boundary, complete pending exactly once, compare against the captured candidate, Undo to exact committed source and Redo to exact candidate. Successful project save additionally makes Redo return to the saved revision.",
+      "Qt Undo while pending cancels only pending. Qt Redo action is disabled while pending, so Redo keyboard/trigger must do nothing and preserve pending plus underlying history; after Esc, the old Redo branch must remain executable. Callback-only analysis would incorrectly infer that pending Redo cancels it."
+    ],
+    "sourceReferences": {
+      "matrix": "tests/ui_tests.cpp:300-378",
+      "successSaveOracle": "tests/ui_tests.cpp:380-399",
+      "pendingUndoRedo": "src/mainwindow.cpp:228-240",
+      "atomicSave": "src/mainwindow.cpp:1143-1156",
+      "closeCancel": "src/mainwindow.cpp:1165-1176",
+      "sizeCancel": "src/mainwindow.cpp:1232-1238",
+      "pendingCandidate": "src/canvas.cpp:140-195",
+      "disabledRedo": "src/mainwindow.cpp:939-940"
+    },
+    "redoActionProbe": {
+      "source": "/private/tmp/mypaint-f05-qt-architect/redo-action.cpp",
+      "sourceSha256": "3ba762cd941da6f20496084b7b459b760461a374e4913b7e3df266ebef13a945",
+      "binarySha256": "b1c815feb6859b09dc7595275afc7d8e8c6b2fa9864d55359ab64ee23029168a",
+      "result": "/private/tmp/mypaint-f05-qt-architect/redo-action.json",
+      "stderr": "/private/tmp/mypaint-f05-qt-architect/redo-action.log",
+      "qt": "6.12.0",
+      "sandboxProfile": "/private/tmp/mypaint-f05-qt-architect/qt.sb",
+      "observed": {
+        "checks": [
+          {
+            "disabledBlocks": true,
+            "enabledDelivers": true,
+            "sequence": "Ctrl+Y"
+          },
+          {
+            "disabledBlocks": true,
+            "enabledDelivers": true,
+            "sequence": "Alt+Shift+Backspace"
+          },
+          {
+            "disabledBlocks": true,
+            "enabledDelivers": true,
+            "sequence": "Ctrl+Shift+Z"
+          },
+          {
+            "disabledBlocks": true,
+            "enabledDelivers": true,
+            "sequence": "Redo"
+          }
+        ],
+        "disabledTriggerBlocks": true,
+        "ok": true,
+        "qt": "6.12.0"
+      },
+      "purpose": "Independent actual Qt keyboard delivery fixture, no MainWindow or data storage. Every standard Redo binding triggers enabled QAction and is blocked when disabled; direct trigger() is also blocked."
+    },
+    "reviewCorrection": "Initial callback-only advice that pending Redo cancels pending was incomplete. sync() disables Redo, and actual QAction keyboard probe demonstrates that public Qt Redo is a no-op while pending."
+  },
+  "pendingContracts": {
+    "checks": [
+      "paste / save_cancel",
+      "paste / save_failure",
+      "paste / close_cancel",
+      "paste / size_cancel",
+      "paste / pending Control+Shift+z preserves pending and Redo",
+      "paste / pending Control+y preserves pending and Redo",
+      "selection / save_cancel",
+      "selection / save_failure",
+      "selection / close_cancel",
+      "selection / size_cancel",
+      "selection / pending Control+Shift+z preserves pending and Redo",
+      "selection / pending Control+y preserves pending and Redo",
+      "text / save_cancel",
+      "text / save_failure",
+      "text / close_cancel",
+      "text / size_cancel",
+      "text / pending Control+Shift+z preserves pending and Redo",
+      "text / pending Control+y preserves pending and Redo",
+      "curve0 / save_cancel",
+      "curve0 / save_failure",
+      "curve0 / close_cancel",
+      "curve0 / size_cancel",
+      "curve0 / pending Control+Shift+z preserves pending and Redo",
+      "curve0 / pending Control+y preserves pending and Redo",
+      "curve1 / save_cancel",
+      "curve1 / save_failure",
+      "curve1 / close_cancel",
+      "curve1 / size_cancel",
+      "curve1 / pending Control+Shift+z preserves pending and Redo",
+      "curve1 / pending Control+y preserves pending and Redo",
+      "polygon / save_cancel",
+      "polygon / save_failure",
+      "polygon / close_cancel",
+      "polygon / size_cancel",
+      "polygon / pending Control+Shift+z preserves pending and Redo",
+      "polygon / pending Control+y preserves pending and Redo"
+    ],
+    "failures": [],
+    "errors": [],
+    "browser": "156.0.8078.80",
+    "scope": "Production public UI with modeled native IPC/clipboard. Passive observation copies the small real codec Worker input without changing it; no Studio/document hooks. Raw state, actual PNG output, saved/dirty UI and observable Undo/Redo are checked. Numeric revision IDs and actual OS write failures are not directly inspected."
+  },
+  "clipboardContracts": {
+    "checks": [
+      "Resized pending selection copies 30x25 exact nearest-neighbor RGBA without committing the document",
+      "Rotated pending selection copies swapped 14x20 dimensions and exact clockwise RGBA without committing",
+      "No-selection copy composites visible alpha layers, while cut copies only the active layer and clears it atomically",
+      "Pasted selection outside the document crops its full 45x35 payload, with one Undo to 16x16 and exact Redo"
+    ],
+    "payloads": [
+      {
+        "name": "resized-selection",
+        "width": 30,
+        "height": 25,
+        "pngSha256": "9a761c1bccbd7cc3ef833e3908437ecdbde8bcaa11b696b1b485ce8ea7730529",
+        "rgbaSha256": "0fece4f89ec2fe33fc16abfe86963c56fb952f504df7a25305c740a8348aadc4",
+        "expectedRgbaSha256": "0fece4f89ec2fe33fc16abfe86963c56fb952f504df7a25305c740a8348aadc4"
+      },
+      {
+        "name": "rotated-selection",
+        "width": 14,
+        "height": 20,
+        "pngSha256": "8594baf0113e8a610f5aff41470fd51d51448560ffaaaba8f2977539e9dee61e",
+        "rgbaSha256": "ad0d8bd06ca259895da2eb16a901b1b77bea1be56d4522afc929ba1fb16e08a7",
+        "expectedRgbaSha256": "ad0d8bd06ca259895da2eb16a901b1b77bea1be56d4522afc929ba1fb16e08a7"
+      },
+      {
+        "name": "visible-composite-copy",
+        "width": 32,
+        "height": 24,
+        "pngSha256": "ea0f7f35e833ee1e92dfaa42d20e22b6bdb7fec93c5d8b089be11419f562542b",
+        "rgbaSha256": "9fa0b2ad27fda9972e698bb46a5012300833269c5637ec6f0598a2c06f1590f7",
+        "expectedRgbaSha256": "9fa0b2ad27fda9972e698bb46a5012300833269c5637ec6f0598a2c06f1590f7"
+      },
+      {
+        "name": "active-layer-cut",
+        "width": 32,
+        "height": 24,
+        "pngSha256": "1f4f411984758945137f4988e17d29b4ec2442cd12a36629a07796aa70f46fdb",
+        "rgbaSha256": "60949320dcf75c0df61683bc61aedf3aeea8b6cd551341c9bb801422d9251408",
+        "expectedRgbaSha256": "60949320dcf75c0df61683bc61aedf3aeea8b6cd551341c9bb801422d9251408"
+      },
+      {
+        "name": "pending-paste-expanded-preview",
+        "width": 53,
+        "height": 41,
+        "pngSha256": "e1ae6d5ac5b2b48994765d5d3345afe5fcb54fa0e80a3cdca29b8f590987bbae",
+        "rgbaSha256": "c81fc63ce7e873b9c572add24b977d8c7047d29cd8b1d66914030f1d2e17b589",
+        "expectedRgbaSha256": "c81fc63ce7e873b9c572add24b977d8c7047d29cd8b1d66914030f1d2e17b589"
+      },
+      {
+        "name": "expanded-paste-crop",
+        "width": 45,
+        "height": 35,
+        "rgbaSha256": "43e18c89821568431a7eb26e351ebc60b0db38eddcfa2ccc2497b2f48e02f171",
+        "expectedRgbaSha256": "43e18c89821568431a7eb26e351ebc60b0db38eddcfa2ccc2497b2f48e02f171"
+      }
+    ],
+    "fixtures": [
+      {
+        "name": "pattern",
+        "width": 64,
+        "height": 48,
+        "active": 0,
+        "layers": [
+          {
+            "name": "배경",
+            "visible": true,
+            "rgbaSha256": "de2e9d92acd74390753cf8998bf9e319d95f2c8b60f6a6fd406ee9b91a8c676e"
+          }
+        ]
+      },
+      {
+        "name": "layered",
+        "width": 32,
+        "height": 24,
+        "active": 1,
+        "layers": [
+          {
+            "name": "아래",
+            "visible": true,
+            "rgbaSha256": "a9144a87f71aed5368e86314c23cb92c5888659e8ea0158d30c9936bacd367c3"
+          },
+          {
+            "name": "반투명 활성",
+            "visible": true,
+            "rgbaSha256": "60949320dcf75c0df61683bc61aedf3aeea8b6cd551341c9bb801422d9251408"
+          },
+          {
+            "name": "숨긴 상단",
+            "visible": false,
+            "rgbaSha256": "a87e174c09c1e552bf0f562b20b2932cf2128de2244a56a2d49079f45a1f1d09"
+          }
+        ]
+      },
+      {
+        "name": "small",
+        "width": 16,
+        "height": 16,
+        "active": 0,
+        "layers": [
+          {
+            "name": "배경",
+            "visible": true,
+            "rgbaSha256": "7987af9e126f366ee528c292f7f92ee13a69cd8ce536a9ef5d4d8cfb27d0e187"
+          }
+        ]
+      },
+      {
+        "name": "independent-paste-png",
+        "width": 45,
+        "height": 35,
+        "pngSha256": "4da263bb640c46731cd2ec10d3c8f684e0f8a90f20125d3cbbe7d4fc077e6b37",
+        "rgbaSha256": "43e18c89821568431a7eb26e351ebc60b0db38eddcfa2ccc2497b2f48e02f171"
+      }
+    ],
+    "assets": [
+      {
+        "url": "http://127.0.0.1:8968/mypaint/assets/index-DqAJBzmA.js",
+        "sha256": "8c76008c782877426560476a728c6607b170615155e848e31d636a5f4b58fdb7"
+      },
+      {
+        "url": "http://127.0.0.1:8968/mypaint/assets/codec.worker-DVetkR7m.js",
+        "sha256": "0e59d27aa99149daa81d1e02b0c01055922e10f5b41abe10f49ce9110e3e3cbe"
+      }
+    ],
+    "errors": [],
+    "failures": [],
+    "browser": "156.0.8078.80",
+    "url": "http://127.0.0.1:8968/mypaint/",
+    "testSha256": "3cf53c266026d738635ca388b423af9a0183171ae76910d926bf5c4b75b4483f",
+    "scope": "Public Chromium UI with the actual ClipboardItem PNG Blob and application codec/geometry Workers; clipboard read/write and native file dialogs are modeled. PNG payload is decoded independently using Node zlib, not production decodePng/Canvas; this does not verify OS clipboard permission or mobile hardware."
+  },
+  "existingEditing": {
+    "checks": [
+      "Pending polygon resizes exactly once and one Undo restores the original document",
+      "Background change commits a pending polygon once without repainting existing pixels",
+      "Rejected image dimensions preserve the pending curve and document",
+      "Partially controlled pending curve resizes once with a single atomic Undo",
+      "Failed second curve control readback preserves pending shape and permits a committed retry",
+      "Text paste replaces a selected maximum-length value using the resulting length",
+      "Late text clipboard resolution cannot mutate a replacement editor",
+      "Two-finger navigation restores a provisional selection move",
+      "Two-finger navigation restores a provisional selection resize",
+      "Two-finger takeover cannot commit a pending second curve control",
+      "Pixel preset settles a pending polygon before switching tools and preserves one Undo",
+      "Lasso movement has a discrete alpha mask and a return to origin is an exact pixel and history no-op",
+      "Text overlay preserves hidden RGB bytes in unpainted transparent pixels through commit and Undo"
+    ],
+    "errors": [],
+    "browser": "156.0.8078.80"
+  },
+  "existingConcurrency": {
+    "checks": [
+      "busy fill keeps its original layer",
+      "busy save keeps pending text and revision",
+      "rejected shortcut preserves the active stroke"
+    ],
+    "failures": [],
+    "errors": [],
+    "browser": "156.0.8078.80"
+  },
+  "actualMacOS": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "binary": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+    "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec and native quit-ownership runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform.",
+    "timeoutMs": 120000,
+    "fixtures": [
+      {
+        "name": "recovery.rpaint",
+        "before": {
+          "bytes": 114,
+          "sha256": "b6078f9fbcd62202af6b3d43b5ce329ebcb6d4891142e6d6549b0dca164f20e6",
+          "mtimeNs": "1793795853584250928",
+          "inode": "186147912",
+          "device": "16777229",
+          "mode": 33188
+        },
+        "after": {
+          "bytes": 114,
+          "sha256": "b6078f9fbcd62202af6b3d43b5ce329ebcb6d4891142e6d6549b0dca164f20e6",
+          "mtimeNs": "1793795853584250928",
+          "inode": "186147912",
+          "device": "16777229",
+          "mode": 33188
+        },
+        "unchanged": true
+      },
+      {
+        "name": "session.lock",
+        "before": {
+          "bytes": 69,
+          "sha256": "06d5ee5d685539af109023c956e086b58b6c0f69576cee850e7f9da22d7b4927",
+          "mtimeNs": "1793795853584503719",
+          "inode": "186147913",
+          "device": "16777229",
+          "mode": 33188
+        },
+        "after": {
+          "bytes": 69,
+          "sha256": "06d5ee5d685539af109023c956e086b58b6c0f69576cee850e7f9da22d7b4927",
+          "mtimeNs": "1793795853584503719",
+          "inode": "186147913",
+          "device": "16777229",
+          "mode": 33188
+        },
+        "unchanged": true
+      }
+    ],
+    "ok": true,
+    "binarySha256": "abfdce7b647f9c4fc5afd3119e8cc08082417685c0e94981705f9b0f0b53148e",
+    "elapsedMs": 5777,
+    "exitCode": 0,
+    "checks": {
+      "encodedBytes": 67126671,
+      "elapsedMs": 3860,
+      "pixelRoundtrip": true,
+      "staleRead": true,
+      "staleClear": true,
+      "legacyClear": true,
+      "oldGeneration": true
+    },
+    "codecRun": {
+      "arguments": [
+        "--smoke",
+        "--codec-smoke",
+        "--persistence-root",
+        "/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/mypaint-native-desktop-yGLqE8/codec-run"
+      ],
+      "ok": true,
+      "elapsedMs": 2356,
+      "exitCode": 0,
+      "successRecord": "myPaint native smoke: ok=true "
+    },
+    "quitRun": {
+      "arguments": [
+        "--smoke",
+        "--quit-smoke",
+        "--persistence-root",
+        "/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/mypaint-native-desktop-yGLqE8/quit-run"
+      ],
+      "ok": true,
+      "elapsedMs": 799,
+      "exitCode": 0,
+      "checks": {
+        "busyPreserved": true,
+        "modes": [
+          "runtime",
+          "native"
+        ],
+        "pendingCancel": true,
+        "readyForApprovedClose": true,
+        "repeatedQuitPreserved": true,
+        "unsavedCancel": true
+      },
+      "finalApprovedClose": true,
+      "successRecord": "myPaint native quit smoke: ok=true {\"busyPreserved\":true,\"modes\":[\"runtime\",\"native\"],\"pendingCancel\":true,\"readyForApprovedClose\":true,\"repeatedQuitPreserved\":true,\"unsavedCancel\":true}"
+    }
+  },
+  "independentReview": {
+    "role": "Architect",
+    "result": "pass",
+    "sourceMainSha256": "c6e2bfc7c7b2d2bef775ce3c61e1b2f297d90da4f51905bacad510e2fba8835f",
+    "sourceTestSha256": "731d0fc2264cf9d3e30d2d8646894a9001678426e187f6b9d2cd3b5a55749124",
+    "checks": [
+      "Qt disabled action no-op confirmed with real key delivery fixture",
+      "Guard precedes all redo mutations and retains normal replay",
+      "Passive observation is fresh per export; pending visibly differs from base",
+      "Escape preserves the existing Redo branch; save commits once with correct saved UI",
+      "Type/style and independent final runtime results remain separate evidence"
+    ]
+  },
+  "limitations": [
+    "Client save cancellation and write failure use modeled IPC, not actual picker or ENOSPC.",
+    "The close matrix dispatches the production client close event; actual AppKit quit is separately tested with text/dirty/busy fixtures.",
+    "Client matrix observes full raw Worker input, real PNG output and dirty/saved/history behavior, not private numeric revision fields.",
+    "The small fixture matrix does not certify maximum-document memory or physical input latency.",
+    "Qt legacy test run denied all file access to existing recovery namespaces and does not validate Qt recovery initialization.",
+    "The clipboard reader validates small PNG8 RGBA fixtures independently; actual OS clipboard permissions remain unverified."
+  ],
+  "remaining": [
+    "Cold mip UI responsiveness and 16-layer1:1 cache thrashing",
+    "Remaining tool options and F02/F06/F08 device/geometry permutations",
+    "Android/Safari physical web and Windows runtime",
+    "Full process memory, OS picker, Windows and rename/directory-sync failure boundaries, signing/notarization and safe staging/rollback"
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "deployed": false,
+    "legacyQtPreserved": true
+  },
+  "coldRenderAudit": {
+    "productChanged": false,
+    "testsChanged": false,
+    "method": "Read-only source/document/raw existing measurement audit. No new timing runs; no overlap with SRE sixteen-layer final-scene experiment.",
+    "sourceSha256": {
+      "docs/QT_FREE_MIGRATION_TASKS.md": "fd6181872ed9518bae3d04de29334e18865ae0f142490d7dcb471f2b8935d4fb",
+      "docs/STUDIO_NATIVE_PROFILES.md": "bcd0bd70bd15b3666a70144c3a9ee80757e5052af99eab7ac1761dc7ea456a6b",
+      "docs/STUDIO_MAX_DOCUMENT.md": "cbe8b86700863ba32d56a001e71d147979d0e4824992f6885f800bad9373a9b4",
+      "web-app/src/platform/tiles.ts": "f3f67b8254a2f70b16d5487d0a54333898a49482e2d31b599bc692cc6af35f8f",
+      "web-app/src/main.ts": "c6e2bfc7c7b2d2bef775ce3c61e1b2f297d90da4f51905bacad510e2fba8835f"
+    },
+    "threshold": {
+      "source": "docs/QT_FREE_MIGRATION_TASKS.md:75-87",
+      "meaning": "Initial candidate target: no >=50ms UI long task during active drawing, with no authoritative input queue buildup. Separate event-to-next-valid-display p95 candidate is 33ms. Not a universal <=50ms total mip completion contract. QF-03 target-device acceptance remains open.",
+      "currentGate": "docs/STUDIO_MAX_DOCUMENT.md:44 treats initial cold rendering as an open responsiveness gate. Existing synchronous cold render blocks main thread; therefore the present samples fail both elapsed and long-task criteria.",
+      "measurement": "build-web-work/task-planning/max-document/word-copy/max-cold/scalars.json",
+      "samples": [
+        {
+          "scenario": "new-max-white",
+          "renderMs": 93.2,
+          "maxLongtaskMs": 117,
+          "maxRafGapMs": 116.7
+        },
+        {
+          "scenario": "add-max-second-layer",
+          "renderMs": 465.2,
+          "maxLongtaskMs": 466,
+          "maxRafGapMs": 533.3
+        }
+      ],
+      "limits": "Desktop Chrome SwiftShader instrumented fixed bundle samples, not physical input-to-photon, WK/Windows/Android certification, or isolated mip-kernel timing."
+    },
+    "recommendedNextUnit": {
+      "name": "Bounded cooperative mip preparation separated from synchronous visible drawing",
+      "cost": "M-L",
+      "reason": "General input-safe path without another whole-document buffer, same current exact box-average math. The existing draw API combines full computation and drawing in one rAF call.",
+      "step": "One owned resumable source-row/source-column accumulator; time slice around 4-8ms plus hard source-pixel count, yield to the browser task/render loop. Output-row-only or tile-only yields are insufficient at high reduction factors. Include current uniformBlock full source scan in slicing.",
+      "publication": "Publish completed valid tiles only; no Canvas context transform/save held across await. Explicit initial preparation UI, preserve prior valid frame when appropriate. Prioritize active dirty regions over background cold work and bound backlog; a responsive spinner alone does not satisfy drawing latency.",
+      "quality": "Keep current premultiplied box average over every source contribution, odd-edge real counts, zero-alpha display RGB normalization, raw source hidden RGB untouched, same world clips and no mip at 1:1.",
+      "ownership": "Borrow source as readonly; never detach authority. Per-owner/tile source dirty generation plus document epoch, pixel-array identity, dimensions, factor, transform/version. Invalidate before the next asynchronous chunk can resume, including main.draw immediate dirty registration; do not use global revision alone because metadata or disjoint changes would restart unrelated work.",
+      "cancellation": "Document replacement, retain/clear/evict, zoom factor or transform change and source dirty overlap invalidate jobs. Resume/final publication recheck. Late completion cannot resurrect discarded owners. Incomplete scratch/private tile released on abort/error; unfinished dirty work remains pending.",
+      "memory": "Count current cache plus staged ImageData/Canvas, sums, row scratch and queued copies against <=128MiB estimated RGBA/scratch budget and <=64 tile slots. No extra full-frame CPU canvas; surfaces <=512. Reserve before allocation, cancel/evict jobs before releasing their resources."
+    },
+    "alternatives": [
+      {
+        "name": "Whole-document Worker",
+        "cost": "L / rejected as first step",
+        "issue": "Native authority is up to256MiB aggregate. Structured clone adds another256MiB plus synchronous producer copy pressure; original transfer would detach authoritative pixels. Worker moving CPU alone does not certify input/display responsiveness."
+      },
+      {
+        "name": "Bounded strip Worker",
+        "cost": "L",
+        "issue": "Copy+transfer only small source strips with at most one bounded in-flight request, count inputs/outputs/scratch in budget, serializable selection cut descriptor and generation checks. Measure producer copy long tasks and queue latency; no SharedArrayBuffer requirement."
+      },
+      {
+        "name": "Trusted known-uniform seed",
+        "cost": "S-M narrow optimization",
+        "issue": "Register only directly created/known-filled actual pixel owners with validated RGBA; never infer from background/name/first pixel. Invalidate changed cells. Helps white/transparent new documents, not arbitrary imports. layer-add clones existing sources via pendingState and draw(true) invalidates all; seeding only the new blank layer cannot by itself close465ms case."
+      }
+    ],
+    "acceptance": [
+      "Same fixed bundle/device conditions, separate total cold completion, max task duration, RAF/input-to-valid-display and source/job queue age.",
+      "Exact output and raw-source hash against existing strict odd-alpha/thin-feature oracles, full 1:1 behavior unchanged.",
+      "Mid-generation stroke/Undo/new document/zoom/selection cancel preserve exact latest pixels and never publish stale/mixed generations.",
+      "Worst-case mixed/high-frequency maximum document, not only uniform seeds; alpha/odd dimensions/unaligned arrays/transform callback paths.",
+      "<=128MiB estimated storage including in-flight job resources, clear/error/eviction returns resources, no original buffer detach."
+    ]
+  },
+  "actualAPFSEnospc": {
+    "manifest": {
+      "root": "/private/tmp/mypaint-enospc-zz7v2rjo",
+      "repository": "/Users/jhpark/code/myService/myPaint",
+      "sourceSha256": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f",
+      "virtualBytes": 536870912,
+      "hostAvailableBytes": 70860800000,
+      "status": "passed-detached-image-and-large-artifacts-removed",
+      "create": {
+        "command": [
+          "/usr/sbin/diskutil",
+          "image",
+          "create",
+          "--plist",
+          "blank",
+          "--format",
+          "UDSB",
+          "--size",
+          "536870912",
+          "--volumeName",
+          "MYPAINT-ENOSPC-zz7v2rjo",
+          "--fs",
+          "APFS",
+          "/private/tmp/mypaint-enospc-zz7v2rjo/image.sparsebundle"
+        ],
+        "exitCode": 0,
+        "stdout": "/private/tmp/mypaint-enospc-zz7v2rjo/create.stdout",
+        "stderr": "/private/tmp/mypaint-enospc-zz7v2rjo/create.stderr"
+      },
+      "imageInfo": {
+        "size": 536870912,
+        "format": "com.apple.diskimage.sparsebundle",
+        "bandSize": 67108864
+      },
+      "attach": {
+        "command": [
+          "/usr/sbin/diskutil",
+          "image",
+          "attach",
+          "--plist",
+          "--nobrowse",
+          "--mountPoint",
+          "/private/tmp/mypaint-enospc-zz7v2rjo/mount",
+          "/private/tmp/mypaint-enospc-zz7v2rjo/image.sparsebundle"
+        ],
+        "exitCode": 0,
+        "stdout": "/private/tmp/mypaint-enospc-zz7v2rjo/attach.stdout",
+        "stderr": "/private/tmp/mypaint-enospc-zz7v2rjo/attach.stderr"
+      },
+      "guards": {
+        "ownDevice": "/dev/disk13",
+        "mountPoint": "/private/tmp/mypaint-enospc-zz7v2rjo/mount",
+        "mountDeviceId": 16777257,
+        "hostDeviceId": 16777229,
+        "filesystemType": "apfs",
+        "filesystemBytes": 536829952,
+        "hostAvailableBytes": 70952398848
+      },
+      "probe": {
+        "command": [
+          "/private/tmp/mypaint-enospc-zz7v2rjo/probe/target/debug/native-persistence-enospc-probe",
+          "/private/tmp/mypaint-enospc-zz7v2rjo/mount",
+          "/private/tmp/mypaint-enospc-zz7v2rjo",
+          "536870912"
+        ],
+        "exitCode": 0,
+        "seconds": 5.678343749954365,
+        "stdout": "/private/tmp/mypaint-enospc-zz7v2rjo/probe.stdout",
+        "stderr": "/private/tmp/mypaint-enospc-zz7v2rjo/probe.stderr"
+      },
+      "detach": {
+        "command": [
+          "/usr/sbin/diskutil",
+          "eject",
+          "/dev/disk13"
+        ],
+        "exitCode": 0,
+        "stillMounted": false,
+        "stdout": "/private/tmp/mypaint-enospc-zz7v2rjo/detach.stdout",
+        "stderr": "/private/tmp/mypaint-enospc-zz7v2rjo/detach.stderr"
+      },
+      "evidenceSha256": {
+        "probe/src/main.rs": "dbc038ae5ce85d5448177235e3f7f9082e67a6644303d996fbc99ef50e057091",
+        "probe/Cargo.toml": "61c56c53d5a5a7820055f2b4c9f3ad43af3cd270f9d0220dd217fca6ac26b20a",
+        "probe/Cargo.lock": "d690dcf474364eaff404161b8dee9d9196a4a0948a7e67daed6de2eff8e336a6",
+        "probe/target/debug/native-persistence-enospc-probe": "80ec2b513d45bd7bf4181e80fc5e964c55688a2eb70856c3c51918256f90add1",
+        "persistence.snapshot.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f",
+        "old.rpaint": "f9db232d2117d135cc8894a15a5bb77c85540880f1bc50223462d34cb5b3cb89",
+        "new.rpaint": "204ef3a2365147a02b8747f551277184a4c5893cee428642c50ca0fc52490b5d",
+        "fixtures.json": "5b72ee3bb0094c9988ddac319afae33efd0aa3c4ee31ddc040ce77c0a3300131",
+        "probe-result.json": "933df4fac36b82156253e35db72a2fce2f143a29141547cde1363faeb2eae05e",
+        "failure-preservation.json": "ca939ca9879ca601ec2bcada208adcca44d2fadd112702b87fdab618b36bc685",
+        "create.stdout": "97162f24c950970e2bf5597f45466c2affc1d659e958efefaca1a5312fdfe725",
+        "attach.stdout": "5252d25401066f7bfb72d1f357b566f0ad72225716815a9adbe1127f82210ebb",
+        "detach.stdout": "41c86b1c19b84ca0bda923a3f88e1cc476ff79d114489dd09e89dffdade1a53b"
+      },
+      "codecSourceSha256": {
+        "web-app/src/engine/document.ts": "8b6885a0632ed2d544db95d02a7276052b7e5d9812ea09d83806e04ac4d2ea6b",
+        "web-app/src/engine/format.ts": "a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2"
+      },
+      "cleanup": {
+        "removed": [
+          "/private/tmp/mypaint-enospc-zz7v2rjo/image.sparsebundle",
+          "/private/tmp/mypaint-enospc-zz7v2rjo/probe/target",
+          "/private/tmp/mypaint-enospc-zz7v2rjo/new.rpaint"
+        ],
+        "ownImageExists": false,
+        "mountStillMounted": false,
+        "hostAvailableBytesAfterCleanup": 70860800000
+      },
+      "platform": {
+        "macOS": "27.0",
+        "arch": "arm64",
+        "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)"
+      },
+      "scope": "Actual APFS async Stage::write returned real OS errno28 for valid33,563,410-byte RPAINT save/recovery; original contents+listed metadata/binding/sequence/token preserved; Drop cleaned stages; after capacity release save/recovery retry succeeded. Does not certify induced rename/commit/directory-sync failure, Tauri IPC/WebView, OS picker, or Windows ENOSPC."
+    },
+    "result": {
+      "failure": {
+        "bindingPreserved": true,
+        "fillError": "No space left on device (os error 28)",
+        "fillRawErrno": 28,
+        "fillerWrittenBytes": 523239424,
+        "freeBeforeSave": 15970304,
+        "oldRecoveryReadTokenStillValid": true,
+        "recoveryBytesPreserved": true,
+        "recoveryError": "No space left on device (os error 28)",
+        "recoveryMetadataAfter": {
+          "aclAndAttributes": "-rw-------@ 1 jhpark  staff  4377 Nov  4 22:00 /private/tmp/mypaint-enospc-zz7v2rjo/mount/app/recovery/enospc-document.rprec\n\tcom.apple.provenance\t  11 \n\tcom.mypaint.enospc\t  27 \n",
+          "ctime": [
+            1793797243,
+            121068360
+          ],
+          "dev": 16777257,
+          "gid": 20,
+          "ino": 22,
+          "mode": 33152,
+          "mtime": [
+            1793797243,
+            108016176
+          ],
+          "size": 4377,
+          "uid": 501,
+          "xattr": "preserve-recovery-attribute\n"
+        },
+        "recoveryMetadataBefore": {
+          "aclAndAttributes": "-rw-------@ 1 jhpark  staff  4377 Nov  4 22:00 /private/tmp/mypaint-enospc-zz7v2rjo/mount/app/recovery/enospc-document.rprec\n\tcom.apple.provenance\t  11 \n\tcom.mypaint.enospc\t  27 \n",
+          "ctime": [
+            1793797243,
+            121068360
+          ],
+          "dev": 16777257,
+          "gid": 20,
+          "ino": 22,
+          "mode": 33152,
+          "mtime": [
+            1793797243,
+            108016176
+          ],
+          "size": 4377,
+          "uid": 501,
+          "xattr": "preserve-recovery-attribute\n"
+        },
+        "recoverySequencePreserved": 1,
+        "saveError": "No space left on device (os error 28)",
+        "savePartialStageCountBeforeDrop": 1,
+        "stagingFilesAfterDrop": 0,
+        "targetBytesPreserved": true,
+        "targetMetadataAfter": {
+          "aclAndAttributes": "-rw-r-----@ 1 jhpark  staff  4258 Nov  4 22:00 /private/tmp/mypaint-enospc-zz7v2rjo/mount/files/original.rpaint\n\tcom.apple.provenance\t  11 \n\tcom.mypaint.enospc\t  19 \n 0: user:jhpark allow read,write\n",
+          "ctime": [
+            1793797243,
+            100792107
+          ],
+          "dev": 16777257,
+          "gid": 20,
+          "ino": 21,
+          "mode": 33184,
+          "mtime": [
+            1793797243,
+            91393999
+          ],
+          "size": 4258,
+          "uid": 501,
+          "xattr": "preserve-this-value\n"
+        },
+        "targetMetadataBefore": {
+          "aclAndAttributes": "-rw-r-----@ 1 jhpark  staff  4258 Nov  4 22:00 /private/tmp/mypaint-enospc-zz7v2rjo/mount/files/original.rpaint\n\tcom.apple.provenance\t  11 \n\tcom.mypaint.enospc\t  19 \n 0: user:jhpark allow read,write\n",
+          "ctime": [
+            1793797243,
+            100792107
+          ],
+          "dev": 16777257,
+          "gid": 20,
+          "ino": 21,
+          "mode": 33184,
+          "mtime": [
+            1793797243,
+            91393999
+          ],
+          "size": 4258,
+          "uid": 501,
+          "xattr": "preserve-this-value\n"
+        }
+      },
+      "ok": true,
+      "oldProjectBytes": 4258,
+      "retry": {
+        "freeBytesAfterFillerRemoved": 535019520,
+        "oldTokenInvalidatedAfterSuccessfulReplacement": true,
+        "originalModeOwnerXattrPreserved": true,
+        "recoveryExactBytes": true,
+        "recoverySequence": 2,
+        "saveExactBytes": true,
+        "stagingFiles": 0
+      },
+      "scope": "Actual APFS write/flush ENOSPC through async Stage::write; no forced rename/commit failure, no Tauri WebView/OS-dialog/Windows test",
+      "storageSource": "Directly imported current production persistence.rs; no mocked I/O errors",
+      "validProjectFixtureBytes": 33563410
+    },
+    "fixtures": {
+      "old": {
+        "width": 32,
+        "height": 32,
+        "encodedBytes": 4258,
+        "sha256": "f9db232d2117d135cc8894a15a5bb77c85540880f1bc50223462d34cb5b3cb89",
+        "rgbaSha256": "a6d8daca9479ad768bc0374227bd8267c0ef7b131e3879ca3af054d9440b0434",
+        "validRoundtrip": true
+      },
+      "new": {
+        "width": 4096,
+        "height": 2048,
+        "encodedBytes": 33563410,
+        "sha256": "204ef3a2365147a02b8747f551277184a4c5893cee428642c50ca0fc52490b5d",
+        "rgbaSha256": "99078d283f8e98a585aca6a6a9e637117e61b280eca788b174236be471dc83d1",
+        "validRoundtrip": true
+      }
+    }
+  },
+  "scenePrototypeEvidence": "docs/evidence/studio-scene-prototype.json"
+}

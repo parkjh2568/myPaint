@@ -1,0 +1,944 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "Scoped camera ownership, visual viewport UI, deferred density and unmodified-selection settlement. Not full migration, physical-device or release completion.",
+  "platforms": {
+    "mobileTablet": "browser only",
+    "executables": [
+      "Windows",
+      "macOS"
+    ]
+  },
+  "source": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "3eaaed5294bdfea0e8df04a705728852bec8994659a8fc9b65150167f01c95d6",
+    "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+    "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "changedRuntime": [
+    "web-app/src/main.ts",
+    "web-app/src/style.css"
+  ],
+  "entry": "assets/index-CKNQ3vWc.js",
+  "bundle": {
+    "payloadFiles": 9,
+    "payloadBytes": 288921,
+    "manifest": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-bundle/bundle.json",
+      "sha256": "9435daf7315ba1fede4940aa64ee48f82978424aebac3423b6fa3ac64d51ad6a"
+    }
+  },
+  "implementation": {
+    "newMethodsOrHelpers": 0,
+    "newRuntimeModules": 0,
+    "newField": "densityPending",
+    "changedMembers": [
+      "Constructor:undefined",
+      "MethodDeclaration:applyPreferences",
+      "MethodDeclaration:resizeView",
+      "MethodDeclaration:pointerUp",
+      "MethodDeclaration:cancelPointer",
+      "MethodDeclaration:settle"
+    ],
+    "importsIdentical": true,
+    "engineFormatRustChanged": false,
+    "preservedMethods": [
+      {
+        "name": "textLayoutSteps",
+        "equal": true
+      },
+      {
+        "name": "paintText",
+        "equal": true
+      },
+      {
+        "name": "textRaster",
+        "equal": true
+      },
+      {
+        "name": "paintShape",
+        "equal": true
+      },
+      {
+        "name": "shapeRaster",
+        "equal": true
+      },
+      {
+        "name": "pendingState",
+        "equal": true
+      },
+      {
+        "name": "exportImage",
+        "equal": true
+      }
+    ]
+  },
+  "rca": [
+    {
+      "id": "wheel-projection-during-stroke",
+      "severity": "Major",
+      "cost": "S",
+      "before": "Held pencil/brush stroke received wheel camera change before real pointerup; pan trace produced14 cells rather than6. Ctrl-wheel brush added an AA neighbor. Genuine strokes consume prior Redo regardless of wheel, so that is not a separate history defect.",
+      "fix": "Ignore canvas wheel while pointers/provisional/navigation/busy/modal own input. Preserve ordinary stationary wheel and released resize/render preparation."
+    },
+    {
+      "id": "visual-scale-and-origin",
+      "severity": "Minor",
+      "cost": "M",
+      "before": "Actual Chrome CDP page scale3 kept layout390x844 while app shrank281px and autoFit45% became12%. Controlled500px visual height/top50 or100 left export dialog partly outside usable rect.",
+      "fix": "Normalize app height by visual height*scale; own initial/resize/scroll in one handler; raw visual rect for usable overlays; freeze narrow-pinch origin until normalized/layout span changes; anchor unscaled full-width app to visual offset."
+    },
+    {
+      "id": "repeated-fit-overwrites-text-clamp",
+      "severity": "Minor",
+      "cost": "S",
+      "before": "Controlled offset300, fit-capable260x120 text box: duplicate observer re-ran fit while changed=false skipped clamp; right431.5 exceeded390. Unchanged first test passed v4 at382.",
+      "fix": "Final v5 returns on unchanged geometry only for focused editor, preserving existing selection/document-size/UndoRedo incidental fit behavior. Value/caret/client/scroll/document raster preserved."
+    },
+    {
+      "id": "deferred-density-cancel",
+      "severity": "Minor",
+      "cost": "S",
+      "before": "Media query change during owned input was lost; initial fix also missed same-geometry cancel and no-drag pointercancel.",
+      "fix": "Record pending preference and consume on safe terminal path, including both cancels. Manual density retains priority."
+    },
+    {
+      "id": "unmodified-selection-copy",
+      "severity": "measured optimization",
+      "cost": "S",
+      "before": "Actual extracted settle, real desktop-profile engine, modeled drawing:4096²2layers sliced134217728B per call, n3 median40.9714ms.",
+      "fix": "Strict unchanged selection guard calls existing commitPending with current state. Validation/history cleanup/draw(true) remain; no full plane slice. Rendering cost remains."
+    }
+  ],
+  "validation": {
+    "camera": {
+      "checks": 17,
+      "scope": "Public normal-web Chromium DOM/Canvas/Workers and actual CDP input/page scale/browser panning. Controlled VisualViewport/media events are test-only API models, not physical keyboard/IME/device changes. Filechooser receives fixture bytes and application download Blobs are read back; no OS file dialogs, native persistence, private Studio hooks or performance acceptance. Released resize uses trusted down plus captured synthetic move/up with held original MessagePort delivery; no result edits.",
+      "driverSha256": "743dad1940d8339068ac5549d6de0433c8a8341cf64eb399cedb7ee8ddb2692f"
+    },
+    "touch": 20,
+    "unit": 232,
+    "pointer": 26,
+    "releasedResize": 10,
+    "pending": 36,
+    "exportPreview": 12,
+    "web": {
+      "basic": 13,
+      "concurrency": 3,
+      "editing": 13,
+      "storage": 13,
+      "shear": 6
+    },
+    "native": {
+      "runs": 4,
+      "binarySha256": "523b27648255a1b5f5182a218693f04e95dbf3239a60ba51704a6ffbde21963e",
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform."
+    },
+    "settleBefore": {
+      "sourceSha256": "e8604c541a7340d5e655391ba7ef02563790af657c8dbd8f70e62f2a92af5e26",
+      "scope": "Actual extracted shipped settle/pendingState/commitPending/hasPending and real PaintDocument engine, desktop profile. DOM drawing is modeled; no UI/render/worker/OS or RSS claim. Synchronous settle return and Uint8ClampedArray.slice output bytes measured; GC outside samples.",
+      "cases": [
+        {
+          "width": 1024,
+          "height": 1024,
+          "layers": 1,
+          "sourceBytes": 4194304,
+          "samples": [
+            {
+              "elapsedMs": 3.198082999999997,
+              "sliceBytes": 4194304,
+              "slicePlanes": 1,
+              "historyAndRawPreserved": true
+            },
+            {
+              "elapsedMs": 2.484375,
+              "sliceBytes": 4194304,
+              "slicePlanes": 1,
+              "historyAndRawPreserved": true
+            },
+            {
+              "elapsedMs": 2.5487080000000333,
+              "sliceBytes": 4194304,
+              "slicePlanes": 1,
+              "historyAndRawPreserved": true
+            }
+          ],
+          "medianMs": 2.5487080000000333
+        },
+        {
+          "width": 4096,
+          "height": 4096,
+          "layers": 2,
+          "sourceBytes": 134217728,
+          "samples": [
+            {
+              "elapsedMs": 61.341499999999996,
+              "sliceBytes": 134217728,
+              "slicePlanes": 2,
+              "historyAndRawPreserved": true
+            },
+            {
+              "elapsedMs": 39.797000000000025,
+              "sliceBytes": 134217728,
+              "slicePlanes": 2,
+              "historyAndRawPreserved": true
+            },
+            {
+              "elapsedMs": 40.97137500000008,
+              "sliceBytes": 134217728,
+              "slicePlanes": 2,
+              "historyAndRawPreserved": true
+            }
+          ],
+          "medianMs": 40.97137500000008
+        }
+      ],
+      "errors": [],
+      "ok": true
+    },
+    "settleFinalMethod": {
+      "sourceSha256": "ac715e01717da21d98727afc6bd05a6d77bc95578790400056afd4236ab3be55",
+      "scope": "Actual extracted shipped settle/pendingState/commitPending/hasPending and real PaintDocument engine, desktop profile. DOM drawing is modeled; no UI/render/worker/OS or RSS claim. Synchronous settle return and Uint8ClampedArray.slice output bytes measured; GC outside samples.",
+      "cases": [
+        {
+          "width": 1024,
+          "height": 1024,
+          "layers": 1,
+          "sourceBytes": 4194304,
+          "samples": [
+            {
+              "elapsedMs": 0.16591699999992215,
+              "sliceBytes": 0,
+              "slicePlanes": 0,
+              "historyAndRawPreserved": true
+            },
+            {
+              "elapsedMs": 0.007000000000061846,
+              "sliceBytes": 0,
+              "slicePlanes": 0,
+              "historyAndRawPreserved": true
+            },
+            {
+              "elapsedMs": 0.007416000000034728,
+              "sliceBytes": 0,
+              "slicePlanes": 0,
+              "historyAndRawPreserved": true
+            }
+          ],
+          "medianMs": 0.007416000000034728
+        },
+        {
+          "width": 4096,
+          "height": 4096,
+          "layers": 2,
+          "sourceBytes": 134217728,
+          "samples": [
+            {
+              "elapsedMs": 0.007040999999958331,
+              "sliceBytes": 0,
+              "slicePlanes": 0,
+              "historyAndRawPreserved": true
+            },
+            {
+              "elapsedMs": 0.006916000000046552,
+              "sliceBytes": 0,
+              "slicePlanes": 0,
+              "historyAndRawPreserved": true
+            },
+            {
+              "elapsedMs": 0.006540999999970154,
+              "sliceBytes": 0,
+              "slicePlanes": 0,
+              "historyAndRawPreserved": true
+            }
+          ],
+          "medianMs": 0.006916000000046552
+        }
+      ],
+      "errors": [],
+      "ok": true
+    },
+    "performanceScope": "NoOp timing is extracted synchronous methods/real engine with modeled draw; not UI/render/RSS/FPS/p95. Final settle AST remains identical to measured v3."
+  },
+  "evidenceCorrections": [
+    "Historical forced17px gutter clientWidth intersection42/48 did not prove lost hit/visual area in Mac Chrome; screenshot and actual edge clicks passed. Fine-pointer and old forced66px touch loss claim withdrawn. Prior tablet coarse outer-rail loss remains a separate confirmed case.",
+    "v2 fixed app removed body from flow.15 generic ancestor-clip assertions used body height0 while all five real EFP hits passed. v3 body min-height declares shell bounds; not15 product clipping fixes.",
+    "First camera16 included three harness issues: selection drag was a resize handle, manual preference wait observed unchanged auto dataset, CDP gesture start outside3x viewport. Offset300 failure was an actual product issue, separately fixed and rerun with unchanged assertion.",
+    "Initial new NoOp unit guard expected canRedo true during fake stroke. Correct comparison captures canRedo after fixture setup; production engine intentionally disables it during strokes."
+  ],
+  "overallAudit": {
+    "proved": 6,
+    "partial": 26,
+    "missing": 2,
+    "dependencyClosure": [
+      "QF-01"
+    ],
+    "goalComplete": false
+  },
+  "remaining": [
+    "Physical Android keyboard/IME/rotation and user zoom feedback; macOS/Safari/Windows device and pen/touch checks",
+    "Oversized caret, accessibility/screen reader and long-run RSS/p95 acceptance",
+    "Auto recovery clone/codec/storage snapshot measurement before any optimization",
+    "Existing roundrect WK boundary AA and remaining QF predecessors",
+    "Public CI, signing/notarization, legacy recovery handoff and approved Pages publication"
+  ],
+  "graph": {
+    "path": "docs/evidence/studio-camera-viewport-module-graph.json",
+    "sha256": "53b3f92df1f68ee398e091dcecf022824c5deb21800022501e7fca0f64279501"
+  },
+  "references": {
+    "accepted-assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/accepted-assets.json",
+      "sha256": "2be28e9b921f6b46b3407bc7a1fa8ced7149737bec99df85727c195939ca275e"
+    },
+    "accepted-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/accepted-source.json",
+      "sha256": "45f4d2ef823d472463f4e1f8b1199ffd83da50b8ccd09de870bd3b77df024d0a"
+    },
+    "ast-delta.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/ast-delta.json",
+      "sha256": "ae5c65b6270d4215e021528d60805904cd06e62bb7780375834a366d4c0f79bd"
+    },
+    "ast-delta.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/ast-delta.log",
+      "sha256": "42b75ae6dd532929044a50ac07ea0f5d860213e10bdac8cc016418035c0aa18c"
+    },
+    "before-bundle/bundle.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/before-bundle/bundle.json",
+      "sha256": "606f871265861a337614c16907a6a5a0269ce3aed391c5200c291e151a044295"
+    },
+    "before-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/before-source.json",
+      "sha256": "8e9085849e641a2ce74c9476ad52f2eb57033c26aa9f41ba3da0f463e41a7524"
+    },
+    "browser/concurrency.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/browser/concurrency.json",
+      "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+    },
+    "browser/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/browser/results.json",
+      "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+    },
+    "browser.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/browser.log",
+      "sha256": "82ca85347e8d8603e8f89a22f87a9d5831ff0191efb4b62d5949addc299ca68b"
+    },
+    "build-v3.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/build-v3.log",
+      "sha256": "b1b0cfb8b676989b120f82e97f834fc4ed6c679fe5ae5ee0a23fa21ec32881aa"
+    },
+    "build-v4.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/build-v4.log",
+      "sha256": "024d87db8ae1d13c60ac8b5de2612dc1c15bb73da91f84e8ac06291622a0ac94"
+    },
+    "build-v5.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/build-v5.log",
+      "sha256": "534db43141f4f6c41f1e5bafb4934ad309d698d66d3ed13647ee19d3206837a4"
+    },
+    "candidate-assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-assets.json",
+      "sha256": "e99b853bcb85463b070ef1d504d3848a1cd0c33b2012077ce92e63537797bc38"
+    },
+    "candidate-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-source.json",
+      "sha256": "245498ea4650673cee6d736d5658f953a5201663e52599811645d5be98ee6488"
+    },
+    "candidate-v2-assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-v2-assets.json",
+      "sha256": "453cfa8b1a3f9625836a43125ad5e9fb32e2e6222d656a4c82eddd30b6080024"
+    },
+    "candidate-v2-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-v2-source.json",
+      "sha256": "485e5daf49e1b0ff345d11eb7762df36b50a14a9eb9656c150bcb741c79eeeed"
+    },
+    "candidate-v3-assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-v3-assets.json",
+      "sha256": "097b4d098b70dbe273f99412605a6f29ad65ee878c666196b5209f8f33ef791e"
+    },
+    "candidate-v3-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-v3-source.json",
+      "sha256": "4deb2d9807b74156e5163262eb8f3b9748124d5584f6bb5cc26c332ab7f3548b"
+    },
+    "candidate-v4-assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-v4-assets.json",
+      "sha256": "275127a402f73473fc6d95630c00f9f4f62f7f370427db30c34a68fa8d93f277"
+    },
+    "candidate-v4-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-v4-source.json",
+      "sha256": "fe7fd34ca5497457547dea68e186d4a69e09979e7df1d7de1497b45c0a6c1edb"
+    },
+    "candidate-v5-assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-v5-assets.json",
+      "sha256": "6ef0de81c89b0637e53a6d4841d4dc57c9ba1cb1c34abd950dd598ead651f40d"
+    },
+    "candidate-v5-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/candidate-v5-source.json",
+      "sha256": "70edc87db717e31d793707050bda280e274b9889faaf142c51808dd79ed6013c"
+    },
+    "editing.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/editing.json",
+      "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+    },
+    "export/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/export/results.json",
+      "sha256": "804f473ec33e8aaa3d9ab7ad80ee163d43a4b0307e9024a76280f9c99dde0dea"
+    },
+    "export.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/export.log",
+      "sha256": "48dac72133395ac369117099b1fc3ced03c79a1f8ab37a22260884301764f8d6"
+    },
+    "final-browser/concurrency.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-browser/concurrency.json",
+      "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+    },
+    "final-browser/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-browser/results.json",
+      "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+    },
+    "final-browser.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-browser.log",
+      "sha256": "3f4592487253567d955fcc47b486f05d326b09bd5f89751b572531c8f3002ad0"
+    },
+    "final-bundle/bundle.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-bundle/bundle.json",
+      "sha256": "9435daf7315ba1fede4940aa64ee48f82978424aebac3423b6fa3ac64d51ad6a"
+    },
+    "final-camera/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-camera/results.json",
+      "sha256": "c816a3266ff22609e3806cff332789eb2dffd114d02f67f8997b7be019e42939"
+    },
+    "final-editing.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-editing.json",
+      "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+    },
+    "final-export/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-export/results.json",
+      "sha256": "4a8b2c591068b48cb545aade2382e5a4cdbebae5060130497ecc12d8c3425593"
+    },
+    "final-export.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-export.log",
+      "sha256": "4d507028022be2bf7e5f8bd81919df3cc11684b7dd7173a5fc09fbc466eac639"
+    },
+    "final-format.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "final-native-build.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-native-build.log",
+      "sha256": "e633adf580d9c0c90e70343d87fcc5348ae72a4b9be13533e3f83f36cffce8f4"
+    },
+    "final-native.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-native.json",
+      "sha256": "5c4fab90f1cfc4b001196c1f40725a521cb9de78962f8fb76bc25f7b42620180"
+    },
+    "final-native.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-native.log",
+      "sha256": "dea26a19b75aa22226da635f0da3654a5d386e3427203594950eb529eaff3a7c"
+    },
+    "final-pending/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-pending/results.json",
+      "sha256": "16c33ee0a1537cbfb5f4405c6a8e993eafb79a85dfb80bf87047d50b7e3257e7"
+    },
+    "final-pending.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-pending.log",
+      "sha256": "c57931e066e98a9a807b1decf4e7b075a4de9a67d63509be2dd50d50f28694f4"
+    },
+    "final-pointer/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-pointer/results.json",
+      "sha256": "b3de94c63613bfa64c4d09093c62dc88e7113ecc35612915e5a33749b72cf173"
+    },
+    "final-pointer.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-pointer.log",
+      "sha256": "c1232d929926f28a3929ccad0f335e6413b3ac21aa12bba6efddee170f2b2cd9"
+    },
+    "final-resize/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-resize/results.json",
+      "sha256": "b80d55bdedf93186eee11d3ac029ef1a2629618a0f15f3cb0afc453c56113f73"
+    },
+    "final-resize.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-resize.log",
+      "sha256": "77feadc9b7dcddb4dcbeb2511e78df242a602294035db14c50ce32198657c4e6"
+    },
+    "final-shear/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-shear/results.json",
+      "sha256": "cdfbfe70fa29b45a6d2015b313d57a3f0eaac9f558a0d6fd428b2952b6d47e36"
+    },
+    "final-storage/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-storage/results.json",
+      "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+    },
+    "final-studio-build.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-studio-build.log",
+      "sha256": "47167dbf6136995ce255a61e7bab64dc508226ae0ea817ab03ab2d793bf4aced"
+    },
+    "final-touch/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-touch/results.json",
+      "sha256": "0cde5db63ad622ccf2a8629e8dee34092899d54ca0cd11c143e107c2a3088812"
+    },
+    "final-touch.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-touch.log",
+      "sha256": "4127f4e011e265ccc54d1896dc71cf8f4442939dfce7629d05efeff3acc10135"
+    },
+    "final-unit.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/final-unit.log",
+      "sha256": "c7a507b9702ed4f8476e6cf46096391a416a410ce755829fe35430f50dd3255b"
+    },
+    "format.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "http-before.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/http-before.log",
+      "sha256": "fa00c811079f44cdeed725f4c181eeec3c3d14a2b87a07133137dac0ae049d93"
+    },
+    "http-candidate-v2.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/http-candidate-v2.log",
+      "sha256": "e3b32b1dd69281be78a05ff20736e020e0f729b5945dc3ca6df5f00612eb309d"
+    },
+    "http-candidate-v3.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/http-candidate-v3.log",
+      "sha256": "c993486acbf9cd4fbbb00876c25332411dfb66ca6abe9a6b49dc83c118b221ce"
+    },
+    "http-candidate-v4.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/http-candidate-v4.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "http-candidate-v5.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/http-candidate-v5.log",
+      "sha256": "068bbe8459a2463ccbcad8dce5b718ec94983af1228a5301644a3467bd529697"
+    },
+    "http-candidate.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/http-candidate.log",
+      "sha256": "b2447c794d132f6596e1be0e17bf7b0984bd51790df3e9a5f50ff42566ae8536"
+    },
+    "native-build-v3.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/native-build-v3.log",
+      "sha256": "f9779b71406d875844573fd80ae5f6a67e0b9a1466cfca316024602cbd23cd27"
+    },
+    "native-build.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/native-build.log",
+      "sha256": "9e09c75ae421a06f560091d4e59ee0229abbaf50d55dd9731b839a5e30a6ec58"
+    },
+    "native-desktop-v2.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/native-desktop-v2.json",
+      "sha256": "02b2647d193478ced541715089221c2a74c36e035636d3803bea21aefb7b754c"
+    },
+    "native-desktop-v2.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/native-desktop-v2.log",
+      "sha256": "7fe20850c251a377eecad79e3521a52978ee3019c14dc419307f0aecd57db60a"
+    },
+    "native-desktop-v3.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/native-desktop-v3.json",
+      "sha256": "7e66ea4930365c1d026285aebb1b6448e5d3046d0b4058378c3f4a539a437c19"
+    },
+    "native-desktop-v3.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/native-desktop-v3.log",
+      "sha256": "262a0486c097a73368c0443e0e7e3c5b3a452b331599334a0d0ec5d87f0389b6"
+    },
+    "next-review-plan.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/next-review-plan.json",
+      "sha256": "db141b06d3e04dbffaf4167c18cd3c28f5cc12f07d945940321a133e6fc0c609"
+    },
+    "noop-after.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/noop-after.json",
+      "sha256": "3f674f5d63b1d963411c73a6728665adc55c93828f25f5f3027cbf3bc8d28023"
+    },
+    "noop-after.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/noop-after.log",
+      "sha256": "d8e4be63cf28cbdcb51b156aa531dcfb3504e75d5b145813798a9b3d470bbe99"
+    },
+    "noop-before-complete.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/noop-before-complete.json",
+      "sha256": "a21d2aa8dbffa6aaa983309b86c4cb977b75f3cf331c88e660505cb4165e9d47"
+    },
+    "noop-before-complete.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/noop-before-complete.log",
+      "sha256": "a0693441b58393f8852da06bd375bd06e3b26d698bf9f465ea3e45dafb900dd0"
+    },
+    "noop-before.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/noop-before.json",
+      "sha256": "f6002f2d8a40103a8be147b2abcde9c63bb50ad29a457ba01140af65dd307ff2"
+    },
+    "noop-before.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/noop-before.log",
+      "sha256": "2a5f663268389a590619ee399525435471af2b002f717a995b3227c5e5d9b11e"
+    },
+    "noop-v3.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/noop-v3.json",
+      "sha256": "997fb1e5a513bbbd1ae31e1116f8d977268b457fb056e5b0761b386f43864e67"
+    },
+    "noop-v3.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/noop-v3.log",
+      "sha256": "367862f7c484cc32801e76731355b297c3f40137353b9fa83abdbcbeba8a9e02"
+    },
+    "offset-editor-before.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/offset-editor-before.json",
+      "sha256": "1fcd50ee43299a896fd79f5879d971556f78c9486680263fe5a6bebebad0843e"
+    },
+    "offset-editor-before.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/offset-editor-before.log",
+      "sha256": "1e9dbd1e9607de2ad8fc47f645a2902e7b52ece38f697ad75921c2034cb3c007"
+    },
+    "offset-editor-v2.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/offset-editor-v2.json",
+      "sha256": "308457fa67824aa804699a85aae3aa15d87a0e19733b5a04b084d74319435d60"
+    },
+    "offset-editor-v2.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/offset-editor-v2.log",
+      "sha256": "edbbf7f9b2e433147a5532a1b81a6ce352eed2cfcc830339dc4737ebf58d2286"
+    },
+    "pending/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/pending/results.json",
+      "sha256": "16c33ee0a1537cbfb5f4405c6a8e993eafb79a85dfb80bf87047d50b7e3257e7"
+    },
+    "pending.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/pending.log",
+      "sha256": "c57931e066e98a9a807b1decf4e7b075a4de9a67d63509be2dd50d50f28694f4"
+    },
+    "pointer/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/pointer/results.json",
+      "sha256": "838e52c9d94513a128f0a727a163cd0809933a49f93b1b27aa05271d9bba43cb"
+    },
+    "pointer.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/pointer.log",
+      "sha256": "3cf8240d8c5b009d2b5ae9a80bbf194fcd53ad7221988aa252737cee557434a5"
+    },
+    "pre-report-integrity.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/pre-report-integrity.json",
+      "sha256": "b6e5d794626ab966241e2bef553f1306e28eb5ccb6bcecf6b924e55896c587d7"
+    },
+    "reviews/architect-design/design-review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-design/design-review.json",
+      "sha256": "4d5eca63e6ee659995628849ade02ce82b77cd93ead11ece351efe4bb422ed93"
+    },
+    "reviews/architect-design/manifest.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-design/manifest.json",
+      "sha256": "4f67a511b719266c3b16c68c99ef67678a102c49fdcf9328cad9dc57aa706274"
+    },
+    "reviews/architect-first/candidate-assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-first/candidate-assets.json",
+      "sha256": "e99b853bcb85463b070ef1d504d3848a1cd0c33b2012077ce92e63537797bc38"
+    },
+    "reviews/architect-first/candidate-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-first/candidate-source.json",
+      "sha256": "245498ea4650673cee6d736d5658f953a5201663e52599811645d5be98ee6488"
+    },
+    "reviews/architect-first/manifest.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-first/manifest.json",
+      "sha256": "fbd5c597329321d491c26cd84c5726a34c5b1fec634af2ee64e3cdf752c0bbeb"
+    },
+    "reviews/architect-first/review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-first/review.json",
+      "sha256": "6533532cf125a241fab7b833a15aea76f876866d124b2bdc9134bc0c81d466d0"
+    },
+    "reviews/architect-v2-v3/manifest.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-v2-v3/manifest.json",
+      "sha256": "1b0034289911ce218745377a227d21748e0a5192cfe62a9ab63a9d6c833853c5"
+    },
+    "reviews/architect-v2-v3/review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-v2-v3/review.json",
+      "sha256": "7b646a0c0d318bda1ef2d7d3fcc6d5ad40d5efcaffc6e86bc53b3b917d3896d3"
+    },
+    "reviews/architect-v5/manifest.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-v5/manifest.json",
+      "sha256": "6b02033422a907e048a8ab451687dad4213188abdc033d331228101a9e609b15"
+    },
+    "reviews/architect-v5/review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/architect-v5/review.json",
+      "sha256": "5492c7428863dacad16a97ecde80147d8b99c2dd6def2cf98cf61799952bd615"
+    },
+    "reviews/reviewer-baseline/review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/reviewer-baseline/review.json",
+      "sha256": "4951e3765816cd7a8d4b74549ce9d21f1dd9c6b583f264a85d7ee2f4dc565b87"
+    },
+    "reviews/reviewer-first/review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/reviewer-first/review.json",
+      "sha256": "bff3e122acbc05b1161d3d283626514f1f59f4e3bbaea82b9324f89e14ac757d"
+    },
+    "reviews/reviewer-v3/draft-captured-during-v3-style-change.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/reviewer-v3/draft-captured-during-v3-style-change.json",
+      "sha256": "0f477a12c3125ad289d1ff8a87ca0c65969b406a788d8fa48a19798143696dba"
+    },
+    "reviews/reviewer-v3/final-v3-review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/reviewer-v3/final-v3-review.json",
+      "sha256": "078eb29dc6f23f4fd8959fb7978b3600aa7898d1bcf34fbfc6c903a87415fdde"
+    },
+    "reviews/reviewer-v4/review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/reviewer-v4/review.json",
+      "sha256": "9fa2de19c8240c5c532896d668bb81572752ad44d81142c9a814ff1254cb551e"
+    },
+    "reviews/reviewer-v5/review.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/reviewer-v5/review.json",
+      "sha256": "bc7e93c3beda08b14d38a0d4c5c55dc324e6683cdaa8bf8d1909a94ca952b147"
+    },
+    "reviews/sre-baseline/assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/assets.json",
+      "sha256": "21a105fe01228cdda912be5d031c05785cd7a4db96f5e0e085c6169cba5b970c"
+    },
+    "reviews/sre-baseline/brush-control-results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/brush-control-results.json",
+      "sha256": "fcefee4f05be1a040c22256b9adec9a439412bdf6b04501e757819cb2eea2bb7"
+    },
+    "reviews/sre-baseline/brush-control.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/brush-control.log",
+      "sha256": "843fa5ee7284375418c72b64a5d25f41301771accf84e0084001b6ece6655ec2"
+    },
+    "reviews/sre-baseline/fixed66-gutter-results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/fixed66-gutter-results.json",
+      "sha256": "6104beb22dff5a3efa5167e361b843fec54a779f37851ea2d1d555efcf289028"
+    },
+    "reviews/sre-baseline/fixed66-gutter.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/fixed66-gutter.log",
+      "sha256": "a9a2d2a6a7c3ab23ff5c4e0dfe114f8a3e64db213ff9894d3dce16e240b79432"
+    },
+    "reviews/sre-baseline/gutter-diagnostic-results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/gutter-diagnostic-results.json",
+      "sha256": "f51d15cc8d0049cd8a16dfda5c9cbc9b06fd5ab4d6d0508b2252d7641a6c3c88"
+    },
+    "reviews/sre-baseline/gutter-diagnostic.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/gutter-diagnostic.log",
+      "sha256": "0ca397ddd5b19b55e2d8800a019208acec96792b0423a31106c5603fe824c9a1"
+    },
+    "reviews/sre-baseline/gutter-errata.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/gutter-errata.json",
+      "sha256": "42e8304b4b7e1b95b8140fe702385d2af1b5be99f3d78e44fe177a3a3836491e"
+    },
+    "reviews/sre-baseline/manifest.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/manifest.json",
+      "sha256": "f99e37be8f355c0952dc039e05ecbfdb7003c9738f3cbaaa670a186f43cb2cbf"
+    },
+    "reviews/sre-baseline/pencil-v2-results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/pencil-v2-results.json",
+      "sha256": "0660458dcfe7a52d0231feeaa2914a107d51b63203613c654b9cafdb51ba4255"
+    },
+    "reviews/sre-baseline/pencil-v2.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/pencil-v2.log",
+      "sha256": "148744a4af24967315e56de389140ab6966bce8086ddfa14bb19f74aece0dd89"
+    },
+    "reviews/sre-baseline/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/results.json",
+      "sha256": "8782901ab3a95c843ce58b567c63d391fc61bf37a7630dd3b709eeae39c9603f"
+    },
+    "reviews/sre-baseline/run.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/run.log",
+      "sha256": "ca23b550bda740cbb1200b39f07fa3caeb345bba018caf3df84d9f9f7d90c4ef"
+    },
+    "reviews/sre-baseline/source17.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/source17.json",
+      "sha256": "8e9085849e641a2ce74c9476ad52f2eb57033c26aa9f41ba3da0f463e41a7524"
+    },
+    "reviews/sre-baseline/summary.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-baseline/summary.json",
+      "sha256": "484107356c0e43610aadd468b0fd5eb88182378cb96895388c5738f6e4014b46"
+    },
+    "reviews/sre-final/assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-final/assets.json",
+      "sha256": "6ef0de81c89b0637e53a6d4841d4dc57c9ba1cb1c34abd950dd598ead651f40d"
+    },
+    "reviews/sre-final/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-final/results.json",
+      "sha256": "c816a3266ff22609e3806cff332789eb2dffd114d02f67f8997b7be019e42939"
+    },
+    "reviews/sre-final/run.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-final/run.log",
+      "sha256": "04afeab331a06dfc32266269c230ed2a979036ce8320fa813b9b8b0d3bae036b"
+    },
+    "reviews/sre-final/source17.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-final/source17.json",
+      "sha256": "45f4d2ef823d472463f4e1f8b1199ffd83da50b8ccd09de870bd3b77df024d0a"
+    },
+    "reviews/sre-first16/assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-first16/assets.json",
+      "sha256": "2acd7f4ca824ddc97b9094ff8c557d8271bc83d089df0ffb60aee07006734433"
+    },
+    "reviews/sre-first16/pan-capability/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-first16/pan-capability/results.json",
+      "sha256": "57c09d6984eaf22413781ba92e71919d4ff7671eca9951a05524497052e19bfb"
+    },
+    "reviews/sre-first16/pan-capability/run.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-first16/pan-capability/run.log",
+      "sha256": "00651601a01d7b1e4d425f1facf44c6319ecc10d6830015dd2ed38308746b462"
+    },
+    "reviews/sre-first16/pan-capability/v2-results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-first16/pan-capability/v2-results.json",
+      "sha256": "85649767989f6b3d58f87eee8c4793ded0c4b9788b79e941483c2ba9af6dbb17"
+    },
+    "reviews/sre-first16/pan-capability/v2-run.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-first16/pan-capability/v2-run.log",
+      "sha256": "9aac2bba2b961d14884f58d4bf84d7f5295c0548287f9e2e4eadcd8b9ae291ef"
+    },
+    "reviews/sre-first16/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-first16/results.json",
+      "sha256": "c4a7a17b633169ef43672c4f446217fee6ae38b9ea24e68bf3cc0664bfb9b7f6"
+    },
+    "reviews/sre-first16/run.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-first16/run.log",
+      "sha256": "509ebe320b3fb516aadb77c14cc26064e7d85d37944c78cf8ad7f72cd09218bf"
+    },
+    "reviews/sre-first16/source17.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-first16/source17.json",
+      "sha256": "6c92f4b554160538032aec60323f41db21d60d16108cca4d18d9ade3800b9095"
+    },
+    "reviews/sre-offset-v4/assets.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-offset-v4/assets.json",
+      "sha256": "3d33761b3ddcf498b03be9310cd7c263574c5b3b94e72429b17d8acee12d99d5"
+    },
+    "reviews/sre-offset-v4/offset-original/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-offset-v4/offset-original/results.json",
+      "sha256": "2413937b3ddb5106a95ff595ae4530457ac0b1458b371df3d17360e876a6163a"
+    },
+    "reviews/sre-offset-v4/offset-original/run.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-offset-v4/offset-original/run.log",
+      "sha256": "9bdd394eb7d7b33157d7bb492e2ecc25e31b1a87614bb8653d57e1714e3826c6"
+    },
+    "reviews/sre-offset-v4/source17.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-offset-v4/source17.json",
+      "sha256": "2592813c3d0afad19771849ecad51211200f5d802ad785af075918393a213512"
+    },
+    "scope.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/scope.json",
+      "sha256": "271679edc8390965b995291cfdd8433cbe0a98a46519af51803bd5e199c1f82f"
+    },
+    "selection-resize/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/selection-resize/results.json",
+      "sha256": "ff16915397fc3188ee8b88654fc5d94df796b90fd512717284617a5ad2c59592"
+    },
+    "selection-resize.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/selection-resize.log",
+      "sha256": "77feadc9b7dcddb4dcbeb2511e78df242a602294035db14c50ce32198657c4e6"
+    },
+    "settle-measured-method-equivalence.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/settle-measured-method-equivalence.json",
+      "sha256": "032a9d4bea40992daffb0186631892698e4694efdaa109ade62f188f7d6de1b2"
+    },
+    "shear/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/shear/results.json",
+      "sha256": "661779919f3e12a19b81eed640bbb453addb83ce75ca50f7b0f5afc549f781af"
+    },
+    "source-graph.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/source-graph.json",
+      "sha256": "ba577dd6aa10103bf46efbe551df6d8000ae51a18cf898a78059315b2693d6ac"
+    },
+    "source-graph.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/source-graph.log",
+      "sha256": "18748567567df284d506aebf25d6a89b255d3e1442ab1917662ec29cfd59da8b"
+    },
+    "static-graph.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/static-graph.json",
+      "sha256": "ac47e5ebbe6530a8aae1898d00017eb136b4181e15ca0656b590940f34eeacdd"
+    },
+    "static-graph.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/static-graph.log",
+      "sha256": "21f8c4e59908ac102cf8a0da89b12a02e994bb92e8734e048ea6dba178745ff3"
+    },
+    "storage/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/storage/results.json",
+      "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+    },
+    "touch/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/touch/results.json",
+      "sha256": "ccf01739638e9bcaa35152c500590dd5927ec1cf5a460d9525680eaf83298125"
+    },
+    "touch-v3/results.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/touch-v3/results.json",
+      "sha256": "82b9d86e2f47a845f43ed514cd9df4678dea66b41e7e796f3b90afdd961aab36"
+    },
+    "touch-v3.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/touch-v3.log",
+      "sha256": "f0e3dc9b09eb024bb1d069c04a109243ab59f036aa4f9b7683754867b0f81c6e"
+    },
+    "touch.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/touch.log",
+      "sha256": "c6b5228932a74eb5f09d01e0c02293509c00aa9a6190252df221eac892034e4b"
+    },
+    "unit-v2.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/unit-v2.log",
+      "sha256": "e8d9715e3d3af82e3d01f5f9f6a6d0f8b29392397c7576bab160d9df15a53173"
+    },
+    "unit.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/unit.log",
+      "sha256": "2e8d54d27fe428cfb65d18a33346616c8b461b98809c0f15af7ba0e0ea9d5db7"
+    },
+    "v3-accepted-source.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/v3-accepted-source.json",
+      "sha256": "6c92f4b554160538032aec60323f41db21d60d16108cca4d18d9ade3800b9095"
+    },
+    "v3-ast-delta.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/v3-ast-delta.json",
+      "sha256": "ae5c65b6270d4215e021528d60805904cd06e62bb7780375834a366d4c0f79bd"
+    },
+    "v3-ast-delta.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/v3-ast-delta.log",
+      "sha256": "42b75ae6dd532929044a50ac07ea0f5d860213e10bdac8cc016418035c0aa18c"
+    },
+    "v3-source-graph.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/v3-source-graph.json",
+      "sha256": "7d78b12caeb8db8be15e1be2f327f172f8b0bd24d7a2e256542b35b2e6089551"
+    },
+    "v3-source-graph.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/v3-source-graph.log",
+      "sha256": "18748567567df284d506aebf25d6a89b255d3e1442ab1917662ec29cfd59da8b"
+    },
+    "viewport-after.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/viewport-after.json",
+      "sha256": "d4db9fbf476725b3b0f49210f7bce010f205e6c2e9946520d012d6e37281de0f"
+    },
+    "viewport-after.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/viewport-after.log",
+      "sha256": "10efd7671b0c20560ab67d429d941b256e3ca41002e4fe4aeb3a80983feca247"
+    },
+    "viewport-before.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/viewport-before.json",
+      "sha256": "a12752d26587385b1b5c743252b09c67ec5e59573b7dc1e25a0d89a466be7711"
+    },
+    "viewport-before.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/viewport-before.log",
+      "sha256": "3c8d01caaaab8e0605ab303fe27c71526715a7fdc960aeee9ba6ab08702ffaa5"
+    },
+    "viewport-v2.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/viewport-v2.json",
+      "sha256": "d4db9fbf476725b3b0f49210f7bce010f205e6c2e9946520d012d6e37281de0f"
+    },
+    "viewport-v2.log": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/viewport-v2.log",
+      "sha256": "10efd7671b0c20560ab67d429d941b256e3ca41002e4fe4aeb3a80983feca247"
+    },
+    "reviews/sre-final/summary.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-final/summary.json",
+      "sha256": "3147c8be6d913ff64440109cd35d5f257667b42c23ae59bcccbbea09c5bf8da4"
+    },
+    "reviews/sre-final/manifest.json": {
+      "path": "build-web-work/task-planning/camera-viewport-contract/reviews/sre-final/manifest.json",
+      "sha256": "1b13b15873de3953a0591e08ef50960e313d2b7290bcc9cf019f40a8579d1540"
+    }
+  },
+  "review": {
+    "roles": [
+      "Architect",
+      "Implementation Engineer",
+      "Reviewer",
+      "SRE/Optimizer"
+    ],
+    "scopedRequiredFindings": {
+      "Blocker": 0,
+      "Major": 0,
+      "Minor": 0
+    },
+    "publicSreChecks": 17,
+    "publicSreScope": "Actual footer center and exported PNG reachability; not full edge/device/OS keyboard acceptance.",
+    "testPreconditionNote": "Inline selection fixture omits an explicit transparent=false precondition assertion; literal output/source/Redo checks remain. No new correctness finding inferred."
+  }
+}

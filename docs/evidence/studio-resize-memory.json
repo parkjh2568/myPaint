@@ -1,0 +1,411 @@
+{
+  "ok": true,
+  "status": "Finite ownership and collection diagnostics complete; no production defect confirmed and no runtime modification justified. Long-run/platform gates remain open.",
+  "date": "2026-11-06",
+  "scope": "Finite repeated selection resize buffer ownership and GC diagnostics, not whole-goal or long-run memory acceptance. No production changes.",
+  "source": {
+    "manifest17": {
+      "path": "build-web-work/task-planning/resize-memory/before-source.json",
+      "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/resize-memory/before-assets.json",
+      "sha256": "d54cc881361fb7392cd7829b534a4f5a4c818715329170dc405acf646ab712e0"
+    }
+  },
+  "ownership": {
+    "path": "web-app/src/main.ts",
+    "explanation": "Document pixels, initial selection pixels/base, gesture start snapshot, displayed current selection and private cursor candidate are separate owners when distinct. Current guards and cancellation preserve rollback and source identity. steps.return closes abandoned cursor but does not synchronously return committed memory to OS.",
+    "logicalExample512MiB": "One-layer4096² document64MiB + distinct base64MiB + gesture-start128MiB + displayedcurrent128MiB + privatecandidate128MiB. Example, not global limit.",
+    "validLargerExample": {
+      "document": [
+        8192,
+        4096,
+        2
+      ],
+      "base": [
+        8192,
+        4096
+      ],
+      "start": [
+        8191,
+        4096
+      ],
+      "current": [
+        8190,
+        4096
+      ],
+      "candidate": [
+        8189,
+        4096
+      ],
+      "distinctPixelBytes": 805208064,
+      "MiB": 767.90625,
+      "status": "Read-only valid geometry/accounting example, not allocated/measured in this experiment. Excludes history/mask/cache/GC/native."
+    },
+    "cancelDistinction": "Cancel button restores gesture snapshot and preserves selection/base; Escape additionally clears selection. Compare each separately."
+  },
+  "node": {
+    "summary": {
+      "path": "build-web-work/task-planning/resize-memory/node-summary.json",
+      "sha256": "133d76cda23056bce3fb894069b2d6f7b45cec234554ca516e251b3e1d41ab2e"
+    },
+    "driver": {
+      "path": "build-web-work/task-planning/resize-memory/ownership.mjs",
+      "sha256": "bd7861e2b838df5ef142229ddd7074286da4b606dd75463379fdd326ed413d0a"
+    },
+    "finalRuns": 2,
+    "profileOrder": [
+      "web",
+      "desktop"
+    ],
+    "candidateAllocationsPerRun": 11,
+    "fullRawOutputsPerRun": 7,
+    "assertions": [
+      "Only one retained target after cancel/settle/controlled GC.",
+      "Only current target after each released job/settle/controlled GC.",
+      "No target candidate retained after selection removed and controlled GC.",
+      "Source full SHA unchanged and prior Redo/Undo preserved."
+    ],
+    "scope": "Actual shipped AST move/up/cancel/resize method bodies and kernel; drag snapshot, DOM/render and channel scheduler modeled. Constructor WeakRefs track buffers without strong payload storage. Forced GC diagnosis, not browser/native or natural cadence acceptance."
+  },
+  "actualChromium": {
+    "result": {
+      "path": "build-web-work/task-planning/resize-memory/actual-chromium/real-canvas-v2/results.json",
+      "sha256": "9a542204587b22326e5981a507b6c86e30b546bc41753abe9349c9443570a990"
+    },
+    "driver": {
+      "path": "build-web-work/task-planning/resize-memory/actual-chromium/memory-v2.mjs",
+      "sha256": "8f846ba9153d7f2e9dbc618ee306e858fac34815b104df826b95f62c9e0e4fe7"
+    },
+    "nativeIPCModel": {
+      "path": "build-web-work/task-planning/resize-memory/actual-chromium/native-harness.mjs",
+      "sha256": "09e2d6d09e7670b3be34f027034dc270f6938302bac7b71f08584927d24cebcb"
+    },
+    "browser": "156.0.8078.80",
+    "completedRuns": 1,
+    "memorySamples": 106,
+    "geometry": {
+      "viewport": [
+        1600,
+        1400
+      ],
+      "DPR": 1,
+      "zoomOutStepsBeforeSecondGesture": 5
+    },
+    "sequence": [
+      "Public open/select all; trusted press then captured synthetic move to8192x4096; complete and Up.",
+      "Public zoom-out5 and second trusted handle press;8191x4096 complete while held.",
+      "Consume each8190,8189,8188x4096 candidate allocation, retarget before ready; latest complete and Up.",
+      "End natural observation; separate controlled GC.",
+      "Outside natural interval, validate CopyWorker png-write input full raw formula/SHA; Escape after completed selection; oldRedo/Undo; selectall-copy original fullraw/SHA; Escape and separate final GC."
+    ],
+    "burst": [
+      {
+        "width": 8190,
+        "height": 4096,
+        "allocatedBytes": 134184960,
+        "readyAtConstructor": "false",
+        "ariaBusyAtConstructor": "true"
+      },
+      {
+        "width": 8189,
+        "height": 4096,
+        "allocatedBytes": 134168576,
+        "readyAtConstructor": "false",
+        "ariaBusyAtConstructor": "true"
+      },
+      {
+        "width": 8188,
+        "height": 4096,
+        "allocatedBytes": 134152192,
+        "readyAtConstructor": "false",
+        "ariaBusyAtConstructor": "true"
+      }
+    ],
+    "checkpoints": [
+      {
+        "label": "before-first-gesture",
+        "stage": "selection-base-before-first-gesture",
+        "mainIsolateBackingStorageBytes": 199221106,
+        "weakDerefableTrackedBytes": 182041925,
+        "sumOwnedProcessRSSBytes": 1283555328,
+        "targetCandidateStates": []
+      },
+      {
+        "label": "second8191-complete-held",
+        "stage": "second8191-held",
+        "mainIsolateBackingStorageBytes": 464597724,
+        "weakDerefableTrackedBytes": 450460997,
+        "sumOwnedProcessRSSBytes": 1537392640,
+        "targetCandidateStates": [
+          {
+            "id": 5,
+            "state": "alive"
+          },
+          {
+            "id": 6,
+            "state": "alive"
+          }
+        ]
+      },
+      {
+        "label": "natural-after-final-up",
+        "stage": "natural-after-final-up",
+        "mainIsolateBackingStorageBytes": 867136731,
+        "weakDerefableTrackedBytes": 852966725,
+        "sumOwnedProcessRSSBytes": 1698168832,
+        "targetCandidateStates": [
+          {
+            "id": 5,
+            "state": "alive"
+          },
+          {
+            "id": 6,
+            "state": "alive"
+          },
+          {
+            "id": 7,
+            "state": "alive"
+          },
+          {
+            "id": 8,
+            "state": "alive"
+          },
+          {
+            "id": 9,
+            "state": "alive"
+          }
+        ]
+      },
+      {
+        "label": "before-controlled-GC",
+        "stage": "controlled-GC-after-final-up",
+        "mainIsolateBackingStorageBytes": 867136731,
+        "weakDerefableTrackedBytes": 852966725,
+        "sumOwnedProcessRSSBytes": 1698168832,
+        "targetCandidateStates": [
+          {
+            "id": 5,
+            "state": "alive"
+          },
+          {
+            "id": 6,
+            "state": "alive"
+          },
+          {
+            "id": 7,
+            "state": "alive"
+          },
+          {
+            "id": 8,
+            "state": "alive"
+          },
+          {
+            "id": 9,
+            "state": "alive"
+          }
+        ]
+      },
+      {
+        "label": "after-controlled-GC",
+        "stage": "controlled-GC-after-final-up",
+        "mainIsolateBackingStorageBytes": 327085891,
+        "weakDerefableTrackedBytes": 316194117,
+        "sumOwnedProcessRSSBytes": 1414578176,
+        "targetCandidateStates": [
+          {
+            "id": 5,
+            "state": "collected"
+          },
+          {
+            "id": 6,
+            "state": "collected"
+          },
+          {
+            "id": 7,
+            "state": "collected"
+          },
+          {
+            "id": 8,
+            "state": "collected"
+          },
+          {
+            "id": 9,
+            "state": "alive"
+          }
+        ]
+      },
+      {
+        "label": "after-final-controlled-GC",
+        "stage": "controlled-GC-after-validation-and-escape",
+        "mainIsolateBackingStorageBytes": 116136703,
+        "weakDerefableTrackedBytes": 114933061,
+        "sumOwnedProcessRSSBytes": 1195130880,
+        "targetCandidateStates": [
+          {
+            "id": 5,
+            "state": "collected"
+          },
+          {
+            "id": 6,
+            "state": "collected"
+          },
+          {
+            "id": 7,
+            "state": "collected"
+          },
+          {
+            "id": 8,
+            "state": "collected"
+          },
+          {
+            "id": 9,
+            "state": "collected"
+          }
+        ]
+      }
+    ],
+    "finalRaw": {
+      "width": 8188,
+      "height": 4096,
+      "bytes": 134152192,
+      "mismatches": 0,
+      "sha256": "d42c4390f9a80724bb095a4caffdb732cd98796b5667ff723b123dfd5588a8cb"
+    },
+    "sourceRaw": {
+      "width": 4096,
+      "height": 4096,
+      "mismatches": 0,
+      "sha256": "5a523d036e54cd851cfe3fb07c536efbe422ee2c438eb00e80620adb21a8f29c"
+    },
+    "crossCheck": "Actual browser CopyWorker raw target8188x4096 SHA and source SHA equal Node full-word independently checked literal-pattern output/source. PNG Blob/bytes not read or verified by this probe.",
+    "candidateCollection": "Before post-Up controlledGC ids5–9 derefable; after GC only latestid9; after validation/Escape/finalGC all5 collected. This finite observed sequence is not proof of no leaks in all paths.",
+    "sampleScopes": [
+      "Runtime.getHeapUsage backingStorageSize covers main isolate ArrayBuffers and external strings, not pure pixels or whole renderer memory.",
+      "Owned process RSS is each browser/GPU/service/renderer PID snapshot, not a unique physical sum; shared pages can be double counted. Heap/ps/WeakRef observations are not atomic.",
+      "Persistent fixture47,824,197B id1 belongs to modeled native IPC file store; it remains alongside64MiB document after selection removal. Do not attribute this model fixture to a production leak.",
+      "No controlledGC during natural burst. Constructor/WeakRef observation and100ms sampling affect this one sequence.",
+      "Partial candidates are not fully touched128MiB resident planes. Logical buffer capacity differs from committed/resident pages.",
+      "Safety3GiB sampled stop was not triggered; sampled threshold is not a hard peak bound. Verification/copy guard samples remain outside natural interval.",
+      "No performance distribution, physical input, mobile/browser-web-profile, actualWK/native Windows/macOS memory or long-duration acceptance."
+    ],
+    "initialHarnessFailure": {
+      "result": {
+        "path": "build-web-work/task-planning/resize-memory/actual-chromium/initial-real-canvas/results.json",
+        "sha256": "9330baef39abe9f9def2ca17edb64de29803bd0520b0f705b7455acdeeb3d65d"
+      },
+      "correction": {
+        "path": "build-web-work/task-planning/resize-memory/actual-chromium/v2-correction.json",
+        "sha256": "4b88a00c23c9e2f53946813471924443e9db0c1356ea272ebc01b165c0d1c530"
+      },
+      "classification": "Product wasready8191x4096; observer retained initial8192 byte expectation and failed outputSeen. Original terminal1; burst/cancel/source/Redo not reached, not counted as PASS. Confirmed observer correction then separate v2 terminal0."
+    },
+    "summary": {
+      "path": "build-web-work/task-planning/resize-memory/actual-chromium/summary.json",
+      "sha256": "6cbb418c08278eeadbec497b0bf14e0deef0a32dd7bd1048035b0928707f7a59"
+    },
+    "manifest": {
+      "path": "build-web-work/task-planning/resize-memory/actual-chromium/manifest.json",
+      "sha256": "e6b9a3b26b3d5b831031e07893816c174ea50e194d3f26be5544f4e5bb9a347a"
+    },
+    "samplePartition": {
+      "natural": 43,
+      "postNaturalValidationSafety": 60,
+      "controlledGC": 3,
+      "total": 106
+    }
+  },
+  "verificationCorrections": [
+    {
+      "kind": "Setup",
+      "detail": "Initial root-cwd tsx import failed before execution; corrected cwd."
+    },
+    {
+      "kind": "Fixture",
+      "detail": "Generic doc.edit rename retained extra history planes unlike public metadata rename. Corrected to editMetadata; earlier results preserved."
+    },
+    {
+      "kind": "Ledger",
+      "detail": "Register named strong-owned buffers before computing current WeakRef ledger."
+    },
+    {
+      "kind": "Observer allocations",
+      "detail": "Reviewer found eager per-pixel assert message strings and natural snapshot after fullraw verifier. Format only on mismatch and observe repeat checkpoint before verifier; earlier results preserved. No product defect."
+    },
+    {
+      "kind": "Shell cwd",
+      "detail": "A relative patch path failed before editing and subsequent shell line repeated unchanged web probe. Preserved repeated initial result, not an independent primary sample."
+    }
+  ],
+  "reviews": {
+    "path": "build-web-work/task-planning/resize-memory/design-reviews.json",
+    "sha256": "152dc16b1f987820787b9b106cd0c0b58ea5f09fbd0f6a21e7e79db41414d4fd"
+  },
+  "remaining": [
+    "Physical Android/pen/browser mobile memory and Windows/macOS native memory not tested by Node.",
+    "Finite snapshots and forced GC cannot certify long-run natural GC cadence, global RSS bound, p95 latency or absence of all leaks.",
+    "No buffer pool or aliasing current/start/source memory without demonstrated need and ownership-safe design.",
+    "Current high-minification99ms observation, fixed-DPR WK/wide dirty, OS integration/remote CI/signing/staging remain separate open gates."
+  ],
+  "policy": {
+    "mobile": "web browsers only",
+    "packages": [
+      "Windows",
+      "macOS"
+    ],
+    "commitPushPublish": false
+  },
+  "decision": {
+    "change": "Preserve current production implementation; do not introduce a buffer pool or mutate current/start/source backing based on derefable buffers or RSS alone.",
+    "reason": "Consumed superseded private candidates become collected after controlled GC; final output/source/oldRedo match. High transient capacity/RSS is real in the observed finite workload but not evidence of an unintended strong reference leak.",
+    "next": [
+      "Isolate high-minification99ms execution cost at fixed camera/DPR before another kernel change.",
+      "Bounded longer natural-cadence and real native/mobile memory sampling remain open; avoid claiming a peak/RSS guarantee.",
+      "OS file/IME/disk-replacement, physical Android web and Windows, CI/signing/staging gates remain separate."
+    ]
+  },
+  "cleanup": {
+    "chromiumV2": "Original exec43193 terminal0; browser/context closed in finally.",
+    "chromiumInitial": "Original exec38100 terminal1; browser/context closed in finally.",
+    "ownedServers": "Original9036 exec21011 then50914 each terminal143; only owned matching server stopped.",
+    "scope": "SRE completion observed; root final port/source integrity inspection recorded separately.",
+    "rootFinalInspection": {
+      "port9036Closed": true,
+      "initialAndFinalRunObservedPIDsAbsent": true,
+      "ownedPIDCount": 14
+    }
+  },
+  "independentFinalReviews": [
+    {
+      "role": "reviewer-node",
+      "result": {
+        "path": "build-web-work/task-planning/resize-memory/reviews/reviewer-node-final.json",
+        "sha256": "d5e754ee6e5223b0677918261f0e2e9cdafd1360b2ca50b8673fc8f8350449dd"
+      }
+    },
+    {
+      "role": "reviewer-chromium",
+      "result": {
+        "path": "build-web-work/task-planning/resize-memory/reviews/reviewer-chromium-final.json",
+        "sha256": "129d1cd95519812d2fa38877761fc4854b6b898bf93f8b2b7264deb8ba45d968"
+      }
+    },
+    {
+      "role": "reviewer-integrated",
+      "result": {
+        "path": "build-web-work/task-planning/resize-memory/reviews/reviewer-integrated-final.json",
+        "sha256": "e9e817ed8e4239c93c166d7b6c5c2efad9e6be1993c4fd85f842afcb9027975a"
+      },
+      "scope": "Audited archived draft; final publication adds cleanup confirmation and review attachments without new runtime assertions."
+    },
+    {
+      "role": "architect-cross",
+      "result": {
+        "path": "build-web-work/task-planning/resize-memory/reviews/architect-cross-final.json",
+        "sha256": "a0845ee30fa830cef67ae2f7dc3f08144160cb7840accda29fbf2ed3d6b02827"
+      },
+      "scope": "Read-only cross-check of actual/Node current results and source ownership; no new run."
+    }
+  ]
+}

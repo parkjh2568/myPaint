@@ -1,0 +1,2479 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "QF-13 Studio 둥근 사각형의 명시 기하 정책과 shapeRaster context 생성 실패 정리 구현. 최종 제품은 default Canvas readback이며 최적화 hint는 actualUI 회귀로 미채택. 전체 QF/출시 완료가 아니다.",
+  "status": {
+    "QF-13": "partial",
+    "overallGoal": "active",
+    "localCornerAndCleanup": "verified",
+    "readbackHint": "rejected",
+    "knownWKStrictSeam": "not passed; preserved open boundary-AA limitation"
+  },
+  "authority": {
+    "before17": {
+      "path": "build-web-work/task-planning/roundrect-contract/before-source.json",
+      "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+    },
+    "accepted17": {
+      "path": "build-web-work/task-planning/roundrect-contract/accepted-source.json",
+      "sha256": "b10e8c514cd87b8380a5ad55ffcc936695672d1726ba553381c4234cfd283c51"
+    },
+    "frozenBundle9": {
+      "path": "build-web-work/task-planning/roundrect-contract/accepted-bundle/bundle.json",
+      "sha256": "90964d384f9c6bf4c2ce1e3de77a84e4c8364fd303f003a786baa55bc87193d0"
+    },
+    "webAssets8": {
+      "path": "build-web-work/task-planning/roundrect-contract/accepted-assets.json",
+      "sha256": "f614701c07e5ae3a48cca63b6824fffbb6391e1905f28caee5ef3e51e837aee8"
+    },
+    "moduleGraph": {
+      "path": "docs/evidence/studio-roundrect-module-graph.json",
+      "sha256": "941a235fdb6346f9fa4dfe4434913e9a5795d49475bfdb1e3bfda69eed7e9e96"
+    }
+  },
+  "source": {
+    "changedRuntimeFiles": [
+      "web-app/src/main.ts"
+    ],
+    "accepted": {
+      "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+      "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+      "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+      "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+      "web-app/src/main.ts": "669287132713d6a96e4ee992f27267d59b7bda1eb314fd51cffc4f90c795d8c7",
+      "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+      "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+      "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+      "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+      "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+      "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+      "web-app/src/style.css": "a48993e40d56f55e2bea199384d273aabe6649a59a7f48ae0cba4c46a988eb7f",
+      "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+      "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+      "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+      "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+      "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+    },
+    "productionDelta": [
+      "paintShape: positive-area roundrect rx=min(12,w/2), ry=min(12,h/2); zero-area uses old scalar0",
+      "shapeRaster: acquire context inside existing owned try/finally; no rendering setting change"
+    ],
+    "unchanged": [
+      "engine pixels/history/format/operations",
+      "Worker/codec/storage/Rust",
+      "rectangle/ellipse/line/curve/polygon geometry",
+      "surface.ts including its original API/default settings",
+      "UI skins/icons and document endpoint/Shift policies"
+    ],
+    "newRuntimeHelpers": 0,
+    "newRuntimeModules": 0,
+    "newImportsOrDependencies": 0,
+    "test": {
+      "path": "web-app/tests/roundrect-contract.mjs",
+      "sha256": "e4acfea32362c9ad1d81a949b7f92338d3bc79573b7d707b40cc0314f117e5ca"
+    },
+    "npmScript": "test:roundrect-contract",
+    "CI": "Staged /mypaint/ web job runs test:roundrect-contract"
+  },
+  "policy": {
+    "decision": {
+      "path": "build-web-work/task-planning/roundrect-contract/architecture-decision.json",
+      "sha256": "477a83dba9f7a1f382f9018afb48990541a8addd6811add5be5742e0e62af8d2"
+    },
+    "description": "Studio float min/abs bounds·direction symmetry·CanvasAA를 유지하고 새 rounded corners만 독립축 max12로 정의한다. Qt QRect 역방향/퇴화/floor 부작용의 strict 재현이라고 부르지 않는다. RPAINT01의 완성 픽셀은 다시 그리지 않는다.",
+    "degenerate": "점은 기존 무잉크, 한축0 fill은 NoOp/기존 outline stroke 경로, 1px 강제 확장 없음. visible NoOp/hidden visibility는 기존 engine 계약.",
+    "preview": "같은 geometry와 stable interior/exterior 색을 유지한다. vector preview와 document-resolution commit의 경계 AA/RGB가 모든 DPR에서 같은 byte일 것을 약속하지 않는다."
+  },
+  "findings": [
+    {
+      "id": "RND-CORNER",
+      "severity": "Minor",
+      "status": "resolved in scoped Studio policy",
+      "condition": "Large radius14 and short-axis scalar clamp diverged from independent radius12 intent",
+      "impact": "New rounded shapes had different corners, especially wide-short/tall",
+      "fix": "One roundrect branch, preserved float endpoints and scalar0 degenerate paths",
+      "proof": "Before new policy14 failures/5 safety controls; accepted24 including stable real pixels and path/radius observations"
+    },
+    {
+      "id": "SHAPE-CONTEXT-OWNER",
+      "severity": "Minor",
+      "status": "resolved",
+      "condition": "context2D returned null or threw before shapeRaster try began",
+      "impact": "Injected failure left a deliberately retained Canvas at logical512×96; deterministic zeroing did not execute. Actual permanent/native/RSS leak or document loss was not established.",
+      "rootCause": "Owner finally began after context acquisition",
+      "fix": "Acquire context inside existing try; keep zeroing in caller-owned finally",
+      "before": {
+        "path": "build-web-work/task-planning/roundrect-contract/resource-before/results.json",
+        "sha256": "ee57bc523551a314428a27b1349fbd098cabbcf2074cc8ced6d3f64c22cd51aa"
+      },
+      "beforeOutcome": "Same4 Offscreen/HTML null/throw controls failed with backing512×96 versus expected0×0 on source654",
+      "afterOutcome": "All4 acquisition controls and existing second-tile read error preserve original/oldRedo; failed backing0×0 on accepted source; 24case suite passes"
+    },
+    {
+      "id": "WK-BOUNDARY-AA",
+      "severity": "Minor",
+      "priority": "P2",
+      "status": "open platform/raster acceptance limitation",
+      "condition": "Default WK tiled vector readback on semi-transparent outline",
+      "observed": "Two seam boundary rows differ alpha1/RGB2; deep fill/stroke interior has no mismatch. Old scalar14 also showed one row. Accepted default raw is byte-exact to stable654 candidate.",
+      "proof": {
+        "path": "build-web-work/task-planning/roundrect-contract/accepted-wk/summary.json",
+        "sha256": "f71fa1a3fc9f18da9634cf2e02626fac1ef2f37f87fa8c8ff2a418d877cee52b"
+      },
+      "strictStatus": {
+        "ok": false,
+        "strictSeamPassed": false,
+        "nativeExit": {
+          "exitCode": 1,
+          "elapsedSeconds": 0.3918290138244629,
+          "stdoutBytes": 565792,
+          "stderrBytes": 0
+        }
+      },
+      "impactLimit": "Isolated actualWK extracted algorithm probe, not demonstrated data loss or actual bundled UI defect. Do not relabel as all-pass; investigate deterministic boundary raster later without reintroducing preview snap."
+    }
+  ],
+  "verification": {
+    "publicAccepted24": {
+      "passed": 24,
+      "failed": 0,
+      "errors": 0,
+      "raw": {
+        "path": "build-web-work/task-planning/roundrect-contract/final/results.json",
+        "sha256": "cc338b1bf8554f8d77a92593de4a940b4cc7a4e19b39550428f2ef42539cb374"
+      },
+      "driver": {
+        "path": "build-web-work/task-planning/roundrect-contract/final/driver.mjs",
+        "sha256": "e4acfea32362c9ad1d81a949b7f92338d3bc79573b7d707b40cc0314f117e5ca"
+      },
+      "runner": {
+        "path": "build-web-work/task-planning/roundrect-contract/final/runner.json",
+        "sha256": "4b13e013b2955140d981e667efddbb03c5a8398a61fae73d977a29a6ab65c3d7"
+      },
+      "scope": "actual Chromium UI; model native IPC; allsize4; representative DPR2/alpha/right/Shift; stable raw/PNG samples, same-geometry reverse/DPR wholeRGBA, UndoRedo, original/oldRedo, Offscreen+HTML null/throw backing0; not allAAedge byte oracle"
+    },
+    "independentUI": {
+      "passed": 8,
+      "failed": 0,
+      "summary": {
+        "path": "build-web-work/task-planning/roundrect-contract/accepted-ui-independent/summary.json",
+        "sha256": "7dd951c3ee3d05e3e6bb6af21f2f1b387de9b103632765f479fea8677b4554c7"
+      },
+      "raw": {
+        "path": "build-web-work/task-planning/roundrect-contract/accepted-ui-independent/results.json",
+        "sha256": "096f33cf1191bd87cb3bbb1866df0350424145984be71f99f19aa0b490ef9c13"
+      },
+      "scope": "Actual compositor screenshots with mainCanvas getImageData0; same protocol/source fixture across default654 and accepted669. 40 image/project/PNG pairs encoded+wholeRGBA exact; 6 seam interiors/all192rows×3columns, 2703360 mapped device pixels verified. No global physical-device guarantee."
+    },
+    "unit": {
+      "passed": 229,
+      "failed": 0,
+      "log": {
+        "path": "build-web-work/task-planning/roundrect-contract/unit-accepted.log",
+        "sha256": "fa5e074b15e2e2191c0610d602c19d60a33f47c888f956c359e263f7172cffbb"
+      }
+    },
+    "typeBuild": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/roundrect-contract/build-accepted.log",
+        "sha256": "1d36181a065bee93ad04b14087dd9f3c27e2fca069b963b20c7028027f7e2265"
+      },
+      "frozenPayloadFiles": 9,
+      "payloadBytes": 276616,
+      "sourceArchiveOrSDKPackaged": false
+    },
+    "format": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/roundrect-contract/format-accepted.log",
+        "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+      }
+    },
+    "existingSuites": {
+      "shapeColor": {
+        "passed": 23,
+        "raw": {
+          "path": "build-web-work/task-planning/roundrect-contract/accepted-regression/shape.json",
+          "sha256": "dec54bac7f395824be49d1aeb2cbaf73f89e021f5b4cce09c79eaebced833370"
+        }
+      },
+      "pending": {
+        "passed": 36,
+        "raw": {
+          "path": "build-web-work/task-planning/roundrect-contract/accepted-regression/pending.json",
+          "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+        }
+      },
+      "browser": {
+        "passed": 48,
+        "parts": {
+          "basic": 13,
+          "concurrency": 3,
+          "editing": 13,
+          "storage": 13,
+          "shear": 6
+        },
+        "runner": {
+          "path": "build-web-work/task-planning/roundrect-contract/accepted-regression/runner.json",
+          "sha256": "af310e99b50d62cb56aced703a2e5b1527f81450ba6a26662299449866d03729"
+        }
+      },
+      "scene": {
+        "wholeCanvasFrames": 56,
+        "savedDocuments": 12,
+        "retryFaults": 2,
+        "failed": 0,
+        "raw": {
+          "path": "build-web-work/task-planning/roundrect-contract/accepted-regression/scene.json",
+          "sha256": "40e79d6f3fadb023def431e93ee7ad002be4316e34023748929b4cbadbeb9005"
+        },
+        "reference": {
+          "path": "build-web-work/task-planning/roundrect-contract/regression/scene-run/reference.json",
+          "sha256": "7fe21979f3ecfb9ea77b82e6b42b941a1db8adeb01034d05a6d0e8802e0320d8"
+        },
+        "referenceSource": "Intermediate654 source with same accepted geometry/default normal pixels; completed scene-cache-bypass reference reused, no inherited hint output. Final source differs only context acquisition error ownership versus654; compare proves normal output equality."
+      }
+    },
+    "ordinaryMacOS": {
+      "runs": 4,
+      "passed": true,
+      "sceneChecksWithinRun": 21,
+      "raw": {
+        "path": "build-web-work/task-planning/roundrect-contract/native-desktop-accepted.json",
+        "sha256": "de24df2aef5dbab36cf04913da5372397f2fb294f05e9ab4155c459730774dd7"
+      },
+      "log": {
+        "path": "build-web-work/task-planning/roundrect-contract/native-desktop-accepted.log",
+        "sha256": "79fda8d667238b48972e1e91ee90b3bbfe09302feecf08ddafca25c3cf7d1158"
+      },
+      "buildLog": {
+        "path": "build-web-work/task-planning/roundrect-contract/native-build-accepted.log",
+        "sha256": "cb0636cbfb90ecedb1b8243126e864d11f5fbd6a73643e6f06784e67692fa2a1"
+      },
+      "binary": {
+        "path": "build-web-work/task-planning/roundrect-contract/accepted-native-binary",
+        "sha256": "b2898bae2bd160f9894d8714ea9e4c56c479f06051d6f9d2f4e33cf6b6453bee"
+      },
+      "binaryAtExecution": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "platform": "darwin/arm64 actual bundled WKWebView with isolated persistence; ordinary package, smoke flags per test; no OS picker/manual visual/Windows acceptance"
+    },
+    "acceptedWKProbe": {
+      "summary": {
+        "path": "build-web-work/task-planning/roundrect-contract/accepted-wk/summary.json",
+        "sha256": "f71fa1a3fc9f18da9634cf2e02626fac1ef2f37f87fa8c8ff2a418d877cee52b"
+      },
+      "strictSeamPassed": false,
+      "executionCompleted": true,
+      "counts": {
+        "smallLiteralCases": 4,
+        "twoTileLiteralCase": 1,
+        "exceptionDefaultProfileAndHTMLControls": 6,
+        "surfaceCountZeroDisposed": 13
+      },
+      "resources": {
+        "created": 13,
+        "allZeroBacking": true
+      },
+      "scope": "Actual isolated WK API/extracted paintShape+shapeRaster/actual surface/profile. Literal5 and failure/fallback controls distinguished from failed strict seam; not 11 bundled-native UI tests or all-PASS."
+    },
+    "independentCodeReview": {
+      "path": "build-web-work/task-planning/roundrect-contract/accepted-code-review.json",
+      "sha256": "1e32c1a4cea4897c11fae784ead7e2a3fe653ff0220516b0bb0d62bbf7195dee"
+    },
+    "independentStaticReview": {
+      "path": "build-web-work/task-planning/roundrect-contract/static-accepted/final-review.json",
+      "sha256": "b7611455486a42b93fb2fbb8bd32f2e179134b50940dd949ef43985cd00380b3"
+    }
+  },
+  "rejectedOptimization": {
+    "name": "shapeRaster-only willReadFrequently request",
+    "productEnabled": false,
+    "benchmark": {
+      "path": "build-web-work/task-planning/roundrect-contract/readback-bench/summary.json",
+      "sha256": "2d06b0c6d12a677102c157f77bda887234c1a147cb179ddabe1420555cb579e6"
+    },
+    "prototypeRows": [
+      {
+        "host": "wk",
+        "fixture": "small704x192",
+        "document": [
+          704,
+          192
+        ],
+        "input": {
+          "a": [
+            8,
+            8
+          ],
+          "b": [
+            664,
+            152
+          ]
+        },
+        "timedOrder": [
+          [
+            "default",
+            "hint"
+          ],
+          [
+            "hint",
+            "default"
+          ],
+          [
+            "default",
+            "hint"
+          ]
+        ],
+        "modes": {
+          "default": {
+            "warmupApiReturnMs": 16,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  2,
+                  1,
+                  1
+                ],
+                "median": 1,
+                "min": 1,
+                "max": 2
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "readMs": {
+                "samples": [
+                  1,
+                  1,
+                  1
+                ],
+                "median": 1,
+                "min": 1,
+                "max": 1
+              },
+              "residualMs": {
+                "samples": [
+                  1,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 1
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 12
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              666,
+              154
+            ],
+            "actualOutputRGBABytes": 410256,
+            "readbacksPerCall": 2,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "b6b8d17339ecde8bdff64ab0199d350454de573de780f92f2a8a4548329fa965",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": null,
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 2,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              },
+              {
+                "verticalRows": 2,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              },
+              {
+                "verticalRows": 2,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/wk/small704x192-default-warm.rgba",
+              "sha256": "b6b8d17339ecde8bdff64ab0199d350454de573de780f92f2a8a4548329fa965",
+              "bytes": 410256
+            }
+          },
+          "hint": {
+            "warmupApiReturnMs": 0,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  1,
+                  1,
+                  1
+                ],
+                "median": 1,
+                "min": 1,
+                "max": 1
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "readMs": {
+                "samples": [
+                  1,
+                  0,
+                  1
+                ],
+                "median": 1,
+                "min": 0,
+                "max": 1
+              },
+              "residualMs": {
+                "samples": [
+                  0,
+                  1,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 1
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 12
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              666,
+              154
+            ],
+            "actualOutputRGBABytes": 410256,
+            "readbacksPerCall": 2,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "23c606d47f469fe1301295c74d7b413bb7a7437622194d42961ab2ec459d7dbe",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": null,
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/wk/small704x192-hint-warm.rgba",
+              "sha256": "23c606d47f469fe1301295c74d7b413bb7a7437622194d42961ab2ec459d7dbe",
+              "bytes": 410256
+            }
+          }
+        },
+        "defaultVsHintRawChange": {
+          "host": "wk",
+          "fixture": "small704x192",
+          "changedPixels": 2200,
+          "conservativeCornerBandDifferences": 200,
+          "straightBoundaryBandDifferences": 2000,
+          "otherDifferences": 0,
+          "alphaZeroPositive": 8,
+          "opaqueZero": 0,
+          "maxPredictedWhiteRGBDifference": 16,
+          "examples": [
+            {
+              "globalCell": [
+                16,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                36,
+                18,
+                14
+              ],
+              "hintRGBA": [
+                185,
+                23,
+                0,
+                11
+              ]
+            },
+            {
+              "globalCell": [
+                17,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                41,
+                18,
+                69
+              ],
+              "hintRGBA": [
+                196,
+                39,
+                20,
+                65
+              ]
+            },
+            {
+              "globalCell": [
+                18,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                41,
+                19,
+                107
+              ],
+              "hintRGBA": [
+                198,
+                40,
+                20,
+                103
+              ]
+            },
+            {
+              "globalCell": [
+                19,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                41,
+                20,
+                125
+              ],
+              "hintRGBA": [
+                198,
+                38,
+                19,
+                121
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "host": "wk",
+        "fixture": "large2048x1024",
+        "document": [
+          2048,
+          1024
+        ],
+        "input": {
+          "a": [
+            8,
+            8
+          ],
+          "b": [
+            2040,
+            1016
+          ]
+        },
+        "timedOrder": [
+          [
+            "default",
+            "hint"
+          ],
+          [
+            "hint",
+            "default"
+          ],
+          [
+            "default",
+            "hint"
+          ]
+        ],
+        "modes": {
+          "default": {
+            "warmupApiReturnMs": 11,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  9,
+                  8,
+                  10
+                ],
+                "median": 9,
+                "min": 8,
+                "max": 10
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "readMs": {
+                "samples": [
+                  7,
+                  5,
+                  8
+                ],
+                "median": 7,
+                "min": 5,
+                "max": 8
+              },
+              "residualMs": {
+                "samples": [
+                  2,
+                  3,
+                  2
+                ],
+                "median": 2,
+                "min": 2,
+                "max": 3
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 12
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              2042,
+              1018
+            ],
+            "actualOutputRGBABytes": 8315024,
+            "readbacksPerCall": 8,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "9eefc13e03362b0e4fa5280ef7870207de838c74412e5c140c52f5755fa657ad",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": null,
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 5,
+                "horizontalColumns": 1,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              },
+              {
+                "verticalRows": 5,
+                "horizontalColumns": 1,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              },
+              {
+                "verticalRows": 5,
+                "horizontalColumns": 1,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/wk/large2048x1024-default-warm.rgba",
+              "sha256": "9eefc13e03362b0e4fa5280ef7870207de838c74412e5c140c52f5755fa657ad",
+              "bytes": 8315024
+            }
+          },
+          "hint": {
+            "warmupApiReturnMs": 7,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  7,
+                  6,
+                  6
+                ],
+                "median": 6,
+                "min": 6,
+                "max": 7
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "readMs": {
+                "samples": [
+                  7,
+                  5,
+                  5
+                ],
+                "median": 5,
+                "min": 5,
+                "max": 7
+              },
+              "residualMs": {
+                "samples": [
+                  0,
+                  1,
+                  1
+                ],
+                "median": 1,
+                "min": 0,
+                "max": 1
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 12
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              2042,
+              1018
+            ],
+            "actualOutputRGBABytes": 8315024,
+            "readbacksPerCall": 8,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "0933915234168581c6b8f9cafc92ab721f715e83dccbcb06ebe45f63513b0fb6",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": null,
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/wk/large2048x1024-hint-warm.rgba",
+              "sha256": "0933915234168581c6b8f9cafc92ab721f715e83dccbcb06ebe45f63513b0fb6",
+              "bytes": 8315024
+            }
+          }
+        },
+        "defaultVsHintRawChange": {
+          "host": "wk",
+          "fixture": "large2048x1024",
+          "changedPixels": 7975,
+          "conservativeCornerBandDifferences": 200,
+          "straightBoundaryBandDifferences": 7775,
+          "otherDifferences": 0,
+          "alphaZeroPositive": 8,
+          "opaqueZero": 0,
+          "maxPredictedWhiteRGBDifference": 16,
+          "examples": [
+            {
+              "globalCell": [
+                16,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                36,
+                18,
+                14
+              ],
+              "hintRGBA": [
+                185,
+                23,
+                0,
+                11
+              ]
+            },
+            {
+              "globalCell": [
+                17,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                41,
+                18,
+                69
+              ],
+              "hintRGBA": [
+                196,
+                39,
+                20,
+                65
+              ]
+            },
+            {
+              "globalCell": [
+                18,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                41,
+                19,
+                107
+              ],
+              "hintRGBA": [
+                198,
+                40,
+                20,
+                103
+              ]
+            },
+            {
+              "globalCell": [
+                19,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                41,
+                20,
+                125
+              ],
+              "hintRGBA": [
+                198,
+                38,
+                19,
+                121
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "host": "wk",
+        "fixture": "long2048x32",
+        "document": [
+          2048,
+          32
+        ],
+        "input": {
+          "a": [
+            8,
+            8
+          ],
+          "b": [
+            2040,
+            24
+          ]
+        },
+        "timedOrder": [
+          [
+            "default",
+            "hint"
+          ],
+          [
+            "hint",
+            "default"
+          ],
+          [
+            "default",
+            "hint"
+          ]
+        ],
+        "modes": {
+          "default": {
+            "warmupApiReturnMs": 3,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  2,
+                  2,
+                  2
+                ],
+                "median": 2,
+                "min": 2,
+                "max": 2
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "readMs": {
+                "samples": [
+                  2,
+                  2,
+                  2
+                ],
+                "median": 2,
+                "min": 2,
+                "max": 2
+              },
+              "residualMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 8
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              2042,
+              26
+            ],
+            "actualOutputRGBABytes": 212368,
+            "readbacksPerCall": 4,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "a02589d2cd0a54ec64bdb492b928e4d3c9a318b422d48ec10c0e54810b50d7d6",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": null,
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 5,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              },
+              {
+                "verticalRows": 5,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              },
+              {
+                "verticalRows": 5,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 2,
+                "maxAlphaDelta": 1
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/wk/long2048x32-default-warm.rgba",
+              "sha256": "a02589d2cd0a54ec64bdb492b928e4d3c9a318b422d48ec10c0e54810b50d7d6",
+              "bytes": 212368
+            }
+          },
+          "hint": {
+            "warmupApiReturnMs": 1,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "readMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "residualMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 8
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              2042,
+              26
+            ],
+            "actualOutputRGBABytes": 212368,
+            "readbacksPerCall": 4,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "f466cd3e613c14367241bf65965ec1b8e25ff5d88e0ca40224a2b03aaa6ecb15",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": null,
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/wk/long2048x32-hint-warm.rgba",
+              "sha256": "f466cd3e613c14367241bf65965ec1b8e25ff5d88e0ca40224a2b03aaa6ecb15",
+              "bytes": 212368
+            }
+          }
+        },
+        "defaultVsHintRawChange": {
+          "host": "wk",
+          "fixture": "long2048x32",
+          "changedPixels": 5542,
+          "conservativeCornerBandDifferences": 164,
+          "straightBoundaryBandDifferences": 5378,
+          "otherDifferences": 0,
+          "alphaZeroPositive": 8,
+          "opaqueZero": 0,
+          "maxPredictedWhiteRGBDifference": 16,
+          "examples": [
+            {
+              "globalCell": [
+                16,
+                6
+              ],
+              "defaultRGBA": [
+                197,
+                37,
+                21,
+                48
+              ],
+              "hintRGBA": [
+                198,
+                35,
+                14,
+                36
+              ]
+            },
+            {
+              "globalCell": [
+                17,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                41,
+                21,
+                87
+              ],
+              "hintRGBA": [
+                198,
+                38,
+                19,
+                81
+              ]
+            },
+            {
+              "globalCell": [
+                18,
+                6
+              ],
+              "defaultRGBA": [
+                201,
+                41,
+                20,
+                113
+              ],
+              "hintRGBA": [
+                199,
+                38,
+                18,
+                101
+              ]
+            },
+            {
+              "globalCell": [
+                19,
+                6
+              ],
+              "defaultRGBA": [
+                200,
+                40,
+                20,
+                126
+              ],
+              "hintRGBA": [
+                199,
+                39,
+                19,
+                119
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "host": "chrome",
+        "fixture": "small704x192",
+        "document": [
+          704,
+          192
+        ],
+        "input": {
+          "a": [
+            8,
+            8
+          ],
+          "b": [
+            664,
+            152
+          ]
+        },
+        "timedOrder": [
+          [
+            "default",
+            "hint"
+          ],
+          [
+            "hint",
+            "default"
+          ],
+          [
+            "default",
+            "hint"
+          ]
+        ],
+        "modes": {
+          "default": {
+            "warmupApiReturnMs": 14.200000047683716,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  2.9000000953674316,
+                  2.899999976158142,
+                  2.8000000715255737
+                ],
+                "median": 2.899999976158142,
+                "min": 2.8000000715255737,
+                "max": 2.9000000953674316
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0.10000002384185791,
+                  0.09999990463256836,
+                  0.10000002384185791
+                ],
+                "median": 0.10000002384185791,
+                "min": 0.09999990463256836,
+                "max": 0.10000002384185791
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "readMs": {
+                "samples": [
+                  2.600000023841858,
+                  2.600000023841858,
+                  2.600000023841858
+                ],
+                "median": 2.600000023841858,
+                "min": 2.600000023841858,
+                "max": 2.600000023841858
+              },
+              "residualMs": {
+                "samples": [
+                  0.20000004768371582,
+                  0.20000004768371582,
+                  0.10000002384185791
+                ],
+                "median": 0.20000004768371582,
+                "min": 0.10000002384185791,
+                "max": 0.20000004768371582
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 12
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              666,
+              154
+            ],
+            "actualOutputRGBABytes": 410256,
+            "readbacksPerCall": 2,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "0c3686fba78539aecc1559b67c48f0ba0e4e54de79d423e9feb8ea2d58cb34a9",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": {
+              "alpha": true,
+              "colorSpace": "srgb",
+              "colorType": "unorm8",
+              "desynchronized": false,
+              "toneMapping": {
+                "mode": "standard"
+              },
+              "willReadFrequently": false
+            },
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/chrome/small704x192-default-warm.rgba",
+              "sha256": "0c3686fba78539aecc1559b67c48f0ba0e4e54de79d423e9feb8ea2d58cb34a9",
+              "bytes": 410256
+            }
+          },
+          "hint": {
+            "warmupApiReturnMs": 1.2000000476837158,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  0.3999999761581421,
+                  0.5,
+                  0.5
+                ],
+                "median": 0.5,
+                "min": 0.3999999761581421,
+                "max": 0.5
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0.10000002384185791
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.10000002384185791
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0.10000002384185791,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.10000002384185791
+              },
+              "paintMs": {
+                "samples": [
+                  0.10000002384185791,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.10000002384185791
+              },
+              "readMs": {
+                "samples": [
+                  0.2999999523162842,
+                  0.2999999523162842,
+                  0.2999999523162842
+                ],
+                "median": 0.2999999523162842,
+                "min": 0.2999999523162842,
+                "max": 0.2999999523162842
+              },
+              "residualMs": {
+                "samples": [
+                  0,
+                  0.10000002384185791,
+                  0.10000002384185791
+                ],
+                "median": 0.10000002384185791,
+                "min": 0,
+                "max": 0.10000002384185791
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 12
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              666,
+              154
+            ],
+            "actualOutputRGBABytes": 410256,
+            "readbacksPerCall": 2,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "85488510e55a9aed05ad7cfb081da4b7cc05d187e7ea2dc68e7ff9f04cef19ee",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": {
+              "alpha": true,
+              "colorSpace": "srgb",
+              "colorType": "unorm8",
+              "desynchronized": false,
+              "toneMapping": {
+                "mode": "standard"
+              },
+              "willReadFrequently": true
+            },
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/chrome/small704x192-hint-warm.rgba",
+              "sha256": "85488510e55a9aed05ad7cfb081da4b7cc05d187e7ea2dc68e7ff9f04cef19ee",
+              "bytes": 410256
+            }
+          }
+        },
+        "defaultVsHintRawChange": {
+          "host": "chrome",
+          "fixture": "small704x192",
+          "changedPixels": 155,
+          "conservativeCornerBandDifferences": 155,
+          "straightBoundaryBandDifferences": 0,
+          "otherDifferences": 0,
+          "alphaZeroPositive": 22,
+          "opaqueZero": 0,
+          "maxPredictedWhiteRGBDifference": 89,
+          "examples": [
+            {
+              "globalCell": [
+                16,
+                6
+              ],
+              "defaultRGBA": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "hintRGBA": [
+                204,
+                26,
+                0,
+                10
+              ]
+            },
+            {
+              "globalCell": [
+                17,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                200,
+                39,
+                20,
+                65
+              ]
+            },
+            {
+              "globalCell": [
+                18,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                200,
+                38,
+                19,
+                93
+              ]
+            },
+            {
+              "globalCell": [
+                19,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                201,
+                39,
+                20,
+                117
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "host": "chrome",
+        "fixture": "large2048x1024",
+        "document": [
+          2048,
+          1024
+        ],
+        "input": {
+          "a": [
+            8,
+            8
+          ],
+          "b": [
+            2040,
+            1016
+          ]
+        },
+        "timedOrder": [
+          [
+            "default",
+            "hint"
+          ],
+          [
+            "hint",
+            "default"
+          ],
+          [
+            "default",
+            "hint"
+          ]
+        ],
+        "modes": {
+          "default": {
+            "warmupApiReturnMs": 13.899999976158142,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  11.200000047683716,
+                  14,
+                  11.899999976158142
+                ],
+                "median": 11.899999976158142,
+                "min": 11.200000047683716,
+                "max": 14
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0.10000002384185791,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.10000002384185791
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0.19999992847442627,
+                  0.20000004768371582,
+                  0.10000002384185791
+                ],
+                "median": 0.19999992847442627,
+                "min": 0.10000002384185791,
+                "max": 0.20000004768371582
+              },
+              "readMs": {
+                "samples": [
+                  9.400000095367432,
+                  9.899999976158142,
+                  9.899999618530273
+                ],
+                "median": 9.899999618530273,
+                "min": 9.400000095367432,
+                "max": 9.899999976158142
+              },
+              "residualMs": {
+                "samples": [
+                  1.5,
+                  3.899999976158142,
+                  1.9000003337860107
+                ],
+                "median": 1.9000003337860107,
+                "min": 1.5,
+                "max": 3.899999976158142
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 12
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              2042,
+              1018
+            ],
+            "actualOutputRGBABytes": 8315024,
+            "readbacksPerCall": 8,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "1b4e2371566d275ed09528b8671311ffa0a1a6a6e5c53de7d8e050c0b708a5e0",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": {
+              "alpha": true,
+              "colorSpace": "srgb",
+              "colorType": "unorm8",
+              "desynchronized": false,
+              "toneMapping": {
+                "mode": "standard"
+              },
+              "willReadFrequently": false
+            },
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/chrome/large2048x1024-default-warm.rgba",
+              "sha256": "1b4e2371566d275ed09528b8671311ffa0a1a6a6e5c53de7d8e050c0b708a5e0",
+              "bytes": 8315024
+            }
+          },
+          "hint": {
+            "warmupApiReturnMs": 5.100000023841858,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  5.699999928474426,
+                  5.099999904632568,
+                  5.100000023841858
+                ],
+                "median": 5.100000023841858,
+                "min": 5.099999904632568,
+                "max": 5.699999928474426
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0.10000002384185791
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.10000002384185791
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "readMs": {
+                "samples": [
+                  2.7999998331069946,
+                  2.5000003576278687,
+                  2.8000000715255737
+                ],
+                "median": 2.7999998331069946,
+                "min": 2.5000003576278687,
+                "max": 2.8000000715255737
+              },
+              "residualMs": {
+                "samples": [
+                  2.9000000953674316,
+                  2.5999995470046997,
+                  2.1999999284744263
+                ],
+                "median": 2.5999995470046997,
+                "min": 2.1999999284744263,
+                "max": 2.9000000953674316
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 12
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              2042,
+              1018
+            ],
+            "actualOutputRGBABytes": 8315024,
+            "readbacksPerCall": 8,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "aed67988381471541b023fd2f41fa9ce9afa5c30c47b661c679d36262dabb052",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": {
+              "alpha": true,
+              "colorSpace": "srgb",
+              "colorType": "unorm8",
+              "desynchronized": false,
+              "toneMapping": {
+                "mode": "standard"
+              },
+              "willReadFrequently": true
+            },
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/chrome/large2048x1024-hint-warm.rgba",
+              "sha256": "aed67988381471541b023fd2f41fa9ce9afa5c30c47b661c679d36262dabb052",
+              "bytes": 8315024
+            }
+          }
+        },
+        "defaultVsHintRawChange": {
+          "host": "chrome",
+          "fixture": "large2048x1024",
+          "changedPixels": 155,
+          "conservativeCornerBandDifferences": 155,
+          "straightBoundaryBandDifferences": 0,
+          "otherDifferences": 0,
+          "alphaZeroPositive": 22,
+          "opaqueZero": 0,
+          "maxPredictedWhiteRGBDifference": 89,
+          "examples": [
+            {
+              "globalCell": [
+                16,
+                6
+              ],
+              "defaultRGBA": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "hintRGBA": [
+                204,
+                26,
+                0,
+                10
+              ]
+            },
+            {
+              "globalCell": [
+                17,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                200,
+                39,
+                20,
+                65
+              ]
+            },
+            {
+              "globalCell": [
+                18,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                200,
+                38,
+                19,
+                93
+              ]
+            },
+            {
+              "globalCell": [
+                19,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                201,
+                39,
+                20,
+                117
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "host": "chrome",
+        "fixture": "long2048x32",
+        "document": [
+          2048,
+          32
+        ],
+        "input": {
+          "a": [
+            8,
+            8
+          ],
+          "b": [
+            2040,
+            24
+          ]
+        },
+        "timedOrder": [
+          [
+            "default",
+            "hint"
+          ],
+          [
+            "hint",
+            "default"
+          ],
+          [
+            "default",
+            "hint"
+          ]
+        ],
+        "modes": {
+          "default": {
+            "warmupApiReturnMs": 14.100000023841858,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  3.899999976158142,
+                  4.699999928474426,
+                  3.8000000715255737
+                ],
+                "median": 3.899999976158142,
+                "min": 3.8000000715255737,
+                "max": 4.699999928474426
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0.10000002384185791
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.10000002384185791
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "paintMs": {
+                "samples": [
+                  0.09999990463256836,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.09999990463256836
+              },
+              "readMs": {
+                "samples": [
+                  3.600000023841858,
+                  4.599999904632568,
+                  3.5000001192092896
+                ],
+                "median": 3.600000023841858,
+                "min": 3.5000001192092896,
+                "max": 4.599999904632568
+              },
+              "residualMs": {
+                "samples": [
+                  0.20000004768371582,
+                  0.10000002384185791,
+                  0.19999992847442627
+                ],
+                "median": 0.19999992847442627,
+                "min": 0.10000002384185791,
+                "max": 0.20000004768371582
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 8
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              2042,
+              26
+            ],
+            "actualOutputRGBABytes": 212368,
+            "readbacksPerCall": 4,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "4a5469dad7b9a8adff454f2cdb1bf27be692f0a04dd047a7b0edc03ab84e49c7",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": {
+              "alpha": true,
+              "colorSpace": "srgb",
+              "colorType": "unorm8",
+              "desynchronized": false,
+              "toneMapping": {
+                "mode": "standard"
+              },
+              "willReadFrequently": false
+            },
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/chrome/long2048x32-default-warm.rgba",
+              "sha256": "4a5469dad7b9a8adff454f2cdb1bf27be692f0a04dd047a7b0edc03ab84e49c7",
+              "bytes": 212368
+            }
+          },
+          "hint": {
+            "warmupApiReturnMs": 0.20000004768371582,
+            "timings": {
+              "totalMs": {
+                "samples": [
+                  0.2999999523162842,
+                  0.40000009536743164,
+                  0.3999999761581421
+                ],
+                "median": 0.3999999761581421,
+                "min": 0.2999999523162842,
+                "max": 0.40000009536743164
+              },
+              "surfaceCreateMs": {
+                "samples": [
+                  0,
+                  0,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0
+              },
+              "contextMs": {
+                "samples": [
+                  0,
+                  0,
+                  0.09999990463256836
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.09999990463256836
+              },
+              "paintMs": {
+                "samples": [
+                  0,
+                  0.10000002384185791,
+                  0
+                ],
+                "median": 0,
+                "min": 0,
+                "max": 0.10000002384185791
+              },
+              "readMs": {
+                "samples": [
+                  0.10000002384185791,
+                  0.10000002384185791,
+                  0.20000004768371582
+                ],
+                "median": 0.10000002384185791,
+                "min": 0.10000002384185791,
+                "max": 0.20000004768371582
+              },
+              "residualMs": {
+                "samples": [
+                  0.19999992847442627,
+                  0.20000004768371582,
+                  0.10000002384185791
+                ],
+                "median": 0.19999992847442627,
+                "min": 0.10000002384185791,
+                "max": 0.20000004768371582
+              }
+            },
+            "actualRadius": {
+              "x": 12,
+              "y": 8
+            },
+            "actualOutputROI": [
+              3,
+              3,
+              2042,
+              26
+            ],
+            "actualOutputRGBABytes": 212368,
+            "readbacksPerCall": 4,
+            "factoryCallsPerCall": 1,
+            "rawSHA256": "da669104c1984039b968022d95dee13217237d931abc30e690c34c4200b585f6",
+            "timedAgainstWarmupWholeRGBAExact": true,
+            "contextAttributes": {
+              "alpha": true,
+              "colorSpace": "srgb",
+              "colorType": "unorm8",
+              "desynchronized": false,
+              "toneMapping": {
+                "mode": "standard"
+              },
+              "willReadFrequently": true
+            },
+            "seamDifferencesPerTimedCall": [
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              },
+              {
+                "verticalRows": 0,
+                "horizontalColumns": 0,
+                "interiorRowsOrCols": 0,
+                "maxRGBADelta": 0,
+                "maxAlphaDelta": 0
+              }
+            ],
+            "literalInteriorStrokeExterior": true,
+            "styleSourceResourceChecks": true,
+            "warmupRaw": {
+              "path": "/private/tmp/mypaint-roundrect-hint-bench-sre-20261106/chrome/long2048x32-hint-warm.rgba",
+              "sha256": "da669104c1984039b968022d95dee13217237d931abc30e690c34c4200b585f6",
+              "bytes": 212368
+            }
+          }
+        },
+        "defaultVsHintRawChange": {
+          "host": "chrome",
+          "fixture": "long2048x32",
+          "changedPixels": 144,
+          "conservativeCornerBandDifferences": 144,
+          "straightBoundaryBandDifferences": 0,
+          "otherDifferences": 0,
+          "alphaZeroPositive": 24,
+          "opaqueZero": 0,
+          "maxPredictedWhiteRGBDifference": 100,
+          "examples": [
+            {
+              "globalCell": [
+                16,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "globalCell": [
+                17,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                201,
+                39,
+                15,
+                33
+              ]
+            },
+            {
+              "globalCell": [
+                18,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                64
+              ],
+              "hintRGBA": [
+                201,
+                40,
+                18,
+                71
+              ]
+            },
+            {
+              "globalCell": [
+                19,
+                6
+              ],
+              "defaultRGBA": [
+                199,
+                40,
+                20,
+                128
+              ],
+              "hintRGBA": [
+                199,
+                40,
+                19,
+                109
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "interpretation": "Warm1/timed3 per fixture/host. Readback timing improved but this is not a byte-preserving optimization, global performance or p95/RSS claim. WK clock sub1ms is quantization, not zero cost.",
+    "actualUI": {
+      "path": "build-web-work/task-planning/roundrect-contract/hint-ui-rejected/summary.json",
+      "sha256": "10fc89670fff18a18c645af033d0b36e3522b9ee93623b779209335c437b1512"
+    },
+    "visualComparison": {
+      "path": "build-web-work/task-planning/roundrect-contract/hint-ui-rejected/visual-comparison.json",
+      "sha256": "b289ac7093c9a3f747b76d95d94f2aff0b6fd6f92e5c7fe75d3b4ebaf9a04fd8"
+    },
+    "reason": "Actual654→hint preview8 screenshots were byte-exact while commit changed. At DPR1 preview→commit maxRGB1 grew to90/54/124/91; e.g narrow[241,201,196]→[212,88,72]. Visible pointerUp boundary color snap conflicts with smooth drawing consistency. Reject local and global hints, restore original surface API to avoid unused abstraction.",
+    "technicalWKHint": {
+      "path": "build-web-work/task-planning/roundrect-contract/hint-wk/summary.json",
+      "sha256": "8d8c9a0c97cb6f28576158d6315a9c62a72a774fcf0b4af0d8342d18dd9c7157"
+    },
+    "technicalPassDoesNotOverrideVisualRegression": true,
+    "conditionalReview": {
+      "path": "build-web-work/task-planning/roundrect-contract/readback-conditional-decision.json",
+      "sha256": "4dd7eba2b71120c2c2e1bba88e0627a7d0ac1d8fc53c2a89c06dbc7124cbcfc1"
+    }
+  },
+  "executionHistory": {
+    "initialPolicyBaseline": {
+      "path": "build-web-work/task-planning/roundrect-contract/before-classification.json",
+      "sha256": "e48084d94773e367632201c84922e79b1a0eaa2554300bd7ff7501249997174f"
+    },
+    "resourceBaselineFailure4": {
+      "path": "build-web-work/task-planning/roundrect-contract/resource-before/results.json",
+      "sha256": "ee57bc523551a314428a27b1349fbd098cabbcf2074cc8ced6d3f64c22cd51aa"
+    },
+    "firstIndependentUIHarness": "DOMMatrix16 array misread as6; corrected explicit a,b,c,d,e,f before product input and original retained in independent-before/",
+    "firstSceneDeadline": {
+      "path": "build-web-work/task-planning/roundrect-contract/scene-deadline-classification.json",
+      "sha256": "d1d79cc6b172a0229b2bc8526c6caa6b90f3fdd85ec77b0c205230e2b9b2103c"
+    },
+    "sceneFollowup654": {
+      "path": "build-web-work/task-planning/roundrect-contract/scene-followup/candidate.json",
+      "sha256": "8c555be0c391a2a7313250c4e8d39d050e919924b774cd9621ac25c3674ae4fb"
+    },
+    "finalScene": {
+      "path": "build-web-work/task-planning/roundrect-contract/accepted-regression/scene.json",
+      "sha256": "40e79d6f3fadb023def431e93ee7ad002be4316e34023748929b4cbadbeb9005"
+    },
+    "note": "Intermediate19/21, prototype diagnostics and baseline8 are separate historical runs, not summed into accepted success counts."
+  },
+  "nextPriority": {
+    "task": "QF17 full output matte preview including pending content",
+    "plan": {
+      "path": "build-web-work/task-planning/roundrect-contract/next-export-preview-plan.json",
+      "sha256": "1e79162cce15bfe29cfd8d842ec5c6fe9059b2ff3b17f9004df27c44436227cc"
+    },
+    "requirements": "Bounded192grid read-only samples with active pending clear/selection/text/shape and upper-layer composition, exact matte sample, same original/Redo/stale guards; no whole pendingState/composite clone for preview. Shared text layout/paint allowed, doc-only/disabled pending thumbnail does not complete QF17."
+  },
+  "limits": [
+    "QF13 whole options/device matrix and predecessorQF11 remain open; no task checkbox closed.",
+    "New corner policy is not strict Qt endpoints/aliased raster equality; preserved completed project pixels are a different invariant.",
+    "Known defaultWK strict seam remains false; AA edge tolerance/physical appearance/cross-browser policy remains a P2 gate.",
+    "No native Windows, actual Android web, physical pen/touch/OS IME, signed/notarized release or remoteCI/public Pages acceptance in this phase.",
+    "Final product does not adopt readback performance prototype. No performance improvement claimed for the accepted max12/cleanup change.",
+    "No commit/push/publication/actual sibling homepage stage. Source and homepage Git index/config checked separately at final integrity."
+  ],
+  "cleanup": {
+    "publicBrowserClosed": true,
+    "independent": {
+      "browserClosed": true,
+      "serverClosed": true,
+      "temporaryGitFixtureRetained": "/private/tmp/mypaint-roundrect-accepted-site-hrb4x1oc/homepage",
+      "gitIndexAndOtherHomepageFilesExact": true,
+      "liveHandle": null
+    },
+    "WK": {
+      "ownPID": 95658,
+      "mainProcessExited": true,
+      "hiddenWindowClosed": true,
+      "noActivationOrForeignProcessControl": true,
+      "serverNeverStarted": true
+    },
+    "finalRegressionServerClosed": true,
+    "nativeRunnerExit": 0
+  },
+  "allDiagnosticChecksPassed": false,
+  "okMeaning": "Accepted local code regression verified; not a blanket diagnostic/task/release pass. The known WK strict seam check remains false."
+}

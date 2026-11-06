@@ -1,0 +1,693 @@
+{
+  "ok": true,
+  "date": "2026-11-05",
+  "scope": "큰 올가미 선택 준비를 취소 가능한 비동기 작업으로 이전한 로컬 구현·독립 설계/리뷰·실행 검증. 전체 프로젝트/플랫폼/성능 인수 완료가 아니다. 커밋·푸시·공개 배포·원격 CI 실행 없음.",
+  "platformPolicy": {
+    "mobileTablet": "browser only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "actualHost": "macOS arm64 / WKWebView; ordinary-web Chrome 156 / Apple M1 Pro Metal"
+  },
+  "rootCause": {
+    "path": "pointerUp → synchronous bbox/crop → polygonMask → alpha/key → selection install",
+    "observedBefore": "P32768, source1024², actual bbox1023×1021; v3 public pointerup188.6ms, queued timer gap211.9ms. Initial independent UI protocol206.6ms remains separate. Node P8192/32768 makeSelection78.09/175.43ms are preflight n1, not UI cancel timings.",
+    "failureMode": "동기 경로가 끝나기 전에는 취소/입력 이벤트를 처리하지 못함."
+  },
+  "implementation": {
+    "changedRuntimeSources": [
+      "web-app/src/engine/operations.ts",
+      "web-app/src/main.ts",
+      "web-app/src/platform/codec.ts",
+      "web-app/src/workers/codec.worker.ts"
+    ],
+    "source17": {
+      "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+      "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+      "web-app/src/engine/operations.ts": "7cde8e9b224ea37f797ba74c3ec0fdee68da18c127e4cb2c4d9e2082a3f4e46c",
+      "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+      "web-app/src/main.ts": "d320b6a7609cf09695ad777fd2cf2129754c99a8a877edc6cec306f7d9af1e1e",
+      "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+      "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+      "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+      "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+      "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+      "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+      "web-app/src/style.css": "ac8201c63e4692a88802ed226b9c294fe5da305bb90747cc75624320c9e8b6fc",
+      "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+      "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+      "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+      "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+      "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+    },
+    "newProductionModules": 0,
+    "threshold": {
+      "pathPointsAtLeast": 8192,
+      "smallPathRoiPixelsAtLeast": 262144,
+      "scope": "P/A 두 비용의 보수적 dispatch 경계; 전역 50ms 보장 아님"
+    },
+    "stages": [
+      "pointerUp:void cleanup and explicit run(false) async sink, including chorded release",
+      "job marker + existing task/controller + one MessageChannel, abort settles current waiter",
+      "full Float64 path pack/bbox4096points per wait; owned ROI copy<=65536pixels per wait",
+      "existing runCodec selection Worker, full world-origin polygonMask once, shared applySelectionMask alpha/key",
+      "exact image ROI/mask size and binary mask check65536bytes per wait",
+      "job/state/epoch/revision/active/dimensions/pixelOwner/selection/tool/key/policy guard then synchronous publish"
+    ],
+    "contracts": [
+      "small makeSelection/pointerUp remain immediate void",
+      "all original points retained, no decimation or independent viewport clipping",
+      "live pixels never transferred; only owned ROI and full packed path",
+      "raw hidden RGB, premultiplied key membership, originalPixels alias/sourceMask stride preserved",
+      "failure/cancel/stale output cannot publish or create document history",
+      "pending/unload marker maintained; ordinary lost capture and unrelated pointercancel do not abort completed pointer ownership",
+      "MessageChannel setup, pending waiter, Worker timer/abort/termination and marker have explicit cleanup"
+    ],
+    "sharedAlgorithm": "applySelectionMask is actual engine semantics reused by sync UI and Worker, not a one-line helper. Channel yield closure owns wait settlement and ports. Existing task controller reused; no second global scheduler.",
+    "unchanged": [
+      "polygonMask rasterization and resource profiles",
+      "State/RPAINT format",
+      "Rust/native persistence and legacy C++",
+      "runtime dependencies and external network behavior"
+    ]
+  },
+  "measurements": {
+    "protocol": "One sequential ordinary-web Chromium baseline and candidate with identical v3 driver, P32768 raw path / 1024² source / 1023×1021 bbox. Not percentile, physical input or native acceptance. Original initial baseline remains separate. No product changes by SRE.",
+    "metrics": {
+      "baseline": {
+        "samples": 1,
+        "ingestionMs": 104,
+        "ingestionEventCount": 32767,
+        "pointerupCallbackMs": 188.60000002384186,
+        "newReadyMs": 210.5,
+        "rafSamples": [
+          {
+            "phase": "lift",
+            "start": 2044.1000000238419,
+            "ms": 0.6999999284744263
+          }
+        ],
+        "rafWallSumMs": 0.6999999284744263,
+        "messagePortCallbackSamples": 0,
+        "messagePortCallbackMaxMs": 0,
+        "messagePortScope": "resolve-only port callback wrapper excludes resumed async microtask work; zero is not zero slice CPU",
+        "max10msTimerGapMs": 211.89999997615814,
+        "wholeTasksOverlappingLift": [
+          {
+            "start": 1612.1000000238419,
+            "ms": 431
+          }
+        ],
+        "longtasksStartingInsideLift": [],
+        "longtaskSupported": true,
+        "numericMainConstructors": [
+          {
+            "phase": "lift",
+            "name": "Uint8ClampedArray",
+            "bytes": 4177932,
+            "at": 1835.7999999523163
+          },
+          {
+            "phase": "lift",
+            "name": "Uint8Array",
+            "bytes": 1044483,
+            "at": 1842.6000000238419
+          },
+          {
+            "phase": "lift",
+            "name": "Uint8Array",
+            "bytes": 1024,
+            "at": 1845.7999999523163
+          }
+        ],
+        "workerJobs": [],
+        "readyMutations": [
+          {
+            "at": 2044.7999999523163,
+            "info": "1024 × 1024 px",
+            "busy": false,
+            "canvasBusy": false,
+            "selectionWorkersPending": 0
+          }
+        ],
+        "preview": {
+          "completionMs": 63.5,
+          "raf": [
+            {
+              "phase": "preview",
+              "start": 2395.399999976158,
+              "ms": 54.10000002384186
+            }
+          ],
+          "longtasks": [
+            {
+              "start": 2395.2999999523163,
+              "ms": 54
+            }
+          ],
+          "uploads": 18,
+          "cumulativeUploadBytes": 8437836
+        },
+        "cancelCompletedPreview": {
+          "completionMs": 6.600000023841858,
+          "sourceRawExact": true,
+          "frameExact": true
+        }
+      },
+      "candidate": {
+        "samples": 1,
+        "ingestionMs": 105.5,
+        "ingestionEventCount": 32767,
+        "pointerupCallbackMs": 1.3000000715255737,
+        "newReadyMs": 239.69999992847443,
+        "rafSamples": [
+          {
+            "phase": "lift",
+            "start": 1838.2000000476837,
+            "ms": 1
+          },
+          {
+            "phase": "lift",
+            "start": 2054.7000000476837,
+            "ms": 0.8999999761581421
+          }
+        ],
+        "rafWallSumMs": 1.899999976158142,
+        "messagePortCallbackSamples": 41,
+        "messagePortCallbackMaxMs": 0,
+        "messagePortScope": "resolve-only port callback wrapper excludes resumed async microtask work; zero is not zero slice CPU",
+        "max10msTimerGapMs": 24.299999952316284,
+        "wholeTasksOverlappingLift": [
+          {
+            "start": 1591.2000000476837,
+            "ms": 246
+          }
+        ],
+        "longtasksStartingInsideLift": [],
+        "longtaskSupported": true,
+        "numericMainConstructors": [
+          {
+            "phase": "lift",
+            "name": "Float64Array",
+            "bytes": 524288,
+            "at": 1840.4000000953674
+          },
+          {
+            "phase": "lift",
+            "name": "Uint8ClampedArray",
+            "bytes": 4177932,
+            "at": 1842.3000000715256
+          }
+        ],
+        "workerJobs": [
+          {
+            "operation": "selection",
+            "phase": "lift",
+            "postedAt": 1843.6000000238419,
+            "inputViews": [
+              {
+                "path": "message.state.layers[0].pixels",
+                "type": "Uint8ClampedArray",
+                "bytes": 4177932,
+                "byteOffset": 0,
+                "bufferId": 1,
+                "backingBytes": 4177932
+              },
+              {
+                "path": "message.selection.points",
+                "type": "Float64Array",
+                "bytes": 524288,
+                "byteOffset": 0,
+                "bufferId": 2,
+                "backingBytes": 524288
+              }
+            ],
+            "transfer": [
+              {
+                "bufferId": 1,
+                "bytesBefore": 4177932,
+                "bytesAfter": 0
+              },
+              {
+                "bufferId": 2,
+                "bytesBefore": 524288,
+                "bytesAfter": 0
+              }
+            ],
+            "postReturnedAt": 1843.8000000715256,
+            "terminatedAt": 2033.4000000953674,
+            "observedReplyAt": 2034.9000000953674,
+            "replyViews": [
+              {
+                "path": "message.image.pixels",
+                "type": "Uint8ClampedArray",
+                "bytes": 4177932,
+                "byteOffset": 0,
+                "bufferId": 3,
+                "backingBytes": 4177932
+              },
+              {
+                "path": "message.bytes",
+                "type": "Uint8Array",
+                "bytes": 1044483,
+                "byteOffset": 0,
+                "bufferId": 4,
+                "backingBytes": 1044483
+              }
+            ]
+          }
+        ],
+        "readyMutations": [
+          {
+            "at": 1839.2000000476837,
+            "info": "1024 × 1024 px",
+            "busy": true,
+            "canvasBusy": false,
+            "selectionWorkersPending": 0
+          },
+          {
+            "at": 2055.600000023842,
+            "info": "1024 × 1024 px",
+            "busy": false,
+            "canvasBusy": false,
+            "selectionWorkersPending": 0
+          }
+        ],
+        "preview": {
+          "completionMs": 63.699999928474426,
+          "raf": [
+            {
+              "phase": "preview",
+              "start": 2439.100000023842,
+              "ms": 53.89999997615814
+            }
+          ],
+          "longtasks": [
+            {
+              "start": 2439,
+              "ms": 54
+            }
+          ],
+          "uploads": 18,
+          "cumulativeUploadBytes": 8437836
+        },
+        "cancelCompletedPreview": {
+          "completionMs": 7.899999976158142,
+          "sourceRawExact": true,
+          "frameExact": true
+        }
+      }
+    },
+    "comparison": {
+      "fullCopiedRgbaEqual": true,
+      "fullLiftCanvasEqual": true,
+      "fullMovedPreviewCanvasEqual": true,
+      "fullCancelCanvasEqual": true,
+      "wholeSourceRawEqual": true,
+      "allFixtureGeometryDriverEqual": true,
+      "pointerupMsDelta": -187.29999995231628,
+      "readyMsDelta": 29.199999928474426,
+      "sentinelGapMsDelta": -187.60000002384186
+    },
+    "typedAccounting": {
+      "authoritySourceBytes": 4194304,
+      "ownedRoiPayloadBytes": 4177932,
+      "retainedMaskBytes": 1044483,
+      "transientColumnBytes": 1024,
+      "newPackedFloat64Bytes": 524288,
+      "baselineSourcePlusPayloadMaskColumnBytes": 9417743,
+      "candidateSourcePlusPayloadMaskColumnPathBytes": 9942031,
+      "permanentPayloadOriginalPixelsAlias": true,
+      "scope": "Code and transferred/returned byte-length accounting across realms; one owned ROI moves by transfer. Not measured RSS/physical copies/JS points or edges/Canvas/internal allocator peak. Candidate main constructor observer excludes worker internal mask/columns. Worker reconstructs path point objects; JS heap unmeasured."
+    },
+    "limits": [
+      "n1 per version, fixed order baseline then candidate; no p95/tail/no-regression certification",
+      "Synthetic DOM event batch has ~104-106ms ingestion plus automation argument overhead. Whole 431/246ms LongTask entries span that input task; do not sum or identify them with mask kernel. Input batching remains a separate blocker in this artificial cadence.",
+      "Candidate ready time increases29.2ms despite shorter synchronous callback and sentinel gap. Worker startup/transfer/scheduling and validation are included, not separately attributed.",
+      "MessagePort wrapper measures resolver only; resumed await chunks are outside wrapper. LongTask starting-in-lift and timer opportunity provide broader task evidence, not direct maximum CPU-slice proof.",
+      "Modified-preview RAF remains ~54ms and18 uploads on both versions; this is separate from async lasso preparation.",
+      "Escape here is after completed preview; it proves rollback and source preservation, not cancellation during packing/ROI/worker. Other functional suites must cover that.",
+      "No actual Android/Windows/macOS WK/physical stylus/RSS/GPU-memory/new Qt geometry claim. Node fixed-source golden is cross-runtime output equivalence."
+    ]
+  },
+  "verification": {
+    "nodeTests": 208,
+    "newNodeTests": 10,
+    "literalQtMaskFixtures": 883,
+    "keyCoverage": "alpha1 exact/premul-equal/nonmatch plus128/hidden0 palette, assert actual key removals>0",
+    "actualQtTriangle": {
+      "cases": 2,
+      "oneTraversalAnd2731Traversals": true,
+      "P": 8193,
+      "selectedPixels": 1830,
+      "mismatches": 0
+    },
+    "publicNewCases": 13,
+    "publicOracle": "literal localX+localY<60 confirmed with actual Qt; key255 exact integer equality; Node zlib+CRC RGBA filter0 PNG reader; raw hiddenRGB tested separately",
+    "publicCancellation": "pending channel, button/Escape/blur/simulated hidden, real Worker-held late deliveries; beforeunload not prevented after cancel/late delivery; no worker leaks/inert controls",
+    "modelOnly": "source11mutations, fixture의6개 channel waits, task/channel setup failure, malformed input/result ownership are shipped AST method/handler tests with modeled task/scheduling/delivery, not public UI races",
+    "existingPublic": {
+      "webChecks": 48,
+      "selectionMaskCases": 8,
+      "cropCases": 10,
+      "failureCases": 6,
+      "sourceCases": 7,
+      "pasteCases": 4,
+      "maskedCases": 10,
+      "maskedStages": 68,
+      "selectionAlphaCases": 4,
+      "textAlphaCases": 8,
+      "pendingCases": 36,
+      "clipboardCases": 4
+    },
+    "regressionSuites": {
+      "ok": true,
+      "results": [
+        {
+          "suite": "test:browser",
+          "exitCode": 0,
+          "elapsedSeconds": 49.073487758636475,
+          "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/bounded-lasso/test-browser.log"
+        },
+        {
+          "suite": "test:alpha-contract",
+          "exitCode": 0,
+          "elapsedSeconds": 17.820798873901367,
+          "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/bounded-lasso/test-alpha-contract.log"
+        },
+        {
+          "suite": "test:selection-contract",
+          "exitCode": 0,
+          "elapsedSeconds": 39.463276863098145,
+          "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/bounded-lasso/test-selection-contract.log"
+        },
+        {
+          "suite": "test:selection-source",
+          "exitCode": 0,
+          "elapsedSeconds": 24.391305923461914,
+          "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/bounded-lasso/test-selection-source.log"
+        },
+        {
+          "suite": "test:masked-transform",
+          "exitCode": 0,
+          "elapsedSeconds": 14.992095947265625,
+          "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/bounded-lasso/test-masked-transform.log"
+        },
+        {
+          "suite": "test:pending-contract",
+          "exitCode": 0,
+          "elapsedSeconds": 112.0347728729248,
+          "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/bounded-lasso/test-pending-contract.log"
+        },
+        {
+          "suite": "test:clipboard-contract",
+          "exitCode": 0,
+          "elapsedSeconds": 7.941632986068726,
+          "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/bounded-lasso/test-clipboard-contract.log"
+        }
+      ]
+    },
+    "typeFormatBuild": "PASS; npm scripts and CI entry added; local execution only",
+    "ordinaryMacOS": {
+      "phases": 4,
+      "sceneChecks": 21,
+      "binarySHA256": "d1f021d97071c821ce67a78b219e77397087cd4dd16f0db71126b7fd37a1ed6a"
+    },
+    "temporaryWK": {
+      "cases": 4,
+      "separateOverlay": true,
+      "scope": "Actual WK temporary direct Studio preparation and shipped selection Workers, full path/key/raw alpha, desktop maximum width, pending wait cancel and late Worker delivery. Not public native gestures/clipboard, physical input, performance or RSS acceptance.",
+      "binarySHA256": "128cdf916efd38d2225d3260d394447c8dd4134667c36c7b9e8de575bf97e27d"
+    },
+    "oldCTest": "이번 단계 legacy C++/Qt 변경 없음. 이전 CTest5 PASS는 역사적 근거이며 새 실행을 주장하지 않음.",
+    "independentReview": "Architect/Implementation/Reviewer/SRE four roles; design→implementation→resource cleanup fix→test-oracle fixes→final verification"
+  },
+  "architecture": {
+    "canonicalGraph": {
+      "path": "docs/evidence/studio-module-graph.json",
+      "sha256": "d302c057d6fc79a214c7a2b96e39ab9f9345e97723c9f198a49c91752eb537b8"
+    },
+    "counts": {
+      "typescriptNodes": 13,
+      "declarations": 35,
+      "relations": 34,
+      "byKind": {
+        "runtime-static": 24,
+        "type-only": 5,
+        "asset-css": 1,
+        "runtime-dynamic": 3,
+        "worker-asset": 1
+      },
+      "localRuntimeEdges": 24,
+      "localTypeEdges": 4,
+      "runtimeSourceCycles": 0,
+      "pureTypeCycles": 0,
+      "typeInclusiveSCCs": [
+        [
+          "web-app/src/platform/codec.ts",
+          "web-app/src/workers/codec.worker.ts"
+        ],
+        [
+          "web-app/src/main.ts",
+          "web-app/src/platform/native-smoke.ts"
+        ]
+      ],
+      "emittedChunks": 5,
+      "emittedEdges": 6,
+      "emittedStaticEvaluationCycles": 0,
+      "emittedAllLoadSCCs": [
+        [
+          "assets/buffer-VJDsefbc.js",
+          "assets/codec.worker-NlDbfs1L.js",
+          "assets/encoder-CX58XVG5.js"
+        ],
+        [
+          "assets/index-DZNXOXIY.js",
+          "assets/native-smoke-Bwq-gvXL.js"
+        ]
+      ]
+    },
+    "runtimeRelationshipsUnchanged": true,
+    "newTypeOnly": "worker→codec SelectionRequest, erased from emit; type-inclusive SCC adds codec/worker",
+    "engineBoundary": "no DOM, IPC or platform dependency in engine"
+  },
+  "harnessCorrections": [
+    "PNG alpha0 canonicalization differs from raw hiddenRGB; source bytes still exact",
+    "disable transparent selection before whole-source copy oracle",
+    "synthetic pointerup does not release trusted capture; actual mouse.up required before cancel button click",
+    "keyON/OFF original data alpha3mod4 never matched keyalpha1; replace with active match/nonmatch palette",
+    "independent mask/PNG oracle and beforeunload pending-revival checks added after reviewer feedback"
+  ],
+  "remaining": [
+    {
+      "priority": "P1",
+      "issue": "modified selection preview still ~54ms RAF/18 uploads",
+      "cost": "M",
+      "next": "profile scene/mip invalidation and actual composition before changing dirty rules"
+    },
+    {
+      "priority": "P1",
+      "issue": "full lasso path preview replays all points, synthetic ingestion104–106ms is separate",
+      "cost": "M",
+      "next": "measure real event cadence and preview path ownership; preserve all points"
+    },
+    {
+      "priority": "P1",
+      "issue": "very large nearest/selection resize remains synchronous",
+      "cost": "M",
+      "next": "measure maximum actual public target and cancellation, reuse owned candidate policy"
+    },
+    {
+      "priority": "P2",
+      "issue": "packed path adds16P and Worker reconstructs JS points; total completion29.2ms slower in n1",
+      "cost": "M",
+      "next": "measure Worker startup/packing threshold and long-session JS/RSS before tuning"
+    },
+    {
+      "priority": "P1",
+      "issue": "physical Android web, Safari and Windows/OS picker/IME/signing/release acceptance incomplete",
+      "cost": "external validation",
+      "next": "retain mobile web-only and desktop packages Windows/macOS only"
+    },
+    {
+      "priority": "P2",
+      "issue": "new public suite does not seed oldRedo or retry a fresh large job after cancellation; source-owner races modeled only",
+      "cost": "S",
+      "next": "extend in next ownership acceptance cycle; generic pending/Redo suite separately passes"
+    }
+  ],
+  "limitations": [
+    "no global50ms/p95/peakRSS/GPU residency/no-regression certification",
+    "MessagePort callback timing excludes resumed microtask CPU; LongTasks overlap automation ingestion and cannot identify pure mask kernel",
+    "no new physical pen/OS clipboard/public native gesture test; temporary WK direct method probes separated",
+    "raw evidence stays in ignored local build-work; checked-in summary hashes reference it, remote archival not performed",
+    "generic run finally sync/draw DOM exceptions are existing boundary behavior, no absolute never-reject promise guarantee"
+  ],
+  "references": [
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/before-source.json",
+      "sha256": "8fb905fffbb2838ea552575a7b743f1374d65a699d8c7d10ef5bbce3af720202"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/candidate-source.json",
+      "sha256": "cd980468dbed778f6c18ec2f9c4af9abe83d5d367ba567604a8920bb50f737b1"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/before-assets.json",
+      "sha256": "7570041daddb87eaa6dea92b9a8e6d8c6e69a7c1b0f16a5a48f53ce9c73ae34b"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/candidate-assets.json",
+      "sha256": "e86fdb9eb0d9c935948393334d45f32d376874465fc6945b999db6b3a8065cc0"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/sre/worker-pair-summary.json",
+      "sha256": "ca33042bdd763638ea3897c9bd6e2a8313cc4d21d67601b2b7f463ddff16fdcd"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/sre/worker-comparison-protocol.json",
+      "sha256": "4107c0cc861f6bd302d8f4b0d15a700891f71399aa012ddbbf1b8c9916f45456"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/sre/ui-worker-comparison.mjs",
+      "sha256": "22978780b76f3322d5d895674f9c5c6729b0bc43e8f274e02acd46be637b172b"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/sre/ui-baseline-worker-observed/results.json",
+      "sha256": "0b0f81c2c536baf65e7240fc1d3b5b7bbd9b8d07ea49c863ca85e8a549c971d2"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/sre/ui-candidate-worker-observed/results.json",
+      "sha256": "abfe62d8e702e649c5f8f6cd479f58961395e810839858daa624cd8e8d3679fe"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/architect/review.json",
+      "sha256": "1ffb7f4a7a53535bed614a46d16dcd6ac87353210af437875e5e8c1e6453e5da"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/architect/module-graph-candidate.json",
+      "sha256": "a84672397bd9f971f5be2871a01075a31f52c2b34d79f248cfd5fd8ce7e6daef"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/architect/triangle-qt/results.json",
+      "sha256": "66639e4dcd02dd62189466f3a879cbf6bab9b654d24852ed025f1f7cf5dd4d80"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/architect/triangle-qt/qt-masks.json",
+      "sha256": "cb4ce492d687de0590b8717eb2edb928032e2cdc9788d85fab2057cbdcb6214b"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/reviewer/design-review.json",
+      "sha256": "dc9c8e95ec31f2c4bbd24b7d247c4243cc11b3a6b361a25ca387498fe75907c6"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/reviewer/implementation-review.json",
+      "sha256": "10682fba1f8382bfa325329d6143f4106e8518feb8ddd4af05577d27438f33f6"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/reviewer/test-review-final.json",
+      "sha256": "5e2c7cc2883b93a4fa0f7664e1675df448baa9e357bbf0c95c1badd464e98e7d"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/public-ui.json",
+      "sha256": "d6113b033856390f311f477aaaa84ff7a353a447fe5289d1d1f6cfffed021fa4"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/public-ui-final.log",
+      "sha256": "940ba7b797e38de337c097559940d04d9b44266d19f6e67026bc49da814f7208"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/node-final.log",
+      "sha256": "40fd1db2b76007b6548afdfd0cd694d1aaf03233247c97d4bffeca3c0ef8e59e"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/check.log",
+      "sha256": "86fd21d3a4c331af9cda136fdaa8bc8807301aedba733d35beae2083e7cce6d8"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/build.log",
+      "sha256": "d35ada795b749c880961c66d42073e8ab1fb629488cec02e874aacb33d3b5393"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/regression-results.json",
+      "sha256": "fbc09b9d33ed6cfdae04aadc93d8a1e99af4692788d68f3444c1f126a70f2d3b"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/native-desktop.json",
+      "sha256": "5a6a3bcd170f4bab9156ab8e6966ba583e07dfdcb902e101522253be038ec82a"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/native-desktop.json.foreground.json",
+      "sha256": "ff70ea02a74f987329a5ccc66d888a00071ac720c5c41e74e778f2dd2745833c"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/native-probe/results.json",
+      "sha256": "ba54ac37ac1d5090fdb858894a6744c3539e63cb2366f373c8e15ae98d90e5f6"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/native-probe/overlay.json",
+      "sha256": "9ae5189e700239b8ebd862f3f995e7b28fe0ea901a68d478745a25120ec3af21"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/ordinary-app-restored.json",
+      "sha256": "e0fae862f5e4889e16ad9b2ac381811e8ac5073c5237a8f02854b3e140b1776f"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/test-browser.log",
+      "sha256": "b2f3b985ee82ae06b66eefa85324f753f3b287f53ed7b71dcc88548bb02c482b"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/test-alpha-contract.log",
+      "sha256": "26781e984980bd8bc0a1b1ca810d1b9809fdffb8ad5e045c1494f9b137e6b17d"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/test-selection-contract.log",
+      "sha256": "9199f385d8d28515de2601e2001b70283a63da87f0bc2d03bb8f660211674496"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/test-selection-source.log",
+      "sha256": "788c515d5c69a6574a520d4a6acb909e94bf6853e9f32c28815106a03cd0dba9"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/test-masked-transform.log",
+      "sha256": "7ffbbd7099a5e231e32f558d3407d2271bd027406b9cf1af5c84ed37d5766848"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/test-pending-contract.log",
+      "sha256": "c57931e066e98a9a807b1decf4e7b075a4de9a67d63509be2dd50d50f28694f4"
+    },
+    {
+      "path": "build-web-work/task-planning/bounded-lasso/test-clipboard-contract.log",
+      "sha256": "23eb3c2f1f97042eb190762ebab71a53621511ce582cb3d4b00c3594c9d07feb"
+    },
+    {
+      "path": "web-app/tests/selection-preparation.test.ts",
+      "sha256": "6fa2b9b0a3c55ed3204a6297513a96ec04adf7d49955b7e6c7466df96c8c7bf0"
+    },
+    {
+      "path": "web-app/tests/selection-preparation-contract.mjs",
+      "sha256": "838435bab9b7c1266188337ef6a49cc83951fbeada22cba8eaeb468860998a45"
+    },
+    {
+      "path": "web-app/package.json",
+      "sha256": "98812e81230d282fbe36400ec6d6123bab3b68fa35ae384cc1dacaef94cd9960"
+    },
+    {
+      "path": "web-app/package-lock.json",
+      "sha256": "b29ab01a744d16d2e1aba0d9104aede3eb35a7bbcd6ed31c51beefb1ba813a5d"
+    },
+    {
+      "path": "web-app/tests/native-desktop.mjs",
+      "sha256": "8076b93d965aa504a98e048596746bdf7f71d8fdde9e082567fd803d1a0a09b4"
+    },
+    {
+      "path": ".github/workflows/studio.yml",
+      "sha256": "c7522f0768359120a4fa64426fe298d68e3ca7bcf4b2fd61c9338eac1604c8a2"
+    }
+  ]
+}

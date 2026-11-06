@@ -1,0 +1,580 @@
+{
+  "generatedAt": "2026-11-04T09:27:10.975854+00:00",
+  "scope": "Native persistence implementation checkpoint. Mobile/tablet web only, native Windows/macOS only. Full migration/release remains in progress.",
+  "sourceSha256": {
+    "web-app/src/main.ts": "ce2fabe20ff25a694b366d6acdda4778df6ca4a6375edcdccd6214dcad1f7bda",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/codec.ts": "afd7a3a42b88f6dfa528889c7a5af99ef664cbbbe666132f657f3b4484d5284e",
+    "web-app/src-tauri/src/main.rs": "0008142c59b8a996870e35b54e88877819f83f9afafcab66b53a46d1f1f380dd",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f",
+    "web-app/src-tauri/Cargo.toml": "261d19684c7caa5c2836739f3bfa298556a6cd9f01fc4084b530ac396a760497",
+    "web-app/src-tauri/Cargo.lock": "22a4107356113f37e366d33963f921ce0bc9272ee46dc9139de3053ff66e2c62",
+    "web-app/tests/native.test.ts": "3f0350549e32ff96116161a385a942ecd7dd0437e9b12033b1d8a2d03a945de8",
+    "web-app/tests/native-harness.mjs": "09e2d6d09e7670b3be34f027034dc270f6938302bac7b71f08584927d24cebcb",
+    "web-app/tests/native-persistence.mjs": "d1e98567a20da1dc70b160309bec576ab7802d41bb894680690f8408a5fc5bc1",
+    "web-app/tests/native-profile.mjs": "5a359b76f7fa9c55542abf38271c3540e77ec03b519c80daa03180a7d912019d",
+    "web-app/tests/native-desktop.mjs": "3765c17045bd158900b226818a19aaa628f60d9949ee8558dad3f9dade1413a8",
+    "web-app/package.json": "37a245d92966a43411053728f5ffeacf08e1441013200ee33c5c65d352152c80",
+    ".github/workflows/studio.yml": "2f5c552faa680f8cf4b0f18131cb896ee3dce6ca4f438643072927aa75ac9129"
+  },
+  "webBundleSha256": {
+    "index.html": "aa5effe75102c04c4ad969aac00983201da6735731babe6f2472300fad2c5db6",
+    "THIRD_PARTY_NOTICES.txt": "dcff1d2da7bb5ce41993de2b40cb867bc61c49526921744c8a59b9c5388ff64e",
+    "assets/index-DnFrHb-O.js": "42a404b67286a121b923f33373ae45601185f5407a4b911673ad4bf36c5658f2",
+    "assets/encoder-DhLY9H-z.js": "49731689cb61842fe894a61c5f95f5cc429ff1f0c3cbd2154ee4cb2b82dd6993",
+    "assets/codec.worker-DO6CtJXy.js": "9102025046bc276cfa8aafcab82ad5304818dd733467f0eb8225b7c96f7dbf0b",
+    "assets/index-aClAeViE.css": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601",
+    "assets/buffer-XnSrkRaB.js": "1dc4f44b22259a3b1d9c8ad0462e8c6ddbd73cb64c592ea70699948d71f93fff"
+  },
+  "staticUrl": "http://127.0.0.1:8955/mypaint/",
+  "limits": {
+    "nativePayloadBytes": 314572800,
+    "nativeHeads": 32,
+    "nativeTotalPayloadBytes": 1073741824,
+    "headerBytesMax": 4096,
+    "prefixBytes": 12,
+    "legacyHeadsMax": 32,
+    "webHeads": 32,
+    "webTotalPayloadBytes": 67108864,
+    "temporaryAndCrashOrphanFilesExcludedFromQuota": true
+  },
+  "checks": {
+    "node": {
+      "passed": 43,
+      "failed": 0
+    },
+    "typescript": "pass",
+    "prettier": "pass",
+    "webUi": {
+      "passed": 45,
+      "pageErrors": 0
+    },
+    "nativeModelUi": {
+      "profilePassed": 17,
+      "persistencePassed": 12,
+      "pageErrors": 0
+    },
+    "rust": {
+      "passed": 14,
+      "failed": 0,
+      "names": [
+        "persistence::tests::protected_legacy_names_are_case_insensitive",
+        "persistence::tests::deny_write_acl_preserves_original_and_removes_stage",
+        "persistence::tests::legacy_live_lock_blocks_but_crash_lock_is_readonly_importable",
+        "persistence::tests::binding_only_after_validated_activation_and_exports_do_not_hijack",
+        "persistence::tests::readonly_mode_identity_and_symlinks",
+        "persistence::tests::recovery_quota_and_malformed_head_preserve",
+        "tests::initialization_failure_can_retry_after_other_session_releases_lock",
+        "persistence::tests::list_isolates_corruption_and_live_legacy_but_writes_fail_closed",
+        "persistence::tests::recovery_epoch_and_postwrite_cancel_preserve_original",
+        "persistence::tests::same_size_mtime_replacement_and_parent_swap_are_detected",
+        "persistence::tests::snapshot_staleness_and_legacy_are_preserved",
+        "persistence::tests::tickets_cancel_epoch_and_external_change_preserve_original",
+        "persistence::tests::aggregate_byte_boundary_excludes_replaced_key",
+        "persistence::tests::native_recovery_32_heads_and_replacement_exclusion"
+      ]
+    },
+    "clippyAllTargets": "pass",
+    "rustfmt": "pass",
+    "windowsPersistenceModuleCrossTargetTypes": "pass; not Windows app runtime or installer"
+  },
+  "webUi": {
+    "basic": {
+      "checks": [
+        "Actual stroke and rpaint exported pixels",
+        "Downloads preserve Undo/Redo",
+        "Skin changes preserve exact pixels",
+        "Malformed file preserves current document",
+        "New transparent document exports real alpha",
+        "Resized pending selection survives denied clipboard cut",
+        "IME pending text blocks save and export preserves text until commit",
+        "390px mobile workspace and touch panels accessible",
+        "Mobile browser two-finger navigation cancels provisional finger stroke",
+        "Tablet web layout uses touch density without a native runtime"
+      ],
+      "errors": [],
+      "browser": "156.0.8078.80"
+    },
+    "concurrency": {
+      "checks": [
+        "busy fill keeps its original layer",
+        "busy save keeps pending text and revision",
+        "rejected shortcut preserves the active stroke"
+      ],
+      "failures": [],
+      "errors": [],
+      "browser": "156.0.8078.80"
+    },
+    "editing": {
+      "checks": [
+        "Pending polygon resizes exactly once and one Undo restores the original document",
+        "Background change commits a pending polygon once without repainting existing pixels",
+        "Rejected image dimensions preserve the pending curve and document",
+        "Partially controlled pending curve resizes once with a single atomic Undo",
+        "Failed second curve control readback preserves pending shape and permits a committed retry",
+        "Text paste replaces a selected maximum-length value using the resulting length",
+        "Late text clipboard resolution cannot mutate a replacement editor",
+        "Two-finger navigation restores a provisional selection move",
+        "Two-finger navigation restores a provisional selection resize",
+        "Two-finger takeover cannot commit a pending second curve control",
+        "Pixel preset settles a pending polygon before switching tools and preserves one Undo",
+        "Lasso movement has a discrete alpha mask and a return to origin is an exact pixel and history no-op",
+        "Text overlay preserves hidden RGB bytes in unpainted transparent pixels through commit and Undo"
+      ],
+      "errors": [],
+      "browser": "156.0.8078.80"
+    },
+    "recovery": {
+      "checks": [
+        "Stale recovery deletion preserves the newer generation in both stores",
+        "The preserved newer backup reopens through the actual UI with exact pixels",
+        "An unchanged selected backup deletes its matching head and blob together",
+        "A changed byte length also invalidates a pending delete",
+        "A recovery value cannot alias another primary key or delete its valid snapshot",
+        "Malformed null metadata rejects safely without callbacks throwing or removing backups",
+        "Actual autosave admits a 32nd head and replaces its own key at the 32-head boundary",
+        "A new autosave at 32 foreign heads fails without changing any existing head or blob",
+        "Actual autosave succeeds at exactly the 64 MiB aggregate soft quota",
+        "At 64 MiB, replacing the owned backup excludes its old bytes from the quota",
+        "Exceeding the 64 MiB soft quota by one byte preserves all backups and current UI pixels",
+        "An actual IndexedDB transaction abort after a snapshot put rolls back head and blob together",
+        "Malformed existing owned metadata prevents autosave replacement and preserves the prior blob"
+      ],
+      "errors": [],
+      "browser": "156.0.8078.80",
+      "quotaScope": "Application 32-head/64 MiB soft quota and transaction rollback only; physical browser storage exhaustion was not exercised"
+    },
+    "shear": {
+      "checks": [
+        "Positive whole-document shear expands bounds without clipping; one Undo/Redo restores exact layers",
+        "Negative whole-document shear includes the translated left bounds",
+        "Selection shear changes only the selected raster and preserves document bounds, outside pixels and other layers",
+        "Zero-degree selection shear preserves the unmodified selection and creates no edit history",
+        "Oversized whole-document shear rejects before commit and preserves pixels and history",
+        "Oversized pending selection shear preserves the selection and supports cancellation without an edit"
+      ],
+      "errors": [],
+      "browser": "156.0.8078.80",
+      "url": "http://127.0.0.1:8955/mypaint/",
+      "assets": [
+        {
+          "url": "http://127.0.0.1:8955/mypaint/assets/index-aClAeViE.css",
+          "sha256": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601"
+        },
+        {
+          "url": "http://127.0.0.1:8955/mypaint/assets/index-DnFrHb-O.js",
+          "sha256": "42a404b67286a121b923f33373ae45601185f5407a4b911673ad4bf36c5658f2"
+        },
+        {
+          "url": "http://127.0.0.1:8955/mypaint/assets/codec.worker-DO6CtJXy.js",
+          "sha256": "9102025046bc276cfa8aafcab82ad5304818dd733467f0eb8225b7c96f7dbf0b"
+        }
+      ]
+    }
+  },
+  "nativeModelUi": {
+    "profile": {
+      "checks": [
+        "Mocked native runtime selects desktop UI dimensions; mobile/native OS behavior is outside this test",
+        "4096x4096: real project input, visible pixel stroke, one Undo/Redo and PNG/RPAINT roundtrip",
+        "4096x4096: bounded shape raster commits once and Undo restores the previous pixels",
+        "4096x4096: full-size selection preview and return preserve original pixels without a full document canvas",
+        "4096x4096: geometry Worker failure and cancellation preserve the document and release work",
+        "4096x4096: actual geometry Worker resize supports desktop dimensions with atomic Undo",
+        "4096x4096: actual JPEG Worker output reopens through tiled bitmap input with an opaque white matte",
+        "32768x1: real project input, visible pixel stroke, one Undo/Redo and PNG/RPAINT roundtrip",
+        "32768x1: bounded shape raster commits once and Undo restores the previous pixels",
+        "32768x1: full-size selection preview and return preserve original pixels without a full document canvas",
+        "32768x1: geometry Worker failure and cancellation preserve the document and release work",
+        "32768x1: actual geometry Worker resize supports desktop dimensions with atomic Undo",
+        "32768x1: actual JPEG Worker output reopens through tiled bitmap input with an opaque white matte",
+        "32768x1: actual BMP Worker output and tiled bitmap input preserve every opaque RGBA byte",
+        "Over-limit desktop new-document dimensions are rejected before an oversized pixel allocation",
+        "Desktop aggregate/pixel headers and oversized native binary IPC data are rejected before artwork parsing without replacing the document",
+        "An ordinary browser retains web limits and rejects both desktop fixtures while preserving its initial document"
+      ],
+      "errors": [],
+      "browser": "156.0.8078.80",
+      "scope": "Chromium with a mocked native bridge verifies UI, profile propagation, pixels and failure boundaries; it does not verify Windows/macOS, WKWebView or OS file I/O.",
+      "canvasGuard": "Main-thread canvases are restricted to 2048 per axis and 4 Mi pixels; Worker canvas allocations are not instrumented.",
+      "nativeEvidence": {
+        "workers": 0,
+        "surfaceSummary": {
+          "count": 2718,
+          "maximumWidth": 1072,
+          "maximumHeight": 910,
+          "maximumPixels": 975520
+        },
+        "workerJobCounts": {
+          "desktop:project-read": 4,
+          "desktop:project-write": 30,
+          "desktop:png-write": 6,
+          "desktop:geometry": 6,
+          "desktop:jpg-write": 2,
+          "desktop:bmp-write": 1
+        },
+        "rawLocalReport": {
+          "path": "build-web-work/task-planning/native-persistence/profile-final.json",
+          "sha256": "8899f08425197a16785ac3df53a16cbb4585abc39f442a41efe3ed674f057b2a"
+        }
+      }
+    },
+    "persistence": {
+      "checks": [
+        "Native initialization failure blocks drawing and commands; retry activates the same document and restores usable UI",
+        "image open cannot silently overwrite its source as a project",
+        "opened project Ctrl+S reuses its path and image export cannot hijack binding",
+        "cancelled Save As preserves binding, pending text and prior Undo history",
+        "held native save freezes its input owner and cancellation keeps pending edits",
+        "late native read after cancellation cannot replace the document or binding",
+        "delayed manual recovery list cannot open over a newly activated document",
+        "Qt legacy restore remains read-only and stale recovery deletion preserves the newer snapshot",
+        "visible recovery warnings do not hide a valid native snapshot",
+        "background recovery completion from an old generation cannot replace a new generation backup",
+        "real greater-than-64MiB codec output uses native filesystem recovery without IndexedDB writes",
+        "Delayed startup recovery discovery does not interrupt a document edited and durably saved while discovery was pending"
+      ],
+      "errors": [],
+      "failures": [],
+      "browser": "156.0.8078.80",
+      "scope": "Public UI in Chromium with an in-memory native IPC/filesystem model. This verifies client ownership and routing, not actual OS I/O, WKWebView, permissions or atomic replacement.",
+      "largeRecovery": {
+        "source": {
+          "id": "input-2:large-noise.rpaint",
+          "name": "large-noise.rpaint",
+          "bytes": 67126670,
+          "sha256": "02753d1117c2efc86855e2c0c7d7c59cef62c32736e4fa4e18321efb9583dce0"
+        },
+        "written": {
+          "generation": 2,
+          "key": "b3024340-7bdd-4673-8d51-e18bb3d05a3f",
+          "sequence": 1,
+          "name": "large-noise.rpaint",
+          "bytes": 67126665,
+          "sha256": "d5c67658e24f103b2b42be6abd26c75d9114777d8d3659c609f2f150e9aaae1b"
+        },
+        "note": "4096² deterministic random RGBA encoded by the real application codec Worker; no large-byte JSON transfer or fabricated codec output."
+      }
+    }
+  },
+  "actualMacOSWebView": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "binary": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+    "scope": "Actual bundled native UI, IPC and temporary filesystem recovery; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform.",
+    "timeoutMs": 120000,
+    "fixtures": [
+      {
+        "name": "recovery.rpaint",
+        "before": {
+          "bytes": 114,
+          "sha256": "b6078f9fbcd62202af6b3d43b5ce329ebcb6d4891142e6d6549b0dca164f20e6",
+          "mtimeNs": "1793784192581813909",
+          "inode": "185986122",
+          "device": "16777229",
+          "mode": 33188
+        },
+        "after": {
+          "bytes": 114,
+          "sha256": "b6078f9fbcd62202af6b3d43b5ce329ebcb6d4891142e6d6549b0dca164f20e6",
+          "mtimeNs": "1793784192581813909",
+          "inode": "185986122",
+          "device": "16777229",
+          "mode": 33188
+        },
+        "unchanged": true
+      },
+      {
+        "name": "session.lock",
+        "before": {
+          "bytes": 69,
+          "sha256": "06d5ee5d685539af109023c956e086b58b6c0f69576cee850e7f9da22d7b4927",
+          "mtimeNs": "1793784192582120701",
+          "inode": "185986123",
+          "device": "16777229",
+          "mode": 33188
+        },
+        "after": {
+          "bytes": 69,
+          "sha256": "06d5ee5d685539af109023c956e086b58b6c0f69576cee850e7f9da22d7b4927",
+          "mtimeNs": "1793784192582120701",
+          "inode": "185986123",
+          "device": "16777229",
+          "mode": 33188
+        },
+        "unchanged": true
+      }
+    ],
+    "ok": true,
+    "binarySha256": "01d6ef18cd15cb12746b81e93ddf036dcf72d6fa9771308512e056f0aad06c2b",
+    "elapsedMs": 6704,
+    "exitCode": 0,
+    "checks": {
+      "encodedBytes": 67126671,
+      "elapsedMs": 4552,
+      "pixelRoundtrip": true,
+      "staleRead": true,
+      "staleClear": true,
+      "legacyClear": true,
+      "oldGeneration": true
+    }
+  },
+  "independentNativeReview": {
+    "generatedAt": "2026-11-04T09:16:23.959465+00:00",
+    "scope": "Independent synthetic filesystem checks. No actual user appData/recovery contents were accessed.",
+    "provenance": {
+      "source": "web-app/src-tauri/src/persistence.rs",
+      "sha256": "70d4c7b3e902b9325365e3233b50dddad911d6362aab7d68b3905819e9088727",
+      "scope": "Frozen actual persistence module; direct Rust process only; synthetic tempfile; IPC/WebView excluded",
+      "buildMode": "debug",
+      "workload": "65 then 300 MiB manual save and recovery envelope write+read; source bytes dropped before recovery read; each recovered payload fully compared"
+    },
+    "findings": [
+      {
+        "priority": "P1",
+        "finding": "Existing-file ACL deny-write bypassed by rename-based replacement",
+        "reproduced": {
+          "aclProbe": {
+            "nativeError": null,
+            "nativeSaveSucceeded": true,
+            "ordinaryWriteDenied": true,
+            "originalPreserved": false
+          }
+        },
+        "status": "Architect added no-truncate read/write O_NOFOLLOW source open; independently verified denied save preserves original",
+        "verified": {
+          "aclProbe": {
+            "nativeError": "Permission denied (os error 13)",
+            "nativeSaveSucceeded": false,
+            "ordinaryWriteDenied": true,
+            "originalPreserved": true
+          }
+        }
+      },
+      {
+        "priority": "P1",
+        "finding": "Failed native session startup allowed drawing while every save/export awaited rejected nativeReady",
+        "status": "Root added pre-init inert/pointer/keyboard gate and explicit retry/close lifecycle; UI regression assigned reviewer"
+      },
+      {
+        "priority": "P1",
+        "finding": "OnceCell<Result<Arc<Persistence>,String>> cached first init error for process lifetime, preventing real retry",
+        "status": "Architect changed to OnceCell<Arc<Persistence>> and get_or_try_init; actual final crate retry-after-other-session-lock-release test independently passed."
+      }
+    ],
+    "actualPersistenceModuleIO": {
+      "results": [
+        {
+          "mib": 65,
+          "recoveryReadMs": 10.481542,
+          "recoveryWriteMs": 111.916,
+          "saveMs": 69.25708399999999,
+          "verified": true
+        },
+        {
+          "mib": 300,
+          "recoveryReadMs": 45.49825,
+          "recoveryWriteMs": 483.784333,
+          "saveMs": 520.5667080000001,
+          "verified": true
+        }
+      ],
+      "maxRSSBytes": 387825664,
+      "sampleCount": 1,
+      "limits": [
+        "Debug standalone module process; excludes IPC copies, WebView, JS document/history, worker/codec memory.",
+        "65 and 300 MiB sequential manual-save plus recovery-write/read in one process; allocator retention affects peak.",
+        "Input byte buffer dropped before recovery read. Every recovered payload byte verified.",
+        "Wall times are a single run, not p50/p95/p99 and not a controlled old/new performance comparison."
+      ]
+    },
+    "independentFrozenRustTests": {
+      "passed": 10,
+      "failed": 0,
+      "log": "final-module-tests.log"
+    },
+    "qtInteroperability": {
+      "evidence": "qt-crash-policy.json",
+      "result": "Actual temporary Qt process live exclusive lock blocks read-only shared guard; own child SIGKILL leaves unchanged stale lock that permits guarded read; Qt stale reclaim blocked while shared guard is held; reclaim succeeds after release.",
+      "limits": "macOS Qt6.12 only. Full pathname lifecycle is not equivalent to same-inode flock exclusion."
+    },
+    "remainingLimits": [
+      "Windows runtime, filesystem share/reparse and ACL behavior not executed here. Windows cross-target typecheck is assigned architect.",
+      "No physical Android input-latency or native signing/notarization claim.",
+      "Final check then rename is best-effort detection of uncooperative external writers, not portable filesystem compare-and-swap.",
+      "1 GiB quota counts committed recovery payloads. Envelope headers, temporary save/recovery stages and crash-orphan stages require additional disk space.",
+      "Directory fsync failure after atomic rename is logged; already committed file remains successful but power-loss durability is not proven."
+    ],
+    "actualFinalNativeCLI": {
+      "binarySha256": "27b0ae235b4712b5660b324d4f992f0ed64e7d252f5e1d3eecb60b8db0147746",
+      "sources": {
+        "web-app/src-tauri/src/main.rs": "0008142c59b8a996870e35b54e88877819f83f9afafcab66b53a46d1f1f380dd",
+        "web-app/src-tauri/src/persistence.rs": "b3c068827325da824e24bed2d028255385a7fcea8f24698a14d1aa12087f0339"
+      },
+      "scope": "Actual final debug binary --io-smoke, branch before Tauri setup; exclusively fresh temporary root; 65 and300 MiB sequential recovery write/read. No WebView or actual user appData.",
+      "sampleCount": 1,
+      "exitCode": 0,
+      "wallSeconds": 2.4324354579439387,
+      "maxRSSBytes": 400048128,
+      "verifiedMiB": [
+        65,
+        300
+      ]
+    },
+    "independentFinalNativeTests": {
+      "passed": 14,
+      "failed": 0,
+      "log": "final-native-tests.log",
+      "scope": "Actual final native crate, includes success-only init cache retry, ACL rejection+stage cleanup, native/legacy damaged-file isolation, reserved-name casefolding."
+    },
+    "reviewConclusion": "No additional reproducible native persistence data-loss blocker in reviewed final macOS code after fixes. Root native-init UI regression is assigned reviewer; Windows runtime and full IPC process-memory acceptance remain separate gates."
+  },
+  "actualQtCrashPolicy": {
+    "scope": "Real Qt6 QLockFile process + synthetic temporary recovery file. No actual appData is opened.",
+    "fixtureBytes": 4173,
+    "fixtureSha256": "f3641a0851b0273c6438c4697a926d3feb2af7b370140498fdc5a74d236057e3",
+    "checks": [
+      {
+        "name": "live Qt native exclusive lock refuses readonly shared reader",
+        "passed": true,
+        "qt": "6.12.0"
+      },
+      {
+        "name": "crashed Qt leaves original lock file but readonly reader can acquire stable inode",
+        "passed": true,
+        "lockContentSha256Unchanged": true,
+        "lockMetadataUnchanged": true
+      },
+      {
+        "name": "stale lock does not block checked read-only recovery snapshot",
+        "passed": true,
+        "readerDidNotCreateDeleteOrWriteLock": true,
+        "recoveryBytesUnchanged": true
+      },
+      {
+        "name": "real Qt cannot reclaim stale inode while read-only snapshot guard is held",
+        "passed": true
+      },
+      {
+        "name": "Qt itself reclaims stale lock after reader closes; recovery remains untouched",
+        "passed": true
+      }
+    ]
+  },
+  "baselineAtomicWrite": {
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "kind": "Isolated extracted old filesystem helper; synthetic tempdir only; not Tauri IPC or new recovery acceptance",
+    "source": {
+      "sourceFile": "web-app/src-tauri/src/main.rs",
+      "fullSha256": "7ae23e79d2b42e4f0c21cf07ed751f14b77f6a0114214d40a250ef2fb75dafe5",
+      "stampAndAtomicWriteSha256": "021752b6e4caa27e79f2a4347081cc018d2806eedf43a9dc48240c35b926d03e",
+      "note": "Baseline primitive extraction only. It does not instantiate Tauri, read user appData, or claim native IPC coverage."
+    },
+    "samples": [
+      {
+        "kind": "actual old atomic_write extracted from current source, isolated tempdir; not IPC/UI",
+        "mode": "direct",
+        "mib": 64,
+        "cloneMs": 4.2e-05,
+        "atomicWriteFsyncMs": 131.16575,
+        "streamVerifyMs": 27.458916,
+        "verifiedBytes": 67108864,
+        "sameSizeMtimeEqual": true,
+        "sameStampReplacementAccepted": true,
+        "inodeChanged": true,
+        "modeBefore": 420,
+        "modeAfter": 384,
+        "readonlyOverwriteAccepted": true,
+        "maxRssBytesMac": 69107712
+      },
+      {
+        "kind": "actual old atomic_write extracted from current source, isolated tempdir; not IPC/UI",
+        "mode": "cloned",
+        "mib": 64,
+        "cloneMs": 9.48975,
+        "atomicWriteFsyncMs": 109.80304100000001,
+        "streamVerifyMs": 29.405583,
+        "verifiedBytes": 67108864,
+        "sameSizeMtimeEqual": true,
+        "sameStampReplacementAccepted": true,
+        "inodeChanged": true,
+        "modeBefore": 420,
+        "modeAfter": 384,
+        "readonlyOverwriteAccepted": true,
+        "maxRssBytesMac": 136232960
+      },
+      {
+        "kind": "actual old atomic_write extracted from current source, isolated tempdir; not IPC/UI",
+        "mode": "direct",
+        "mib": 300,
+        "cloneMs": 0.000125,
+        "atomicWriteFsyncMs": 442.34916699999997,
+        "streamVerifyMs": 128.262709,
+        "verifiedBytes": 314572800,
+        "sameSizeMtimeEqual": true,
+        "sameStampReplacementAccepted": true,
+        "inodeChanged": true,
+        "modeBefore": 420,
+        "modeAfter": 384,
+        "readonlyOverwriteAccepted": true,
+        "maxRssBytesMac": 316538880
+      },
+      {
+        "kind": "actual old atomic_write extracted from current source, isolated tempdir; not IPC/UI",
+        "mode": "cloned",
+        "mib": 300,
+        "cloneMs": 35.931583,
+        "atomicWriteFsyncMs": 341.217292,
+        "streamVerifyMs": 138.86112500000002,
+        "verifiedBytes": 314572800,
+        "sameSizeMtimeEqual": true,
+        "sameStampReplacementAccepted": true,
+        "inodeChanged": true,
+        "modeBefore": 420,
+        "modeAfter": 384,
+        "readonlyOverwriteAccepted": true,
+        "maxRssBytesMac": 631160832
+      }
+    ]
+  },
+  "baselineQtSavePolicy": {
+    "292": {
+      "committed": false,
+      "error": "Existing file /var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/qt-save-probe-pZShhR/292 is not writable",
+      "opened": false,
+      "originalPreserved": true,
+      "permissionBitsPreserved": true
+    },
+    "420": {
+      "committed": true,
+      "error": "Unknown error",
+      "opened": true,
+      "originalPreserved": false,
+      "permissionBitsPreserved": true
+    },
+    "lock": {
+      "oldHandleAcquiredAfterQtUnlock": true,
+      "otherFlockAcquiredWhileQtOwns": false,
+      "qtAcquiredInitially": true,
+      "qtReacquiredWithOldHandleLocked": true
+    },
+    "qt": "6.12.0",
+    "scope": "synthetic QTemporaryDir; no appData"
+  },
+  "remaining": [
+    "Windows runtime/installer and OS picker dialogs",
+    "Real ENOSPC and supported filesystem metadata",
+    "Full IPC/WebView/JS peak memory and max aggregate document workload",
+    "Physical Android and Safari web acceptance",
+    "Pending selection/text autosave and crash orphan stage policy",
+    "Signing/notarization, notices and safe Pages staging/rollback",
+    "Full legacy tool/format/F01-F10 acceptance"
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "deployed": false,
+    "legacyQtPreserved": true
+  }
+}

@@ -1,0 +1,369 @@
+{
+  "date": "2026-11-05",
+  "status": "Four confirmed input/editing defects fixed and validated; complete migration/release acceptance remains open",
+  "scope": {
+    "mobileAndTablet": "Browser only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "measuredPlatforms": [
+      "Chromium desktop public UI with modeled file IPC",
+      "Actual macOS bundled WKWebView general smoke"
+    ],
+    "physicalDeviceAcceptance": false
+  },
+  "productionChanges": [
+    {
+      "severity": "Major",
+      "cost": "S",
+      "issue": "Pen release pressure0 shrank the stabilized tail of brush/eraser strokes.",
+      "before": "Four paired mouse/pen trajectories (eight UI executions) differed at same-position and moved release; constant contact pressure1 pen left the endpoint unchanged while mouse painted/erased it.",
+      "fix": "Only finishing pen samples with pressure0 reuse the last stroke pressure. Ordinary drawing pressure0 and pressure-off behavior remain.",
+      "policy": "Same-position behavior agrees with observed Qt. Moved release deliberately applies consistent last-contact-pressure semantics; not an assertion of byte-exact equivalence to every Qt tablet path."
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "issue": "Erasing an already transparent source zeroed hidden RGB and created unwanted history.",
+      "before": "Raw [193,71,117,0] became [0,0,0,0], dirty and Undo changed.",
+      "fix": "Before allocating a pixel tile, skip transparent erasing only when the pre-stroke alpha was0. Existing tiles use tile.before; matchColor explicit replacement is excluded.",
+      "contracts": [
+        "Visible no-op preserves raw RGBA, saved state and Redo with zero pixel tiles",
+        "Hidden layer may still gain visibility-only metadata history and cancels exactly",
+        "Original alpha1 rounded to0 by partial coverage can still finish to raw zero at stronger coverage"
+      ]
+    },
+    {
+      "severity": "Major",
+      "cost": "M",
+      "issue": "Pointer failure cleanup lost registration/selection ownership.",
+      "before": "Injected coverage allocation failure plus real capture loss and outside release caused the next same-pointer gesture to be ignored. Real size-profile rejection after provisional selection resize left a changed raster, differing by4 RGBA bytes after Enter. Picker capture loss without drag also left stale registration.",
+      "fix": "Pointer-owned errors use the existing cancelPointer resource boundary, then full redraw invalidation. cancelPointer unregisters before releasing capture; registered lost-capture owners are handled even without drag. keepPointers=true preserves both navigation owners.",
+      "contracts": [
+        "Original stroke and selection geometry/raster restored",
+        "First retry accepted, original Undo/Redo preserved",
+        "Normal pointerup removes ownership before implicit capture release"
+      ]
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "issue": "Spray interval exceptions escaped the input recovery boundary.",
+      "before": "One injected Math.random failure produced a pageerror, then random calls continued from1 to65, capture and provisional pixels remained, and release committed47 nontransparent pixels.",
+      "fix": "Timer work has a local try/catch routed to the same pointer-owned error boundary. Normal ticks keep their existing draw path.",
+      "contracts": [
+        "Exactly one injected failure; timer stops and capture releases",
+        "Full Canvas and raw source restore, clean/Redo survive, late release ignored",
+        "Error status shown; real new spray and a single Undo succeed"
+      ]
+    }
+  ],
+  "provenance": {
+    "baselineSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/before-source.json",
+      "sha256": "f6dae84a52dc02353044f86e3e30a00678f3975ff7f8043c432a9c5b89042a88"
+    },
+    "baselineRoot": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/before-root",
+    "baselineAssets": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/before-manifest.json",
+      "sha256": "637598b4f82c8171d4fc5a6f2be15f10e9875770f79e2df6e2b6a79cbec85b83"
+    },
+    "baselineSite": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-site/mypaint",
+    "pressureOnlySource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/pressure-source.json",
+      "sha256": "a4c5ec3dfccfefda646806d39dc7303a3e074e26ff3bca4c98712c80964e2b56"
+    },
+    "pressureOnlyAssets": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/pressure-manifest.json",
+      "sha256": "affbdd17dd18220f9ae2533bdd6a3fd7b2879faa89ba883e1479d1abc8b82fa2"
+    },
+    "roundFixedSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/fixed-source.json",
+      "sha256": "b90eaf04589cb835d0fd72ee2aa84d51b39130a32db515122a8085946e008e5b"
+    },
+    "roundFixedAssets": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/fixed-manifest.json",
+      "sha256": "1d47c3d123762d6f5f809941389784c99bc326d09c327a7eb1089881c39010ba"
+    },
+    "finalSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/final-source.json",
+      "sha256": "9857620008c9afad38eb20e44d743b9be2ef420d5bd1723505fa0faef0327f21"
+    },
+    "finalAssets": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/final-manifest.json",
+      "sha256": "719aea8f64626c1505b722ee2a0943c3c4a76882cb810968683bc73300804282"
+    },
+    "sourceFiles": 17,
+    "assetFiles": 8,
+    "productionSourceDifference": [
+      "web-app/src/engine/document.ts",
+      "web-app/src/main.ts"
+    ],
+    "finalSourceSHA256": {
+      "web-app/src/engine/document.ts": "4b625e0ff3633cb6adffcd9aa164960dd1135fbbf25a7c31f94add9f736acee1",
+      "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+      "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+      "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+      "web-app/src/main.ts": "cbb8cb5ce34383489ed23c76ed0776f0005bae3783090fe519863218921512b5",
+      "web-app/src/platform/codec.ts": "90ed15cbb74916b79f495ee7d97acc15ab4c05db3af4bf86d1da8773d6cd5831",
+      "web-app/src/platform/native-smoke.ts": "301ca93c13ea8098c627fb916e1c6a594fbe5afcba0f7a6a58040e54faebd8af",
+      "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+      "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+      "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+      "web-app/src/platform/tiles.ts": "e6ffd785c927cc1d97327b0274a16385d0625305f722b5c6cec7367d436e5809",
+      "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+      "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+      "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+      "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+      "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+      "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+    },
+    "finalAssetSHA256": {
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/buffer-DyZedAtx.js": "eb04a57dbb4dfe75682a503da2659932e135648d527e26c4e00ddc21a4f4ad79",
+      "assets/codec.worker-Bo-_aV3G.js": "f4195f84d994821913c5f5f8a3e580f32585a5631f7bae9a5126454ff38c5ec9",
+      "assets/encoder-Ygiwl0RX.js": "16950585094af9d3e4a2bb026da7559d0808b92847178029e0b9b031fc0d838f",
+      "assets/index-BVeOIkSV.js": "cf2574a1250fe2ebce2b1262bd6e2df036614e0b47f8faacc187a66585fb55b6",
+      "assets/index-aClAeViE.css": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601",
+      "assets/native-smoke-B3Kvzbxn.js": "6016baa631fed92f81bcb2f6e2f54b8466e3ef11877eedf8986cd6cf03123304",
+      "index.html": "b9e410109b7a270729f6943f0edbf736b4b9f785ff7ddbf818438fc5a14750f0"
+    },
+    "nativeBinary": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/final-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+    "nativeBinaryAtExecution": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+    "nativeBinarySHA256": "3f9bcc7019754cbce7a467d6a6d7a3301bc82c3ba302015fb603f45b4bc28727",
+    "moduleGraph": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/final-module-graph.json",
+      "sha256": "85baa6550a56e4503ee478b19cfb63afbc355b006f8e9479771d37ebd3f66a2c"
+    },
+    "moduleGraphReview": {
+      "path": "/private/tmp/mypaint-final-smoke-audit-architect/basic-tools-graph-review.json",
+      "sha256": "3fa8494ea368e9da8ca9fadab10e375575a0e5fa2abe6efa8f6ccd503cbada41"
+    },
+    "previousGraphPreservation": {
+      "originalPath": "/Users/jhpark/code/myService/myPaint/docs/evidence/studio-module-graph.json",
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/viewport-tiles/final-module-graph.json",
+        "sha256": "256a290fbb561e2915c0ea0b8ae30ccf2d9bb5296e73c70270cd1e87f36972d8"
+      },
+      "scope": "Preserves the exact graph referenced by the earlier immutable viewport report; the docs graph is a rolling current-state file."
+    },
+    "graphLinkCorrection": {
+      "graphAtAstReview": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/graph-before-provenance-link-repair.json",
+        "sha256": "193bf29140b87cb9377594e5b40eee8119c8ed3bdf1c8c1e54d644c47d92b8ab"
+      },
+      "scope": "AST/source/asset/native verification fields are unchanged. Only historical viewport report links were corrected to fixed archives; no source or test changed."
+    }
+  },
+  "reproduction": {
+    "roundAndPickerQt": {
+      "path": "/private/tmp/mypaint-eraser-picker-reviewer/qt-results.json",
+      "sha256": "f10028ee36633b7c354c23d563c82728eeb06458b9334aab3128b5154124d517"
+    },
+    "baselineUi25": {
+      "path": "/private/tmp/mypaint-eraser-picker-reviewer/ui-results.json",
+      "sha256": "42ab5e8bab8dce0b3a80213efe24f685779f75a401dffbd3de7894f33f323294"
+    },
+    "pressureFixed8": {
+      "path": "/private/tmp/mypaint-eraser-picker-reviewer/pressure-results.json",
+      "sha256": "343293c8983ae63927a7d78cf411d75dd34ee40214f3855fd616324e4846179b"
+    },
+    "sprayInjectedFailure": {
+      "path": "/private/tmp/mypaint-eraser-picker-reviewer/spray-provenance.json",
+      "sha256": "aec6c4df5085f3abd0b545bd560b6e6f0c69c48e0f8098fae8536fac78db82e6"
+    },
+    "pointerReview": {
+      "path": "/private/tmp/mypaint-pointer-fault-sre/review-summary.json",
+      "sha256": "32312cbf3f61b68e2a04b1b4ebf245a0fb734e3e0f6979b5bbb55ad9c43c5c89"
+    },
+    "pointerAllocationBefore": {
+      "path": "/private/tmp/mypaint-pointer-fault-sre/result.json",
+      "sha256": "24b9ac44fe064c24f2104bc7d65bad4b753d5ea3a10f9ea7c719b238576ab3e7"
+    },
+    "selectionLimitBefore": {
+      "path": "/private/tmp/mypaint-pointer-fault-sre/resize-limit-result.json",
+      "sha256": "05302afcd6da93709aad9a09e40960e1f20aabfcb9668ec00c0003adefb2bae2"
+    },
+    "diagnosticCorrection": "The pointer baseline firstSameAsOriginal JSON.stringify diagnostic is unsuitable for typed-array representation; its assert.deepEqual(first,original) and white Canvas prove the first retry was ignored. Neither diagnostic nor observation timeout was used to restart a live run."
+  },
+  "verification": {
+    "engine": {
+      "passed": 169,
+      "newEraserTests": 3,
+      "log": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/node-fixed.log",
+        "sha256": "c91b91e00134cbf71ffa853bf369f3e815e2d971598f6d98e04bb3572d2b2658"
+      },
+      "targetedLog": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/eraser-core.log",
+        "sha256": "b0a0afe2e62dc9033f6c713cada96a8024684a8610a16cca4051ac65908f85ae"
+      },
+      "engineSHA256": "4b625e0ff3633cb6adffcd9aa164960dd1135fbbf25a7c31f94add9f736acee1",
+      "scope": "Node engine regression; later main-only error-cleanup edits did not change the tested engine."
+    },
+    "eraserPickerSprayUi": {
+      "passed": 31,
+      "pageErrors": 0,
+      "failures": 0,
+      "test": {
+        "path": "/Users/jhpark/code/myService/myPaint/web-app/tests/eraser-picker-contract.mjs",
+        "sha256": "7ac75f8dffdea34f6fb55bea7af95b7546a773df7ac7468f4406e6d06a8b9d4a"
+      },
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/eraser-picker-contract/final31/result.json",
+        "sha256": "fb4b6a5e088cbc26038ab8edf1af80b21f8003a94a05ce4979e736b1769b44f0"
+      },
+      "reviewerProvenance": {
+        "path": "/private/tmp/mypaint-eraser-picker-reviewer/final31-provenance.json",
+        "sha256": "1b402643976beb9b22f2fd7ee9d48ec989ddde2f0dafe5fd6024936037c37145"
+      },
+      "caseGroups": {
+        "mousePenReleaseExecutions": 8,
+        "realPenMovePressureZero": 2,
+        "roundEraser": 5,
+        "hiddenVisibilityAndCancel": 2,
+        "alpha1PartialThenFull": 1,
+        "picker": 12,
+        "sprayFailureRetry": 1
+      }
+    },
+    "pointerUi": {
+      "passed": 26,
+      "previousChecksPreserved": 23,
+      "newChecks": 3,
+      "pageErrors": 0,
+      "failures": 0,
+      "test": {
+        "path": "/Users/jhpark/code/myService/myPaint/web-app/tests/pointer-contract.mjs",
+        "sha256": "9a0b9a0266d4f4f2222767f3a85b9e6ff36a8fe55e53deee81da99659780341b"
+      },
+      "artifact": {
+        "path": "/private/tmp/mypaint-pointer-fault-sre/final-pointer.json",
+        "sha256": "8c86f79c1cbc2c492957278f88b2c2ff75fdfe65e421b421ef9e02eb56306a30"
+      }
+    },
+    "browser": {
+      "passed": 10,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/browser/results.json",
+        "sha256": "30347c0d5d39dc49c95231e7c07d6875d4e10162279e19fbefeba49a8e87c360"
+      }
+    },
+    "concurrency": {
+      "passed": 3,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/concurrency/concurrency.json",
+        "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+      }
+    },
+    "editing": {
+      "passed": 13,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/editing.json",
+        "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+      }
+    },
+    "typecheckAndWebBuild": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/complete-build.log",
+      "sha256": "66c999060b70972eccbd64aa62b8de436f1237acb1a5f97d61cf8f91b527f509"
+    },
+    "nativeBuild": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/native-build.log",
+      "sha256": "78e4a1d1acf215b9d062b0291f20b5449ae8805a5c61e6dd2a18fed5812251ff"
+    },
+    "format": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "actualMacOS": {
+      "processes": 4,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/final-native.json",
+        "sha256": "0da48fa012153f03a3306c87af70f06a15f9d986e5f96c6027527ee33ec9a3ee"
+      },
+      "sceneChecks": 18,
+      "gifCodecChecks": 3,
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform.",
+      "newPenInputExercised": false
+    },
+    "ci": "New test:eraser-picker-contract is wired into the existing web job; pointer contract remains wired. Remote CI was not run.",
+    "limits": [
+      "Chromium CDP pen is not a physical stylus or Android device",
+      "Allocation and spray random failures are deliberate one-shot injections; repeated OOM or graphics context loss is not certified",
+      "Selection limit rejection used real public CDP events with a large finite coordinate; not a manual physical monitor gesture",
+      "Native four-process smoke protects general persistence/quit/codec/render compatibility; it does not certify physical pen behavior",
+      "No new performance benchmark; previous viewport/mip timing retains its own source/binary scope"
+    ]
+  },
+  "remainingSquareToolContract": {
+    "severity": "Major",
+    "cost": "L",
+    "status": "Confirmed mismatch, not fixed or marked accepted",
+    "qtManifest": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/square-qt/manifest.json",
+      "sha256": "4112c76dbf581d07d4a2ac7b3d1975499d6a8347a6e588bd0b9b9190906803a3"
+    },
+    "fixtures": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/square-qt/fixtures.json",
+      "sha256": "329d82a51f76f7070e5fcdc822216df847a6d1fe83fbd5934a7aa2fb00741f42"
+    },
+    "generator": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/square-qt/probe.cpp",
+      "sha256": "231fb199924a73705ff24267cd808242b6b79e31620f5546978e4f89501f5cf0"
+    },
+    "qtCases": 161,
+    "explicitBaseCases": 33,
+    "oddSlopeCases": 64,
+    "seededCases": 64,
+    "findings": [
+      "Qt size1 click affects1 pixel while current square brush kernel affects4",
+      "Qt square brush/eraser ignore opacity/hardness/stabilization/pressure; current kernel applies them",
+      "Qt square brush source-over compounds per input draw call, unlike the smooth stroke maximum-coverage rule",
+      "Reverse masks include a start-position axis-aligned press dot and must be tested with the complete event sequence"
+    ],
+    "rejectedAnalyticProbe": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/square-polygon-probe.json",
+      "sha256": "0293f21432d93ec47a8c6354594149e36afaab57e282179ff06041ae386b9c71"
+    },
+    "probeSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/basic-tools/square-polygon-probe.py",
+      "sha256": "61978ee46a94e8cd3675681c78c8901605a87be9250743b2ffa7f68e183e7f37"
+    },
+    "probeOutcome": "Simple capped polygon union press dot failed36 of160 noncancelled masks; tested vertex quantizations still failed at least25. No analytic candidate was promoted and no pixel tolerance was weakened.",
+    "nextTasks": [
+      "Separate the width1 aliased line rule from wide square-cap coverage, using the captured literal masks",
+      "Resolve scanline/edge quantization and source clipping over odd/even widths, positive/negative slopes and reversals",
+      "Preserve per-event source-over semantics for square ink, transparent source semantics, captured colors, tile history/cancel and allocation failure ownership",
+      "Pass all161 captured fixtures and bounded independent generated cases, then public UI left/right/pressure/options/Undo/cancel before adoption"
+    ]
+  },
+  "remaining": [
+    {
+      "priority": "P1",
+      "issue": "Square-tool legacy contract above; other unaccepted tool option/device combinations remain"
+    },
+    {
+      "priority": "P1",
+      "issue": "Same opaque-color erasing still allocates temporary before/coverage/after data before no-op detection; large strokes can overlap history and transient pixel buffers"
+    },
+    {
+      "priority": "P1",
+      "issue": "Cold50ms target, bounded large-mip preparation, broad/disjoint dirty, long sessions and process-memory/input latency remain"
+    },
+    {
+      "priority": "Minor",
+      "issue": "Picker-selected alpha is preserved but HEX/wheel do not clearly expose it; an alpha indicator/control needs separate accessible UI review"
+    },
+    {
+      "priority": "Release gate",
+      "issue": "Physical Android/Safari web, Windows execution, OS dialogs/IME/clipboard, native metadata/RSS, staging/rollback and signing/notarization remain"
+    }
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "published": false,
+    "goalComplete": false
+  }
+}

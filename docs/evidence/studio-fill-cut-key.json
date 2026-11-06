@@ -1,0 +1,292 @@
+{
+  "date": "2026-11-05",
+  "status": "Three confirmed fill/cut contract defects fixed; bounded flood buffer optimization accepted with measured thin-ring tradeoff. Full migration/acceptance remains open.",
+  "scope": {
+    "mobileTablet": "Web only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "noCommitPushDeployment": true
+  },
+  "issues": [
+    {
+      "severity": "Major",
+      "cost": "S/M",
+      "name": "Flood raw RGBA equality diverges from Qt premultiplied membership/NoOp",
+      "baseline": {
+        "path": "build-web-work/task-planning/fill-cut-key/flood-before.log",
+        "sha256": "6615286e00932e611893ce81536e540cd6fb78297ba6392b0fd7b74a35d3356a"
+      },
+      "reproduction": "Original four tests:3 fail/1 pass. Qt6.12 freshly compiled document source:6 fixtures/45checks. Low-alpha equivalent colors and alpha0 hidden RGB split; equivalent replacement incorrectly creates edit.",
+      "fix": "Inline alpha+rounded premul RGB membership at three traversal sites and replacement NoOp before workspace allocation. Preserve original straight RGBA outside changed component.",
+      "qt": {
+        "path": "build-web-work/task-planning/fill-cut-key/qt-flood-oracle/qt-oracle.json",
+        "sha256": "7b2726a692be1e6216da826d88b47379db4854c6c74b004502ca44e808970d25"
+      },
+      "fixture": {
+        "path": "web-app/tests/fixtures/flood-key-qt.json",
+        "sha256": "647597fac29ec52d3d4b75921caa1256013e453a2b54b9e81fb190c39d627e21"
+      }
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "name": "No-selection cut ignores explicit transparent-selection key",
+      "baseline": {
+        "path": "build-web-work/task-planning/fill-cut-key/reviewer-baseline/results.json",
+        "sha256": "8098f97499d388eaff49feb372b3f8f62191aba577330fe5854f9244577b9ba7"
+      },
+      "reproduction": "Three optionON payload cases fail; optionOFF control passes; ordinary composite copy remains unchanged.",
+      "fix": "Filter only owned active-layer clipboard candidate when cut&&!selection&&transparentSelection, using alpha+premul key."
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "name": "Hidden active-layer cut clears source after empty PNG delivery",
+      "baseline": {
+        "path": "build-web-work/task-planning/fill-cut-key/reviewer-baseline-hidden/results.json",
+        "sha256": "2f6f6f7a522d9039196f19b3028f646ea1b2444cb63c81f05997c603ce323efe"
+      },
+      "reproduction": "OFF hidden-active case copies real raw input but PNG compositing skips visible:false; cut then clears original.",
+      "fix": "Set visible:true only on the independent PNG layer wrapper; retain document visibility and transaction ownership.",
+      "limitation": "Hidden×keyON combined case not executed; no full matrix claim."
+    }
+  ],
+  "memoryOptimization": {
+    "sourceCloneRemovedBytes": "4*N for changed fills; N=width*height",
+    "newReplacementBufferBytes": 4,
+    "netExplicitRequestedBufferSavingBytes": "4*N−4",
+    "workspace": "Before9*N+4*P; after5*N+4*P+4. P=bbox pixels. Excludes caller/Worker/Canvas/allocator overhead and does not assert RSS.",
+    "algorithm": "Read immutable source during traversal; reconstruct only marked spans in bbox result. Entire filled rows use Uint32 fill; holes retain original byte rows. No helper or extra host dependency.",
+    "measurement": {
+      "path": "build-web-work/task-planning/fill-cut-key/memory-performance/results.json",
+      "sha256": "3419fe8cb5f22c4644d1cf872003fede379cd6cf7085a64dfb093f315614d375"
+    },
+    "summary": {
+      "path": "build-web-work/task-planning/fill-cut-key/memory-performance/summary.json",
+      "sha256": "0a2dfa54816028cee79b8f189241cff5d8eabd48c9eb2732249990e8fb4952fe"
+    },
+    "samples": 64,
+    "median1024ms": {
+      "opaqueFull": {
+        "before": 34.511958,
+        "after": 16.5929795
+      },
+      "island32": {
+        "before": 0.2651245,
+        "after": 0.093375
+      },
+      "thinRing": {
+        "before": 0.6376035,
+        "after": 0.8436665
+      }
+    },
+    "thinRing512ms": {
+      "before": 0.239042,
+      "after": 1.214333
+    },
+    "decision": "Accept memory reduction and full/island improvement; preserve measured sparse-ring CPU regression. No universal speedup, UI latency, peak RSS or physical-device performance claim.",
+    "keyOnlyComparison": {
+      "path": "build-web-work/task-planning/fill-cut-key/key-performance/results.json",
+      "sha256": "b50be03f9a46c65746526189dd7388aeb250945bf4a74f1881b5ddb6ff0ed30f"
+    }
+  },
+  "verification": {
+    "node": {
+      "passed": 188,
+      "newFloodTests": 12,
+      "report": {
+        "path": "build-web-work/task-planning/fill-cut-key/node-final.log",
+        "sha256": "cca9e44eae12e3e99eb64be6ebbe4b952304e30239915e1eff93ea2f0b738cc8"
+      }
+    },
+    "publicFinalV3": {
+      "fill": {
+        "passed": 6,
+        "report": {
+          "path": "build-web-work/task-planning/fill-cut-key/fill-ui-v3/results.json",
+          "sha256": "46b5c6e95857a51b1483182509aaf88bda64804e1a64d78350a1d11933f399d9"
+        }
+      },
+      "cut": {
+        "passed": 5,
+        "report": {
+          "path": "build-web-work/task-planning/fill-cut-key/cut-ui-v3/results.json",
+          "sha256": "f11718a750ff9fff7d9693da24addd897b9d8f09219ed47b6047fd8dde30590c"
+        }
+      },
+      "fillFailure": {
+        "passed": 10,
+        "faultsPerMode": 2,
+        "productionTimeoutMs": 20000,
+        "report": {
+          "path": "build-web-work/task-planning/fill-cut-key/fill-failure-v3/results.json",
+          "sha256": "d020ff1f632cb2ee37bd8ca0a81ca40c72f5c5df3e53e204efc85c946048ff6f"
+        }
+      },
+      "scope": "Actual public Chromium UI/codec Workers; native file dialogs and clipboard delivery/rejection modeled. Independent PNG zlib decode for cut. No OS clipboard permission or physical input."
+    },
+    "existingRegressionsV2": {
+      "webPassed": 48,
+      "pendingPassed": 36,
+      "clipboardPassed": 4,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/fill-cut-key/browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-cut-key/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-cut-key/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-cut-key/storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-cut-key/shear/results.json",
+          "sha256": "249efb140d62d47a674b3bbeb42a07801756071a0ecdc614a48c0e289a34e7a3"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-cut-key/pending/results.json",
+          "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-cut-key/clipboard/results.json",
+          "sha256": "ffcc4a328c852d7f25655eda10a6c529613c53eb2d9f95b5f9ea7b86f8eee92c"
+        }
+      ],
+      "source": {
+        "path": "build-web-work/task-planning/fill-cut-key/candidate-source.json",
+        "sha256": "8de0b072371ad1f651c23eea117f60bff6848f3005094194509f9772a48b851c"
+      },
+      "assets": {
+        "path": "build-web-work/task-planning/fill-cut-key/candidate-manifest.json",
+        "sha256": "ddb74d44dd55fcdf33228f42c1e1187d03106a17b2467cbb9119274ff4a757ee"
+      },
+      "scope": "Executed before buffer optimization on frozen v2 operations159467... with final main92aa...; not counted as fresh v3 tests."
+    },
+    "qtCut": {
+      "path": "build-web-work/task-planning/fill-cut-key/reviewer-qt-oracle/qt-results-five.json",
+      "sha256": "5606d9d8a4559a9c3ae5434d025cd0e6f44c54db4d82f442c8026e29cb2a99af"
+    },
+    "macOSWorkerProbe": {
+      "passed": 6,
+      "report": {
+        "path": "build-web-work/task-planning/fill-cut-key/native-fill-key/results.json",
+        "sha256": "f3246613f3c0387ec0a4e7a35de0dbcd5da9139cd22ee933265689e5bf19b47a"
+      },
+      "source": {
+        "path": "build-web-work/task-planning/fill-cut-key/native-fill-key/source.json",
+        "sha256": "4046ef6bbdc780a4b542e6f381945142a48ef8cdb2aefd650e68d5ac324107bd"
+      },
+      "overlay": {
+        "path": "build-web-work/task-planning/fill-cut-key/native-fill-key/manifest.json",
+        "sha256": "fc6f4d12d4696b1f4a823fd4f6ac97a70a3807db6246dcaa61aff35cf66487fc"
+      },
+      "assets": {
+        "path": "build-web-work/task-planning/fill-cut-key/native-fill-key/assets.json",
+        "sha256": "eb1ac3f8799c4ba83c4a27880e14df61da8274f1e460460b5eac0c4a8e1198fc"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/fill-cut-key/native-fill-key/app.json",
+        "sha256": "5905290b2db03559ad1f64dbeb90e038e8bd470efe235e7b9a32e49183b90b77"
+      },
+      "scope": "Actual WKWebView module Worker with temporary render-branch overlay. Correctness only; no public UI, clipboard/history or performance acceptance."
+    },
+    "macOSOrdinary": {
+      "phasesPassed": 4,
+      "sceneChecks": 21,
+      "report": {
+        "path": "build-web-work/task-planning/fill-cut-key/native-desktop.json",
+        "sha256": "36e5767ff01e2ee632f2b2d7a143789614d7642e1061544f641e069263fa1b4d"
+      },
+      "foreground": {
+        "path": "build-web-work/task-planning/fill-cut-key/native-desktop.json.foreground.json",
+        "sha256": "fd1de294f626b08bec71114732c42a99e338fd4173b9af3ff7387025cc5d79fa"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/fill-cut-key/final-app.json",
+        "sha256": "8621da571dc72f1bdad58e68f60b92d6aad5619cc3416ca9f325029c2a55d11a"
+      },
+      "binarySHA256": "8ee23b7e418a4370c09f477983cafd0eb15b1dfc0149e1af75b38cde252ca143",
+      "scope": "Standard-build ordinary app; existing recovery/codec/quit/scene assertions, isolated persistence, activation-assisted. No overlay, OS dialogs, signing or performance acceptance.",
+      "adapter": {
+        "path": "build-web-work/task-planning/selection-text-alpha/native-alpha/web-app/tests/native-desktop-foreground-registered.mjs",
+        "sha256": "9170825bbd13b43e27f495c315b496555023439dc60e69fa4bb40a1b8d9e1b5d",
+        "originalAssertionsSHA256": "8076b93d965aa504a98e048596746bdf7f71d8fdde9e082567fd803d1a0a09b4",
+        "importedDocumentAndFormatMatchFinalSource": true
+      }
+    },
+    "format": {
+      "path": "build-web-work/task-planning/fill-cut-key/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "webBuild": {
+      "path": "build-web-work/task-planning/fill-cut-key/build-v3.log",
+      "sha256": "4d96f16611ddcaffe7b429d1ee457f0fb9e7101dc8a30dd8f867794d4f641fde"
+    },
+    "ordinaryDesktopBuild": {
+      "path": "build-web-work/task-planning/fill-cut-key/final-desktop-build.log",
+      "sha256": "5ffff438121d53e1e2b93f9ef1c6946bd83f5b9c2d80b6c33e665c6348c98521"
+    },
+    "initialHarnessFailures": {
+      "missingBrowserPath": {
+        "path": "build-web-work/task-planning/fill-cut-key/fill-ui-v3-missing-browser.log",
+        "sha256": "670d4e4ffd24f682bce0daa511913876f61ae45ef67e1e3fdd02a7b84f169d3a"
+      },
+      "scope": "Playwright browser was unavailable at its default path before any page/test; corrected to installed Chrome, then completed. Memory accounting assertion failure is retained in memory-performance."
+    }
+  },
+  "snapshot": {
+    "source17": {
+      "path": "build-web-work/task-planning/fill-cut-key/final-source.json",
+      "sha256": "2b1307658337a59bd4a6333894ff302f6951b1901f551ccc159fed528f018a91"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/fill-cut-key/candidate-v3-manifest.json",
+      "sha256": "55241fba1880485afa13748b810bbfd01fea82c8e190e8cd491d702bc35e239b"
+    },
+    "testAndCI": {
+      "path": "build-web-work/task-planning/fill-cut-key/final-tests.json",
+      "sha256": "4285ca03dcf25b918d898551472feb5ab9b84c5c8c4db2d6b9777221acc46bc3"
+    },
+    "moduleGraph": {
+      "path": "build-web-work/task-planning/fill-cut-key/static-review/module-graph.json",
+      "sha256": "ef2d8ed6a6b37fbcdc934ca472cac1676ebcaaaa8330188baa83323adf1ed0d9"
+    },
+    "independentReview": {
+      "path": "build-web-work/task-planning/fill-cut-key/independent-review.json",
+      "sha256": "5b04ff53c284becbac6e8327c221944eb1fefc66cf1e48814d0bb3c7309d4075"
+    },
+    "runtimeSourcesChanged": [
+      "operations.flood",
+      "Studio.copy"
+    ],
+    "helpersAdded": 0,
+    "dependenciesAdded": 0,
+    "formatRustCodecProfileUnchanged": true
+  },
+  "diagnosticCorrections": [
+    "nonfinite-before.json records an intermediate scalar candidate regression, not a pre-existing production defect; original raw key already returned NoOp. Finite-coordinate guard fixed candidate before final verification.",
+    "Original Qt fixture756067... and formatted fixture647597... parse identically. Distinguish byte hashes from semantic equality.",
+    "Native scene timings are collected by existing assertions but not used as new performance acceptance."
+  ],
+  "openGates": [
+    "F06 lasso mask/negative move/resize/transparent selection combinations and remaining17-tool/F01–F10 matrices",
+    "Large cut key scan latency, fill worst-case geometry and long-session/RSS",
+    "Matched-DPR WK checker and broad/disjoint dirty rendering",
+    "Android physical web input/recovery; Safari web; Windows executable and real OS dialogs/IME",
+    "Native GIF decoder internal memory, actual disk shortage/atomic replacement failures",
+    "Remote CI, signing/notarization, safe homepage staging/rollback and explicit public release"
+  ],
+  "cleanup": {
+    "path": "build-web-work/task-planning/fill-cut-key/cleanup.json",
+    "sha256": "543f750ddc724753d315901faa920be7f63109a2c3ba82954502afb89f3c5638"
+  }
+}

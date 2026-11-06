@@ -1,0 +1,756 @@
+{
+  "ok": true,
+  "scope": "고정 후보 source17/frontend14/Rust3·asset8의 해시와 TS/JS AST만 검증했다. 제품·문서·canonical graph를 수정하지 않았다.",
+  "sourceManifest": {
+    "path": "build-web-work/task-planning/bounded-selection-resize/candidate-source.json",
+    "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+  },
+  "assetManifest": {
+    "path": "build-web-work/task-planning/bounded-selection-resize/candidate-assets.json",
+    "sha256": "d54cc881361fb7392cd7829b534a4f5a4c818715329170dc405acf646ab712e0"
+  },
+  "sourceCount": 17,
+  "frontendFiles": 14,
+  "rustFiles": 3,
+  "sourceChanges": [
+    {
+      "path": "web-app/src/engine/operations.ts",
+      "before": "dde12112065d3c37bbaf12ec1b9e66b5d2a75fdfd8cb6d3d555f99622cc624e7",
+      "after": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334"
+    },
+    {
+      "path": "web-app/src/main.ts",
+      "before": "9243e5903949ad0c9fd79efdea9ecccea1aee1be5667da0266c25ebd89e17ad9",
+      "after": "3a2bc5a682e6d66066a13f85df1e5f649344d1953d7fe0bb45354b470b0bab4a"
+    },
+    {
+      "path": "web-app/src/style.css",
+      "before": "ac8201c63e4692a88802ed226b9c294fe5da305bb90747cc75624320c9e8b6fc",
+      "after": "a48993e40d56f55e2bea199384d273aabe6649a59a7f48ae0cba4c46a988eb7f"
+    }
+  ],
+  "sharedKernel": {
+    "newPureEngineFunction": "resizeNearestSteps",
+    "sourceXmapAstIdentical": true,
+    "pixelKernelAstIdenticalAfterRemovingYield": true,
+    "layerMetadataPushAstIdentical": true,
+    "smoothAndPaddingAstIdentical": true,
+    "otherEngineFunctionsAstIdentical": true,
+    "initialYieldBeforeOutputAllocation": true,
+    "layerEndYieldPresent": true,
+    "progressBound": "width<=32768이고 rows=max(1,floor(65536/width)), 각 layer 끝도 yield하여 다음 .next의 output 작업량은 rows*width<=65536이다. validation/Xmap/단일 output allocation/GC 비용의 시간 상한은 아니다."
+  },
+  "uiAst": {
+    "addedMembers": [
+      "PropertyDeclaration:selectionResize",
+      "MethodDeclaration:resizeSelection"
+    ],
+    "changedMembers": [
+      "Constructor:constructor",
+      "MethodDeclaration:hasPending",
+      "MethodDeclaration:sync",
+      "MethodDeclaration:render",
+      "MethodDeclaration:pointerDown",
+      "MethodDeclaration:pointerMove",
+      "MethodDeclaration:pointerUp",
+      "MethodDeclaration:cancelPointer",
+      "MethodDeclaration:pendingState",
+      "MethodDeclaration:keyboard"
+    ],
+    "removedMembers": []
+  },
+  "newRuntimeModules": 0,
+  "importRelationsUnchanged": true,
+  "engineHostIdentifiers": [],
+  "counts": {
+    "nodes": 13,
+    "declarations": 35,
+    "relations": 34,
+    "byKind": {
+      "runtime-static": 24,
+      "type-only": 5,
+      "asset-css": 1,
+      "runtime-dynamic": 3,
+      "worker-asset": 1
+    },
+    "localRuntimeEdges": 24,
+    "localTypeEdges": 4,
+    "sourceRuntimeCycles": 0,
+    "pureTypeCycles": 0,
+    "typeInclusiveSCCs": [
+      [
+        "web-app/src/platform/codec.ts",
+        "web-app/src/workers/codec.worker.ts"
+      ],
+      [
+        "web-app/src/main.ts",
+        "web-app/src/platform/native-smoke.ts"
+      ]
+    ],
+    "emittedNodes": 5,
+    "emittedEdges": 6,
+    "emittedStaticCycles": 0,
+    "emittedDynamicSCCs": [
+      [
+        "assets/index-DRGbE4uz.js",
+        "assets/native-smoke-hP0yIRVL.js"
+      ],
+      [
+        "assets/buffer-DU0qbHNf.js",
+        "assets/codec.worker-DjqGsUQn.js",
+        "assets/encoder-Bl-BehpH.js"
+      ]
+    ]
+  },
+  "previousGraph": {
+    "path": "build-web-work/task-planning/bounded-selection-resize/before-module-graph.json",
+    "sha256": "344fd075e92d31dd6b1466859735ca0d4a9c84dcd8241e7911869e9f29807b20",
+    "canonicalByteExactAtReview": true
+  },
+  "limits": [
+    "새 테스트·앱·브라우저·네이티브·빌드·벤치·네트워크는 실행하지 않았다.",
+    "Node227/public9/performance는 별도 실행 근거이며 이 정적 검토에서 재실행하지 않았다."
+  ],
+  "nodes": [
+    {
+      "path": "web-app/src/engine/document.ts",
+      "sha256": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650"
+    },
+    {
+      "path": "web-app/src/engine/format.ts",
+      "sha256": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38"
+    },
+    {
+      "path": "web-app/src/engine/operations.ts",
+      "sha256": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334"
+    },
+    {
+      "path": "web-app/src/env.d.ts",
+      "sha256": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2"
+    },
+    {
+      "path": "web-app/src/main.ts",
+      "sha256": "3a2bc5a682e6d66066a13f85df1e5f649344d1953d7fe0bb45354b470b0bab4a"
+    },
+    {
+      "path": "web-app/src/platform/codec.ts",
+      "sha256": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79"
+    },
+    {
+      "path": "web-app/src/platform/native-smoke.ts",
+      "sha256": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7"
+    },
+    {
+      "path": "web-app/src/platform/native.ts",
+      "sha256": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704"
+    },
+    {
+      "path": "web-app/src/platform/storage.ts",
+      "sha256": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f"
+    },
+    {
+      "path": "web-app/src/platform/surface.ts",
+      "sha256": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3"
+    },
+    {
+      "path": "web-app/src/platform/tiles.ts",
+      "sha256": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400"
+    },
+    {
+      "path": "web-app/src/ui/icons.ts",
+      "sha256": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a"
+    },
+    {
+      "path": "web-app/src/workers/codec.worker.ts",
+      "sha256": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b"
+    }
+  ],
+  "edges": [
+    {
+      "from": "web-app/src/engine/format.ts",
+      "to": "fflate",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": false,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/engine/format.ts",
+      "to": "pako",
+      "kind": "runtime-static",
+      "line": 2,
+      "local": false,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/engine/format.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 3,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "State",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 3,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/engine/operations.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "State",
+        "Color",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/env.d.ts",
+      "to": "jpeg-js",
+      "kind": "type-only",
+      "line": 15,
+      "local": false,
+      "syntax": "import type query",
+      "declarations": [
+        {
+          "line": 15,
+          "syntax": "import type query"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/native.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/style.css",
+      "kind": "asset-css",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/surface.ts",
+      "kind": "runtime-static",
+      "line": 3,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 3,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/tiles.ts",
+      "kind": "runtime-static",
+      "line": 4,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "PixelRect",
+        "SceneRaster"
+      ],
+      "declarations": [
+        {
+          "line": 4,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 5,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "State",
+        "Color"
+      ],
+      "declarations": [
+        {
+          "line": 5,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/engine/operations.ts",
+      "kind": "runtime-static",
+      "line": 17,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 17,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/codec.ts",
+      "kind": "runtime-static",
+      "line": 18,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "Raster"
+      ],
+      "declarations": [
+        {
+          "line": 18,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/storage.ts",
+      "kind": "runtime-static",
+      "line": 19,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "RecoveryEntry"
+      ],
+      "declarations": [
+        {
+          "line": 19,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/ui/icons.ts",
+      "kind": "runtime-static",
+      "line": 20,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "Tool"
+      ],
+      "declarations": [
+        {
+          "line": 20,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/native-smoke.ts",
+      "kind": "runtime-dynamic",
+      "line": 3711,
+      "local": true,
+      "syntax": "import()",
+      "declarations": [
+        {
+          "line": 3711,
+          "syntax": "import()"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/codec.ts",
+      "to": "web-app/src/platform/surface.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/codec.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "State",
+        "Color",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/codec.ts",
+      "to": "web-app/src/engine/operations.ts",
+      "kind": "type-only",
+      "line": 12,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "*"
+      ],
+      "declarations": [
+        {
+          "line": 12,
+          "syntax": "import"
+        },
+        {
+          "line": 13,
+          "syntax": "re-export"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/codec.ts",
+      "to": "web-app/src/workers/codec.worker.ts",
+      "kind": "worker-asset",
+      "line": 47,
+      "local": true,
+      "syntax": "new Worker(new URL(...))",
+      "declarations": [
+        {
+          "line": 47,
+          "syntax": "new Worker(new URL(...))"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "BrushSettings",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/main.ts",
+      "kind": "type-only",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "*"
+      ],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/platform/codec.ts",
+      "kind": "runtime-static",
+      "line": 3,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 3,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/platform/native.ts",
+      "kind": "runtime-static",
+      "line": 4,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 4,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/platform/storage.ts",
+      "kind": "type-only",
+      "line": 5,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "*"
+      ],
+      "declarations": [
+        {
+          "line": 5,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/platform/tiles.ts",
+      "kind": "runtime-static",
+      "line": 6,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 6,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/storage.ts",
+      "to": "web-app/src/platform/native.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/storage.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/tiles.ts",
+      "to": "web-app/src/platform/surface.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "Context2D",
+        "Surface"
+      ],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "web-app/src/engine/format.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "web-app/src/engine/operations.ts",
+      "kind": "runtime-static",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "GeometryChange"
+      ],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 11,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "Color",
+        "State",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 11,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "web-app/src/platform/codec.ts",
+      "kind": "type-only",
+      "line": 19,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "*"
+      ],
+      "declarations": [
+        {
+          "line": 19,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "buffer/index.js",
+      "kind": "runtime-dynamic",
+      "line": 88,
+      "local": false,
+      "syntax": "import()",
+      "declarations": [
+        {
+          "line": 88,
+          "syntax": "import()"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "jpeg-js/lib/encoder.js",
+      "kind": "runtime-dynamic",
+      "line": 89,
+      "local": false,
+      "syntax": "import()",
+      "declarations": [
+        {
+          "line": 89,
+          "syntax": "import()"
+        }
+      ]
+    }
+  ],
+  "sourceGraph": {
+    "path": "build-web-work/task-planning/bounded-selection-resize/architect/source-graph.json",
+    "sha256": "f71c755fb580769f478293abb3de0a7ad925c85097d82c5e7b6df85442ead483"
+  },
+  "emittedGraph": {
+    "path": "build-web-work/task-planning/bounded-selection-resize/architect/static-graph.json",
+    "sha256": "ad78bc0c7780e6bd2ab29cd538ec1e84760b7eccc442c6cc89a0f94afcc2ab1f"
+  },
+  "deltaReview": {
+    "path": "build-web-work/task-planning/bounded-selection-resize/architect/delta-review.json",
+    "sha256": "bbfe3abd8bf23cc901a448f16f7c53cb9bcbc201ae04c2f53330b8c39bf15234"
+  },
+  "priorIndependentGraph": {
+    "path": "build-web-work/task-planning/bounded-selection-resize/architect-initial-final/module-graph-candidate.json",
+    "sha256": "b13a8da6327ba92f740868c92d64537902b52bcc87877cd4ed4e001faf7ebeb4",
+    "unchanged": true
+  },
+  "lazyBoundary": {
+    "studioBeforeReady": true,
+    "smokeOnlyAfterTrueRuntimeReady": true,
+    "studioTypeImportErased": true,
+    "workerDTOTypeImportErased": true,
+    "emittedStaticCycles": 0,
+    "networkRetested": false
+  },
+  "canonicalInstallation": {
+    "reviewedCandidate": {
+      "path": "build-web-work/task-planning/bounded-selection-resize/architect/module-graph-candidate.json",
+      "sha256": "6192830959703852601e48d186fb29053d1594e713c34bda1424a59fa33a04f6"
+    },
+    "scope": "독립 고정 그래프의 내용은 유지하고, 해시가 같은 로컬 보존 사본으로 경로만 보정했다. 이전 그래프를 보존했다."
+  }
+}

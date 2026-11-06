@@ -1,0 +1,267 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "QF-32 로컬 Studio build/manifest/staging 구현과 검증. 공개 게시·OS 출시·전체 목표 완료가 아니다.",
+  "status": {
+    "QF-32": "partial",
+    "ownLocalImplementation": "verified",
+    "overallGoal": "active",
+    "predecessorsAndPublicAcceptance": "open"
+  },
+  "source": {
+    "tools/build_studio.py": "8e8d2b45cce052f01977f551c4a619910510fa61fe9b2392ca864d72c86307e3",
+    "tools/stage_web.py": "48dfb401fc73f984d9ebca5a97bf3e237fbb889e82a929d2b0b97b185e94950d",
+    "tests/test_build_studio.py": "0ee2ce731206545046206c8eb044808b5da102be84dd8b68f4a58dadfdb40cb2",
+    "tests/test_stage_web.py": "45872779f5c7d6f1fa9d899b34a8b1ddd707293c0ec630c5f2971ba6bd2309b8",
+    "CMakeLists.txt": "4d646e79ccd0f8aaf08173f0065dec02834bb85ec4c7cb80891ee425b5de477e",
+    ".github/workflows/studio.yml": "e0df0c922c68c94903dc52ceb039abbe2d32f25d46be6174319330a60e279f06"
+  },
+  "authority": {
+    "runtime17": {
+      "path": "build-web-work/task-planning/studio-staging/before-source.json",
+      "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+    },
+    "canonicalAssets8": {
+      "path": "build-web-work/task-planning/studio-staging/before-assets.json",
+      "sha256": "d54cc881361fb7392cd7829b534a4f5a4c818715329170dc405acf646ab712e0"
+    },
+    "gitMetadataBefore": {
+      "path": "build-web-work/task-planning/studio-staging/git-metadata-before.json",
+      "sha256": "a31195fc016379a2ca79a11bec67957ed9523a9550222079af499eb3067ac2ff"
+    },
+    "finalBundle": {
+      "path": "build-web-work/task-planning/studio-staging/frozen-bundle/bundle.json",
+      "sha256": "00fc45f94813b1b12cc858a92ccf36e57ba0b961c496f8c9aeb2a69c047c0ca1",
+      "originalPath": "dist/studio/bundle.json"
+    }
+  },
+  "implementation": {
+    "builder": "Python 3.11+, Node/npm. 전용 임시 outDir로 npm build/typecheck 실행, 입력 해시 재검사, 크기/파일/HTML entry 소유권 검증 후 dist/studio 설치. 기본 홈페이지 반영 없음. optional --homepage만 별도 stage.",
+    "payload": {
+      "files": 9,
+      "bytes": 276578,
+      "canonicalViteBytesExact": true,
+      "extraFile": "LICENSE",
+      "notPackaged": [
+        "Qt SDK",
+        "node_modules",
+        "Rust target",
+        "소스 압축",
+        "bundle.json (홈페이지 payload 제외)"
+      ]
+    },
+    "stager": "schema1 owner 계약 유지, target 부재는 기존 Qt. Studio는 assets/ + index/LICENSE/notices만 허용. HTML 상대 진입 자산과 빈 favicon의 좁은 예외를 검증한다. 임의 JS 내부 fetch 보안 분석기는 아니다.",
+    "releasePolicy": "Studio 전체 payload hash, Qt 기존 runtime4 재사용 유지. metadata-only 중복 없음. 이전 Qt/shared·Studio Worker/lazy assets 기본 보존. 명시 prune에만 제거 계획/실행.",
+    "failureBoundary": "기존 manifest/수동 파일·staged mypaint·symlink·overlap 보호. swap 직전 Git staged 재검사. 두 rename과 복원 시도이며 no-gap/crash durable 교체는 아니다. rollback 실패 백업 경로 보존. local bundle 설치와 optional 홈페이지 stage는 별도 transaction.",
+    "ci": "web CI가 Python 두 suite → build_studio → 임시 git homepage stager → 기존 /mypaint/ public suites를 실행하도록 변경. 원격 CI 실행은 미검증. tiles suite는 별도 Vite snapshot을 띄워 staged 번들 검사로 세지 않는다.",
+    "nativeScope": "모바일/태블릿 웹만, 설치 패키지 Windows/macOS만. 제품 TS/Rust/C++ 동작 변경 없음."
+  },
+  "resolvedFindings": [
+    {
+      "id": "LICENSE-before-validation",
+      "severity": "Major",
+      "beforeLocation": "/Users/jhpark/code/myService/myPaint/tools/build_studio.py:70",
+      "condition": "Vite 후보에 이미 LICENSE가 있고 symlink 또는 hardlink로 후보 밖 사용자 파일과 연결됨.",
+      "rootCause": "shutil.copyfile(root/LICENSE,candidate/LICENSE)가 기존 목적지를 따라 쓰고 이후 symlink/산출물 검사를 수행했다. symlink는 오류로 거부되어도 외부 파일이 먼저 바뀌었고 hardlink는 그대로 publish까지 성공했다.",
+      "beforeEvidence": [
+        "/private/tmp/mypaint-qf32-reviewer-1sum1c1b/symlink-license-probe.json",
+        "/private/tmp/mypaint-qf32-reviewer-1sum1c1b/hardlink-license-probe.json"
+      ],
+      "beforeSourceHash": "원본 full source SHA는 첫 재현 당시 수집하지 않았다. 원인 줄과 실제 상태 변화는 당시 tool transcript 및 원문 JSON에 고정. 사후 복원 SHA를 원본이라고 주장하지 않음.",
+      "fixLocation": "/Users/jhpark/code/myService/myPaint/tools/build_studio.py:70",
+      "fix": "open(xb)로 도구 소유 LICENSE를 배타 생성하고 기존 모든 목적지를 reserved LICENSE 오류로 거부. concurrent 생성도 덮지 않음. source rb/copyfileobj로 후보 밖 inode를 직접 수정하지 않음.",
+      "afterEvidence": "/private/tmp/mypaint-qf32-reviewer-1sum1c1b/license-after.json",
+      "regression": "regular/symlink/hardlink 3종 모두 reserved 오류, 외부 sentinel·이전 bundle.json 보존, lock/candidate 정리 PASS. tests/test_build_studio.py의 16번째 회귀도 3종 포함."
+    }
+  ],
+  "verification": {
+    "buildUnit": {
+      "passed": 16,
+      "failed": 0,
+      "log": {
+        "path": "build-web-work/task-planning/studio-staging/build-tests-license-fix.log",
+        "sha256": "35a6a126de4964ce31ff4a449a78dec4f2ff8c8a384ab8f83a8e6eeb8ea33280"
+      },
+      "subprocess": "mocked Node/npm in temporary fixtures"
+    },
+    "stageUnit": {
+      "passed": 27,
+      "failed": 0,
+      "legacyQtCases": 15,
+      "log": {
+        "path": "build-web-work/task-planning/studio-staging/stage-tests-favicon.log",
+        "sha256": "7d6f986efea260d3a75ac57a41190c11f0ca22c39459a630980c25fe148ad099"
+      },
+      "git": "real temporary repositories only"
+    },
+    "independentReview": {
+      "openBlocker": 0,
+      "openMajor": 0,
+      "openMinor": 0,
+      "unitsPassed": 43,
+      "licenseCollisionKindsPassed": 3,
+      "report": {
+        "path": "build-web-work/task-planning/studio-staging/reviews/final-review.json",
+        "sha256": "415104b9a23abc1cf0814d3d6e262dfb0a7e5e7f42fbf03bb09377b880dbeace"
+      }
+    },
+    "nativeCTest": {
+      "groupsPassed": 6,
+      "failed": 0,
+      "log": {
+        "path": "build-web-work/task-planning/studio-staging/ctest.log",
+        "sha256": "cdb905dd2d643213d0409051c1b9b546314f3839e1191986f449ea08e903cd80"
+      },
+      "platform": "macOS ARM64; Qt UI tests offscreen"
+    },
+    "actualBuild": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/studio-staging/real-build-license-fix.log",
+        "sha256": "7bbb8f93fb885a7819d4829fc8cd9cab20f6d18f5584f7fc5887413e77a15fde"
+      },
+      "payloadFiles": 9,
+      "payloadBytes": 276578
+    },
+    "browser": {
+      "checksPassed": 16,
+      "requests": 18,
+      "responses": 18,
+      "HTTPFailures": 0,
+      "pageErrors": 0,
+      "consoleErrors": 0,
+      "runs": 1,
+      "browser": "156.0.8078.80",
+      "summary": {
+        "path": "build-web-work/task-planning/studio-staging/browser/summary.json",
+        "sha256": "4240b8a848b9873f118af8a71def1baea167f8681404bb36a9a5ea5f12997d64"
+      },
+      "raw": {
+        "path": "build-web-work/task-planning/studio-staging/browser/results.json",
+        "sha256": "7854ff4ab305fb3ce9d4033478270d6b6add593e422d6afeae28583eecbb640d"
+      },
+      "driver": {
+        "path": "build-web-work/task-planning/studio-staging/browser/run.mjs",
+        "sha256": "697286a57335185bbc843d5c6e885b26ae82842b926cd8d83dcf2d9a8583cad4"
+      },
+      "scope": "실제 A + entry comment만 바꾼 합성 B; idle clean old tab 첫 Worker/JPEG, new B, rollback A, release notices/licenses, local MIME"
+    },
+    "existingStorageReuse": {
+      "passed": 13,
+      "newStagingCases": false,
+      "scope": "Separate existing storage.mjs execution after rollback on same temporary origin. Legacy-named retropaint-local-v1 seeded fixture/stale generation/transaction/soft quota/actual autosave+restore and full decoded RGBA. Not 13 new staging-specific cases, not actual browser storage exhaustion, not Qt-produced recovery migration across differing schema.",
+      "raw": {
+        "path": "build-web-work/task-planning/studio-staging/browser/storage/results.json",
+        "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+      }
+    },
+    "appBaselineBeforeToolChanges": {
+      "nodePassed": 229,
+      "typeFormatBuildPassed": true,
+      "reference": "docs/evidence/studio-completion-audit.json",
+      "scope": "이번 초기 감사의 런타임 snapshot; 도구 수정 후 동일 런타임17/기존 자산8 hash 불변 확인"
+    },
+    "integrity": {
+      "runtime17": {
+        "count": 17,
+        "unchanged": true,
+        "differences": []
+      },
+      "assets8": {
+        "count": 8,
+        "unchanged": true,
+        "differences": []
+      },
+      "gitMetadata": {
+        "count": 4,
+        "unchanged": true,
+        "differences": []
+      },
+      "localBundle": {
+        "files": 9,
+        "bytes": 276578,
+        "manifestSha256": "00fc45f94813b1b12cc858a92ccf36e57ba0b961c496f8c9aeb2a69c047c0ca1",
+        "sameViteFiles": true,
+        "addedPayload": [
+          "LICENSE"
+        ],
+        "sourceHashCurrent": true
+      },
+      "lockAbsent": true
+    },
+    "yaml": "PyYAML 파싱 성공, web job 5 steps; 원격 실행은 별도"
+  },
+  "initialFailures": [
+    {
+      "kind": "test fixture alias",
+      "log": {
+        "path": "build-web-work/task-planning/studio-staging/build-tests-initial-alias.log",
+        "sha256": "f5e48cb8e7c3e29deba3f70f20576ff4d2a85fe87640eeb113aa9cff6b4e8e3d"
+      },
+      "cause": "macOS /var ↔ /private/var 경로 alias, fixture root resolve로 수정; 제품 빌드 실패 아님"
+    },
+    {
+      "kind": "actual build validation",
+      "log": {
+        "path": "build-web-work/task-planning/studio-staging/real-build-initial.log",
+        "sha256": "d1eae523ae3c192537485f5b80f2d1cde133563de48ae38b5f1964c611e4f372"
+      },
+      "cause": "실제 Vite build 성공 후 빈 data:, favicon 거부. rel={icon}, href=data:,만 허용하고 악성/다른 data 자산 거부 회귀 추가"
+    },
+    {
+      "kind": "review-confirmed Major",
+      "cause": "후보 LICENSE 링크 overwrite",
+      "resolution": "exclusive xb 파일 생성; 기존 일반파일/symlink/hardlink 거부, 외부 sentinel/기존번들 유지; 최초 원문과 독립 사후 재현 보존"
+    }
+  ],
+  "independentArchitecture": {
+    "path": "build-web-work/task-planning/studio-staging/reviews/architecture-integration.json",
+    "sha256": "28e6abfc04a5b92625d4c939e99c4cc42b275233f706b6063c4a3fcf7fb812cb"
+  },
+  "limitations": [
+    "B is a harmless synthetic content revision, not independently changed application version",
+    "localhost HTTP/no COOP-COEP is not actual Pages caching/header acceptance",
+    "prune not exercised and retention is default",
+    "no physical-device, native app, performance, remote CI, or power-loss guarantees",
+    "Old tab was idle clean before B and default-white after B; unsaved-dirty/pending editor state through update was not separately exercised.",
+    "Recovery13 is an existing same-origin storage suite after rollback, not a separate A-created backup -> B restore migration or differing schema migration.",
+    "Response URL/status/MIME and immutable served file inventories checked. Raw JS response bodies were not separately hashed by Playwright.",
+    "No prune or Qt->Studio mixed fixture execution here; parent Python27 covers mixed policy separately.",
+    "One bounded browser execution only. No timing/latency/p95/RSS/native/physical device claims.",
+    "Local server had no COOP/COEP dependency; actual GitHub Pages caching/MIME/headers/public URL remains a release gate.",
+    "실제 형제 홈페이지 staging·Git commit/push·게시를 수행하지 않았다. 두 저장소 index/config 해시4개는 불변이다.",
+    "public Pages 캐시·필요 헤더·MIME와 공개 URL, Windows에서의 Python/실제 빌드, 원격 CI는 남아 있다.",
+    "Qt에서 실제 작성한 복구→Studio 인계, A-created backup→B restore, dirty/pending 탭의 버전 교체 전 조합은 완료로 표시하지 않는다.",
+    "현재 번들은 JS Worker이며 Wasm 자산은 없다. 단일 스레드 Wasm 검증으로 세지 않는다.",
+    "전원 장애/SIGKILL 뒤 자동 복원, hostile local writer에 대한 보안 격리를 보증하지 않는다.",
+    "사용자 Mac 화면·앱 창이 보인다는 답변은 확인했지만 완료 신호/이번 native 실행 성공을 대신하지 않는다. 이번 제품 UI 변경이 없어 native 앱 재실행은 하지 않았다."
+  ],
+  "cleanup": {
+    "primaryBrowserClosed": true,
+    "serverClosed": true,
+    "fixtureRetainedForReview": "/private/tmp/mypaint-studio-stage-fixture-r3vODX",
+    "runnerTerminalExitCode": 0,
+    "storageSuiteChildAwaitedAndClosedByItsFinally": true,
+    "ownedGitFixtureRetainedOnlyForReview": "/private/tmp/mypaint-studio-stage-fixture-r3vODX",
+    "temporaryServerPort": 64684
+  },
+  "nextPriority": [
+    "QF-13 실제 Qt 둥근 사각형 기하·퇴화 폭 계약",
+    "QF-16 JPEG EXIF 8방향",
+    "출력 바탕 미리보기와 실제 터치 표적/키보드/접근성",
+    "미변형 선택 settle 복사 실측·좁은 최적화",
+    "실기기/OS/공개 배포 인수"
+  ],
+  "evidenceCorrection": {
+    "severity": "Minor",
+    "resolved": true,
+    "cause": "Mutable dist/studio/bundle.json reference changed after next phase source-metadata rebuild",
+    "fix": "Use phase-owned immutable bundle snapshot instead of mutable dist path",
+    "previousReport": {
+      "path": "build-web-work/task-planning/studio-staging/report-before-evidence-path-fix.json",
+      "sha256": "643301a17db9f392645f0af76978039203bd9cc129ac9316ff20e4b8a24c2856"
+    },
+    "payloadChanged": false,
+    "note": "QF32 final metadata recovered from the preserved browser bundle by replacing the build_studio.py source hash; stage_web.py assignment was unchanged. Serialized bytes exactly match the previously recorded SHA256. This recovery is explicit, not claimed as a captured original file."
+  }
+}

@@ -22,6 +22,8 @@ def main():
     parser.add_argument("--qt-source", type=Path, default=root / "build-tools/qtbase")
     parser.add_argument("--host-qt", type=Path)
     parser.add_argument("--homepage", type=Path, default=root.parent / "parkjh2568.github.io")
+    parser.add_argument("--bundle-qt-source", action="store_true", help="Include the full Qt archive instead of its pinned official download link")
+    parser.add_argument("--prune", action="store_true", help="Remove older releases and unused shared files from the homepage after validation")
     parser.add_argument("--no-stage", action="store_true", help="Build dist/web without updating the homepage")
     args = parser.parse_args()
     try:
@@ -62,22 +64,26 @@ def main():
             raise RuntimeError("Qt sources must match their recorded commit")
         work = root / "build-web-work"
         work.mkdir(exist_ok=True)
-        qtArchive = work / ("qtbase-" + qtCommit + ".tar.gz")
-        checksumFile = qtArchive.with_suffix(".sha256")
-        if qtArchive.exists() and qtArchive.stat().st_size > MAX_FILE:
-            raise RuntimeError("Qt source archive exceeds the file budget")
-        if not qtArchive.exists() or not checksumFile.exists() or checksumFile.read_text().strip() != hashlib.sha256(qtArchive.read_bytes()).hexdigest():
-            temporary = qtArchive.with_suffix(".tmp")
-            try:
-                with temporary.open("wb") as output, gzip.GzipFile(filename="", mode="wb", fileobj=output, mtime=0) as compressed:
-                    with subprocess.Popen(["git", "archive", "--format=tar", qtCommit], cwd=qtSource, env=env, stdout=subprocess.PIPE) as process:
-                        shutil.copyfileobj(process.stdout, compressed)
-                        if process.wait():
-                            raise RuntimeError("Qt source archive failed")
-                os.replace(temporary, qtArchive)
-                checksumFile.write_text(hashlib.sha256(qtArchive.read_bytes()).hexdigest() + "\n")
-            finally:
-                temporary.unlink(missing_ok=True)
+        qtSourceUrl = "https://codeload.github.com/qt/qtbase/tar.gz/" + qtCommit
+        if not args.bundle_qt_source and qtCommit != "025bdad181de241e81bf853c8a2d7bf3d19261a9":
+            raise RuntimeError("The external source offer is verified only for the pinned unmodified Qt commit; use --bundle-qt-source")
+        if args.bundle_qt_source:
+            qtArchive = work / ("qtbase-" + qtCommit + ".tar.gz")
+            checksumFile = qtArchive.with_suffix(".sha256")
+            if qtArchive.exists() and qtArchive.stat().st_size > MAX_FILE:
+                raise RuntimeError("Qt source archive exceeds the file budget")
+            if not qtArchive.exists() or not checksumFile.exists() or checksumFile.read_text().strip() != hashlib.sha256(qtArchive.read_bytes()).hexdigest():
+                temporary = qtArchive.with_suffix(".tmp")
+                try:
+                    with temporary.open("wb") as output, gzip.GzipFile(filename="", mode="wb", fileobj=output, mtime=0) as compressed:
+                        with subprocess.Popen(["git", "archive", "--format=tar", qtCommit], cwd=qtSource, env=env, stdout=subprocess.PIPE) as process:
+                            shutil.copyfileobj(process.stdout, compressed)
+                            if process.wait():
+                                raise RuntimeError("Qt source archive failed")
+                    os.replace(temporary, qtArchive)
+                    checksumFile.write_text(hashlib.sha256(qtArchive.read_bytes()).hexdigest() + "\n")
+                finally:
+                    temporary.unlink(missing_ok=True)
         dist = root / "dist"
         if dist.is_symlink():
             raise RuntimeError("The dist directory must not be symbolic")
@@ -115,7 +121,12 @@ def main():
                     raise RuntimeError("Missing runtime license: " + relative)
                 noticeFiles.append(licenseFile)
                 runtimeNames[licenseFile] = component + "-LICENSE.txt"
-            for file, label in [(qtArchive, "Qt corresponding sources"), (appArchive, "Application sources and build tools")]:
+            archives = [(appArchive, "Application sources and build tools")]
+            if args.bundle_qt_source:
+                archives.insert(0, (qtArchive, "Qt corresponding sources"))
+            else:
+                links.append((qtSourceUrl, "Qt 6.12.0 corresponding sources — exact unmodified commit (official download)"))
+            for file, label in archives:
                 if file.stat().st_size > MAX_FILE:
                     raise RuntimeError("An archive exceeds the GitHub file limit")
                 digest = hashlib.sha256(file.read_bytes()).hexdigest()
@@ -137,7 +148,8 @@ def main():
             (candidate / "licenses.html").write_text("<!doctype html><html lang=ko><head><meta charset=utf-8><title>라이선스와 소스</title></head><body><h1>라이선스와 소스</h1><ul>" + "".join('<li><a href="' + html.escape(url, quote=True) + '">' + html.escape(label) + '</a></li>' for url, label in links) + "</ul><pre>" + html.escape((root / "NOTICE.md").read_text()) + "</pre><h2>Build and relink</h2><pre>" + html.escape(buildInfo) + "</pre></body></html>", encoding="utf-8")
             hashes = {str(file.relative_to(candidate)): hashlib.sha256(file.read_bytes()).hexdigest() for file in sorted(candidate.rglob("*")) if file.is_file()}
             manifest = {"schema": 1, "owner": "myPaint-web-bundle", "source": {"commit": commit, "dirty": dirty,
-                        "sourceFiles": before, "qtCommit": qtCommit}, "files": hashes}
+                        "sourceFiles": before, "qtCommit": qtCommit, "qtSourceUrl": qtSourceUrl,
+                        "qtSourceBundled": args.bundle_qt_source}, "files": hashes}
             (candidate / "bundle.json").write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\n", encoding="utf-8")
             destination = dist / "web"
             if destination.exists() or destination.is_symlink():
@@ -152,7 +164,7 @@ def main():
                 raise
             if previous.exists(): shutil.rmtree(previous)
             if not args.no_stage:
-                print(json.dumps(stageBundle(destination, args.homepage), indent=2))
+                print(json.dumps(stageBundle(destination, args.homepage, prune=args.prune), indent=2))
             print("Local web output ready. Commit and push separately in the homepage directory.")
         finally:
             if candidate.exists(): shutil.rmtree(candidate)

@@ -18,7 +18,10 @@ class QListWidget;
 class QScrollArea;
 class QMenu;
 class QPushButton;
+class QLineEdit;
+class QSpinBox;
 namespace paint {
+class ColorPicker;
 class MainWindow : public QMainWindow {
     Q_OBJECT
   public:
@@ -42,11 +45,15 @@ class MainWindow : public QMainWindow {
     QScrollArea *scroll;
     QDockWidget *layerDock;
     QListWidget *layerList;
-    QLabel *status;
+    QLabel *status, *documentTitle;
+    ColorPicker *colorPicker;
+    QLineEdit *hexColor;
+    QSpinBox *brushSize;
     QAction *undoAction, *redoAction, *deleteSelectionAction, *cropAction;
     QVector<QAction *> tools;
     QVector<QPushButton *> layerButtons;
     QString recoveryPath;
+    quint64 layerPreviewRevision = 0;
     quint64 recoveredRevision = 0;
     bool recoveryErrorShown = false;
     bool preserveRecovery = false;

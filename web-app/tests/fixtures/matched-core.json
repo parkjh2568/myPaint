@@ -1,0 +1,140 @@
+{
+    "schema": 1,
+    "scope": "Opaque canonical RGBA fixtures for matched native Qt/Node core API validation, not UI/physical/tail/speedup acceptance. Expected raw planes derived using independent Python integer arithmetic before the Node wire producer.",
+    "generator": "xorshift32 per pixel: xor<<13, xor>>>17, xor<<5 modulo2^32; R=low8 G=next8 B=next8 A=255; seed42+layer. White fixture is RGBA255.",
+    "fixtures": [
+        {
+            "id": "rgb-800x600-1",
+            "width": 800,
+            "height": 600,
+            "active": 0,
+            "background": [12, 34, 56, 255],
+            "kind": "rgb",
+            "layers": [
+                {
+                    "name": "레이어 1 🎨",
+                    "visible": true,
+                    "seed": 42,
+                    "sha256": "8d01d2a1dc6a564b7168a4effd0f623a7f582aed699789a8e03cfe5ec7323377",
+                    "prefix": [40, 69, 173, 255, 172, 52, 10, 255, 3, 175, 103, 255, 192, 195, 112, 255]
+                }
+            ],
+            "operations": ["project-decode", "project-encode", "deep-copy"]
+        },
+        {
+            "id": "white-800x600-1",
+            "width": 800,
+            "height": 600,
+            "active": 0,
+            "background": [255, 255, 255, 255],
+            "kind": "white",
+            "layers": [
+                {
+                    "name": "레이어 1 🎨",
+                    "visible": true,
+                    "seed": null,
+                    "sha256": "d883267b40e389a772f00ef4c50d49471138afed85da8f101de16ad6cf5a9d9f",
+                    "prefix": [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
+                }
+            ],
+            "operations": ["flood"],
+            "fill": {
+                "x": 0,
+                "y": 0,
+                "color": [255, 0, 0, 255],
+                "sha256": "602e51645552417a003493dd7b7a694fd4177a58f38e2235d77457c915c44cbc"
+            }
+        },
+        {
+            "id": "rgb-2048x2048-1",
+            "width": 2048,
+            "height": 2048,
+            "active": 0,
+            "background": [12, 34, 56, 255],
+            "kind": "rgb",
+            "layers": [
+                {
+                    "name": "레이어 1 🎨",
+                    "visible": true,
+                    "seed": 42,
+                    "sha256": "5772ef20e94d27bf105d3c141955ed90f7ca775a8297a5030390d0cdf6492e3e",
+                    "prefix": [40, 69, 173, 255, 172, 52, 10, 255, 3, 175, 103, 255, 192, 195, 112, 255]
+                }
+            ],
+            "operations": ["project-decode", "project-encode", "deep-copy"]
+        },
+        {
+            "id": "white-2048x2048-1",
+            "width": 2048,
+            "height": 2048,
+            "active": 0,
+            "background": [255, 255, 255, 255],
+            "kind": "white",
+            "layers": [
+                {
+                    "name": "레이어 1 🎨",
+                    "visible": true,
+                    "seed": null,
+                    "sha256": "dffab0dd410657cb30c7b2fd7f2586a4792e8472e58882b3532581f8111a646d",
+                    "prefix": [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
+                }
+            ],
+            "operations": ["flood"],
+            "fill": {
+                "x": 0,
+                "y": 0,
+                "color": [255, 0, 0, 255],
+                "sha256": "db7a4f2403e723ea139438244a59c5f03df2c510611a62309da78b16602b449b"
+            }
+        },
+        {
+            "id": "rgb-1536x2048-2",
+            "width": 1536,
+            "height": 2048,
+            "active": 1,
+            "background": [12, 34, 56, 255],
+            "kind": "rgb",
+            "layers": [
+                {
+                    "name": "레이어 1 🎨",
+                    "visible": true,
+                    "seed": 42,
+                    "sha256": "d48c1e6bf3d209fd00f28b454486b6cb9c37d5efffd28324c841ad502188edd2",
+                    "prefix": [40, 69, 173, 255, 172, 52, 10, 255, 3, 175, 103, 255, 192, 195, 112, 255]
+                },
+                {
+                    "name": "레이어 2 🎨",
+                    "visible": false,
+                    "seed": 43,
+                    "sha256": "6f304967de3ef9c1f9d16b4c0a843f7279d13a752ed73fd33c1a2933cf68f9f2",
+                    "prefix": [9, 101, 169, 255, 173, 50, 2, 255, 198, 7, 171, 255, 143, 90, 37, 255]
+                }
+            ],
+            "operations": ["project-decode", "project-encode", "deep-copy"]
+        },
+        {
+            "id": "white-1536x2048-1",
+            "width": 1536,
+            "height": 2048,
+            "active": 0,
+            "background": [255, 255, 255, 255],
+            "kind": "white",
+            "layers": [
+                {
+                    "name": "레이어 1 🎨",
+                    "visible": true,
+                    "seed": null,
+                    "sha256": "6747318cfda6f6bb9e77ee1c229d37b1799610bc1d41e5165cc40ccf2363a7c4",
+                    "prefix": [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
+                }
+            ],
+            "operations": ["flood"],
+            "fill": {
+                "x": 0,
+                "y": 0,
+                "color": [255, 0, 0, 255],
+                "sha256": "68fbf702720025d5914e351480071b0241b54aebed57fa0e67d5078135abd12a"
+            }
+        }
+    ]
+}

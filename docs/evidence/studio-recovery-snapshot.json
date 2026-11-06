@@ -1,0 +1,820 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "QF24 recovery input failure, source-epoch error ownership, and baseline clone/Worker/storage cost decomposition. Not overall migration/platform/release completion or a speedup claim.",
+  "platforms": {
+    "mobileTablet": "browser only",
+    "executables": [
+      "Windows",
+      "macOS"
+    ]
+  },
+  "source": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "809e911ded986d2ec0257d08faf523e14f7bff3a1545b00ac770bfed2efe8a70",
+    "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+    "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "changedRuntime": [
+    "web-app/src/main.ts",
+    "web-app/src/platform/storage.ts"
+  ],
+  "entry": "assets/index-BZZOX9cr.js",
+  "bundle": {
+    "payloadFiles": 9,
+    "payloadBytes": 288837,
+    "manifest": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/final-bundle/bundle.json",
+      "sha256": "65ffd18d713598719c467cad5eb55ced1bef1b3fdf1321590b958b434e129f25"
+    },
+    "sourceInputCount": 112
+  },
+  "rca": [
+    {
+      "id": "missing-recovery-write-false-success",
+      "severity": "Major (fault boundary)",
+      "cost": "S",
+      "trigger": "Injected otherwise valid-profile Worker reply lacks bytes or returns null; not proven to occur in a normal Worker.",
+      "path": "runCodec permits absent output -> autoRecover bytes non-null assertion erased -> web Store skips truthy-bytes write branch -> empty readwrite transaction resolves -> recoveredRevision advances -> same revision retry skipped.",
+      "before": "Public missing/null retry assertions failed; prior backup bytes preserved but newer backup absent. Empty/error controls passed.",
+      "fix": "Common typed Uint8Array/nonempty/profile-limit guard before backend selection, sequence increment or I/O. Native/web duplicate byte checks removed; key/generation/quota/atomic checks preserved."
+    },
+    {
+      "id": "old-document-recovery-status",
+      "severity": "Minor",
+      "cost": "S",
+      "trigger": "Recovery A waits for injected delayed Worker error while UI replaces A with B.",
+      "before": "B status overwritten by A failure; no source/backup corruption observed.",
+      "fix": "Report recovery failure only when source epoch still owns UI. Same-document failure remains visible. finally resets busy so B can recover."
+    }
+  ],
+  "implementation": {
+    "newHelpersOrRuntimeModules": 0,
+    "newFields": 0,
+    "dependenciesChanged": false,
+    "engineFormatCodecRustChanged": false,
+    "mainChangedMembers": [
+      "MethodDeclaration:autoRecover"
+    ],
+    "storageChangedMembers": [
+      "MethodDeclaration:request"
+    ],
+    "cloneDecision": "Keep one dedicated candidate snapshot and buffer transfer; no speculative yielding/COW/cache/worker-reuse change. Node-only timings and limited UI n3 do not prove the broader target-device budget.",
+    "normalPath": "Committed document revision only; pending text/selection remains pending. Active-layer-only UI choice does not create a document revision."
+  },
+  "validation": {
+    "faultBefore": {
+      "passed": 2,
+      "failed": 3,
+      "scope": "Public normal-web editing, actual production timer callback/Worker/IndexedDB and project readback. Test-only fault injection replaces selected Worker reply once; not a naturally observed normal-Worker fault or OS/native/device claim."
+    },
+    "faultFinal": {
+      "passed": 5,
+      "failed": 0,
+      "scope": "Public normal-web editing, actual production timer callback/Worker/IndexedDB and project readback. Test-only fault injection replaces selected Worker reply once; not a naturally observed normal-Worker fault or OS/native/device claim.",
+      "driverSha256": "3f30bf2827e2d80aa8ebeae19c5092db95858ec1920c850d3c0ae7c8ddaf1fa0",
+      "strengthened": "Failure status prefix; prior backup and same-revision retry; source/metadata/Redo; B before/after full decoded state and subsequent B recovery with old A backup retained."
+    },
+    "unit": 234,
+    "independentStoreBoundary": {
+      "checks": 48,
+      "scope": "Independent Node browser/native stubs, not actual platform I/O."
+    },
+    "storage": 13,
+    "nativePersistenceModel": 15,
+    "web": {
+      "basic": 13,
+      "concurrency": 3,
+      "editing": 13,
+      "storage": 13,
+      "shear": 6,
+      "total": 48
+    },
+    "actualNative": {
+      "runs": 4,
+      "ok": true,
+      "binarySha256": "da72855f76b672a5a7438ddcb51230cd35513c128f591b1eb7889516d11cddef",
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform."
+    },
+    "formatTypeBuild": "Final formatter, tsc/Vite, native build and immutable Studio build passed; remote CI not run."
+  },
+  "performance": {
+    "scope": "Actual Chromium public UI/Canvas and real project-write Worker. Test-only captured production30s interval is explicitly invoked; normal web uses real IndexedDB, desktop uses existing in-memory native IPC harness, not OS filesystem/native runtime. Each profile has3 sequential dirty revisions in one fresh context; n3 is not p95 or a device guarantee.",
+    "baselineSourceMain": "3eaaed5294bdfea0e8df04a705728852bec8994659a8fc9b65150167f01c95d6",
+    "profiles": [
+      {
+        "profile": "web",
+        "snapshotBytes": 4194304,
+        "samples": [
+          {
+            "sample": 0,
+            "wholeTickMs": 53.799999952316284,
+            "snapshotSlicesMs": 0.2999999523162842,
+            "snapshotBytes": 4194304,
+            "snapshotBufferIds": [
+              1
+            ],
+            "workerInputBufferIds": [
+              1
+            ],
+            "workerPostMs": 0.0,
+            "transferByteLengthsAfter": [
+              0
+            ],
+            "workerConstructionMs": 0.10000002384185791,
+            "workerPostReturnToResultMs": 50.700000047683716,
+            "encodedBytes": 6682,
+            "blobConstructionMs": [
+              0.10000002384185791
+            ],
+            "idbTransactionMs": [
+              1.6999999284744263
+            ],
+            "idbPutSyncMs": [
+              0.10000002384185791,
+              0.0
+            ],
+            "nativeModelMs": [],
+            "rafGapMaxMs": 16.800000000000182,
+            "timer10msGapMaxMs": 11,
+            "longTasksInInterval": []
+          },
+          {
+            "sample": 1,
+            "wholeTickMs": 55,
+            "snapshotSlicesMs": 0.3999999761581421,
+            "snapshotBytes": 4194304,
+            "snapshotBufferIds": [
+              2
+            ],
+            "workerInputBufferIds": [
+              2
+            ],
+            "workerPostMs": 0.0,
+            "transferByteLengthsAfter": [
+              0
+            ],
+            "workerConstructionMs": 0.0,
+            "workerPostReturnToResultMs": 51.10000002384186,
+            "encodedBytes": 6690,
+            "blobConstructionMs": [
+              0.3999999761581421
+            ],
+            "idbTransactionMs": [
+              2.5
+            ],
+            "idbPutSyncMs": [
+              0.10000002384185791,
+              0.0
+            ],
+            "nativeModelMs": [],
+            "rafGapMaxMs": 16.699999999999818,
+            "timer10msGapMaxMs": 11.200000047683716,
+            "longTasksInInterval": []
+          },
+          {
+            "sample": 2,
+            "wholeTickMs": 51.5,
+            "snapshotSlicesMs": 0.3999999761581421,
+            "snapshotBytes": 4194304,
+            "snapshotBufferIds": [
+              3
+            ],
+            "workerInputBufferIds": [
+              3
+            ],
+            "workerPostMs": 0.10000002384185791,
+            "transferByteLengthsAfter": [
+              0
+            ],
+            "workerConstructionMs": 0.09999990463256836,
+            "workerPostReturnToResultMs": 49.200000047683716,
+            "encodedBytes": 6690,
+            "blobConstructionMs": [
+              0.19999992847442627
+            ],
+            "idbTransactionMs": [
+              1.3000000715255737
+            ],
+            "idbPutSyncMs": [
+              0,
+              0
+            ],
+            "nativeModelMs": [],
+            "rafGapMaxMs": 16.800000000000182,
+            "timer10msGapMaxMs": 10.299999952316284,
+            "longTasksInInterval": []
+          }
+        ],
+        "perSampleChecks": "PASS: bytewise whole source state, recovery decode, names/visibility/active/background/alpha, old Redo then Undo, unchanged fixture file, same-revision zero slice/Worker/storage",
+        "publicUiReopen": "PASS"
+      },
+      {
+        "profile": "desktop",
+        "snapshotBytes": 134217728,
+        "samples": [
+          {
+            "sample": 0,
+            "wholeTickMs": 1193.0999999046326,
+            "snapshotSlicesMs": 14.700000047683716,
+            "snapshotBytes": 134217728,
+            "snapshotBufferIds": [
+              1,
+              2
+            ],
+            "workerInputBufferIds": [
+              1,
+              2
+            ],
+            "workerPostMs": 0.10000002384185791,
+            "transferByteLengthsAfter": [
+              0,
+              0
+            ],
+            "workerConstructionMs": 0.20000004768371582,
+            "workerPostReturnToResultMs": 1175.3000000715256,
+            "encodedBytes": 152897,
+            "blobConstructionMs": [],
+            "idbTransactionMs": [],
+            "idbPutSyncMs": [],
+            "nativeModelMs": [
+              1.899999976158142
+            ],
+            "rafGapMaxMs": 16.80000000000109,
+            "timer10msGapMaxMs": 15.799999952316284,
+            "longTasksInInterval": []
+          },
+          {
+            "sample": 1,
+            "wholeTickMs": 1092.3999999761581,
+            "snapshotSlicesMs": 13.400000095367432,
+            "snapshotBytes": 134217728,
+            "snapshotBufferIds": [
+              4,
+              5
+            ],
+            "workerInputBufferIds": [
+              4,
+              5
+            ],
+            "workerPostMs": 0.0,
+            "transferByteLengthsAfter": [
+              0,
+              0
+            ],
+            "workerConstructionMs": 0.20000004768371582,
+            "workerPostReturnToResultMs": 1078.2999999523163,
+            "encodedBytes": 152903,
+            "blobConstructionMs": [],
+            "idbTransactionMs": [],
+            "idbPutSyncMs": [],
+            "nativeModelMs": [
+              0.19999992847442627
+            ],
+            "rafGapMaxMs": 16.80000000000291,
+            "timer10msGapMaxMs": 13.899999976158142,
+            "longTasksInInterval": []
+          },
+          {
+            "sample": 2,
+            "wholeTickMs": 1060.1000000238419,
+            "snapshotSlicesMs": 24.699999928474426,
+            "snapshotBytes": 134217728,
+            "snapshotBufferIds": [
+              7,
+              8
+            ],
+            "workerInputBufferIds": [
+              7,
+              8
+            ],
+            "workerPostMs": 0.10000002384185791,
+            "transferByteLengthsAfter": [
+              0,
+              0
+            ],
+            "workerConstructionMs": 0.10000002384185791,
+            "workerPostReturnToResultMs": 1034.3999999761581,
+            "encodedBytes": 152903,
+            "blobConstructionMs": [],
+            "idbTransactionMs": [],
+            "idbPutSyncMs": [],
+            "nativeModelMs": [
+              0.20000004768371582
+            ],
+            "rafGapMaxMs": 16.80000000000291,
+            "timer10msGapMaxMs": 25.5,
+            "longTasksInInterval": []
+          }
+        ],
+        "perSampleChecks": "PASS: bytewise whole source state, recovery decode, names/visibility/active/background/alpha, old Redo then Undo, unchanged fixture file, same-revision zero slice/Worker/storage",
+        "publicUiReopen": "PASS separate fresh-context desktop v4 n1 diagnostic: public recovery select + bridge generation3 + canvas ready + public project-save decoded full bytewise state"
+      }
+    ],
+    "limitations": [
+      "Captured actual production 30s callback invoked explicitly; natural timer/background behavior not measured.",
+      "Chromium default Playwright args, headless desktop hardware; not actual mobile device.",
+      "Worker elapsed includes startup, scheduling and encode; not pure codec CPU.",
+      "IDB transaction complete is not physical durable flush.",
+      "Native recovery_write is in-memory harness, with compressed-byte slice/SHA; no OS/IPC serialization/fs latency.",
+      "Observed typed-array slice bytes are not all allocations or RSS.",
+      "n3 in one context cannot support p95 claims."
+    ],
+    "publicReopen": {
+      "file": "results-v4-desktop-reopen.json",
+      "ok": true,
+      "samples": 1,
+      "sameBaselineSourcesAndBundle": true,
+      "errors": [],
+      "failures": [],
+      "reason": "v2/v3 desktop success-status wait was invalid: async render overwrote recovery success with 화면을 갱신했습니다.; v3 showed recovery_read, project-read and activate_document generation3. v4 verifies complete public saved state instead. v2 timing n3 preserved separately."
+    },
+    "nodeCloneOnly": {
+      "scope": "Real cloneState and profile validation in Node; synchronous call return and typed-array slice output only. Setup, hashing and explicit GC outside timing. Not UI/Worker/IDB/native/RSS/frame benchmark.",
+      "sourceSha256": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+      "cases": [
+        {
+          "profile": "web",
+          "width": 1024,
+          "height": 1024,
+          "layers": 1,
+          "pixelBytes": 4194304,
+          "samples": [
+            {
+              "elapsedMs": 0.5976670000000013,
+              "sliceMs": [
+                0.5524589999999989
+              ],
+              "bytes": 4194304,
+              "calls": 1,
+              "rawSourceAndCloneExact": true
+            },
+            {
+              "elapsedMs": 0.16629199999999855,
+              "sliceMs": [
+                0.1541249999999934
+              ],
+              "bytes": 4194304,
+              "calls": 1,
+              "rawSourceAndCloneExact": true
+            },
+            {
+              "elapsedMs": 0.1804170000000056,
+              "sliceMs": [
+                0.16670799999999986
+              ],
+              "bytes": 4194304,
+              "calls": 1,
+              "rawSourceAndCloneExact": true
+            }
+          ],
+          "medianMs": 0.1804170000000056
+        },
+        {
+          "profile": "web",
+          "width": 2048,
+          "height": 1536,
+          "layers": 2,
+          "pixelBytes": 25165824,
+          "samples": [
+            {
+              "elapsedMs": 2.6504159999999786,
+              "sliceMs": [
+                1.2986250000000155,
+                1.3358749999999873
+              ],
+              "bytes": 25165824,
+              "calls": 2,
+              "rawSourceAndCloneExact": true
+            },
+            {
+              "elapsedMs": 0.8887909999999977,
+              "sliceMs": [
+                0.45691700000000424,
+                0.4179579999999987
+              ],
+              "bytes": 25165824,
+              "calls": 2,
+              "rawSourceAndCloneExact": true
+            },
+            {
+              "elapsedMs": 0.8386659999999893,
+              "sliceMs": [
+                0.40712500000000773,
+                0.4146250000000009
+              ],
+              "bytes": 25165824,
+              "calls": 2,
+              "rawSourceAndCloneExact": true
+            }
+          ],
+          "medianMs": 0.8887909999999977
+        },
+        {
+          "profile": "desktop",
+          "width": 4096,
+          "height": 4096,
+          "layers": 2,
+          "pixelBytes": 134217728,
+          "samples": [
+            {
+              "elapsedMs": 14.608916999999963,
+              "sliceMs": [
+                7.02029200000004,
+                7.53779099999997
+              ],
+              "bytes": 134217728,
+              "calls": 2,
+              "rawSourceAndCloneExact": true
+            },
+            {
+              "elapsedMs": 4.926041999999995,
+              "sliceMs": [
+                2.3176669999999717,
+                2.585208000000023
+              ],
+              "bytes": 134217728,
+              "calls": 2,
+              "rawSourceAndCloneExact": true
+            },
+            {
+              "elapsedMs": 5.1967500000000655,
+              "sliceMs": [
+                2.769957999999974,
+                2.389124999999922
+              ],
+              "bytes": 134217728,
+              "calls": 2,
+              "rawSourceAndCloneExact": true
+            }
+          ],
+          "medianMs": 5.1967500000000655
+        },
+        {
+          "profile": "desktop",
+          "width": 4096,
+          "height": 4096,
+          "layers": 4,
+          "pixelBytes": 268435456,
+          "samples": [
+            {
+              "elapsedMs": 9.488665999999967,
+              "sliceMs": [
+                2.2076250000000073,
+                2.332249999999931,
+                2.805749999999989,
+                2.119000000000028
+              ],
+              "bytes": 268435456,
+              "calls": 4,
+              "rawSourceAndCloneExact": true
+            },
+            {
+              "elapsedMs": 9.589749999999867,
+              "sliceMs": [
+                2.1769580000000133,
+                2.4665840000000117,
+                2.6815829999998186,
+                2.248792000000094
+              ],
+              "bytes": 268435456,
+              "calls": 4,
+              "rawSourceAndCloneExact": true
+            },
+            {
+              "elapsedMs": 9.264499999999998,
+              "sliceMs": [
+                2.1122080000000096,
+                2.352957999999944,
+                2.6613330000000133,
+                2.122165999999879
+              ],
+              "bytes": 268435456,
+              "calls": 4,
+              "rawSourceAndCloneExact": true
+            }
+          ],
+          "medianMs": 9.488665999999967
+        }
+      ],
+      "ok": true
+    },
+    "decision": "Dominant observed wall interval is Worker post-to-result, including startup/scheduling/encoding. No codec CPU, RSS, physical I/O or p95 conclusion; no performance implementation/speedup claimed."
+  },
+  "evidenceCorrections": [
+    "First root fault driver used nonexistent #status; preserve bootstrap failures, correct to real .status, then public baseline reproduces3 failures.",
+    "SRE bootstrap ESM module boundary fixed; first Blob subclass observer violated native instanceof after IDB read. Proxy control preserves original prototype; original runs retained separately.",
+    "Desktop public recovery success text was overwritten by normal async render. Separate n1 verifies generation/ready canvas and decoded public project, not transient text; n3 timings remain in original v2."
+  ],
+  "review": {
+    "roles": [
+      "Architect",
+      "Implementation Engineer",
+      "Reviewer",
+      "SRE/Optimizer"
+    ],
+    "scopedRequiredFindings": {
+      "Blocker": 0,
+      "Major": 0,
+      "Minor": 0
+    }
+  },
+  "remaining": [
+    "runCodec response-output contracts across export/read/geometry consumers require separate fault coverage; storage owner guard is scoped recovery protection.",
+    "Worker CPU versus startup and varied image entropy, actual WK/native serialization/fs, max web/desktop workload, long-run RSS/input tails and target-device budgets.",
+    "Physical Android web/IME/rotation; Windows and OS file/pen/touch/accessibility acceptance.",
+    "Existing migration predecessors, public CI, signing/notarization, recovery handoff and approved Pages release."
+  ],
+  "overallAudit": {
+    "proved": 6,
+    "partial": 26,
+    "missing": 2,
+    "dependencyClosure": [
+      "QF-01"
+    ],
+    "goalComplete": false
+  },
+  "graph": {
+    "path": "docs/evidence/studio-recovery-snapshot-module-graph.json",
+    "sha256": "6d26c5089f32e122a404ecd91820f0dc8754a1243955328ff29ffbc7081f087b"
+  },
+  "references": {
+    "accepted-assets.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/accepted-assets.json",
+      "sha256": "901f422c89fb0bb91470c4e2b078b216f0ff699386b0f4becbd98bd7909b7412"
+    },
+    "accepted-source.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/accepted-source.json",
+      "sha256": "2f05d3fe303d3924ad180e674ba6f848ccb48308e428d1f054704c22cfc7dd4d"
+    },
+    "ast-delta.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/ast-delta.json",
+      "sha256": "b9fffff555a906b2f4ec44a0ad24fa4371dd489b815f5c172d0454502121b22c"
+    },
+    "ast-delta.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/ast-delta.log",
+      "sha256": "f06e7b970255d8bd814bc8da8ece4e42d7f3ad35ae882cb97bc83b3f00cb2c86"
+    },
+    "before-bundle/bundle.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/before-bundle/bundle.json",
+      "sha256": "9435daf7315ba1fede4940aa64ee48f82978424aebac3423b6fa3ac64d51ad6a"
+    },
+    "before-source.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/before-source.json",
+      "sha256": "45f4d2ef823d472463f4e1f8b1199ffd83da50b8ccd09de870bd3b77df024d0a"
+    },
+    "browser/concurrency.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/browser/concurrency.json",
+      "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+    },
+    "browser/results.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/browser/results.json",
+      "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+    },
+    "browser.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/browser.log",
+      "sha256": "f5c910fb054ccb8f784f9d9c9a1951f9d1e9230c8dffbb961ae41d794c1660e3"
+    },
+    "candidate-build.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/candidate-build.log",
+      "sha256": "328e5af9cf15787f25ef871c497411a8480947b73db7bf0b5687ed83ea1868d3"
+    },
+    "candidate-source.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/candidate-source.json",
+      "sha256": "2f05d3fe303d3924ad180e674ba6f848ccb48308e428d1f054704c22cfc7dd4d"
+    },
+    "clone-before.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/clone-before.json",
+      "sha256": "9d9bc1bfd7479209ad1c9d6b2c386227e51f8943770f6ae1964ce2c679617f7c"
+    },
+    "clone-before.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/clone-before.log",
+      "sha256": "ea30697697888398864c104bb67bd7f930ce05dac89d26808a811071b052287d"
+    },
+    "editing.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/editing.json",
+      "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+    },
+    "fault-after.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/fault-after.json",
+      "sha256": "6d3b8fab0873f268afabee0201791a2db4cc9bdcbbc7efb471a5b089a79e05b2"
+    },
+    "fault-after.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/fault-after.log",
+      "sha256": "57250cb9e88ca1812a0a4afec3efa301db02c908e118e3d1d453937b563e9303"
+    },
+    "fault-before.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/fault-before.json",
+      "sha256": "0d01ef6917036ab69d2a9a7a9c20870d65379b9ef39670c407437a07ea8c3000"
+    },
+    "fault-before.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/fault-before.log",
+      "sha256": "075c2d50eb2059580e316119908f392a180d165a3e0943ab9204b520018b52c7"
+    },
+    "fault-bootstrap.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/fault-bootstrap.json",
+      "sha256": "190a802131feb1a4c405ed648aebf84478a997b68a58bfc0ada943a96a154095"
+    },
+    "fault-bootstrap.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/fault-bootstrap.log",
+      "sha256": "c81bca689793601979bf733eabbd45dac257f2ada6be6d2494d21dae68f43842"
+    },
+    "final-bundle/bundle.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/final-bundle/bundle.json",
+      "sha256": "65ffd18d713598719c467cad5eb55ced1bef1b3fdf1321590b958b434e129f25"
+    },
+    "format.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "http-before.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/http-before.log",
+      "sha256": "f6a3962a1469f55369f26ccddbe91e3eb6dc3fabbf87b4c48b71a22abd63ea7d"
+    },
+    "http-candidate.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/http-candidate.log",
+      "sha256": "45ad278fb031f8cf63560023dd609c89377616faff0aad98f883c9a3a43ad1a9"
+    },
+    "native-build.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/native-build.log",
+      "sha256": "11ed96e72011d5f8f99791bf578678383befc5d8a63577e25f9d3550f2683824"
+    },
+    "native-desktop.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/native-desktop.json",
+      "sha256": "aa593bbe18a789c095ecb268782fa8cfd832e682020f32f37613c872452d72e8"
+    },
+    "native-desktop.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/native-desktop.log",
+      "sha256": "a949c45040a4fd339360797aea7a74c5ba52fe78b0610d12d3d339a83f348b23"
+    },
+    "native-model/results.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/native-model/results.json",
+      "sha256": "0d9259daa96cfdac4a2e087df04c8e065968b07900e7f224bd0e4c5be7a9d00c"
+    },
+    "native-model.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/native-model.log",
+      "sha256": "735c7f142ae766c94754d11ed5051f6c5fc45f3211c2b7b43c0e3f23080df01a"
+    },
+    "reviews/architect/design-review.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/architect/design-review.json",
+      "sha256": "12a32d91622fecc2046319a17fe75d0e1989c4b17346e253a98b9bd3b3e0d34a"
+    },
+    "reviews/reviewer/review.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/reviewer/review.json",
+      "sha256": "0b5bbf50c271f4c6f552767448535280c269dbc29ef0df799ea3ec66ccfcdbfc"
+    },
+    "reviews/reviewer/storage-boundary-results.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/reviewer/storage-boundary-results.json",
+      "sha256": "eaeaca72c23037ac05fcf2475f6f0434bd7ab60cbadf17da33a4e030a7099461"
+    },
+    "reviews/sre/assets.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/assets.json",
+      "sha256": "e6d71466f83d39cb1785ab99a8c5d83d81acafa09d0264e29621ada6271b2715"
+    },
+    "reviews/sre/blob-capability-v2.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/blob-capability-v2.json",
+      "sha256": "44b17bd7ea213c7a5c1951fb2b4135ee0ad81e8eb54fe1c7f7bdb02230f1f499"
+    },
+    "reviews/sre/blob-capability.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/blob-capability.json",
+      "sha256": "f0eafd5f968d1b8eb570538bea504a562df490ccb252222b95039a0f385ea0bc"
+    },
+    "reviews/sre/package.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/package.json",
+      "sha256": "1239d4d885dcad42201a27ed9324f8f0f760b78700d8db9ced39a511cffe7eae"
+    },
+    "reviews/sre/protocol-v2.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/protocol-v2.json",
+      "sha256": "9929c1a2446f7435c3b46500f3f22b7fd453f3e9c6751407e9a23782e5caa820"
+    },
+    "reviews/sre/protocol-v3-desktop-diagnostic.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/protocol-v3-desktop-diagnostic.json",
+      "sha256": "3d9563d2bfb3ad91a3390fb5fbb90ef79fec126bcbdd5e2fbf51ed6ef5789e84"
+    },
+    "reviews/sre/protocol-v4-desktop-reopen.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/protocol-v4-desktop-reopen.json",
+      "sha256": "3d9563d2bfb3ad91a3390fb5fbb90ef79fec126bcbdd5e2fbf51ed6ef5789e84"
+    },
+    "reviews/sre/protocol.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/protocol.json",
+      "sha256": "9929c1a2446f7435c3b46500f3f22b7fd453f3e9c6751407e9a23782e5caa820"
+    },
+    "reviews/sre/results-v2.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/results-v2.json",
+      "sha256": "b3c759f19992abda84f2bda21bb83073dbd1d756bcaee1a2dc0ffdeed8f860d4"
+    },
+    "reviews/sre/results-v3-desktop-diagnostic.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/results-v3-desktop-diagnostic.json",
+      "sha256": "c0810af8cc31cb3dc9b037baf6a76e8b2eed9c9937d62648ded274222b52786b"
+    },
+    "reviews/sre/results-v4-desktop-reopen.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/results-v4-desktop-reopen.json",
+      "sha256": "7bb86986e856fd518603a3f0d05e6ccba0335c54d5df336d64c511b3b637c3c1"
+    },
+    "reviews/sre/results.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/results.json",
+      "sha256": "07845197435600fc0ec78eaa83ce13a91e01b24c4358accaea5d46384108d315"
+    },
+    "reviews/sre/run-after-esm.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/run-after-esm.log",
+      "sha256": "2a990f2f0d42611c920e7a8671502e16d9dc9137032f327079679ba2d8154dc5"
+    },
+    "reviews/sre/run-v2.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/run-v2.log",
+      "sha256": "b6094a3adbc07441863f4c9bd8f0e1f25bde636086c7e1e687119cb9a762884a"
+    },
+    "reviews/sre/run-v3-desktop-diagnostic.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/run-v3-desktop-diagnostic.log",
+      "sha256": "a71bc597ac8997e7c4d700faf4d069236fe9cc3d3f20442cf3420a0dcdc04eb6"
+    },
+    "reviews/sre/run-v4-desktop-reopen.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/run-v4-desktop-reopen.log",
+      "sha256": "dc15c672b42be613f90a4453b1643806dda9de8d4f2f01ce1227895947cda9e5"
+    },
+    "reviews/sre/run.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/run.log",
+      "sha256": "c13be7a4140cb2ad3c1a0224fdb608644d67ab86a9cc6b2469d8b000c0feb465"
+    },
+    "reviews/sre/source/package.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/source/package.json",
+      "sha256": "6dc1b06d6b093e9cccb20bee06a93836eee0420ae26803ca2ce4065d82f070d1"
+    },
+    "reviews/sre/source17.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/source17.json",
+      "sha256": "45f4d2ef823d472463f4e1f8b1199ffd83da50b8ccd09de870bd3b77df024d0a"
+    },
+    "reviews/sre/startup-esm-failure.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/startup-esm-failure.log",
+      "sha256": "c13be7a4140cb2ad3c1a0224fdb608644d67ab86a9cc6b2469d8b000c0feb465"
+    },
+    "reviews/sre/summary-final.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/summary-final.json",
+      "sha256": "c620b66056daf58f068f0439c368b4ec3590138ef7bc7da41006afcd810a2d2e"
+    },
+    "reviews/sre/summary-v2.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/reviews/sre/summary-v2.json",
+      "sha256": "61ed00076f7a79fc3bcdd4508e4b4571368d8eb98effa803095fc00136d512de"
+    },
+    "scope.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/scope.json",
+      "sha256": "b24ece0261688f45aa31750c36395545e36812f0be7cee14a45e7242f2edea62"
+    },
+    "shear/results.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/shear/results.json",
+      "sha256": "ca7f74623e174cd2fa0ff50470aca389548e472b38da70bac9cc695652838a65"
+    },
+    "source-graph.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/source-graph.json",
+      "sha256": "2b1a32c6466e19ab6ad97261ca67864944e035a194e0ff692186ee7409939714"
+    },
+    "source-graph.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/source-graph.log",
+      "sha256": "18748567567df284d506aebf25d6a89b255d3e1442ab1917662ec29cfd59da8b"
+    },
+    "static-graph.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/static-graph.json",
+      "sha256": "7b884835465473b5cd454126bb210852ef0d12f692cd75e4bc67b72aaa5ff0d5"
+    },
+    "static-graph.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/static-graph.log",
+      "sha256": "2b704943e009d4122f8b7fbfc6ed4bdef3fd739371007588539eb5d3fe5d4f15"
+    },
+    "storage/results.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/storage/results.json",
+      "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+    },
+    "storage-ast-delta.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/storage-ast-delta.json",
+      "sha256": "e826d6abad15ba67117663ce233c279bfceddc20cdbc886cd3cbb47134131acc"
+    },
+    "storage-regression/results.json": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/storage-regression/results.json",
+      "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+    },
+    "storage.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/storage.log",
+      "sha256": "3b217ed9b161388510bcad74d8479e7e5b267b71b24b5c0f0e7270915cdbdf39"
+    },
+    "studio-build.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/studio-build.log",
+      "sha256": "3c95951bc7f6483456c00c0656c48563f312280e3f3199c436ecbcb237031c0d"
+    },
+    "unit.log": {
+      "path": "build-web-work/task-planning/recovery-snapshot-contract/unit.log",
+      "sha256": "8fd4bac1626d80f38b1d82baf1cd449be68d5c40e6a279916666161185e48194"
+    }
+  }
+}

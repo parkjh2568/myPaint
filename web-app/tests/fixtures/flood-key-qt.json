@@ -1,0 +1,100 @@
+{
+    "scope": "Six literal membership/changed/NoOp cases. Raw input RGBA is recorded before QImage premultiplication; Qt stored RGB is not a TS storage requirement.",
+    "cases": [
+        {
+            "name": "alpha1-equivalent-membership-blocks-non-equivalent",
+            "palette": {
+                "A": [240, 20, 80, 1],
+                "B": [250, 10, 100, 1],
+                "C": [100, 10, 100, 1]
+            },
+            "rows": ["ABCCB", "CBAAC", "CCABC"],
+            "replacement": [0, 0, 255, 255],
+            "memberMask": ["##...", ".###.", "..##."],
+            "changedMask": ["##...", ".###.", "..##."],
+            "changed": true,
+            "width": 5,
+            "height": 3,
+            "start": [0, 0]
+        },
+        {
+            "name": "alpha1-different-raw-replacement-premul-noop",
+            "palette": {
+                "A": [240, 20, 80, 1],
+                "B": [250, 10, 100, 1],
+                "C": [100, 10, 100, 1]
+            },
+            "rows": ["ABCCB", "CBAAC", "CCABC"],
+            "replacement": [250, 10, 100, 1],
+            "memberMask": ["##...", ".###.", "..##."],
+            "changedMask": [".....", ".....", "....."],
+            "changed": false,
+            "width": 5,
+            "height": 3,
+            "start": [0, 0]
+        },
+        {
+            "name": "alpha0-hidden-rgb-connected-membership",
+            "palette": {
+                "T": [23, 89, 210, 0],
+                "U": [230, 12, 59, 0],
+                "K": [9, 12, 21, 255]
+            },
+            "rows": ["TUKTU", "KUTKK", "KKTTU"],
+            "replacement": [0, 255, 0, 255],
+            "memberMask": ["##...", ".##..", "..###"],
+            "changedMask": ["##...", ".##..", "..###"],
+            "changed": true,
+            "width": 5,
+            "height": 3,
+            "start": [0, 0]
+        },
+        {
+            "name": "alpha0-different-hidden-rgb-replacement-noop",
+            "palette": {
+                "T": [23, 89, 210, 0],
+                "U": [230, 12, 59, 0],
+                "K": [9, 12, 21, 255]
+            },
+            "rows": ["TUKTU", "KUTKK", "KKTTU"],
+            "replacement": [230, 12, 59, 0],
+            "memberMask": ["##...", ".##..", "..###"],
+            "changedMask": [".....", ".....", "....."],
+            "changed": false,
+            "width": 5,
+            "height": 3,
+            "start": [0, 0]
+        },
+        {
+            "name": "opaque-connected-control-disconnected-island",
+            "palette": {
+                "X": [255, 0, 0, 255],
+                "W": [0, 0, 0, 255]
+            },
+            "rows": ["XXWXX", "WXWWW", "WXXXW"],
+            "replacement": [4, 80, 160, 255],
+            "memberMask": ["##...", ".#...", ".###."],
+            "changedMask": ["##...", ".#...", ".###."],
+            "changed": true,
+            "width": 5,
+            "height": 3,
+            "start": [0, 0]
+        },
+        {
+            "name": "alpha128-different-raw-replacement-premul-noop",
+            "palette": {
+                "A": [1, 2, 3, 128],
+                "B": [2, 1, 4, 128],
+                "C": [3, 2, 3, 128]
+            },
+            "rows": ["ABCCB", "CBAAC", "CCABC"],
+            "replacement": [2, 1, 4, 128],
+            "memberMask": ["##...", ".###.", "..##."],
+            "changedMask": [".....", ".....", "....."],
+            "changed": false,
+            "width": 5,
+            "height": 3,
+            "start": [0, 0]
+        }
+    ]
+}

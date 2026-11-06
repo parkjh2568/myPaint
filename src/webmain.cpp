@@ -39,20 +39,12 @@ int main(int argc, char **argv) {
     try {
         application = std::make_unique<WebApplication>(argc, argv);
         application->setApplicationName(QStringLiteral("RetroPaint"));
-        application->setStyle(QStyleFactory::create(QStringLiteral("Windows")));
+        application->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
         const int font = QFontDatabase::addApplicationFont(QStringLiteral(":/NanumGothic.ttf"));
         if (font < 0)
             throw std::runtime_error("한글 글꼴을 읽을 수 없습니다.");
         application->setFont(QFont(QFontDatabase::applicationFontFamilies(font).first(), 11));
-        QPalette palette;
-        palette.setColor(QPalette::Window, QColor(192, 192, 192));
-        palette.setColor(QPalette::Button, QColor(192, 192, 192));
-        palette.setColor(QPalette::Base, Qt::white);
-        palette.setColor(QPalette::WindowText, Qt::black);
-        palette.setColor(QPalette::Text, Qt::black);
-        palette.setColor(QPalette::Highlight, QColor(0, 0, 128));
-        palette.setColor(QPalette::HighlightedText, Qt::white);
-        application->setPalette(palette);
+
         window = std::make_unique<paint::MainWindow>();
         application->window = window.get();
         window->show();

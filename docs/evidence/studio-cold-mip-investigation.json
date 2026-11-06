@@ -1,0 +1,638 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "decision": "Investigation complete for these candidates; all rejected for promotion. Production implementation unchanged. Overall goal remains active.",
+  "scope": "Cold minified selection preview only. No runtime changes, commit, push or deployment. Mobile/tablet browsers; Windows/macOS packages.",
+  "source": {
+    "before17": {
+      "path": "build-web-work/task-planning/cold-mip/before-source.json",
+      "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/cold-mip/before-assets.json",
+      "sha256": "d54cc881361fb7392cd7829b534a4f5a4c818715329170dc405acf646ab712e0"
+    },
+    "same17And8AtReportCreation": true,
+    "moduleGraphUnchanged": {
+      "path": "docs/evidence/studio-module-graph.json",
+      "sha256": "c418e86e73eb46f0b6516c2fe496f9a920db6f6f16aaa315744eb5ce252cfd0d"
+    }
+  },
+  "diagnostic": {
+    "result": {
+      "path": "build-web-work/task-planning/cold-mip/archive/profile/profile-summary.json",
+      "sha256": "ac88d5189e18027a57e6d071ace20342f2607e1dba71c30f8df81b6b0e83c287"
+    },
+    "sampleCount": 1072,
+    "profileWindowMs": 744.739,
+    "requestedIntervalUs": 500,
+    "actualMedianIntervalUs": 756,
+    "walkTilesSelfEstimatedMs": 527.385,
+    "walkTilesInclusiveEstimatedMs": 577.382,
+    "cutTransformSelfEstimatedMs": 33.721,
+    "nearestSelfEstimatedMs": 50.533,
+    "interpretation": "Sample-weighted function ranking, not exact CPU accounting or uniform-vs-generic branch attribution. Inclusive values overlap and must not be summed. Diagnostic ready709.8ms is not primary unprofiled performance."
+  },
+  "candidateComparisons": [
+    {
+      "result": {
+        "path": "build-web-work/task-planning/cold-mip/prototypes/summary.json",
+        "sha256": "6d37f7fd44e4c0a91489dabdf0496cce1a3cf3489e7ca920919465e33b64cd88"
+      },
+      "children": 18,
+      "fullExactCalls": 126,
+      "timings": [
+        {
+          "fixture": "mixed-factor2",
+          "variant": "before",
+          "coldMs": 319.08804200000003,
+          "timedMedianMs": 252.17960400000015
+        },
+        {
+          "fixture": "mixed-factor2",
+          "variant": "index",
+          "coldMs": 297.679834,
+          "timedMedianMs": 258.8510624999999
+        },
+        {
+          "fixture": "mixed-factor2",
+          "variant": "scalar",
+          "coldMs": 367.549875,
+          "timedMedianMs": 256.87193749999983
+        },
+        {
+          "fixture": "mixed-factor4",
+          "variant": "before",
+          "coldMs": 251.67066599999993,
+          "timedMedianMs": 228.50395850000018
+        },
+        {
+          "fixture": "mixed-factor4",
+          "variant": "index",
+          "coldMs": 271.06754200000006,
+          "timedMedianMs": 270.4968749999998
+        },
+        {
+          "fixture": "mixed-factor4",
+          "variant": "scalar",
+          "coldMs": 201.53050000000002,
+          "timedMedianMs": 203.9868335000001
+        },
+        {
+          "fixture": "cut-factor2",
+          "variant": "before",
+          "coldMs": 236.651833,
+          "timedMedianMs": 210.06712549999986
+        },
+        {
+          "fixture": "cut-factor2",
+          "variant": "index",
+          "coldMs": 261.75383300000004,
+          "timedMedianMs": 207.35587499999997
+        },
+        {
+          "fixture": "cut-factor2",
+          "variant": "scalar",
+          "coldMs": 256.45754099999994,
+          "timedMedianMs": 214.64356199999997
+        },
+        {
+          "fixture": "uniform-factor4",
+          "variant": "before",
+          "coldMs": 39.74595800000003,
+          "timedMedianMs": 37.62858350000005
+        },
+        {
+          "fixture": "uniform-factor4",
+          "variant": "index",
+          "coldMs": 40.71720799999997,
+          "timedMedianMs": 37.96614599999998
+        },
+        {
+          "fixture": "uniform-factor4",
+          "variant": "scalar",
+          "coldMs": 39.97704100000004,
+          "timedMedianMs": 37.60154199999994
+        },
+        {
+          "fixture": "masked-odd-factor8",
+          "variant": "before",
+          "coldMs": 61.83975000000001,
+          "timedMedianMs": 108.590125
+        },
+        {
+          "fixture": "masked-odd-factor8",
+          "variant": "index",
+          "coldMs": 64.28745900000001,
+          "timedMedianMs": 74.21085449999998
+        },
+        {
+          "fixture": "masked-odd-factor8",
+          "variant": "scalar",
+          "coldMs": 65.116875,
+          "timedMedianMs": 66.17056250000002
+        },
+        {
+          "fixture": "mixed-factor16",
+          "variant": "before",
+          "coldMs": 121.29833400000001,
+          "timedMedianMs": 130.77597899999995
+        },
+        {
+          "fixture": "mixed-factor16",
+          "variant": "index",
+          "coldMs": 145.16416700000002,
+          "timedMedianMs": 134.87874949999997
+        },
+        {
+          "fixture": "mixed-factor16",
+          "variant": "scalar",
+          "coldMs": 96.88433299999997,
+          "timedMedianMs": 121.46029199999992
+        }
+      ],
+      "scope": "Node actual PixelTileCache + fake Canvas backend; no real Canvas/GPU/UI or RSS acceptance."
+    },
+    {
+      "result": {
+        "path": "build-web-work/task-planning/cold-mip/prototypes/direct2-summary.json",
+        "sha256": "170dc6bfce178b72a6bcdca0286ba18960eab829a93383d8bf182f0efbcd4d33"
+      },
+      "children": 16,
+      "fullExactCalls": 112,
+      "timings": [
+        {
+          "fixture": "mixed-factor2",
+          "variant": "before",
+          "coldMs": 316.233833,
+          "timedMedianMs": 254.4649794999998
+        },
+        {
+          "fixture": "mixed-factor2",
+          "variant": "direct2",
+          "coldMs": 193.29370800000004,
+          "timedMedianMs": 123.45639600000004
+        },
+        {
+          "fixture": "mixed-odd-unaligned-factor2",
+          "variant": "before",
+          "coldMs": 121.55137500000001,
+          "timedMedianMs": 105.6280835
+        },
+        {
+          "fixture": "mixed-odd-unaligned-factor2",
+          "variant": "direct2",
+          "coldMs": 86.66225000000003,
+          "timedMedianMs": 70.19885450000004
+        },
+        {
+          "fixture": "uniform-factor2",
+          "variant": "before",
+          "coldMs": 48.143208000000016,
+          "timedMedianMs": 38.81829149999999
+        },
+        {
+          "fixture": "uniform-factor2",
+          "variant": "direct2",
+          "coldMs": 50.99291699999998,
+          "timedMedianMs": 42.66308300000003
+        },
+        {
+          "fixture": "mixed-factor4",
+          "variant": "before",
+          "coldMs": 245.81758399999995,
+          "timedMedianMs": 230.26602050000008
+        },
+        {
+          "fixture": "mixed-factor4",
+          "variant": "direct2",
+          "coldMs": 357.74775,
+          "timedMedianMs": 234.03085449999992
+        },
+        {
+          "fixture": "cut-factor2",
+          "variant": "before",
+          "coldMs": 279.00758399999995,
+          "timedMedianMs": 206.58745849999968
+        },
+        {
+          "fixture": "cut-factor2",
+          "variant": "direct2",
+          "coldMs": 244.77724999999998,
+          "timedMedianMs": 207.40412500000002
+        },
+        {
+          "fixture": "uniform-factor4",
+          "variant": "before",
+          "coldMs": 39.09087499999998,
+          "timedMedianMs": 37.4525835
+        },
+        {
+          "fixture": "uniform-factor4",
+          "variant": "direct2",
+          "coldMs": 42.30849999999998,
+          "timedMedianMs": 41.32039549999996
+        },
+        {
+          "fixture": "masked-odd-factor8",
+          "variant": "before",
+          "coldMs": 61.314875,
+          "timedMedianMs": 108.27316700000006
+        },
+        {
+          "fixture": "masked-odd-factor8",
+          "variant": "direct2",
+          "coldMs": 64.114833,
+          "timedMedianMs": 64.44797949999997
+        },
+        {
+          "fixture": "mixed-factor16",
+          "variant": "before",
+          "coldMs": 119.94258300000001,
+          "timedMedianMs": 132.41866650000009
+        },
+        {
+          "fixture": "mixed-factor16",
+          "variant": "direct2",
+          "coldMs": 173.39937500000002,
+          "timedMedianMs": 167.87218699999994
+        }
+      ],
+      "scope": "Node actual PixelTileCache + fake Canvas backend; no real Canvas/GPU/UI or RSS acceptance."
+    },
+    {
+      "result": {
+        "path": "build-web-work/task-planning/cold-mip/prototypes/repeat-summary.json",
+        "sha256": "d4422afbc2f2abe8e1cd8dd6dd568728b84afeff0dac7b4db99f86b274b2d215"
+      },
+      "children": 27,
+      "fullExactCalls": 189,
+      "timings": [
+        {
+          "fixture": "horizontal-nearest-factor2",
+          "variant": "before",
+          "coldMs": 282.61541700000004,
+          "timedMedianMs": 249.7895420000002
+        },
+        {
+          "fixture": "horizontal-nearest-factor2",
+          "variant": "repeat-row",
+          "coldMs": 303.354584,
+          "timedMedianMs": 262.05349999999976
+        },
+        {
+          "fixture": "horizontal-nearest-factor2",
+          "variant": "repeat-both",
+          "coldMs": 301.40200000000004,
+          "timedMedianMs": 245.24099999999999
+        },
+        {
+          "fixture": "vertical-nearest-factor2",
+          "variant": "before",
+          "coldMs": 316.21904200000006,
+          "timedMedianMs": 249.7774579999998
+        },
+        {
+          "fixture": "vertical-nearest-factor2",
+          "variant": "repeat-row",
+          "coldMs": 300.93045800000004,
+          "timedMedianMs": 240.19385399999987
+        },
+        {
+          "fixture": "vertical-nearest-factor2",
+          "variant": "repeat-both",
+          "coldMs": 318.263125,
+          "timedMedianMs": 240.15322900000024
+        },
+        {
+          "fixture": "odd-unaligned-nearest-factor2",
+          "variant": "before",
+          "coldMs": 115.13029199999997,
+          "timedMedianMs": 112.32677099999995
+        },
+        {
+          "fixture": "odd-unaligned-nearest-factor2",
+          "variant": "repeat-row",
+          "coldMs": 128.228458,
+          "timedMedianMs": 114.18052099999994
+        },
+        {
+          "fixture": "odd-unaligned-nearest-factor2",
+          "variant": "repeat-both",
+          "coldMs": 142.991208,
+          "timedMedianMs": 134.7585210000001
+        },
+        {
+          "fixture": "mixed-factor2",
+          "variant": "before",
+          "coldMs": 310.98625,
+          "timedMedianMs": 250.48389550000002
+        },
+        {
+          "fixture": "mixed-factor2",
+          "variant": "repeat-row",
+          "coldMs": 335.44062499999995,
+          "timedMedianMs": 270.553771
+        },
+        {
+          "fixture": "mixed-factor2",
+          "variant": "repeat-both",
+          "coldMs": 336.12858300000005,
+          "timedMedianMs": 281.18241650000004
+        },
+        {
+          "fixture": "mixed-factor4",
+          "variant": "before",
+          "coldMs": 253.037625,
+          "timedMedianMs": 231.868604
+        },
+        {
+          "fixture": "mixed-factor4",
+          "variant": "repeat-row",
+          "coldMs": 332.04366699999997,
+          "timedMedianMs": 331.652833
+        },
+        {
+          "fixture": "mixed-factor4",
+          "variant": "repeat-both",
+          "coldMs": 767.73875,
+          "timedMedianMs": 230.71381250000013
+        },
+        {
+          "fixture": "cut-factor2",
+          "variant": "before",
+          "coldMs": 282.306708,
+          "timedMedianMs": 208.58043799999996
+        },
+        {
+          "fixture": "cut-factor2",
+          "variant": "repeat-row",
+          "coldMs": 247.86287499999997,
+          "timedMedianMs": 222.58602050000013
+        },
+        {
+          "fixture": "cut-factor2",
+          "variant": "repeat-both",
+          "coldMs": 244.04629100000005,
+          "timedMedianMs": 211.1145210000002
+        },
+        {
+          "fixture": "uniform-factor4",
+          "variant": "before",
+          "coldMs": 39.28954200000004,
+          "timedMedianMs": 38.39754199999999
+        },
+        {
+          "fixture": "uniform-factor4",
+          "variant": "repeat-row",
+          "coldMs": 39.82800000000003,
+          "timedMedianMs": 37.69160449999998
+        },
+        {
+          "fixture": "uniform-factor4",
+          "variant": "repeat-both",
+          "coldMs": 39.73441600000001,
+          "timedMedianMs": 37.98731249999997
+        },
+        {
+          "fixture": "masked-odd-factor8",
+          "variant": "before",
+          "coldMs": 60.526667,
+          "timedMedianMs": 107.22566699999999
+        },
+        {
+          "fixture": "masked-odd-factor8",
+          "variant": "repeat-row",
+          "coldMs": 63.45783399999999,
+          "timedMedianMs": 108.128479
+        },
+        {
+          "fixture": "masked-odd-factor8",
+          "variant": "repeat-both",
+          "coldMs": 52.966999999999985,
+          "timedMedianMs": 110.01018700000003
+        },
+        {
+          "fixture": "mixed-factor16",
+          "variant": "before",
+          "coldMs": 121.38508300000001,
+          "timedMedianMs": 131.117125
+        },
+        {
+          "fixture": "mixed-factor16",
+          "variant": "repeat-row",
+          "coldMs": 121.97491600000001,
+          "timedMedianMs": 131.20929149999995
+        },
+        {
+          "fixture": "mixed-factor16",
+          "variant": "repeat-both",
+          "coldMs": 158.93483399999997,
+          "timedMedianMs": 173.8861250000001
+        }
+      ],
+      "scope": "Node actual PixelTileCache + fake Canvas backend; no real Canvas/GPU/UI or RSS acceptance."
+    }
+  ],
+  "actualChromium": {
+    "ordinaryFactor2": {
+      "result": {
+        "path": "build-web-work/task-planning/cold-mip/archive/direct2-ui/pair-summary.json",
+        "sha256": "7fb1e8efbfa7fb501cf29a818f148a599ad7d9d3049d4e269cb69223629edf2e"
+      },
+      "sampleDesign": "Historical exact current-source baseline n1 per variant versus new isolated mirror n1; not newly paired baseline or distribution.",
+      "variants": [
+        "h8192",
+        "h8191",
+        "v8192"
+      ],
+      "baselineReadyMs": [
+        698.7,
+        689.1,
+        682.7
+      ],
+      "prototypeReadyMs": [
+        555.4,
+        568.3,
+        527.5
+      ],
+      "uploadsPerVariant": 50,
+      "uploadBytesPerVariant": 38159232
+    },
+    "factor16Control": {
+      "result": {
+        "path": "build-web-work/task-planning/cold-mip/archive/zoom-control/pair-summary.json",
+        "sha256": "d4297690e40f343aae649fa2010851ba555a1c59918133d07bb0e2914cd5983d"
+      },
+      "sampleDesign": "Fresh before then prototype n1 each; same public zoom-out10 sequence/DPR1/actual Canvas matrix. Separate camera workload from factor2.",
+      "baselineReadyMs": 658.7,
+      "prototypeReadyMs": 884.2,
+      "baselineLongTaskMs": [
+        99
+      ],
+      "prototypeLongTaskMs": [
+        57,
+        127,
+        50,
+        127
+      ],
+      "baselineMaxSentinelGapMs": 136.6,
+      "prototypeMaxSentinelGapMs": 192.2,
+      "uploadsPerSide": 3,
+      "uploadBytesPerSide": 790528,
+      "interpretation": "Observed concern sufficient to withhold this candidate. Stable regression size and internal cause not established.",
+      "factorAttribution": "Factor16 inferred from frozen planning policy, observed camera and uploads; private runtime factor not directly instrumented. Camera and whole frame exact across sides."
+    },
+    "correctness": "All executed UI comparisons preserve whole phase Canvas, full raw RGBA, actual normalized PNG, source, cancel and old Redo/Undo. Exact output is not performance acceptance."
+  },
+  "rejectedCandidates": [
+    {
+      "names": [
+        "index",
+        "scalar"
+      ],
+      "reason": "No improvement for actual hot mixed factor2 in fake-backend kernel; other controls mixed. Not promoted to production."
+    },
+    {
+      "names": [
+        "direct2"
+      ],
+      "reason": "Positive ordinary factor2 actual UI observations, but adverse actual factor16 and Node uniform/factor16 controls. No adoption."
+    },
+    {
+      "names": [
+        "repeat-row",
+        "repeat-both"
+      ],
+      "reason": "Limited repeated-pattern gains versus nonrepeat/other-factor regressions and added per-pixel branches. No actual browser promotion."
+    }
+  ],
+  "developmentFailures": [
+    {
+      "scope": "zoom-control harness before first resize",
+      "failure": "Strict JS double scale differed from Canvas float32-quantized getTransform value. Initial run produced zero resize samples; prototype not launched.",
+      "correction": "Separate v2 asserts exact Math.fround(expected) and exact full matrix equality across sides. Original failure retained in archive. Product unchanged."
+    }
+  ],
+  "nativeStatus": {
+    "previousCompletedEvidence": {
+      "path": "docs/evidence/studio-bounded-resize.json",
+      "sha256": "5eaf8a4445b8cc3c73b214fd1c30bd49578878c0a672a26d3818d65fca854dca"
+    },
+    "ordinaryMacOSPhases": 4,
+    "separateWKCases": 4,
+    "scope": "Previous completed bounded-resize verification; not new cold-mip native measurements. User GUI availability reply arrived after completion. No myPaint verification app process was present on status inspection."
+  },
+  "remaining": [
+    {
+      "priority": "P1",
+      "issue": "Current code high-minification control contains an observed99ms LongTask.",
+      "next": "Separate cold JIT/allocation/upload and generator progress costs using bounded diagnostics at fixed DPR/camera; preserve raw alpha, transform-before-box, two-raster budget and cache/failure ownership. Do not assume cause from samples."
+    },
+    {
+      "priority": "P1",
+      "issue": "Continuous latest-target changes and subsequent gesture may retain large abandoned candidates until GC.",
+      "next": "Measure private-buffer ownership and long-run JS/RSS separately; verify cancel/retry/old Redo and source identity before changing allocation reuse."
+    },
+    {
+      "priority": "P1 release gate",
+      "issue": "Physical Android browser, Windows desktop, OS IME/file integration and disk-replacement failures incomplete.",
+      "next": "Run available platform acceptance without producing mobile native packages; keep unavailable-platform results explicitly pending."
+    },
+    {
+      "priority": "P2",
+      "issue": "Fixed-DPR WK checker, wide/disjoint dirty, remote CI, signing/notarization and homepage staging/rollback incomplete.",
+      "next": "Keep separate acceptance criteria; no public deployment from this investigation."
+    }
+  ],
+  "limits": [
+    "No p95/global50ms/stable speedup/whole-goal completion claimed.",
+    "No physical mobile/pen/Windows or new WK performance run.",
+    "Raw checks and PNG readback outside primary timing are not complete memory/RSS/GPU residency measurement.",
+    "Potential V8 tiering/code-size explanation is a hypothesis, not RCA.",
+    "Tests229 and ordinary native4/WK4 are previous unchanged-source results, not rerun during this investigation."
+  ],
+  "archive": {
+    "path": "build-web-work/task-planning/cold-mip/archive-manifest.json",
+    "sha256": "98fd489ba79a0303a71cd60863d26455f4b18da906d381d849fe5c709a899887"
+  },
+  "cleanup": {
+    "servers9034And9035": "Matching process identity verified, SIGTERM sent; both original exec handles exited143. Both ports closed on final inspection. Other servers and user applications untouched."
+  },
+  "independentFinalReviews": [
+    {
+      "role": "architect",
+      "result": {
+        "path": "build-web-work/task-planning/cold-mip/archive/final-reviews/architect/final-review.json",
+        "sha256": "d125569550b85736047b097f040566746f6305169a1c68ca628b07ce1d56f826"
+      },
+      "scope": "Read-only final audit of prior observations; not a new performance run. Reviewer audited initial report draft before review attachments and cleanup finalization."
+    },
+    {
+      "role": "reviewer",
+      "result": {
+        "path": "build-web-work/task-planning/cold-mip/archive/final-reviews/reviewer/final-report-review.json",
+        "sha256": "13afd09fe1006cb6e08d546983b3f96543c3373532aa78c95c1302e8d4627012"
+      },
+      "scope": "Read-only final audit of prior observations; not a new performance run. Reviewer audited initial report draft before review attachments and cleanup finalization."
+    },
+    {
+      "role": "sre",
+      "result": {
+        "path": "build-web-work/task-planning/cold-mip/archive/final-reviews/sre/final-investigation-review.json",
+        "sha256": "3d144743551e1ddea93e653ca6b87347dbf61b8af3712e4bca433e0bb9e63e93"
+      },
+      "scope": "Read-only final audit of prior observations; not a new performance run. Reviewer audited initial report draft before review attachments and cleanup finalization."
+    }
+  ],
+  "prototypeSources": [
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/source/before.ts",
+      "sha256": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/source/direct2.ts",
+      "sha256": "e442843f3b4f199c30cbcefc8ff6e28849c3e89ef58d2be5669856a631869e93"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/source/index.ts",
+      "sha256": "8b94fbffd6ca67d30bca487941e0ff784144152894580da7fbf3feb51dfa830f"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/source/repeat-both.ts",
+      "sha256": "93e35fcf82ee55fbf1f491fcb1876c2cf30767a41544699069259475b65ac0cf"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/source/repeat-row.ts",
+      "sha256": "e111c18fa3aa6b520214f89a5f37c021deb16a4f2704714d519e6b3f838472fb"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/source/scalar.ts",
+      "sha256": "61aadbb49f07cd5d0fa99db0e2585ca93c7e79471bb9902202489b6f1e475990"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/source/surface.ts",
+      "sha256": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/child-repeat.mjs",
+      "sha256": "c15078785f1d010eb55307b070ff3ed14d224dad642e9bd417863b0a8f61df3f"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/child.mjs",
+      "sha256": "ffa9b3614070803c475991db820429ae7467a4964928e1a694465f549d2ebd12"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/run-direct2.mjs",
+      "sha256": "0fb02058fdd857c90a7f78fd2a5492f1d07e1b24b9ff67ae1111e8a149128178"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/run-repeat.mjs",
+      "sha256": "4111d3aec2b6f469658c9f5fca19d4f38783ab1b9285d38aed82f982f684d127"
+    },
+    {
+      "path": "build-web-work/task-planning/cold-mip/prototypes/run.mjs",
+      "sha256": "ff2ff7eb16ba96e6483beefc541d44b1c5f9cae5d510bff0726a310d4dddf428"
+    }
+  ]
+}

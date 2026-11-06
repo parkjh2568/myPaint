@@ -32,7 +32,16 @@ git push origin HEAD:main
 
 ## 웹 산출물 반영
 
-웹 빌드는 먼저 myPaint 내부에서 완성된 결과를 준비·검증하고, 성공한 산출물만 형제 홈페이지 저장소의 mypaint 폴더에 반영하는 구조로 구현했다. `python3 tools/build_web.py --host-qt /opt/homebrew`로 실행하며, SDK 준비·검증·실패 복원은 [웹 빌드 문서](WEB_BUILD.md)를 따른다.
+2026-11-06 Studio 경로: `python3 tools/build_studio.py`는 `dist/studio`만 만든다. 홈페이지를 먼저 동기화한 뒤 검증된 산출물만 반영한다.
+
+```sh
+cd /Users/jhpark/code/myService/myPaint
+python3 tools/build_studio.py
+python3 tools/stage_web.py dist/studio ../parkjh2568.github.io --check
+python3 tools/stage_web.py dist/studio ../parkjh2568.github.io
+```
+
+`python3 tools/build_studio.py --homepage ../parkjh2568.github.io`로 빌드 후 로컬 반영까지 할 수도 있다. 기존 Qt 타깃은 `build_web.py --host-qt /opt/homebrew`와 `dist/web` 경로를 유지한다. 준비·검증·실패 복원·이전 릴리스 보존/정리는 [웹 빌드 문서](WEB_BUILD.md)를 따른다.
 
 - 대상은 홈페이지 루트 전체가 아니라 mypaint 하위로 고정한다.
 - 기존 index.html·css·js·img·workflow와 다른 미커밋 변경을 보존한다.
@@ -76,4 +85,4 @@ push 뒤에는 Pages workflow 성공과 기존 홈페이지·기존 페이지·`
 
 홈페이지 origin은 현재 SSH URL이다. 이전 HTTPS의 누락된 gh helper 오류는 과거 조회 기록이며 현재 SSH 접근 가능 여부를 대신하지 않는다. 필요할 때 홈페이지 폴더에서 `git ls-remote --symref origin HEAD`로 읽기 접근을 확인하고, 읽기 성공을 push 권한 확인과 동일하게 취급하지 않는다.
 
-현재 경로·로컬 Git 설정·workflow를 확인했다. 웹 빌드는 홈페이지의 mypaint 산출물만 반영하며 인증·origin·upstream·staging과 원격 커밋·push를 변경하지 않는다. 웹 기능의 구현·검증 상태는 [웹 구현 작업계획](WEB_IMPLEMENTATION_PLAN.md)을 참고한다.
+현재 경로·로컬 Git 설정·workflow를 확인했다. 명시한 산출물 반영 단계만 홈페이지의 mypaint를 교체하며 인증·origin·upstream·Git staging과 원격 커밋·push를 변경하지 않는다. 기본 Studio 빌드는 홈페이지에 쓰지 않는다. 웹 기능의 구현·검증 상태는 [웹 구현 작업계획](WEB_IMPLEMENTATION_PLAN.md)을 참고한다.

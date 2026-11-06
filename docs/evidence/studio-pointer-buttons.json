@@ -1,0 +1,226 @@
+{
+  "recordedAt": "2026-11-05",
+  "status": "Implemented and verified for the recorded cases. Overall migration remains active; this is not release approval.",
+  "platformScope": {
+    "mobileAndTablet": "Web browsers only. No Android APK/AAB or iOS/iPadOS native project.",
+    "native": "Windows and macOS only. Local execution here is macOS arm64; Windows/physical Android/Safari acceptance remains."
+  },
+  "sourceSha256": {
+    "web-app/src/engine/document.ts": "2917f4e47d16c9d842fb39147f5dcaad2b097e4103dd36b9b3f55348233a3936",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "f42c5606383df251dc4c3aaecdc9def32e8c4626020614ea923f11478d515a23",
+    "web-app/src/platform/codec.ts": "c4083e2d19745bd0d69032489a06af253f9d6c9f8d6dd466a248e19300748fb4",
+    "web-app/src/platform/native-smoke.ts": "e77a2aae8cda17ffabbefa081958daa4fc338e4fdf232e73f9b79c27b93c9948",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "26bbc7fdde53233026ec05d2a7dfafa6b43c545b1868eacf6250fc0ec9a1fa63",
+    "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "sourceManifest": {
+    "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-source.json",
+    "sha256": "5f8acebb56a7981d7cf57014d48d9f14af2d39de0108923aad9abc715a85fea1"
+  },
+  "webBundle": {
+    "root": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-site/mypaint",
+    "manifest": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-manifest.json",
+      "sha256": "678e2ae8bcf69011b49c3140ebffcebc13d4a6f65bbbb809978717352dcafbdf"
+    },
+    "sha256": {
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/buffer-DyZedAtx.js": "eb04a57dbb4dfe75682a503da2659932e135648d527e26c4e00ddc21a4f4ad79",
+      "assets/codec.worker-Bo-_aV3G.js": "f4195f84d994821913c5f5f8a3e580f32585a5631f7bae9a5126454ff38c5ec9",
+      "assets/encoder-Ygiwl0RX.js": "16950585094af9d3e4a2bb026da7559d0808b92847178029e0b9b031fc0d838f",
+      "assets/index-BbHUQ0Q5.js": "e68ebba253ab1371aa802f6615358579ce5e9d39fb47ef0ef1c36a64277600ba",
+      "assets/index-aClAeViE.css": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601",
+      "assets/native-smoke-DnidhDN2.js": "d2a83e2df888862ba7c68a7543eb907b15ae7845fbedef740d3703d14c04952d",
+      "index.html": "68e1df225f1156be460e88b8d64849681486dae3db34f995e9e4ff807be7c177"
+    }
+  },
+  "change": {
+    "priority": "Major / P1",
+    "cost": "S",
+    "cause": "pointerDown accepted mouse buttons3/4, registered capture/ownership, then entered drawing or pending-edit paths.",
+    "fix": "Reject mouse button outside0..2 in the initial guard before focus, capture, pointer registration or settle. Reduce owner-mask lookup to the admitted buttons. Sequential code remains inline.",
+    "changedProductFiles": [
+      "web-app/src/main.ts"
+    ],
+    "priorMainSha256": "daf049dbbae44bd6be8a45f4c72e3eb1eb9a2332f463a192549c8d0a0aad1307",
+    "onlyProductDifferenceFromDecoderSnapshot": "Early mouse-button guard and admitted-owner mask; the other16 recorded product source files are identical."
+  },
+  "before": {
+    "artifact": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-before.json",
+      "sha256": "0f517ffffda8f1830977ed49509ff42dfd9d6b8b87723c0fd14fde7156cfc16e"
+    },
+    "probe": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-before-source.mjs",
+      "sha256": "67b82b783bad9c90859341ce984b9dc31e79d1ddc96f0ff6014a7b4e8fefff74"
+    },
+    "sourceManifest": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/decoder-final-source.json",
+      "sha256": "3f1cb43de330efe8d5a6f48fd94b6ee17e3246b71a3eeb8684a035d313a75d24"
+    },
+    "cases": [
+      {
+        "button": "back",
+        "changedChannels": 26,
+        "paintedPixels": 13,
+        "undoDisabled": false,
+        "captureEvents": 1
+      },
+      {
+        "button": "forward",
+        "changedChannels": 26,
+        "paintedPixels": 13,
+        "undoDisabled": false,
+        "captureEvents": 1
+      }
+    ],
+    "pageErrors": [],
+    "environmentAttempt": {
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-navigation-before.json",
+        "sha256": "513005ad194a4a476e606caca0caf0a8534212605522298165d8c4aaf02da15c"
+      },
+      "scope": "Initial back release navigated to about:blank. Kept as harness-environment evidence, not an application regression count."
+    }
+  },
+  "verification": {
+    "pointerUi": {
+      "checks": 23,
+      "added": 14,
+      "errors": [],
+      "failures": [],
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-final.json",
+        "sha256": "e75c5aaf2000600408f2b2f53dc121ee24464e1200bd5627d84e0546b0fff3cb"
+      },
+      "test": {
+        "path": "/Users/jhpark/code/myService/myPaint/web-app/tests/pointer-contract.mjs",
+        "sha256": "96cf272593362dde46c3f226a3359e5a7b162d9804b7a7571905f8da790269ad"
+      },
+      "scope": "Actual Chromium CDP mouse events, public canvas pixels and native IPC model. CDP resets only test navigation history to isolate editing from back/forward destinations; application default navigation/focus policy is unchanged and is not asserted. No production test hooks or operating-system persistence claims.",
+      "coverage": [
+        "Mouse owner left plus middle: owner releases first",
+        "Mouse owner left plus middle: other releases first",
+        "Mouse owner left plus right: owner releases first",
+        "Mouse owner right plus left: owner releases first",
+        "Mouse owner right plus left: other releases first",
+        "Mouse owner left plus back: owner releases first",
+        "Mouse owner left plus back: other releases first",
+        "Mouse owner left plus forward: owner releases first",
+        "Mouse owner left plus forward: other releases first",
+        "Mouse owner right plus back: owner releases first",
+        "Mouse owner right plus back: other releases first",
+        "Mouse owner right plus forward: owner releases first",
+        "Mouse owner right plus forward: other releases first",
+        "Side back and side-first left chord never claim a stroke",
+        "Side back preserves right pending polygon and permits the next vertex",
+        "Side back preserves pending selection and the next normal move",
+        "Side forward and side-first left chord never claim a stroke",
+        "Side forward preserves right pending polygon and permits the next vertex",
+        "Side forward preserves pending selection and the next normal move",
+        "Same-position Shift release 사각형 matches Shift held during move and remains one Undo/Redo",
+        "Same-position Shift release 둥근 사각형 matches Shift held during move and remains one Undo/Redo",
+        "Same-position Shift release 타원 matches Shift held during move and remains one Undo/Redo",
+        "Same-position Shift release 직선 matches Shift held during move and remains one Undo/Redo"
+      ],
+      "provenance": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-provenance.json",
+        "sha256": "a8e14139ca00d7979c3048402ee2c6d8e2a5d822e2bcbb48bd9449a2098e5d0d"
+      }
+    },
+    "browser": {
+      "checks": 10,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-browser/results.json",
+        "sha256": "30347c0d5d39dc49c95231e7c07d6875d4e10162279e19fbefeba49a8e87c360"
+      },
+      "scope": "Includes emulated mobile two-touch navigation, tablet web layout and skin/pixel preservation; not physical-device acceptance."
+    },
+    "editing": {
+      "checks": 13,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-editing.json",
+        "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+      },
+      "scope": "Existing editing, pending/cancellation and touch takeover UI cases."
+    },
+    "platformRestriction": {
+      "checks": 1,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-platform.log",
+        "sha256": "27bcc3bd1c4ced880739328c710a10f0ca81fb990ff7eac7bb97a755f5b1fca8"
+      },
+      "scope": "Existing driver regression rejects android/ios commands and Android target arguments."
+    },
+    "typecheckAndWebBuild": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-build.log",
+      "sha256": "034dd6f810dbc1dd4454dde8639f98f043adfc1fd55ef3267ae9e6968913f071"
+    },
+    "format": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "nativeBuild": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-desktop-build.log",
+      "sha256": "36e8da618449f4bf59cdddcdc589f2a38545afa4e7b6257442ba8eae044a26d1"
+    },
+    "actualMacOS": {
+      "processes": 4,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-desktop.json",
+        "sha256": "7384114571753f1d2f80f8b8e14dcf087b74e79ba5f2f7aaa5ed7df6b718b8cc"
+      },
+      "binary": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-side-native/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "binarySha256": "282f4b51202f0cac11e99c31f5a582042a3f9d20e7f13398e6d6af0904417f37",
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform.",
+      "allPassed": true,
+      "binaryAtExecution": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop"
+    },
+    "priorEngineSuite": {
+      "tests": 155,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/node-decoder-final.log",
+        "sha256": "169b2647edecd86af0d482073b92eec849e86103d1659928e0d0f7e3272d352a"
+      },
+      "scope": "Earlier decoder snapshot; engine and codec sources remain byte-identical. Not rerun for the mouse-only UI admission change."
+    }
+  },
+  "inputPolicies": [
+    "Left/right drawing and middle-button pan remain admitted. Touch and pen are outside this mouse-only guard.",
+    "A side-button-first chord does not promote a later primary press into a new gesture; a fresh gesture works after all buttons release.",
+    "Existing owner-button release handling still closes the stroke when a side button remains held.",
+    "Browser back/forward navigation and default focus are not asserted or suppressed by the new guard. CDP clears only test navigation history.",
+    "Pen button5 retains existing selected-tool behavior; automatic physical-eraser switching has not been implemented or verified."
+  ],
+  "relatedEvidence": [
+    "docs/evidence/studio-tool-contracts.json",
+    "docs/evidence/studio-module-graph.json"
+  ],
+  "remaining": [
+    "Actual WKWebView cold/mip latency and broad dirty workloads.",
+    "GIF fallback intermediate allocation/frame handling.",
+    "Remaining tool-option and raw/premultiplied picker numeric-policy acceptance.",
+    "Physical Android/Safari web, Windows execution, OS pickers/clipboard/IME, signing/notarization, staging/rollback and remote CI."
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "published": false,
+    "goalComplete": false
+  },
+  "gifFollowUpEvidence": {
+    "path": "docs/evidence/studio-gif-input.json",
+    "scope": "Subsequent first-frame size and prefix cancellation validation; historical snapshot records remain unchanged."
+  }
+}

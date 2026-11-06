@@ -1,0 +1,511 @@
+{
+  "date": "2026-11-06",
+  "goalComplete": false,
+  "status": "QF-04 original design/contract criteria and QF-02 dependency proved after independent audit, minimal fix and focused verification",
+  "originalRequirement": "- [ ] 완료\n\n**P0 / 비용 M / 선행: QF-02**\n\n- 작업: 엔진 픽셀의 채널 순서와 알파 표현, revision/saved revision, 후보/확정/pending, 문서 세대와 취소 소유권을 정한다. 문서 지우기·확장 바탕, 보조색, 미리보기 바탕, 출력 합성색을 분리한다.\n- 완료 조건: RPAINT01 필드를 임의 추가하지 않고 기존 불투명 문서 의미를 보존한다. 새 투명 문서와 JPG/BMP 합성 정책, 반올림·PNG 경계의 검증 값이 정해진다.",
+  "criteriaDecomposition": "13 clauses map the entire original work/completion text; row count alone is not completion proof. Physical/full-option/performance/release gates stay in their owning tasks.",
+  "matrix": [
+    {
+      "id": "rgba8",
+      "requirementClause": "엔진 픽셀의 채널 순서와 알파 표현",
+      "status": "proved",
+      "contract": "Stored pixels are straight R,G,B,A bytes; alpha0 does not imply RGB0. Canvas premultiplication is not authority.",
+      "independentInputExpected": "Input [193,71,117,0] and [20,40,60,128]; transparent overlay leaves both literal raw pixels unchanged; explicit Source replacement may write [1,2,3,0].",
+      "sourceFiles": {
+        "docs/STUDIO_ARCHITECTURE.md": "aa1f4d7c1daeb96bc30a37b02bfb33002cda735559d33234b46e6d10fa6c01b0",
+        "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650"
+      },
+      "assertionFiles": {
+        "web-app/tests/overlay.test.ts": "eb05b4af6173f60ce302c15689caa671b6e1b9c2a4257032c37b4effd890f78b"
+      },
+      "retainedExecution": "unit324",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "alpha0-boundary",
+      "requirementClause": "알파 표현·PNG 경계",
+      "status": "proved",
+      "contract": "Separate raw layer/PNG codec from visible image flatten. Raw encodePng/decodePng and RPAINT layer preserve hiddenRGB; composite starts zero and skips alpha0, so flattened PNG may produce [0,0,0,0].",
+      "independentInputExpected": "Atlas three transparent layers [13,17,19,0]/[11,23,37,0]/[101,103,107,0] flatten to [0,0,0,0]; raw codec does not invoke composite.",
+      "sourceFiles": {
+        "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+        "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+        "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b"
+      },
+      "assertionFiles": {
+        "web-app/tests/core.test.ts": "8ef1cd8f3e757494ec87081f7908f172f7911981e2edd9f16497842518fc1537",
+        "web-app/tests/export-preview-contract.mjs": "13baee33c95a6669117ba5096d471d7111354617df402e2b3908cde6d2bd9ae8"
+      },
+      "retainedExecution": "current-exportPreview12+unit324",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "saved-revision",
+      "requirementClause": "revision/saved revision",
+      "status": "proved",
+      "contract": "Dirty compares unique current/saved IDs, not history cursor; branch revision remains unique. markSaved accepts only current revision with no active stroke.",
+      "independentInputExpected": "Save red state, edit/Undo returns clean; rejected width0 candidate preserves pixels/Redo; new branch becomes dirty and consumes old future.",
+      "sourceFiles": {
+        "docs/STUDIO_ARCHITECTURE.md": "aa1f4d7c1daeb96bc30a37b02bfb33002cda735559d33234b46e6d10fa6c01b0",
+        "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650"
+      },
+      "assertionFiles": {
+        "web-app/tests/core.test.ts": "8ef1cd8f3e757494ec87081f7908f172f7911981e2edd9f16497842518fc1537",
+        "web-app/tests/history.test.ts": "c39fe7bc9c0299875e126e55d570782e346d48a3882f69b137990003fc140ec7",
+        "web-app/tests/metadata.test.ts": "2dc6f19f6ae3697f0f456d74462c6ebdd8b94a2e2f6a5baabfddb28b5498c71c"
+      },
+      "retainedExecution": "unit324",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "candidate-pending",
+      "requirementClause": "후보/확정/pending",
+      "status": "proved",
+      "contract": "prepare validates and stages without installing; install checks owner/base/cursor/history/budget/active/id plus candidate equality. Commit clears pending only after successful authority commit. Surrounding command cancellation preserves pending; Escape discards pending and preserves old authority/Redo.",
+      "independentInputExpected": "Prepare renamed candidate leaves old state/canUndo false; intervening edit makes installation reject. F05 save_cancel/save_failure/close_cancel/size_cancel preserve candidate and oldRedo; explicit Escape is a different operation.",
+      "sourceFiles": {
+        "docs/STUDIO_ARCHITECTURE.md": "aa1f4d7c1daeb96bc30a37b02bfb33002cda735559d33234b46e6d10fa6c01b0",
+        "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+        "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b"
+      },
+      "assertionFiles": {
+        "web-app/tests/core.test.ts": "8ef1cd8f3e757494ec87081f7908f172f7911981e2edd9f16497842518fc1537",
+        "web-app/tests/metadata.test.ts": "2dc6f19f6ae3697f0f456d74462c6ebdd8b94a2e2f6a5baabfddb28b5498c71c",
+        "web-app/tests/pending-contract.mjs": "7523314797d4d2252de8f5dafce5d63c43a6ddbc362e29f0d69d9fe86034dad0"
+      },
+      "retainedExecution": "unit324+pending36historical",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "generation-cancel",
+      "requirementClause": "문서 세대와 취소 소유권",
+      "status": "proved-after-reproduced-minimal-fix",
+      "contract": "Epoch/key ownership and abort/finally cleanup are defined. replaceDocument activation is commit point; save after await gates revision/epoch/active before installing. The recovery-list error catch now returns on epoch mismatch before status publication; outer finally always releases recoveryOpening.",
+      "independentInputExpected": "Hold A recovery list; activate B and establish B status/oldRedo; reject A. Expected B status/source/Redo unchanged and owner guard released for B retry. Static source before fix unconditionally calls message in catch while only success path checks epoch.",
+      "sourceFiles": {
+        "docs/STUDIO_ARCHITECTURE.md": "aa1f4d7c1daeb96bc30a37b02bfb33002cda735559d33234b46e6d10fa6c01b0",
+        "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b",
+        "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13"
+      },
+      "assertionFiles": {
+        "web-app/tests/native-persistence.mjs": "52e895361c2e4fe76e2028c901d1f0b92b17902a0be9d9d97e5fb7aad0ec6d07"
+      },
+      "retainedExecution": "current-nativeClient16+current-recoveryFlow7",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "clear-expand",
+      "requirementClause": "문서 지우기·확장 바탕",
+      "status": "proved",
+      "contract": "Single-layer binary Source clear writes document background rawRGBA; multilayer clear writes RGBA0. Canvas-size extension fills first plane from document background and other planes zero, then copies source bytes. Background metadata edit does not recolor existing pixels.",
+      "independentInputExpected": "Nonzero alpha0 background is written verbatim only to single-layer selected source; multilayer source is [0,0,0,0]. Expanded original overlap remains byte-exact; extra first-plane cells use document background.",
+      "sourceFiles": {
+        "docs/STUDIO_ARCHITECTURE.md": "aa1f4d7c1daeb96bc30a37b02bfb33002cda735559d33234b46e6d10fa6c01b0",
+        "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+        "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b",
+        "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b"
+      },
+      "assertionFiles": {
+        "web-app/tests/export-preview-contract.mjs": "13baee33c95a6669117ba5096d471d7111354617df402e2b3908cde6d2bd9ae8",
+        "web-app/tests/metadata.test.ts": "2dc6f19f6ae3697f0f456d74462c6ebdd8b94a2e2f6a5baabfddb28b5498c71c",
+        "web-app/tests/selection-source-contract.mjs": "5800eef57fc331c4b72e3473ef6f458daab5fd3db0e6fcf857c3218c2d0e208a"
+      },
+      "retainedExecution": "selectionSourceHistorical+current-exportPreview12+unit324",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "separate-colors",
+      "requirementClause": "보조색·미리보기 바탕·출력 합성색 분리",
+      "status": "proved",
+      "contract": "Secondary color, document clear/extension background, skin/checker display, and explicit JPG/BMP matte are distinct owners. PNG disables matte control but retains selected value; checker/skin are not exported.",
+      "independentInputExpected": "With document/layer alpha0 and matte [37,59,61,255], PNG atlas alltransparent→[0,0,0,0]; BMP/JPG preview alltransparent→[37,59,61,255]. Switching PNG→BMP/JPG→PNG preserves chosen #253b3d and no codec job is started for preview.",
+      "sourceFiles": {
+        "docs/STUDIO_ARCHITECTURE.md": "aa1f4d7c1daeb96bc30a37b02bfb33002cda735559d33234b46e6d10fa6c01b0",
+        "docs/STUDIO_EXPORT_PREVIEW.md": "65f8bcf9b68fcd49ff0e3e94a7460a20a4470023283007fceec8bca19c7d0f23",
+        "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b"
+      },
+      "assertionFiles": {
+        "web-app/tests/export-preview-contract.mjs": "13baee33c95a6669117ba5096d471d7111354617df402e2b3908cde6d2bd9ae8"
+      },
+      "retainedExecution": "current-exportPreview12",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "wire",
+      "requirementClause": "RPAINT01 필드를 임의 추가하지 않음",
+      "status": "proved",
+      "contract": "28-byte LE header retains magic,width,height,count,active,QRgb background; UTF8 name/visible/PNG length+payload per lower→upper layer. No transparency mode/resource profile/history/pending field added. Trailing/truncated records reject.",
+      "independentInputExpected": "Independently assembled header background0x80402010 decodes [64,32,16,128], UTF8 독립 레이어 🎨, visiblefalse, literal PNG pixels. Desktop decoded state keys exactly active/background/height/layers/width. Qt4173B producer recapture exact wire; re-encoded PNG compressed bytes need not match.",
+      "sourceFiles": {
+        "docs/FILE_FORMAT.md": "22fc484ef2da01f6fc12f5bf3c949ca2ac0c1cd78ffb076a3691f3f383e98db0",
+        "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38"
+      },
+      "assertionFiles": {
+        "web-app/tests/core.test.ts": "8ef1cd8f3e757494ec87081f7908f172f7911981e2edd9f16497842518fc1537",
+        "web-app/tests/format-compat.test.ts": "076b4a15f8b3d5ac9e7b08d72464a732bc9326982f68f5821382551c0e538eb3",
+        "web-app/tests/profiles.test.ts": "f35cd6314eb16821d0affe243081256be01332608065b7a3a9b99db1f65ebe64"
+      },
+      "retainedExecution": "unit324+qtProducer",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "opaque-legacy",
+      "requirementClause": "기존 불투명 문서 의미 보존",
+      "status": "proved",
+      "contract": "Default/new white is [255,255,255,255]; imported image clear/extension background remains white like legacy Qt. Project background is read as stored, not forced to transparent; opaque pixel compositing remains opaque. No new wire mode changes old documents.",
+      "independentInputExpected": "White one-pixel bottom plus [255,0,0,128] yields [255,127,127,255]; hiding upper returns [255,255,255,255]. Qt default20x10 add-red/hide/UndoRedo returns white/clean.",
+      "sourceFiles": {
+        "src/document.cpp": "89bbb0aad6c8a74c59436aa79ba114fa99b8b39e4f18be72ac506e57bb91f13a",
+        "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+        "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+        "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b",
+        "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13"
+      },
+      "assertionFiles": {
+        "tests/core_tests.cpp": "70a73c74c2db957136377e8a5959d1e7fe664978defbc3039ea4ea8fb2066455",
+        "web-app/tests/core.test.ts": "8ef1cd8f3e757494ec87081f7908f172f7911981e2edd9f16497842518fc1537"
+      },
+      "retainedExecution": "unit324+ctest6",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "new-transparent",
+      "requirementClause": "새 투명 문서 정책",
+      "status": "proved",
+      "contract": "New transparent document uses background and initial layer [0,0,0,0], preserving metadata and alpha through raw project/PNG codecs. It is an existing background/pixel value, not an added format flag.",
+      "independentInputExpected": "32x20 transparent state with [33,72,195,128] and hidden UTF8 layer survives raw PNG/project; blank fields remain zero. Public new-dialog exact white/transparent choice is code-read design evidence here, not a new UI run.",
+      "sourceFiles": {
+        "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+        "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+        "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b"
+      },
+      "assertionFiles": {
+        "web-app/tests/core.test.ts": "8ef1cd8f3e757494ec87081f7908f172f7911981e2edd9f16497842518fc1537",
+        "web-app/tests/format-compat.test.ts": "076b4a15f8b3d5ac9e7b08d72464a732bc9326982f68f5821382551c0e538eb3"
+      },
+      "retainedExecution": "unit324",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "opaque-matte",
+      "requirementClause": "JPG/BMP 합성 정책",
+      "status": "proved",
+      "contract": "After visible-layer composite, output RGB=round(C*A+matteRGB*(1-A)); output A=255. Matte defaults opaque white or chosen UI RGB. BMP is32-bit BGRA bottom-up; JPG quality95 is lossy and is not byte-exact/PNG-equal.",
+      "independentInputExpected": "Matte [37,59,61,255]: flattened [85,0,170,192]→[73,15,143,255]; alpha1 red→[38,59,61,255]. Independent BMP reader checks exact literal atlas. Transparent4096²/32768x1 JPEG with matte17,34,51 decodes RGB within3/A255; this is uniform matte scope, not arbitrary-image loss tolerance.",
+      "sourceFiles": {
+        "docs/STUDIO_ARCHITECTURE.md": "aa1f4d7c1daeb96bc30a37b02bfb33002cda735559d33234b46e6d10fa6c01b0",
+        "docs/STUDIO_EXPORT_PREVIEW.md": "65f8bcf9b68fcd49ff0e3e94a7460a20a4470023283007fceec8bca19c7d0f23",
+        "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+        "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b"
+      },
+      "assertionFiles": {
+        "web-app/tests/export-preview-contract.mjs": "13baee33c95a6669117ba5096d471d7111354617df402e2b3908cde6d2bd9ae8",
+        "web-app/tests/profiles.test.ts": "f35cd6314eb16821d0affe243081256be01332608065b7a3a9b99db1f65ebe64"
+      },
+      "retainedExecution": "current-exportPreview12+unit324",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "rounding",
+      "requirementClause": "반올림 검증 값",
+      "status": "proved",
+      "contract": "Source-over is calculated in stored byte color values with each visible-layer RGB/alpha rounded to integer using Math.round before the next layer. Matte composition occurs after that; deferred-all-layers rounding is a different result and rejected by literal atlas.",
+      "independentInputExpected": "Over alpha128 blue then alpha128 red gives [170,0,85,192] for the tested order; export opposite order gives [85,0,170,192]. Three-layer atlas final pixel [115,128,55,169] and matte [89,105,57,255] discriminate rounding sequence.",
+      "sourceFiles": {
+        "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+        "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b",
+        "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b"
+      },
+      "assertionFiles": {
+        "web-app/tests/export-preview-contract.mjs": "13baee33c95a6669117ba5096d471d7111354617df402e2b3908cde6d2bd9ae8",
+        "web-app/tests/overlay.test.ts": "eb05b4af6173f60ce302c15689caa671b6e1b9c2a4257032c37b4effd890f78b"
+      },
+      "retainedExecution": "unit324+current-exportPreview12",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    },
+    {
+      "id": "png-boundaries",
+      "requirementClause": "PNG 경계 검증 값",
+      "status": "proved",
+      "contract": "Raw PNG writer emits RGBA8; decoder supports declared types/depths/filters/Adam7 with checked CRC and bounded decode.16-bit tRNS compares full samples before8-bit reduction; pixel clamp performs final byte quantization. Pixel equivalence, not compression wire identity, is required.",
+      "independentInputExpected": "Independent Node zlib+CRC producer supplies literal alpha and palette samples across types0/2/3/4/6 and depths1/2/4/8/16 where legal.16-bit grayscale samples1 and2 with transparent key1 both reduce RGB0 but expected alpha0 vs255: [0,0,0,0,0,0,0,255].",
+      "sourceFiles": {
+        "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38"
+      },
+      "assertionFiles": {
+        "web-app/tests/format-compat.test.ts": "076b4a15f8b3d5ac9e7b08d72464a732bc9326982f68f5821382551c0e538eb3"
+      },
+      "retainedExecution": "unit324",
+      "lineReferences": "Versioned line/anchor details in architect-contracts.json; not assumed current line positions after documentation insertion."
+    }
+  ],
+  "sources": {
+    "before": {
+      "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+      "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+      "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+      "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+      "web-app/src/main.ts": "b7b9d26c48cb8f8f0634ffd178702613c60455bbc256907adb1f9241e21c5288",
+      "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+      "web-app/src/platform/native-smoke.ts": "4c318c88435b82982addb8876c4169e8e6564c0b6738ed3a6867f2b2e516d2d8",
+      "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+      "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+      "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+      "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+      "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+      "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+      "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+      "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+      "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+      "web-app/src-tauri/src/persistence.rs": "4d46f4cbf2d02db6add183af5d4cd6232fac9417fadff627ce3dba85dd0992fd"
+    },
+    "accepted": {
+      "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+      "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+      "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+      "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+      "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b",
+      "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+      "web-app/src/platform/native-smoke.ts": "4c318c88435b82982addb8876c4169e8e6564c0b6738ed3a6867f2b2e516d2d8",
+      "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+      "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+      "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+      "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+      "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+      "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+      "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+      "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+      "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+      "web-app/src-tauri/src/persistence.rs": "4d46f4cbf2d02db6add183af5d4cd6232fac9417fadff627ce3dba85dd0992fd"
+    },
+    "changedRuntimeFiles": [
+      "web-app/src/main.ts"
+    ],
+    "productionDiff": "Exactly one inline epoch-mismatch return in openRecovery list catch. Other16 runtime source files unchanged, no new helper/import/dependency/IPC/format fields."
+  },
+  "issues": [
+    {
+      "id": "QF04-RECOVERY-EPOCH",
+      "severity": "Minor",
+      "status": "fixed-and-verified",
+      "trigger": "Hold A manual recovery_list; publicly activate B; release A with rejection.",
+      "impact": "A storage failure replaces B saved status text. No pixel/history mutation path in the failing catch.",
+      "rootCause": "Success path checks captured epoch; error path previously did not. Singleflight prevents overlapping list requests but does not prevent document replacement.",
+      "before": "One new status assertion failed; prior10 recorded checks passed, later cases not executed after abort; expected values not weakened.",
+      "fix": "if (this.epoch !== epoch) return; before status update, outer finally preserved.",
+      "after": "16 native client cases pass, including B title/generation/status/full decoded state, saved old Redo replay and next list retry;7 flow cases preserve same-epoch error and retry.",
+      "observability": "Existing CI native-persistence regression; deterministic held IPC and public status assertions, no runtime telemetry/remote alerts."
+    },
+    {
+      "id": "QF04-PNG-COMPRESSION-SCOPE",
+      "severity": "Minor",
+      "status": "documentation-fixed",
+      "impact": "Generic web writer wording conflated legacy Qt/Wasm compression0 and Studio zlib level1.",
+      "fix": "Retain both implementation-specific descriptions; compressed byte identity is not the wire contract."
+    }
+  ],
+  "verification": {
+    "newRuns": {
+      "nativeClient": {
+        "passed": 16,
+        "errors": 0,
+        "failures": 0,
+        "scope": "Public UI in Chromium with an in-memory native IPC/filesystem model. This verifies client ownership and routing, not actual OS I/O, WKWebView, permissions or atomic replacement."
+      },
+      "recoveryFlow": {
+        "passed": 7,
+        "errors": 0,
+        "scope": "Actual Chromium public buttons, trusted pointer editing, native-save/readback codec Workers and500ms production startup callback. Corrected in-memory native IPC clears recovery tokens on every list exactly like Rust. Explicit held IPC promise controls overlap; no private Studio access, OS picker/native filesystem/WKWebView/physical device/performance claim."
+      },
+      "exportPreview": {
+        "passed": 12,
+        "errors": 0,
+        "failures": 0,
+        "scope": "Public Chromium export dialog, actual production codec Workers, modeled native IPC. Exact preview putImageData inputs and independent PNG/BMP readers; Canvas low-alpha RGB readback is a separate observation. No private Studio hooks, modified Worker responses, OS picker/filesystem, physical input, native WebKit or performance acceptance.",
+        "notClaimed": "JPG actual decoded pixels are not checked by this UI suite; JPG preview selection is distinct."
+      },
+      "typescript": "passed by candidate build",
+      "format": "pass",
+      "studioBuild": "pass"
+    },
+    "retainedNotRerun": {
+      "node": {
+        "previousPassed": 324,
+        "scope": "Unchanged imported engine/format/profile/history/codec modules and test bytes; unchanged main method proof linked by independent AST/text review. Not a new324 run."
+      },
+      "qtProducer": {
+        "wireExactBytes": 4173,
+        "qtRgbaPlaneBytes": [
+          3072,
+          3072
+        ],
+        "scope": "Actual Qt source replay from previous phase, exact wire/Qt-pixel planes; TS raw storage compared under distinct policy."
+      },
+      "jpegMatte": {
+        "scope": "Previous Node profiles test invokes shipped Worker handler through Node channel and real jpeg-js encode/decode, uniform matte and first/last samples only. Not real browser Worker or all-photo error bound.",
+        "dimensions": [
+          [
+            4096,
+            4096
+          ],
+          [
+            32768,
+            1
+          ]
+        ],
+        "rgbTolerance": 3,
+        "alpha": 255
+      },
+      "nativeGui": {
+        "binarySha256": "9f01dfc2822f45e1693a87e2188dc2daecd6cf128246677130d00ebcdc494275",
+        "functionalRunsPassedBeforeGuard": 4,
+        "rebuiltOrRerunThisPhase": false,
+        "scope": "Previous actual macOS result predates current main guard;120s incomplete-smoke failing stage/cause remains unproven."
+      }
+    }
+  },
+  "payload": {
+    "entry": "assets/index-DIgO41Ne.js",
+    "files": 9,
+    "bytes": 291664,
+    "sourceInputCount": 121,
+    "hashes": {
+      "LICENSE": "56a608c8e81aeec574eb9e3380fb3a0e0869156385b2d036f7887e4d9123bb80",
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/buffer-DU0qbHNf.js": "5c113f74252e7c942876d5076dd71ed24775ffdf9cd133500a5a2f1803d9cca3",
+      "assets/codec.worker-DjqGsUQn.js": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+      "assets/encoder-Bl-BehpH.js": "dee06d7074f91f718964ad9ac8edfc439229b9ddb1f226ba8e2c3b804b3dd448",
+      "assets/index-BiPiFrZI.css": "4c481eccc0d58fadad8a52621eb206fe0d15896ac4afbc000e5688669797b154",
+      "assets/index-DIgO41Ne.js": "ba6f5feeb60149f9f676af7f9a1411ec7ffa4317f78994dec056a8278131c53e",
+      "assets/native-smoke-CaoeFRl8.js": "eac0a56d42de27c8de5ffc23bf5ab642d7889c357fcaa1ab9c709f823e8dfeb8",
+      "index.html": "b103748340390bd086872fb900a153d39e383bd8b0ee97887160eeefcb48d1ff"
+    },
+    "workerUnchanged": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739"
+  },
+  "completion": {
+    "QF04": true,
+    "QF02Dependency": true,
+    "ownCriteriaProved": 7,
+    "partial": 25,
+    "missing": 2,
+    "dependenciesClosed": [
+      "QF-01",
+      "QF-02",
+      "QF-04"
+    ],
+    "next": "QF-03 targeted device/budget/repeatable measurement gate; bounded native incomplete-smoke diagnostic remains separate. Do not auto-close QF-05/QF-06."
+  },
+  "remainingSpecificAcceptance": [
+    "Activation success/late cancellation integrated UI proof strengthening (not a reproduced defect)",
+    "Durable native write/late abort+pending singlecommit integrated UI proof strengthening",
+    "Windows/physical Android/OS picker/IME/clipboard/full options",
+    "Native rebuild and actual GUI acceptance for current guarded main",
+    "Memory/tail budgets/release CI/signing/notarization/staging/rollback"
+  ],
+  "gitIndexConfigUnchanged": {
+    "/Users/jhpark/code/myService/myPaint/.git/index": "97ba1bdcc5be543453783454ae6e9b93525f5bf142662da739b4fb013832dca6",
+    "/Users/jhpark/code/myService/myPaint/.git/config": "f13edd5ed90f3f8d6113e97fb498997117dcce4fe134d4902676a618f1504f00",
+    "/Users/jhpark/code/myService/parkjh2568.github.io/.git/index": "4b864409423a5070e55f3e8613b2595ccd670b7a3726d509c071903a5beecaff",
+    "/Users/jhpark/code/myService/parkjh2568.github.io/.git/config": "8b4bacdd76435d49e0eb4004a54681c89f67edd17bcc0bc2a74c5a07905ba19d"
+  },
+  "homepageWritten": false,
+  "committedOrPushed": false,
+  "references": {
+    "build-web-work/task-planning/qf04-contract-audit/source-before.json": {
+      "sha256": "96a9d8cb02d5bf535dbb1d49fcf468397800fa8edef0699499ca3dbd7442df2a",
+      "bytes": 1754
+    },
+    "build-web-work/task-planning/qf04-contract-audit/accepted-source.json": {
+      "sha256": "8bccb649e90250b2a1c3561ec06c0bbf85a1091389d22b52f459d61afc141df6",
+      "bytes": 1754
+    },
+    "build-web-work/task-planning/qf04-contract-audit/production.diff": {
+      "sha256": "46a14f50cf5230f8308b002763ea97183dc3973bc8ba14880afc3aea111c2488",
+      "bytes": 395
+    },
+    "build-web-work/task-planning/qf04-contract-audit/reproduction.json": {
+      "sha256": "20188b3e8fae268bc3edba0917cc412af702d3e558bcb4fcb329e84de1754218",
+      "bytes": 929
+    },
+    "build-web-work/task-planning/qf04-contract-audit/driver-before.mjs": {
+      "sha256": "3259c1fc3bda1937fde243fe26479a9f1982206cb1faa245b8e3159478101248",
+      "bytes": 38972
+    },
+    "build-web-work/task-planning/qf04-contract-audit/driver-after.mjs": {
+      "sha256": "52e895361c2e4fe76e2028c901d1f0b92b17902a0be9d9d97e5fb7aad0ec6d07",
+      "bytes": 38886
+    },
+    "build-web-work/task-planning/qf04-contract-audit/native-client-before.json": {
+      "sha256": "08d9bb9e77c2f3a29ee75df30cd67a11f29ddeeb649ee167d10ff6887a12c9b6",
+      "bytes": 4648
+    },
+    "build-web-work/task-planning/qf04-contract-audit/native-client-after.json": {
+      "sha256": "5e6256782541b0221ac21c3cf02b546e93a4516e329cfacbdb6813b358ec4f82",
+      "bytes": 2407
+    },
+    "build-web-work/task-planning/qf04-contract-audit/export-preview/results.json": {
+      "sha256": "a82cfc58e3fd83549e4c9e2a3bdd0df314ac0d7a11aaf6ccde81d52e6917c7a1",
+      "bytes": 52339
+    },
+    "build-web-work/task-planning/qf04-contract-audit/recovery-flow/results.json": {
+      "sha256": "74366d2fa0174c323418d1d4651b3454aa78559d19f76134ef889a2556ad85bb",
+      "bytes": 39093
+    },
+    "build-web-work/task-planning/qf04-contract-audit/format.log": {
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae",
+      "bytes": 159
+    },
+    "build-web-work/task-planning/qf04-contract-audit/build-candidate.log": {
+      "sha256": "b452a4cfdf7c0da1781b01b87b36f2dfbbbd27524dbe831a00bfc18e9766cba1",
+      "bytes": 1089
+    },
+    "build-web-work/task-planning/qf04-contract-audit/candidate-bundle/bundle.json": {
+      "sha256": "7c631edd414d25fa79dc17fa2859a8ebf582557a6d0182ec73731c905734937d",
+      "bytes": 14667
+    },
+    "build-web-work/task-planning/qf04-contract-audit/reviews/architect-contracts.json": {
+      "sha256": "95e0a6f9fc5fd65dccdf7b11d3803abd7098b8a6a777b0c7fb5da762e23bc8cd",
+      "bytes": 35297
+    },
+    "build-web-work/task-planning/qf04-contract-audit/reviews/reviewer-contracts.json": {
+      "sha256": "121b529862cb1d225c3d9f99e8e629e1fc3b522cbdbd237e162303f17e716655",
+      "bytes": 17332
+    },
+    "build-web-work/task-planning/qf04-contract-audit/reviews/reviewer-fix-review.json": {
+      "sha256": "f0a4d1d8d66f2d11567788337ea7c0f38db00a8510474aa8f162732bcdc03291",
+      "bytes": 5005
+    },
+    "build-web-work/task-planning/qf04-contract-audit/reviews/sre-evidence.json": {
+      "sha256": "4c8fa65a62eccb04e388cc84ae1520c727a539fdaf842dbaacee30b2683ed299",
+      "bytes": 16349
+    },
+    "build-web-work/task-planning/qf04-contract-audit/reviews/sre-fix-review.json": {
+      "sha256": "dfb90bdca84057b9398722d4f9aad8bf2b6444d9f8513cffcfa5c15c003b699e",
+      "bytes": 8811
+    },
+    "docs/evidence/studio-fixture-baseline.json": {
+      "sha256": "bca659d09b2750441cc8ae447f199128e3a65255dc53125f04c977509ec3952f",
+      "bytes": 14985
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/unit.log": {
+      "sha256": "f9af24536527bbc5ec9263681a8d83a0c85dc1810fde7de6a417dbbb7cf1e7da",
+      "bytes": 27870
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/final-bundle/bundle.json": {
+      "sha256": "2d18fd84b21e6130b3cfcd3d60d9c2a2a59efe7b07a969c755261790c92427a7",
+      "bytes": 14667
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/qt-producer/producer-comparison.json": {
+      "sha256": "1aa69b0f7367797fa1189f1d85b57b74c0dd17c3443694ed5e96e3622d12b3b8",
+      "bytes": 5767
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-observed-foreground.json": {
+      "sha256": "70cdcc1ea0ed1f3f43ffbcde7938fd2476c2a66b399465d43f791d55126d3205",
+      "bytes": 33542
+    },
+    "build-web-work/task-planning/qf04-contract-audit/cleanup.json": {
+      "sha256": "2038bcc010a5fe3e15197b8be6d368d2a2ad035e2bf2e3d18c57cfbae1b6dab2",
+      "bytes": 790
+    }
+  }
+}

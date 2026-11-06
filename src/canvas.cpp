@@ -13,8 +13,10 @@
 #include <QPainter>
 #include <QProgressDialog>
 #include <QRandomGenerator>
+#include <QScopedValueRollback>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QTabletEvent>
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QUrl>
@@ -96,8 +98,10 @@ void Canvas::setTool(Tool next) {
 }
 void Canvas::cancel() {
     spray.stop();
+    brushStroke = {};
     dragging = moving = resizingSelection = resizingCanvas = panning = false;
     gestureButton = Qt::NoButton;
+    gestureDevice = nullptr;
     selectionFromDocument = selectionModified = false;
     selection = {};
     selectionRect = {};
@@ -116,8 +120,10 @@ void Canvas::cancel() {
 }
 void Canvas::recoverAfterError() {
     spray.stop();
+    brushStroke = {};
     dragging = moving = resizingSelection = resizingCanvas = panning = false;
     gestureButton = Qt::NoButton;
+    gestureDevice = nullptr;
     if (selection.isNull() && points.isEmpty())
         working = {};
     refresh();
@@ -419,6 +425,75 @@ void Canvas::transformSelection(const QTransform &transform) {
     doc.commit(std::move(candidate), QStringLiteral("이미지 변형"));
     cancel();
 }
+void Canvas::drawBrush(QPointF point, qreal pressure, bool finish) {
+    if (!std::isfinite(point.x()) || !std::isfinite(point.y()) || !std::isfinite(pressure))
+        throw std::runtime_error("브러시 입력 좌표가 올바르지 않습니다.");
+    auto &stroke = brushStroke;
+    auto &image = working.layers[working.active].image;
+    point.setX(std::clamp(point.x(), -qreal(MaxDimension), qreal(MaxDimension) * 2));
+    point.setY(std::clamp(point.y(), -qreal(MaxDimension), qreal(MaxDimension) * 2));
+    pressure = stroke.pressureSensitive ? std::clamp(pressure, 0.0, 1.0) : 1.0;
+    const qreal weight = 1.0 - stroke.stabilization * 0.008;
+    const QPointF filtered = finish ? point : stroke.filtered + (point - stroke.filtered) * weight;
+    const QPointF end = finish ? point : (stroke.filtered + filtered) * 0.5;
+    QPainterPath curve(stroke.position);
+    curve.quadTo(stroke.filtered, end);
+    const qreal length =
+        QLineF(stroke.position, stroke.filtered).length() + QLineF(stroke.filtered, end).length();
+    const qreal spacing = std::max(0.25, stroke.size * 0.12);
+    const int steps = std::max(1, qCeil(length / spacing));
+    if (!image.bits())
+        throw std::bad_alloc();
+    QRect dirty;
+    for (int step = 0; step <= steps; ++step) {
+        const qreal t = qreal(step) / steps;
+        const QPointF center = curve.pointAtPercent(t);
+        const qreal force = stroke.pressure + (pressure - stroke.pressure) * t;
+        const qreal radius = std::max(0.5, stroke.size * (0.2 + 0.8 * force) * 0.5);
+        const qreal inner = radius * stroke.hardness / 100.0;
+        const QRect bounds(QPoint(qFloor(center.x() - radius - 0.5), qFloor(center.y() - radius - 0.5)),
+                           QPoint(qCeil(center.x() + radius + 0.5), qCeil(center.y() + radius + 0.5)));
+        const QRect clipped = bounds.intersected(image.rect());
+        dirty = dirty.united(clipped);
+        for (int y = clipped.top(); y <= clipped.bottom(); ++y) {
+            auto *coverage = stroke.coverage.scanLine(y);
+            auto *output = reinterpret_cast<QRgb *>(image.scanLine(y));
+            const auto *base = reinterpret_cast<const QRgb *>(stroke.base.constScanLine(y));
+            for (int x = clipped.left(); x <= clipped.right(); ++x) {
+                const qreal distance = std::hypot(x + 0.5 - center.x(), y + 0.5 - center.y());
+                const qreal edge = std::clamp((distance - inner) / (radius + 0.5 - inner), 0.0, 1.0);
+                const int alpha = qRound(255 * (1 - edge * edge * (3 - 2 * edge)) * stroke.opacity / 100.0);
+                // Revisiting a pixel in the same stroke must not compound its opacity.
+                if (alpha <= coverage[x])
+                    continue;
+                coverage[x] = uchar(alpha);
+                const QRgb original = base[x];
+                if (stroke.eraser) {
+                    const QRgb target = qPremultiply(stroke.color.rgba());
+                    output[x] =
+                        qRgba((qRed(target) * alpha + qRed(original) * (255 - alpha) + 127) / 255,
+                              (qGreen(target) * alpha + qGreen(original) * (255 - alpha) + 127) / 255,
+                              (qBlue(target) * alpha + qBlue(original) * (255 - alpha) + 127) / 255,
+                              (qAlpha(target) * alpha + qAlpha(original) * (255 - alpha) + 127) / 255);
+                } else {
+                    const int ink = (alpha * stroke.color.alpha() + 127) / 255;
+                    output[x] =
+                        qRgba((stroke.color.red() * ink + qRed(original) * (255 - ink) + 127) / 255,
+                              (stroke.color.green() * ink + qGreen(original) * (255 - ink) + 127) / 255,
+                              (stroke.color.blue() * ink + qBlue(original) * (255 - ink) + 127) / 255,
+                              ink + (qAlpha(original) * (255 - ink) + 127) / 255);
+                }
+            }
+        }
+    }
+    stroke.position = end;
+    stroke.filtered = filtered;
+    stroke.pressure = pressure;
+    if (!dirty.isEmpty())
+        update(QRectF(dirty.x() * zoom - 2, dirty.y() * zoom - 2, dirty.width() * zoom + 4,
+                      dirty.height() * zoom + 4)
+                   .toAlignedRect());
+}
 void Canvas::drawStroke(QPoint from, QPoint to) {
     auto &image = working.layers[working.active].image;
     if (!image.bits())
@@ -563,7 +638,8 @@ void Canvas::fillAt(QPoint point) {
 }
 void Canvas::paintEvent(QPaintEvent *event) try {
     QPainter painter(this);
-    painter.fillRect(rect(), QColor(128, 128, 128));
+    painter.fillRect(rect(), QColor(22, 24, 29));
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, zoom < 1);
     const QSize size =
         selection.isNull()
             ? doc.state().size
@@ -633,6 +709,14 @@ void Canvas::paintEvent(QPaintEvent *event) try {
     if (resizingCanvas)
         painter.drawRect(QRect(QPoint(0, 0), canvasPreview));
     painter.restore();
+    if (underMouse() && !dragging && (tool == Tool::Brush || tool == Tool::Eraser)) {
+        const qreal radius = std::max(2.0, thickness * zoom * 0.5);
+        painter.setBrush(Qt::NoBrush);
+        painter.setPen(QPen(QColor(20, 24, 30, 180), 3));
+        painter.drawEllipse(pointerPosition * zoom, radius, radius);
+        painter.setPen(QPen(QColor(235, 240, 250), 1));
+        painter.drawEllipse(pointerPosition * zoom, radius, radius);
+    }
     painter.setPen(Qt::black);
     painter.setBrush(Qt::white);
     painter.drawRect(QRect(paper.right() + 1, paper.bottom() + 1, 7, 7));
@@ -643,9 +727,11 @@ void Canvas::mousePressEvent(QMouseEvent *event) try {
     if (dragging)
         return;
     setFocus();
+    pointerPosition = event->position() / zoom;
     hover = documentPoint(event->position());
     rightButton = event->button() == Qt::RightButton;
     gestureButton = event->button();
+    gestureDevice = event->pointingDevice();
     if (event->button() == Qt::MiddleButton || tool == Tool::Pan) {
         start = event->globalPosition().toPoint();
         dragging = panning = true;
@@ -673,6 +759,7 @@ void Canvas::mousePressEvent(QMouseEvent *event) try {
         settle();
     }
     gestureButton = event->button();
+    gestureDevice = event->pointingDevice();
     if (hover.x() >= doc.state().size.width() || hover.y() >= doc.state().size.height()) {
         resizeWidth = hover.x() >= doc.state().size.width();
         resizeHeight = hover.y() >= doc.state().size.height();
@@ -718,6 +805,25 @@ void Canvas::mousePressEvent(QMouseEvent *event) try {
     start = last = hover;
     working = doc.state();
     dragging = true;
+    if (!brushSquare && (tool == Tool::Brush || tool == Tool::Eraser)) {
+        brushStroke = {};
+        brushStroke.coverage = QImage(working.size, QImage::Format_Alpha8);
+        if (brushStroke.coverage.isNull())
+            throw std::bad_alloc();
+        brushStroke.coverage.fill(0);
+        brushStroke.base = working.layers[working.active].image;
+        brushStroke.position = brushStroke.filtered = pointerPosition;
+        brushStroke.pressureSensitive = tabletInput && pressureEnabled;
+        brushStroke.pressure = brushStroke.pressureSensitive ? tabletPressure : 1;
+        brushStroke.size = std::clamp(thickness, 1, 100);
+        brushStroke.opacity = std::clamp(brushOpacity, 0, 100);
+        brushStroke.hardness = std::clamp(brushHardness, 0, 100);
+        brushStroke.stabilization = std::clamp(brushStabilization, 0, 75);
+        brushStroke.eraser = tool == Tool::Eraser;
+        brushStroke.color = brushStroke.eraser
+                                ? (working.layers.size() > 1 ? QColor(Qt::transparent) : background)
+                                : (rightButton ? background : foreground);
+    }
     if (!working.layers[working.active].visible) {
         working.layers[working.active].visible = true;
     }
@@ -731,7 +837,10 @@ void Canvas::mousePressEvent(QMouseEvent *event) try {
     case Tool::Spray:
     case Tool::Eraser:
     case Tool::ColorEraser:
-        drawStroke(start, start);
+        if (!brushStroke.coverage.isNull())
+            drawBrush(pointerPosition, tabletPressure);
+        else
+            drawStroke(start, start);
         if (tool == Tool::Spray)
             spray.start();
         break;
@@ -744,10 +853,17 @@ void Canvas::mousePressEvent(QMouseEvent *event) try {
     reportError(error);
 }
 void Canvas::mouseMoveEvent(QMouseEvent *event) try {
+    if (dragging && gestureDevice != event->pointingDevice())
+        return;
+    pointerPosition = event->position() / zoom;
     hover = documentPoint(event->position());
     emit positionChanged(hover);
     if (!dragging) {
         update();
+        return;
+    }
+    if (!brushStroke.coverage.isNull()) {
+        drawBrush(pointerPosition, tabletPressure);
         return;
     }
     if (panning) {
@@ -803,7 +919,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *event) try {
     reportError(error);
 }
 void Canvas::mouseReleaseEvent(QMouseEvent *event) try {
-    if (!dragging || event->button() != gestureButton)
+    if (!dragging || event->button() != gestureButton || gestureDevice != event->pointingDevice())
         return;
     if (documentPoint(event->position()) != hover) {
         mouseMoveEvent(event);
@@ -822,9 +938,14 @@ void Canvas::mouseReleaseEvent(QMouseEvent *event) try {
             break;
         }
     }
+    if (!brushStroke.coverage.isNull()) {
+        drawBrush(event->position() / zoom, brushStroke.pressure, true);
+        brushStroke = {};
+    }
     spray.stop();
     dragging = false;
     gestureButton = Qt::NoButton;
+    gestureDevice = nullptr;
     if (panning) {
         panning = false;
         emit changed();
@@ -889,6 +1010,29 @@ void Canvas::mouseReleaseEvent(QMouseEvent *event) try {
 } catch (const std::exception &error) {
     reportError(error);
 }
+void Canvas::tabletEvent(QTabletEvent *event) try {
+    if (event->type() != QEvent::TabletPress && event->type() != QEvent::TabletMove &&
+        event->type() != QEvent::TabletRelease) {
+        event->ignore();
+        return;
+    }
+    QScopedValueRollback<bool> source(tabletInput, true);
+    tabletPressure = std::isfinite(event->pressure()) ? std::clamp(event->pressure(), 0.0, 1.0) : 1;
+    const auto type = event->type() == QEvent::TabletPress     ? QEvent::MouseButtonPress
+                      : event->type() == QEvent::TabletRelease ? QEvent::MouseButtonRelease
+                                                               : QEvent::MouseMove;
+    QMouseEvent mouse(type, event->position(), event->globalPosition(), event->button(), event->buttons(),
+                      event->modifiers(), event->pointingDevice());
+    if (type == QEvent::MouseButtonPress)
+        mousePressEvent(&mouse);
+    else if (type == QEvent::MouseButtonRelease)
+        mouseReleaseEvent(&mouse);
+    else
+        mouseMoveEvent(&mouse);
+    event->accept();
+} catch (const std::exception &error) {
+    reportError(error);
+}
 void Canvas::mouseDoubleClickEvent(QMouseEvent *) try {
     if (tool == Tool::Polygon && points.size() >= 3)
         settle();
@@ -896,6 +1040,26 @@ void Canvas::mouseDoubleClickEvent(QMouseEvent *) try {
     reportError(error);
 }
 void Canvas::keyPressEvent(QKeyEvent *event) try {
+    if (!(event->modifiers() & (Qt::ControlModifier | Qt::MetaModifier | Qt::AltModifier)) && !dragging) {
+        const int key = event->key();
+        if (key == Qt::Key_B || key == Qt::Key_N || key == Qt::Key_E || key == Qt::Key_I ||
+            key == Qt::Key_G || key == Qt::Key_T || key == Qt::Key_V || key == Qt::Key_H) {
+            setTool(key == Qt::Key_B   ? Tool::Brush
+                    : key == Qt::Key_N ? Tool::Pencil
+                    : key == Qt::Key_E ? Tool::Eraser
+                    : key == Qt::Key_I ? Tool::Picker
+                    : key == Qt::Key_G ? Tool::Fill
+                    : key == Qt::Key_T ? Tool::Text
+                    : key == Qt::Key_V ? Tool::Select
+                                       : Tool::Pan);
+            return;
+        }
+        if (key == Qt::Key_BracketLeft || key == Qt::Key_BracketRight) {
+            thickness = std::clamp(thickness + (key == Qt::Key_BracketLeft ? -1 : 1), 1, 100);
+            emit changed();
+            return;
+        }
+    }
     if (event->key() == Qt::Key_Escape) {
         cancel();
         return;

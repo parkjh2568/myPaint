@@ -1,13 +1,18 @@
+#include "colorpicker.h"
 #include "mainwindow.h"
 #include <QAction>
 #include <QClipboard>
+#include <QComboBox>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QInputMethodEvent>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QMessageBox>
+#include <QPointingDevice>
 #include <QPushButton>
 #include <QStandardPaths>
+#include <QTabletEvent>
 #include <QTemporaryDir>
 #include <QTextEdit>
 #include <QtTest>
@@ -17,6 +22,11 @@ class UiTests : public QObject {
     Q_OBJECT
   private slots:
     void initTestCase();
+    void smoothBrushEndpointsAndUndo();
+    void brushOpacityAndSoftness();
+    void fractionalBrushInput();
+    void tabletPressureOwnsItsStroke();
+    void studioColorControls();
     void textClipboardDoesNotCutLayer();
     void exportKeepsPendingState();
     void recoveryPathIsProtected();
@@ -868,6 +878,159 @@ void UiTests::discardedDocumentClearsOldRecovery() {
         }
     QVERIFY(!window.document().dirty());
     QVERIFY(!QFile::exists(backup));
+}
+void UiTests::smoothBrushEndpointsAndUndo() {
+    Document doc(QSize(100, 60));
+    Canvas canvas(doc);
+    canvas.show();
+    canvas.setTool(Tool::Brush);
+    canvas.foreground = Qt::red;
+    canvas.thickness = 6;
+    canvas.brushStabilization = 65;
+    QTest::mousePress(&canvas, Qt::LeftButton, {}, {10, 10});
+    for (const auto &point : {QPoint(30, 5), QPoint(50, 25), QPoint(70, 15)})
+        QTest::mouseMove(&canvas, point);
+    QTest::mouseRelease(&canvas, Qt::LeftButton, {}, {80, 30});
+    const QImage result = doc.state().layers[0].image;
+    QCOMPARE(result.pixelColor(10, 10), QColor(Qt::red));
+    QCOMPARE(result.pixelColor(80, 30), QColor(Qt::red));
+    doc.undo();
+    QCOMPARE(doc.state().layers[0].image.pixelColor(40, 15), QColor(Qt::white));
+    QVERIFY(!doc.canUndo());
+    doc.redo();
+    QCOMPARE(doc.state().layers[0].image, result);
+    const auto revision = doc.revision();
+    QTest::mousePress(&canvas, Qt::LeftButton, {}, {15, 45});
+    QTest::mouseMove(&canvas, {70, 45});
+    QTest::keyClick(&canvas, Qt::Key_Escape);
+    QCOMPARE(doc.revision(), revision);
+    QCOMPARE(doc.state().layers[0].image, result);
+}
+void UiTests::brushOpacityAndSoftness() {
+    Document doc(QSize(60, 40));
+    State blank = doc.state();
+    blank.layers[0].image.fill(Qt::transparent);
+    doc.reset(blank);
+    Canvas canvas(doc);
+    canvas.show();
+    canvas.setTool(Tool::Brush);
+    canvas.foreground = Qt::red;
+    canvas.thickness = 10;
+    canvas.brushOpacity = 50;
+    canvas.brushStabilization = 0;
+    QTest::mousePress(&canvas, Qt::LeftButton, {}, {10, 20});
+    QTest::mouseMove(&canvas, {40, 20});
+    QTest::mouseMove(&canvas, {10, 20});
+    QTest::mouseRelease(&canvas, Qt::LeftButton, {}, {40, 20});
+    const auto ink = doc.state().layers[0].image.pixelColor(25, 20);
+    QCOMPARE(ink.red(), 255);
+    QCOMPARE(ink.alpha(), 128);
+    doc.reset(blank);
+    canvas.refresh();
+    canvas.brushHardness = 0;
+    QTest::mouseClick(&canvas, Qt::LeftButton, {}, {30, 20});
+    const QImage soft = doc.state().layers[0].image;
+    QVERIFY(soft.pixelColor(30, 20).alpha() > soft.pixelColor(34, 20).alpha());
+    QVERIFY(soft.pixelColor(34, 20).alpha() > 0);
+    doc.reset(blank);
+    canvas.refresh();
+    canvas.brushOpacity = 0;
+    QTest::mouseClick(&canvas, Qt::LeftButton, {}, {30, 20});
+    QVERIFY(!doc.dirty());
+}
+void UiTests::fractionalBrushInput() {
+    Document doc(QSize(40, 40));
+    Canvas canvas(doc);
+    canvas.show();
+    canvas.setTool(Tool::Brush);
+    canvas.thickness = 1;
+    canvas.brushStabilization = 0;
+    QVector<QImage> results;
+    const State blank = doc.state();
+    for (qreal coordinate : {20.1, 20.9}) {
+        doc.reset(blank);
+        canvas.refresh();
+        const QPointF position(coordinate, coordinate);
+        QMouseEvent press(QEvent::MouseButtonPress, position, position, Qt::LeftButton, Qt::LeftButton,
+                          Qt::NoModifier);
+        QApplication::sendEvent(&canvas, &press);
+        QMouseEvent release(QEvent::MouseButtonRelease, position, position, Qt::LeftButton, Qt::NoButton,
+                            Qt::NoModifier);
+        QApplication::sendEvent(&canvas, &release);
+        results.push_back(doc.state().layers[0].image);
+    }
+    QVERIFY(results[0] != results[1]);
+}
+void UiTests::tabletPressureOwnsItsStroke() {
+    Document doc(QSize(90, 80));
+    Canvas canvas(doc);
+    canvas.show();
+    canvas.setTool(Tool::Brush);
+    canvas.foreground = Qt::red;
+    canvas.thickness = 20;
+    canvas.brushStabilization = 0;
+    QPointingDevice pen(QStringLiteral("test pen"), 42, QInputDevice::DeviceType::Stylus,
+                        QPointingDevice::PointerType::Pen,
+                        QInputDevice::Capability::Position | QInputDevice::Capability::Pressure, 1, 1);
+    for (int stroke = 0; stroke < 2; ++stroke) {
+        const qreal pressure = stroke ? 1.0 : 0.1;
+        const int y = stroke ? 55 : 20;
+        for (const auto type : {QEvent::TabletPress, QEvent::TabletMove, QEvent::TabletRelease}) {
+            const QPointF position(type == QEvent::TabletPress ? 15 : 65, y);
+            QTabletEvent event(type, &pen, position, position, pressure, 0, 0, 0, 0, 0, Qt::NoModifier,
+                               type == QEvent::TabletMove ? Qt::NoButton : Qt::LeftButton,
+                               type == QEvent::TabletRelease ? Qt::NoButton : Qt::LeftButton);
+            QApplication::sendEvent(&canvas, &event);
+            if (type == QEvent::TabletPress) {
+                QTest::mouseRelease(&canvas, Qt::LeftButton, {}, {85, 75});
+                QVERIFY(canvas.hasActiveGesture());
+            }
+        }
+    }
+    int narrow = 0, wide = 0;
+    const QImage image = doc.state().layers[0].image;
+    for (int y = 0; y < 80; ++y) {
+        if (image.pixelColor(40, y) != QColor(Qt::white)) {
+            if (y < 38)
+                ++narrow;
+            else
+                ++wide;
+        }
+    }
+    QVERIFY(wide > narrow * 2);
+    QCOMPARE(image.pixelColor(85, 75), QColor(Qt::white));
+    doc.undo();
+    QCOMPARE(doc.state().layers[0].image.pixelColor(40, 55), QColor(Qt::white));
+    QVERIFY(doc.state().layers[0].image.pixelColor(40, 20) != QColor(Qt::white));
+}
+void UiTests::studioColorControls() {
+    MainWindow window;
+    window.show();
+    auto *field = window.findChild<QLineEdit *>(QStringLiteral("hexColor"));
+    QVERIFY(field);
+    const auto revision = window.document().revision();
+    field->setText(QStringLiteral("#1679ea"));
+    QVERIFY(QMetaObject::invokeMethod(field, "editingFinished"));
+    QCOMPARE(window.canvasWidget()->foreground, QColor("#1679ea"));
+    QCOMPARE(window.document().revision(), revision);
+    field->setText(QStringLiteral("broken"));
+    QVERIFY(QMetaObject::invokeMethod(field, "editingFinished"));
+    QCOMPARE(window.canvasWidget()->foreground, QColor("#1679ea"));
+    auto *picker = window.findChild<ColorPicker *>();
+    QVERIFY(picker);
+    QSignalSpy picked(picker, &ColorPicker::colorChanged);
+    QTest::mouseClick(picker, Qt::LeftButton, {}, picker->rect().center() + QPoint(15, -15));
+    QCOMPARE(picked.count(), 1);
+    QTest::mousePress(picker, Qt::LeftButton, {}, picker->rect().center());
+    QEvent lost(QEvent::UngrabMouse);
+    QApplication::sendEvent(picker, &lost);
+    const auto selected = window.canvasWidget()->foreground;
+    QMouseEvent move(QEvent::MouseMove, QPointF(10, 10), QPointF(10, 10), Qt::NoButton, Qt::NoButton,
+                     Qt::NoModifier);
+    QApplication::sendEvent(picker, &move);
+    QCOMPARE(window.canvasWidget()->foreground, selected);
+    QCOMPARE(field->text(), window.canvasWidget()->foreground.name());
+    QCOMPARE(window.document().revision(), revision);
 }
 QTEST_MAIN(UiTests)
 #include "ui_tests.moc"

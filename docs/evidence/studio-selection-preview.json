@@ -1,0 +1,3215 @@
+{
+  "ok": true,
+  "date": "2026-11-05",
+  "scope": "선택이 처음 modified가 되는 화면의 측정→RCA→cut callback 단독 수정→독립 검토·고정 전버전 Canvas 비교. 전체 성능/플랫폼/목표 완료가 아니다. 커밋·푸시·공개 배포·원격 CI 실행 없음.",
+  "platformPolicy": {
+    "mobileTablet": "web only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "actualNativeValidation": "macOS arm64 / WKWebView standard app four phases, not Windows"
+  },
+  "rootCause": {
+    "trigger": "P32768 lasso selection on1024², ROI1023×1021, first ArrowRight enters modified preview",
+    "callPath": "keyboard Arrow→modified selection→render active cut raster + payload→PixelTileCache.walkTiles→transform callback",
+    "evidence": "First RAF58.1ms/18uploads vs warm3.8–4.1ms/0uploads. Separate CDP sample transform leaf66/~49.911weightedms locates bbox/mask/pixels.set callback; Canvas API observed wall sum3.6ms. Native set self cost is not isolated.",
+    "fault": "Callback scans all supplied tile pixels even outside original source bounds and invokes plain-array pixels.set for each selected pixel. This is first cut creation cost, not proven repeated warm upload cost."
+  },
+  "change": {
+    "source17": {
+      "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+      "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+      "web-app/src/engine/operations.ts": "7cde8e9b224ea37f797ba74c3ec0fdee68da18c127e4cb2c4d9e2082a3f4e46c",
+      "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+      "web-app/src/main.ts": "9243e5903949ad0c9fd79efdea9ecccea1aee1be5667da0266c25ebd89e17ad9",
+      "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+      "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+      "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+      "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+      "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+      "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+      "web-app/src/style.css": "ac8201c63e4692a88802ed226b9c294fe5da305bb90747cc75624320c9e8b6fc",
+      "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+      "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+      "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+      "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+      "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+    },
+    "runtimeChanged": [
+      "web-app/src/main.ts"
+    ],
+    "method": "Studio.render → transform arrow only",
+    "code": "Intersect integer row/column indices with original source rectangle using ceil/exclusive upper bound; retain sourceMask[sy*source.width+sx], directly write all4 target channels.",
+    "contracts": [
+      "single-layer background or multi-layer transparent Source RGBA, including hiddenRGB/alpha0/1/128/255",
+      "geometric sourceMask independent of keyed payload, original source-width stride after payload resize",
+      "no changes to actual clearSelectionSource, pending pixels, document/history/format/profiles",
+      "no new cache owner/key, payload filtering, layer order/hidden active policy, mip/halo/culling/scene/worker changes",
+      "unaligned Uint8ClampedArray views require no endian/word branch"
+    ],
+    "newProductionModules": 0,
+    "newHelpers": 0,
+    "runtimeDependenciesAdded": 0,
+    "comments": "No new production comment, TODO or speculative abstraction. Sequential work stays inline in existing owner.",
+    "prototypeDecision": "22,400 guarded full-backing input combinations matched frozen d320 callback for direct4 and word prototypes. Choose direct4: no native-endian color packing/unaligned fallback or per-row4B packed backing; masked word gain small and small-ROI Node word variant slower. This does not prove global direct4 superiority; unmasked word prototype was faster.",
+    "prototypeMicrobench": {
+      "scope": "Node-only AST-extracted shipped old callback and two inline prototypes. Complete backing bytes incl guards compared; no DOM/Canvas/p95/native/RSS claim. Row-callback synthetic1024² microbench, warm2 and timed4 per variant fixed order; not public UI result.",
+      "oldMainSHA256": "d320b6a7609cf09695ad777fd2cf2129754c99a8a877edc6cec306f7d9af1e1e",
+      "cases": 22400,
+      "variants": [
+        "direct four channels",
+        "native-endian word with explicit unaligned fallback"
+      ],
+      "bench": [
+        {
+          "spec": {
+            "name": "dense-full-mask",
+            "mask": "full"
+          },
+          "variants": {
+            "old": {
+              "samples": [
+                21.753124999999955,
+                21.18816700000002,
+                21.172291000000087,
+                21.300624999999968
+              ],
+              "median": 21.244395999999995
+            },
+            "direct": {
+              "samples": [
+                5.845082999999931,
+                5.802584000000024,
+                5.813457999999969,
+                5.8142500000000155
+              ],
+              "median": 5.813853999999992
+            },
+            "words": {
+              "samples": [
+                3.1389580000000024,
+                3.1515419999999494,
+                3.2816249999999627,
+                3.096416999999974
+              ],
+              "median": 3.145249999999976
+            }
+          }
+        },
+        {
+          "spec": {
+            "name": "alternating-mask",
+            "mask": "holes"
+          },
+          "variants": {
+            "old": {
+              "samples": [
+                9.645250000000033,
+                9.671749999999975,
+                9.913707999999815,
+                10.052167000000054
+              ],
+              "median": 9.792728999999895
+            },
+            "direct": {
+              "samples": [
+                3.370916999999963,
+                3.3550420000001395,
+                3.3266660000001593,
+                3.3435830000000806
+              ],
+              "median": 3.34931250000011
+            },
+            "words": {
+              "samples": [
+                2.542124999999942,
+                2.717041999999992,
+                2.6881670000000213,
+                2.6824169999999867
+              ],
+              "median": 2.685292000000004
+            }
+          }
+        },
+        {
+          "spec": {
+            "name": "unmasked",
+            "mask": "none"
+          },
+          "variants": {
+            "old": {
+              "samples": [
+                20.046291999999994,
+                19.857999999999947,
+                19.900916999999936,
+                19.895125000000007
+              ],
+              "median": 19.89802099999997
+            },
+            "direct": {
+              "samples": [
+                4.941667000000052,
+                8.427458999999999,
+                4.695499999999811,
+                4.670292000000018
+              ],
+              "median": 4.8185834999999315
+            },
+            "words": {
+              "samples": [
+                0.6253330000001824,
+                0.6366669999999885,
+                0.6283750000000055,
+                0.6321250000000873
+              ],
+              "median": 0.6302500000000464
+            }
+          }
+        },
+        {
+          "spec": {
+            "name": "small-inside",
+            "mask": "holes",
+            "small": true
+          },
+          "variants": {
+            "old": {
+              "samples": [
+                2.1157499999999345,
+                2.1100000000001273,
+                2.1247920000000704,
+                2.1195419999999103
+              ],
+              "median": 2.1176459999999224
+            },
+            "direct": {
+              "samples": [
+                0.2472090000001117,
+                0.23812500000008185,
+                0.24154199999998127,
+                0.25324999999998
+              ],
+              "median": 0.24437550000004649
+            },
+            "words": {
+              "samples": [
+                0.27212499999996,
+                0.8684169999999085,
+                0.7086249999999836,
+                1.3015000000000327
+              ],
+              "median": 0.7885209999999461
+            }
+          }
+        },
+        {
+          "spec": {
+            "name": "outside",
+            "mask": "full",
+            "outside": true
+          },
+          "variants": {
+            "old": {
+              "samples": [
+                2.1337919999998576,
+                2.1463340000000244,
+                2.163000000000011,
+                2.1301250000001346
+              ],
+              "median": 2.140062999999941
+            },
+            "direct": {
+              "samples": [
+                0.19391700000005585,
+                0.19820899999990615,
+                0.19725000000016735,
+                0.19416599999999562
+              ],
+              "median": 0.19570800000008148
+            },
+            "words": {
+              "samples": [
+                0.06254100000001017,
+                0.06095799999980045,
+                0.06304199999999582,
+                1.4453330000001188
+              ],
+              "median": 0.062791500000003
+            }
+          }
+        }
+      ],
+      "ok": true
+    }
+  },
+  "performance": {
+    "protocol": "New actual ordinary-web first-modified selection preview cost pair: one baseline and one candidate unprofiled trace, plus distinct one sampled diagnostic per version. All original raw/protocol/baseline summary preserved. No product edits by SRE.",
+    "metrics": {
+      "baseline": [
+        {
+          "name": "first-arrow",
+          "completionMs": 74,
+          "rafSamples": [
+            {
+              "phase": "first-arrow",
+              "start": 2152.7000000476837,
+              "end": 2210.8000000715256,
+              "ms": 58.10000002384186
+            }
+          ],
+          "rafWallSumMs": 58.10000002384186,
+          "publicApiWallSumMs": 3.5999999046325684,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 2,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3701,
+              "wallMs": 1.7999998331069946
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 20,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 19,
+              "wallMs": 0
+            },
+            {
+              "category": "allocation",
+              "name": "new OffscreenCanvas",
+              "calls": 18,
+              "wallMs": 0
+            },
+            {
+              "category": "offscreen",
+              "name": "getContext",
+              "calls": 18,
+              "wallMs": 0.20000004768371582
+            },
+            {
+              "category": "allocation",
+              "name": "new ImageData",
+              "calls": 18,
+              "wallMs": 0.20000004768371582
+            },
+            {
+              "category": "offscreen",
+              "name": "putImageData",
+              "calls": 18,
+              "wallMs": 1.399999976158142
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 18,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 20,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 18,
+          "cumulativeUploadBytes": 8437836,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 75.10000002384186,
+          "longtasks": [
+            {
+              "start": 2152.4000000953674,
+              "ms": 59
+            }
+          ],
+          "callbackSamples": [],
+          "fullCanvasSha256": "fbf5f3b5eff324a45184cb78d1a684a606e405900f00dc1b04db18d0d18d308f"
+        },
+        {
+          "name": "warm-arrow-1",
+          "completionMs": 5,
+          "rafSamples": [
+            {
+              "phase": "warm-arrow-1",
+              "start": 2556.2000000476837,
+              "end": 2560.100000023842,
+              "ms": 3.899999976158142
+            }
+          ],
+          "rafWallSumMs": 3.899999976158142,
+          "publicApiWallSumMs": 2.400000214576721,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 2,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3701,
+              "wallMs": 1.1000001430511475
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 20,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 19,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 18,
+              "wallMs": 1.3000000715255737
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 20,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 0,
+          "cumulativeUploadBytes": 0,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 6.200000047683716,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "ccb54bb615cfa78792c771ba73baab0b61595ffcedf4e520d944cb12baab0a20"
+        },
+        {
+          "name": "warm-arrow-2",
+          "completionMs": 5,
+          "rafSamples": [
+            {
+              "phase": "warm-arrow-2",
+              "start": 2895.8000000715256,
+              "end": 2899.600000023842,
+              "ms": 3.799999952316284
+            }
+          ],
+          "rafWallSumMs": 3.799999952316284,
+          "publicApiWallSumMs": 3.0,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 2,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3701,
+              "wallMs": 1.399999976158142
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 20,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 19,
+              "wallMs": 0.10000002384185791
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 18,
+              "wallMs": 1.5
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 20,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 0,
+          "cumulativeUploadBytes": 0,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 6.800000071525574,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "71fd471aef7f75c32bf7db74ba6f53d13365421dcceda384a9c94c2c4dae0ef6"
+        },
+        {
+          "name": "warm-arrow-3",
+          "completionMs": 5.100000023841858,
+          "rafSamples": [
+            {
+              "phase": "warm-arrow-3",
+              "start": 3227.600000023842,
+              "end": 3231.7000000476837,
+              "ms": 4.100000023841858
+            }
+          ],
+          "rafWallSumMs": 4.100000023841858,
+          "publicApiWallSumMs": 3.1999999284744263,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 2,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3701,
+              "wallMs": 1.1999999284744263
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 20,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 19,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 18,
+              "wallMs": 1.899999976158142
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 20,
+              "wallMs": 0.10000002384185791
+            }
+          ],
+          "uploads": 0,
+          "cumulativeUploadBytes": 0,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 6.100000023841858,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "c34a2e6b3e73a98e2b1d2260ca3ceb49c4321223853052239adfff53530ccee5"
+        },
+        {
+          "name": "drag",
+          "completionMs": 68,
+          "rafSamples": [
+            {
+              "phase": "drag",
+              "start": 3585.8000000715256,
+              "end": 3589.8000000715256,
+              "ms": 4
+            },
+            {
+              "phase": "drag",
+              "start": 3602.600000023842,
+              "end": 3605,
+              "ms": 2.399999976158142
+            },
+            {
+              "phase": "drag",
+              "start": 3619.2000000476837,
+              "end": 3621.9000000953674,
+              "ms": 2.700000047683716
+            },
+            {
+              "phase": "drag",
+              "start": 3635.8000000715256,
+              "end": 3638.4000000953674,
+              "ms": 2.600000023841858
+            }
+          ],
+          "rafWallSumMs": 11.700000047683716,
+          "publicApiWallSumMs": 8.300000071525574,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 8,
+              "wallMs": 0.10000002384185791
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 14890,
+              "wallMs": 6.600000023841858
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 80,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 76,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 72,
+              "wallMs": 1.600000023841858
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 80,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 0,
+          "cumulativeUploadBytes": 0,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 20.09999990463257,
+          "longtasks": [],
+          "callbackSamples": [
+            {
+              "phase": "drag",
+              "type": "pointerdown",
+              "start": 3571,
+              "end": 3571.100000023842,
+              "ms": 0.10000002384185791
+            },
+            {
+              "phase": "drag",
+              "type": "pointermove",
+              "start": 3585.7000000476837,
+              "end": 3585.8000000715256,
+              "ms": 0.10000002384185791
+            },
+            {
+              "phase": "drag",
+              "type": "pointermove",
+              "start": 3602.5,
+              "end": 3602.600000023842,
+              "ms": 0.10000002384185791
+            },
+            {
+              "phase": "drag",
+              "type": "pointermove",
+              "start": 3619.100000023842,
+              "end": 3619.100000023842,
+              "ms": 0
+            },
+            {
+              "phase": "drag",
+              "type": "pointerup",
+              "start": 3622.9000000953674,
+              "end": 3623.600000023842,
+              "ms": 0.6999999284744263
+            }
+          ],
+          "fullCanvasSha256": "2e530c8eab7014636e0d510add7744cf097da38d6ac162d34e8720775b8911ec"
+        },
+        {
+          "name": "cancel",
+          "completionMs": 13.699999928474426,
+          "rafSamples": [
+            {
+              "phase": "cancel",
+              "start": 4819.100000023842,
+              "end": 4823.5,
+              "ms": 4.399999976158142
+            }
+          ],
+          "rafWallSumMs": 4.399999976158142,
+          "publicApiWallSumMs": 1.5999997854232788,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 4,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3700,
+              "wallMs": 1.1999999284744263
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 11,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 10,
+              "wallMs": 0
+            },
+            {
+              "category": "offscreen",
+              "name": "putImageData",
+              "calls": 9,
+              "wallMs": 0.39999985694885254
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 9,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 11,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 9,
+          "cumulativeUploadBytes": 4227136,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 14.5,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "d9841178d3eb5a859a01dcdd9179d48b9fad95fb37f2821c6d0927015082f08f"
+        }
+      ],
+      "candidate": [
+        {
+          "name": "first-arrow",
+          "completionMs": 31.299999952316284,
+          "rafSamples": [
+            {
+              "phase": "first-arrow",
+              "start": 2155.7999999523163,
+              "end": 2171.5,
+              "ms": 15.700000047683716
+            }
+          ],
+          "rafWallSumMs": 15.700000047683716,
+          "publicApiWallSumMs": 2.9999996423721313,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 2,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3701,
+              "wallMs": 1.5
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 20,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 19,
+              "wallMs": 0
+            },
+            {
+              "category": "allocation",
+              "name": "new OffscreenCanvas",
+              "calls": 18,
+              "wallMs": 0
+            },
+            {
+              "category": "offscreen",
+              "name": "getContext",
+              "calls": 18,
+              "wallMs": 0.10000002384185791
+            },
+            {
+              "category": "allocation",
+              "name": "new ImageData",
+              "calls": 18,
+              "wallMs": 0.19999992847442627
+            },
+            {
+              "category": "offscreen",
+              "name": "putImageData",
+              "calls": 18,
+              "wallMs": 0.9999996423721313
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 18,
+              "wallMs": 0.20000004768371582
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 20,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 18,
+          "cumulativeUploadBytes": 8437836,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 32.199999928474426,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "fbf5f3b5eff324a45184cb78d1a684a606e405900f00dc1b04db18d0d18d308f"
+        },
+        {
+          "name": "warm-arrow-1",
+          "completionMs": 5.100000023841858,
+          "rafSamples": [
+            {
+              "phase": "warm-arrow-1",
+              "start": 2522.2000000476837,
+              "end": 2526.2000000476837,
+              "ms": 4
+            }
+          ],
+          "rafWallSumMs": 4,
+          "publicApiWallSumMs": 3.3000000715255737,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 2,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3701,
+              "wallMs": 1.600000023841858
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 20,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 19,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 18,
+              "wallMs": 1.7000000476837158
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 20,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 0,
+          "cumulativeUploadBytes": 0,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 6.100000023841858,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "ccb54bb615cfa78792c771ba73baab0b61595ffcedf4e520d944cb12baab0a20"
+        },
+        {
+          "name": "warm-arrow-2",
+          "completionMs": 4.799999952316284,
+          "rafSamples": [
+            {
+              "phase": "warm-arrow-2",
+              "start": 2863,
+              "end": 2866.899999976158,
+              "ms": 3.899999976158142
+            }
+          ],
+          "rafWallSumMs": 3.899999976158142,
+          "publicApiWallSumMs": 3.1999999284744263,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 2,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3701,
+              "wallMs": 1.5
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 20,
+              "wallMs": 0.10000002384185791
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 19,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 18,
+              "wallMs": 1.5999999046325684
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 20,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 0,
+          "cumulativeUploadBytes": 0,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 5.699999928474426,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "71fd471aef7f75c32bf7db74ba6f53d13365421dcceda384a9c94c2c4dae0ef6"
+        },
+        {
+          "name": "warm-arrow-3",
+          "completionMs": 4.899999976158142,
+          "rafSamples": [
+            {
+              "phase": "warm-arrow-3",
+              "start": 3200.100000023842,
+              "end": 3204,
+              "ms": 3.899999976158142
+            }
+          ],
+          "rafWallSumMs": 3.899999976158142,
+          "publicApiWallSumMs": 3.100000023841858,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 2,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3701,
+              "wallMs": 1.4000000953674316
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 20,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 19,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 18,
+              "wallMs": 1.6999999284744263
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 20,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 0,
+          "cumulativeUploadBytes": 0,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 5.899999976158142,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "c34a2e6b3e73a98e2b1d2260ca3ceb49c4321223853052239adfff53530ccee5"
+        },
+        {
+          "name": "drag",
+          "completionMs": 64.59999990463257,
+          "rafSamples": [
+            {
+              "phase": "drag",
+              "start": 3537.100000023842,
+              "end": 3541.100000023842,
+              "ms": 4
+            },
+            {
+              "phase": "drag",
+              "start": 3555.7999999523163,
+              "end": 3558.100000023842,
+              "ms": 2.3000000715255737
+            },
+            {
+              "phase": "drag",
+              "start": 3572.2999999523163,
+              "end": 3574.7999999523163,
+              "ms": 2.5
+            },
+            {
+              "phase": "drag",
+              "start": 3588.2000000476837,
+              "end": 3590.7999999523163,
+              "ms": 2.5999999046325684
+            }
+          ],
+          "rafWallSumMs": 11.399999976158142,
+          "publicApiWallSumMs": 7.4999998807907104,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 8,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 14890,
+              "wallMs": 5.699999809265137
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 80,
+              "wallMs": 0.10000002384185791
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 76,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 72,
+              "wallMs": 1.7000000476837158
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 80,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 0,
+          "cumulativeUploadBytes": 0,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 15.5,
+          "longtasks": [],
+          "callbackSamples": [
+            {
+              "phase": "drag",
+              "type": "pointerdown",
+              "start": 3526.7999999523163,
+              "end": 3526.899999976158,
+              "ms": 0.10000002384185791
+            },
+            {
+              "phase": "drag",
+              "type": "pointermove",
+              "start": 3537,
+              "end": 3537.100000023842,
+              "ms": 0.10000002384185791
+            },
+            {
+              "phase": "drag",
+              "type": "pointermove",
+              "start": 3555.7000000476837,
+              "end": 3555.7000000476837,
+              "ms": 0
+            },
+            {
+              "phase": "drag",
+              "type": "pointermove",
+              "start": 3572.2000000476837,
+              "end": 3572.2000000476837,
+              "ms": 0
+            },
+            {
+              "phase": "drag",
+              "type": "pointerup",
+              "start": 3575.7999999523163,
+              "end": 3576.5,
+              "ms": 0.7000000476837158
+            }
+          ],
+          "fullCanvasSha256": "2e530c8eab7014636e0d510add7744cf097da38d6ac162d34e8720775b8911ec"
+        },
+        {
+          "name": "cancel",
+          "completionMs": 12.200000047683716,
+          "rafSamples": [
+            {
+              "phase": "cancel",
+              "start": 4737.200000047684,
+              "end": 4741.100000023842,
+              "ms": 3.899999976158142
+            }
+          ],
+          "rafWallSumMs": 3.899999976158142,
+          "publicApiWallSumMs": 1.5000001192092896,
+          "methods": [
+            {
+              "category": "offscreen",
+              "name": "fillRect",
+              "calls": 4,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "fillRect",
+              "calls": 3700,
+              "wallMs": 1.2000000476837158
+            },
+            {
+              "category": "main",
+              "name": "save",
+              "calls": 11,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "clip",
+              "calls": 10,
+              "wallMs": 0
+            },
+            {
+              "category": "offscreen",
+              "name": "putImageData",
+              "calls": 9,
+              "wallMs": 0.30000007152557373
+            },
+            {
+              "category": "main",
+              "name": "drawImage",
+              "calls": 9,
+              "wallMs": 0
+            },
+            {
+              "category": "main",
+              "name": "restore",
+              "calls": 11,
+              "wallMs": 0
+            }
+          ],
+          "uploads": 9,
+          "cumulativeUploadBytes": 4227136,
+          "observedOtherCanvasCaptureFromMain": 0,
+          "max10msSentinelGapMs": 12.899999976158142,
+          "longtasks": [],
+          "callbackSamples": [],
+          "fullCanvasSha256": "d9841178d3eb5a859a01dcdd9179d48b9fad95fb37f2821c6d0927015082f08f"
+        }
+      ]
+    },
+    "sampledDiagnostics": {
+      "baseline": {
+        "raw": {
+          "path": "/private/tmp/mypaint-selection-preview-sre-20261105/baseline-profile/first-arrow.cpuprofile",
+          "sha256": "77ec16e251df039d83a5c08d53a544e940e4cb21907cbebc43ee71c573fa5279"
+        },
+        "requestedSamplingIntervalMicroseconds": 500,
+        "actualSampleDeltaMedianMicroseconds": 755,
+        "totalSamples": 87,
+        "profiledFirstRafMs": 58.800000071525574,
+        "transformLeaf": {
+          "selfWeightedMs": 49.911,
+          "samples": 66,
+          "frame": {
+            "functionName": "transform",
+            "scriptId": "4",
+            "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+            "lineNumber": 0,
+            "columnNumber": 80763
+          },
+          "ancestors": [
+            {
+              "functionName": "walkTiles",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 7547
+            },
+            {
+              "functionName": "draw",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 6859
+            },
+            {
+              "functionName": "render",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 79410
+            },
+            {
+              "functionName": "renderFrame",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 78774
+            },
+            {
+              "functionName": "",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 78724
+            },
+            {
+              "functionName": "",
+              "scriptId": "33",
+              "url": "",
+              "lineNumber": 1,
+              "columnNumber": 97
+            },
+            {
+              "functionName": "(root)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        "bundleContext": "th:n.width,height:n.height,dirty:r,transform:(t,r,i,a,o)=>{let s=e.source;if(!s)return;let c=n.layers.length===1?n.background:[0,0,0,0];for(let n=0;n<o;n++)for(let o=0;o<a;o++){let l=r+o-s.x,u=i+n-s.y;l<0||u<0||l>=s.width||u>=s.height||(!e.sourceMask||e.sourceMask[u*s.width+l])&&t.set(c,(n*a+o)*4)}}}),u.push({owner:e.pixels,pixels:e.pixels,width:e.width,height:e.height,x:e.x,y:e.y})}else u.push({owner:t.pixels,pixels:t.pixels,width:n.width,height:n.height,dirty:r})}if(e&&a*this.zoom<1){let e=this.selection,d=[this.epoch,n,n.width,n.height,r,i,this.canvas,this.canvas.width,this.canvas.height,this.viewWidth,this.viewHeight,this.zoom,this.offsetX,this.offsetY,o,s,...n.background,e,e?.source,e?.sourceMask,e?.source?.x,e?.source?.y,e?.sourc",
+        "bundleSha256": "2ef23fc889326dfe44cd70d61b2438cf10c038725d37ee70a46b460281c1174f",
+        "allLeaves": [
+          {
+            "selfWeightedMs": 69.425,
+            "samples": 3,
+            "frame": {
+              "functionName": "(program)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 49.911,
+            "samples": 66,
+            "frame": {
+              "functionName": "transform",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 80763
+            },
+            "ancestors": [
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 2.363,
+            "samples": 3,
+            "frame": {
+              "functionName": "(idle)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 2.272,
+            "samples": 3,
+            "frame": {
+              "functionName": "walkTiles",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 7547
+            },
+            "ancestors": [
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 1.556,
+            "samples": 2,
+            "frame": {
+              "functionName": "putImageData",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "C.<computed>",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 4,
+                "columnNumber": 268
+              },
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 1.498,
+            "samples": 2,
+            "frame": {
+              "functionName": "fillRect",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "C.<computed>",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 4,
+                "columnNumber": 268
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.782,
+            "samples": 1,
+            "frame": {
+              "functionName": "(garbage collector)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.76,
+            "samples": 1,
+            "frame": {
+              "functionName": "OffscreenCanvas",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "construct",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 5,
+                "columnNumber": 124
+              },
+              {
+                "functionName": "i",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 2385
+              },
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.756,
+            "samples": 1,
+            "frame": {
+              "functionName": "",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 68664
+            },
+            "ancestors": [
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.753,
+            "samples": 1,
+            "frame": {
+              "functionName": "draw",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+              "lineNumber": 0,
+              "columnNumber": 6859
+            },
+            "ancestors": [
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.749,
+            "samples": 1,
+            "frame": {
+              "functionName": "predicate",
+              "scriptId": "27",
+              "url": "",
+              "lineNumber": 2,
+              "columnNumber": 30
+            },
+            "ancestors": [
+              {
+                "functionName": "next",
+                "scriptId": "27",
+                "url": "",
+                "lineNumber": 24,
+                "columnNumber": 25
+              },
+              {
+                "functionName": "",
+                "scriptId": "27",
+                "url": "",
+                "lineNumber": 0,
+                "columnNumber": 0
+              },
+              {
+                "functionName": "evaluate",
+                "scriptId": "6",
+                "url": "",
+                "lineNumber": 304,
+                "columnNumber": 10
+              },
+              {
+                "functionName": "",
+                "scriptId": "13",
+                "url": "",
+                "lineNumber": 0,
+                "columnNumber": 1
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.745,
+            "samples": 1,
+            "frame": {
+              "functionName": "C.<computed>",
+              "scriptId": "33",
+              "url": "",
+              "lineNumber": 4,
+              "columnNumber": 268
+            },
+            "ancestors": [
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.683,
+            "samples": 1,
+            "frame": {
+              "functionName": "C.<computed>",
+              "scriptId": "33",
+              "url": "",
+              "lineNumber": 4,
+              "columnNumber": 268
+            },
+            "ancestors": [
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.076,
+            "samples": 1,
+            "frame": {
+              "functionName": "toFloat64Array",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "C.<computed>",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 4,
+                "columnNumber": 268
+              },
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9027/mypaint/assets/index-DZNXOXIY.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          }
+        ]
+      },
+      "candidate": {
+        "raw": {
+          "path": "/private/tmp/mypaint-selection-preview-sre-20261105/candidate-profile/first-arrow.cpuprofile",
+          "sha256": "b5347b93acc14ef440ad06bd490724f002eddc2432836c51fff0eef64d4df7c4"
+        },
+        "requestedSamplingIntervalMicroseconds": 500,
+        "actualSampleDeltaMedianMicroseconds": 755,
+        "totalSamples": 29,
+        "profiledFirstRafMs": 15.799999952316284,
+        "transformLeaf": {
+          "selfWeightedMs": 9.344,
+          "samples": 13,
+          "frame": {
+            "functionName": "transform",
+            "scriptId": "4",
+            "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+            "lineNumber": 0,
+            "columnNumber": 80763
+          },
+          "ancestors": [
+            {
+              "functionName": "walkTiles",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+              "lineNumber": 0,
+              "columnNumber": 7547
+            },
+            {
+              "functionName": "draw",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+              "lineNumber": 0,
+              "columnNumber": 6859
+            },
+            {
+              "functionName": "render",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+              "lineNumber": 0,
+              "columnNumber": 79410
+            },
+            {
+              "functionName": "renderFrame",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+              "lineNumber": 0,
+              "columnNumber": 78774
+            },
+            {
+              "functionName": "",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+              "lineNumber": 0,
+              "columnNumber": 78724
+            },
+            {
+              "functionName": "",
+              "scriptId": "33",
+              "url": "",
+              "lineNumber": 1,
+              "columnNumber": 97
+            },
+            {
+              "functionName": "(root)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        "bundleContext": "th:n.width,height:n.height,dirty:r,transform:(t,r,i,a,o)=>{let s=e.source;if(!s)return;let c=Math.max(0,Math.ceil(s.x-r)),l=Math.min(a,Math.ceil(s.x+s.width-r)),u=Math.max(0,Math.ceil(s.y-i)),d=Math.min(o,Math.ceil(s.y+s.height-i));if(c>=l||u>=d)return;let f=n.layers.length===1?n.background:[0,0,0,0],p=e.sourceMask;for(let e=u;e<d;e++){let n=i+e-s.y,o=(e*a+c)*4;for(let e=c;e<l;e++,o+=4){let i=r+e-s.x;(!p||p[n*s.width+i])&&(t[o]=f[0],t[o+1]=f[1],t[o+2]=f[2],t[o+3]=f[3])}}}}),u.push({owner:e.pixels,pixels:e.pixels,width:e.width,height:e.height,x:e.x,y:e.y})}else u.push({owner:t.pixels,pixels:t.pixels,width:n.width,height:n.height,dirty:r})}if(e&&a*this.zoom<1){let e=this.selection,d=[this.epoch,n,n.width,n.height,r,i,this.canvas,this.can",
+        "bundleSha256": "16403b213961f6ff5f65baf1f1058979403afe3ce7d875f8239457de6db9296e",
+        "allLeaves": [
+          {
+            "selfWeightedMs": 66.618,
+            "samples": 2,
+            "frame": {
+              "functionName": "(program)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 9.344,
+            "samples": 13,
+            "frame": {
+              "functionName": "transform",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+              "lineNumber": 0,
+              "columnNumber": 80763
+            },
+            "ancestors": [
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 3.202,
+            "samples": 4,
+            "frame": {
+              "functionName": "(idle)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 1.552,
+            "samples": 2,
+            "frame": {
+              "functionName": "(garbage collector)",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 1.511,
+            "samples": 2,
+            "frame": {
+              "functionName": "C.<computed>",
+              "scriptId": "33",
+              "url": "",
+              "lineNumber": 4,
+              "columnNumber": 268
+            },
+            "ancestors": [
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.778,
+            "samples": 1,
+            "frame": {
+              "functionName": "putImageData",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "C.<computed>",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 4,
+                "columnNumber": 268
+              },
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.756,
+            "samples": 1,
+            "frame": {
+              "functionName": "walkTiles",
+              "scriptId": "4",
+              "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+              "lineNumber": 0,
+              "columnNumber": 7547
+            },
+            "ancestors": [
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.754,
+            "samples": 1,
+            "frame": {
+              "functionName": "getContext",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "paintColorWheel",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 76005
+              },
+              {
+                "functionName": "sync",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 71834
+              },
+              {
+                "functionName": "run",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 71496
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.751,
+            "samples": 1,
+            "frame": {
+              "functionName": "getContext",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "OffscreenCanvas.getContext",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 6,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "a",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 2532
+              },
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.738,
+            "samples": 1,
+            "frame": {
+              "functionName": "now",
+              "scriptId": "0",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            "ancestors": [
+              {
+                "functionName": "C.<computed>",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 4,
+                "columnNumber": 268
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          },
+          {
+            "selfWeightedMs": 0.46,
+            "samples": 1,
+            "frame": {
+              "functionName": "C.<computed>",
+              "scriptId": "33",
+              "url": "",
+              "lineNumber": 4,
+              "columnNumber": 268
+            },
+            "ancestors": [
+              {
+                "functionName": "walkTiles",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 7547
+              },
+              {
+                "functionName": "draw",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 6859
+              },
+              {
+                "functionName": "render",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 79410
+              },
+              {
+                "functionName": "renderFrame",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78774
+              },
+              {
+                "functionName": "",
+                "scriptId": "4",
+                "url": "http://127.0.0.1:9028/mypaint/assets/index-BiW8ch-X.js",
+                "lineNumber": 0,
+                "columnNumber": 78724
+              },
+              {
+                "functionName": "",
+                "scriptId": "33",
+                "url": "",
+                "lineNumber": 1,
+                "columnNumber": 97
+              },
+              {
+                "functionName": "(root)",
+                "scriptId": "0",
+                "url": "",
+                "lineNumber": -1,
+                "columnNumber": -1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "resourceLedger": {
+      "firstModifiedArrow": {
+        "baseline": {
+          "ImageDataConstructors": 18,
+          "ImageDataRgbaBytes": 8437836,
+          "OffscreenCanvasConstructors": 18,
+          "surfaceRgbaEstimateBytes": 8437836,
+          "imageDimensions": [
+            [
+              511,
+              511
+            ],
+            [
+              512,
+              511
+            ],
+            [
+              5,
+              511
+            ],
+            [
+              511,
+              512
+            ],
+            [
+              512,
+              512
+            ],
+            [
+              5,
+              512
+            ],
+            [
+              511,
+              5
+            ],
+            [
+              512,
+              5
+            ],
+            [
+              5,
+              5
+            ],
+            [
+              511,
+              511
+            ],
+            [
+              512,
+              511
+            ],
+            [
+              4,
+              511
+            ],
+            [
+              511,
+              512
+            ],
+            [
+              512,
+              512
+            ],
+            [
+              4,
+              512
+            ],
+            [
+              511,
+              2
+            ],
+            [
+              512,
+              2
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          "surfaceDimensions": [
+            [
+              511,
+              511
+            ],
+            [
+              512,
+              511
+            ],
+            [
+              5,
+              511
+            ],
+            [
+              511,
+              512
+            ],
+            [
+              512,
+              512
+            ],
+            [
+              5,
+              512
+            ],
+            [
+              511,
+              5
+            ],
+            [
+              512,
+              5
+            ],
+            [
+              5,
+              5
+            ],
+            [
+              511,
+              511
+            ],
+            [
+              512,
+              511
+            ],
+            [
+              4,
+              511
+            ],
+            [
+              511,
+              512
+            ],
+            [
+              512,
+              512
+            ],
+            [
+              4,
+              512
+            ],
+            [
+              511,
+              2
+            ],
+            [
+              512,
+              2
+            ],
+            [
+              4,
+              2
+            ]
+          ]
+        },
+        "candidate": {
+          "ImageDataConstructors": 18,
+          "ImageDataRgbaBytes": 8437836,
+          "OffscreenCanvasConstructors": 18,
+          "surfaceRgbaEstimateBytes": 8437836,
+          "imageDimensions": [
+            [
+              511,
+              511
+            ],
+            [
+              512,
+              511
+            ],
+            [
+              5,
+              511
+            ],
+            [
+              511,
+              512
+            ],
+            [
+              512,
+              512
+            ],
+            [
+              5,
+              512
+            ],
+            [
+              511,
+              5
+            ],
+            [
+              512,
+              5
+            ],
+            [
+              5,
+              5
+            ],
+            [
+              511,
+              511
+            ],
+            [
+              512,
+              511
+            ],
+            [
+              4,
+              511
+            ],
+            [
+              511,
+              512
+            ],
+            [
+              512,
+              512
+            ],
+            [
+              4,
+              512
+            ],
+            [
+              511,
+              2
+            ],
+            [
+              512,
+              2
+            ],
+            [
+              4,
+              2
+            ]
+          ],
+          "surfaceDimensions": [
+            [
+              511,
+              511
+            ],
+            [
+              512,
+              511
+            ],
+            [
+              5,
+              511
+            ],
+            [
+              511,
+              512
+            ],
+            [
+              512,
+              512
+            ],
+            [
+              5,
+              512
+            ],
+            [
+              511,
+              5
+            ],
+            [
+              512,
+              5
+            ],
+            [
+              5,
+              5
+            ],
+            [
+              511,
+              511
+            ],
+            [
+              512,
+              511
+            ],
+            [
+              4,
+              511
+            ],
+            [
+              511,
+              512
+            ],
+            [
+              512,
+              512
+            ],
+            [
+              4,
+              512
+            ],
+            [
+              511,
+              2
+            ],
+            [
+              512,
+              2
+            ],
+            [
+              4,
+              2
+            ]
+          ]
+        }
+      },
+      "interpretation": "Same18 new ImageData RGBA planes8,437,836B plus18 new tile surface dimensions with same8,437,836B nominal RGBA estimate per side. No new large backing added by direct4+bbox, and upload volume not reduced. These are cumulative construction/API lengths, not live cache totals/allocator peak/RSS/GPU memory. Internal browser allocations/JS target arrays and locals unmeasured. Existing source owner may also remain retained; do not call18 visible uploads18 total cache tiles."
+    },
+    "equivalence": {
+      "fourRunsFixtureAndGeometryExact": true,
+      "fourRunsActualFullCopyRawExact": true,
+      "fourRunsEveryPhaseFullCanvasExact": true,
+      "fourRunsFullOriginalSourceAfterCancelExact": true,
+      "fourRunsCancelOriginalCanvasAndCleanUndoExact": true,
+      "fourRunsActualJsResponsesMatchFrozenAssetHashes": true,
+      "bothFrozenAssetSets8Exact": true,
+      "candidateCurrentSource17Exact": true,
+      "performanceSourceScope": "Frozen manifests/site and loaded JS identify measured code; only main differs. No Windows/native/Android runtime verification inferred from these hashes."
+    },
+    "findings": [
+      "First-modified RAF58.1→15.7ms, dispatch-to-new-ready74→31.3ms, max10ms sentinel75.1→32.2ms for this n1 pair.",
+      "Warm Arrow3 RAF3.9/3.8/4.1→4.0/3.9/3.9ms, all0uploads. Three-move drag has0uploads both sides. No stable warm speedup or no-regression claim.",
+      "Upload18calls/8,437,836B and observed scene captures0 both sides. At physicalscale1 this improvement is not upload/mip/scene-cache reduction.",
+      "Separate CDP diagnostic transform leaf66/~49.911weightedms→13/~9.344weightedms, profiled RAF58.8→15.8ms. Stack/bundle locate original set loop and candidate bbox+direct4 callback. Native set is not separated from caller and two changes were combined, so no set-only isolated causality/time.",
+      "Unprofiled public CanvasAPI wall sum3.6→3.0ms is nested inRAF. Residual54.5→12.7ms includes JS/cache/unmeasured/observer overhead and is not an exact callback CPU counter.",
+      "Escape requests9 uploads in both snapshots; this behavior was not changed or diagnosed here."
+    ],
+    "limits": [
+      "n1 per side, fixed order; warm states correlated, no p95/global50ms/tail/no-regression claim.",
+      "CDP requested500us but observed delta median755us; program/idle/GC/profiler setup and sparse samples prohibit exact CPU fractions. Diagnostic completion/start sentinel include Profiler.start after phase start and are not used in main comparison.",
+      "Canvas API label offscreen means any non-main context, including auxiliary HTML canvas; actual tile constructors/dimensions distinguish resource allocation. Zero API wall at clock granularity is not proof of no cost.",
+      "API wrappers add timing/bookkeeping overhead; per-phase full Canvas readback outside timing flushes graphics before next phase under identical protocol.",
+      "No private cache stats/tile occupancy/mipFactor inspected; physicalscale1 and output dimensions/capture0 are observations consistent with existing fallback.",
+      "No per-pixel set wrapper or production instrumentation, actual hardware pen/mobile/native/OS clipboard/peak memory/RSS/GPU residency validation."
+    ]
+  },
+  "verification": {
+    "nodeTests": 211,
+    "newTests": 3,
+    "callbackInputCombinations": 22400,
+    "unitScope": "AST-extracted actual shipped callback vs literal d320 loop, complete backing incl guards, source/mask/background/payload unchanged; separate literal source mask/alpha/source-width and32768 stride. Model, not22400public UI/Qt cases.",
+    "frozenCanvas": {
+      "beforeMainSHA256": "d320b6a7609cf09695ad777fd2cf2129754c99a8a877edc6cec306f7d9af1e1e",
+      "candidateMainSHA256": "9243e5903949ad0c9fd79efdea9ecccea1aee1be5667da0266c25ebd89e17ad9",
+      "frames": 56,
+      "dpr": [
+        1,
+        2
+      ],
+      "documents": 12,
+      "faultRetryCases": 2,
+      "allByteEqual": true,
+      "scope": "Actual two production bundles with current same test at loopback paths. Baseline serves frozen old main+old renderer; reference does not silently reuse candidate main. Software SwiftShader correctness; native IPC/files/clipboard modeled. Frame readback and gzip bytes are outside performance sample. Render counters may vary with cooperative scheduling, no all-cases allocation/count equality claim."
+    },
+    "existingPublic": {
+      "suites": 9,
+      "webChecks": 48,
+      "renderPreparationCases": 8,
+      "largeSelectionPreparationCases": 13,
+      "selectionAlphaCases": 4,
+      "textAlphaCases": 8,
+      "maskCases": 8,
+      "cropCases": 10,
+      "failureCases": 6,
+      "sourceCases": 7,
+      "pasteCases": 4,
+      "maskedCases": 10,
+      "maskedStages": 68,
+      "pendingChecks": 36,
+      "clipboardChecks": 4,
+      "results": {
+        "ok": true,
+        "results": [
+          {
+            "suite": "test:browser",
+            "exitCode": 0,
+            "elapsedSeconds": 47.5789098739624,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-browser.log"
+          },
+          {
+            "suite": "test:render-preparation",
+            "exitCode": 0,
+            "elapsedSeconds": 41.11201500892639,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-render-preparation.log"
+          },
+          {
+            "suite": "test:selection-preparation",
+            "exitCode": 0,
+            "elapsedSeconds": 10.563239097595215,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-selection-preparation.log"
+          },
+          {
+            "suite": "test:alpha-contract",
+            "exitCode": 0,
+            "elapsedSeconds": 17.868851900100708,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-alpha-contract.log"
+          },
+          {
+            "suite": "test:selection-contract",
+            "exitCode": 0,
+            "elapsedSeconds": 39.54118871688843,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-selection-contract.log"
+          },
+          {
+            "suite": "test:selection-source",
+            "exitCode": 0,
+            "elapsedSeconds": 24.35704231262207,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-selection-source.log"
+          },
+          {
+            "suite": "test:masked-transform",
+            "exitCode": 0,
+            "elapsedSeconds": 15.127179861068726,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-masked-transform.log"
+          },
+          {
+            "suite": "test:pending-contract",
+            "exitCode": 0,
+            "elapsedSeconds": 114.36915302276611,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-pending-contract.log"
+          },
+          {
+            "suite": "test:clipboard-contract",
+            "exitCode": 0,
+            "elapsedSeconds": 7.843491077423096,
+            "log": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/selection-preview-cost/test-clipboard-contract.log"
+          }
+        ]
+      }
+    },
+    "macOS": {
+      "standardPhases": 4,
+      "sceneChecks": 21,
+      "binarySHA256": "a29d7f2ad44fd82786a54236d729c2476b2b40793450315099552aa1788143c1",
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform.",
+      "frozenAppMatchesDefault": true
+    },
+    "typeFormatBuild": "PASS local; new unit file automatically included in existing tests/*.test.ts and CI. Original native assertions/foreground adapter unchanged.",
+    "legacyQt": "C++/Qt source unchanged in this phase; previous CTest5 is historical and was not re-executed.",
+    "reviews": "Architect independently checked source17/assets8/AST only one nested arrow changed; Reviewer checked literal semantics and test adequacy; SRE measured frozen before/after independently; root implemented and ran correctness."
+  },
+  "architecture": {
+    "canonicalGraph": {
+      "path": "docs/evidence/studio-module-graph.json",
+      "sha256": "daeeb98c204c9d30c2f4a432d9864f470d36ddf781aa13d978d57b6d2fcdd4d9"
+    },
+    "counts": {
+      "nodes": 13,
+      "declarations": 35,
+      "relations": 34,
+      "byKind": {
+        "runtime-static": 24,
+        "type-only": 5,
+        "asset-css": 1,
+        "runtime-dynamic": 3,
+        "worker-asset": 1
+      },
+      "localRuntimeEdges": 24,
+      "localTypeEdges": 4,
+      "sourceRuntimeCycles": 0,
+      "pureTypeCycles": 0,
+      "typeInclusiveSCCs": [
+        [
+          "web-app/src/platform/codec.ts",
+          "web-app/src/workers/codec.worker.ts"
+        ],
+        [
+          "web-app/src/main.ts",
+          "web-app/src/platform/native-smoke.ts"
+        ]
+      ],
+      "emittedNodes": 5,
+      "emittedEdges": 6,
+      "emittedStaticCycles": 0,
+      "emittedDynamicSCCs": [
+        [
+          "assets/buffer-VJDsefbc.js",
+          "assets/codec.worker-NlDbfs1L.js",
+          "assets/encoder-CX58XVG5.js"
+        ],
+        [
+          "assets/index-BiW8ch-X.js",
+          "assets/native-smoke-OOFwYd5V.js"
+        ]
+      ]
+    },
+    "allImportRelationsUnchanged": true,
+    "onlyNestedArrowChanged": true
+  },
+  "remaining": [
+    {
+      "priority": "P1",
+      "item": "Full lasso path preview replays points; actual event cadence and long sessions not yet profiled",
+      "cost": "M",
+      "next": "measure full path preview CPU and cancellation; preserve all points"
+    },
+    {
+      "priority": "P1",
+      "item": "Very large nearest/selection resize remains synchronous",
+      "cost": "M",
+      "next": "measure actual maximum target and late/cancel ownership before dispatch change"
+    },
+    {
+      "priority": "P2",
+      "item": "Payload-only resize replaces cutOwner; scene-active motion can clear source caches",
+      "cost": "M",
+      "next": "measure separately; source clear identity and final scene dirty geometry need independent design"
+    },
+    {
+      "priority": "P2",
+      "item": "Original bbox preparation adds16P path buffer and Worker startup/ready regression remains from bounded-lasso phase",
+      "cost": "M",
+      "next": "profile threshold/startup/long-session JS/RSS; this cut fix does not change it"
+    },
+    {
+      "priority": "P1",
+      "item": "Physical Android web, Safari, Windows/OS picker/IME/signing/release acceptance incomplete",
+      "cost": "external checks",
+      "next": "retain browser-only mobile and Windows/macOS packages; do not infer cross-platform acceptance"
+    },
+    {
+      "priority": "P2",
+      "item": "New public preparation suite seeded oldRedo/fresh large retry and public owner races remain distinct gaps",
+      "cost": "S",
+      "next": "extend ownership acceptance; generic pending/Redo suite independently passes"
+    }
+  ],
+  "limitations": [
+    "One fixed-order main sample per version plus separate profiler diagnostic. No p95/tail/global50ms/no-regression certification. Warm states correlated.",
+    "BBox and direct4 changed together; neither isolated set-only nor bbox-only causality/time claimed.",
+    "Same18uploads/8,437,836B and newImageData18/surfaces18 in selected first frame; not18 total retained cache tiles. No RSS/peak/GPU/large backing savings claim.",
+    "Zero API time at clock resolution is not zero cost. Sampler weighted time is not exact CPU time; native set not isolated. Profiler setup completion is excluded from main table.",
+    "No scene/mip/cache redesign or all-document first-frame acceptance. Old ~54ms observation is distinct from this fixed58.1ms protocol.",
+    "Raw data resides in ignored local build-work. Checked-in summary/hash links do not mean remote CI archival/release."
+  ],
+  "references": [
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/before-source.json",
+      "sha256": "cd980468dbed778f6c18ec2f9c4af9abe83d5d367ba567604a8920bb50f737b1"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/candidate-source.json",
+      "sha256": "2df9339520492cd4e86b65e3c2aab5624d3998e95353faa90268e49abdf5d173"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/before-assets.json",
+      "sha256": "e86fdb9eb0d9c935948393334d45f32d376874465fc6945b999db6b3a8065cc0"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/candidate-assets.json",
+      "sha256": "7fbd32490239ce3a6cf1c26d9a8f2e248065af990a3cb75336e11970af1c1b0e"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/before-module-graph.json",
+      "sha256": "d302c057d6fc79a214c7a2b96e39ab9f9345e97723c9f198a49c91752eb537b8"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/prototype.json",
+      "sha256": "3ee96d516dfa95ab00e4d77d5bd37a5b4cd244c4d3ed86ab622f696b941e80d0"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/prototype.mjs",
+      "sha256": "9f4c3ed616920111feccf0e8bc6e96d99e7a417537f41e7ebd10523ea86888e2"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/node.log",
+      "sha256": "2a238f841ecf2d02ec239178e0f72e817d6815035ba98fc0f8cc256976877112"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/build.log",
+      "sha256": "d6b439727b4b88805d62464a51d668ff2c61d02d27fa38ebfbb3862f53cd3a42"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/format-check.json",
+      "sha256": "0b00aaeab933591dea4a1aa160288e7cd3058c1f7b83cc680fd33caa626bada1"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/scene-before/results.json",
+      "sha256": "e29030e1a8fa658f0acc330c74006229238289bcce92dcfecdc72c5744238d31"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/scene-candidate/results.json",
+      "sha256": "cc68241ecad7e142abc7c8ff7e51d60274970b88053dbeac2e5a123b1db9a45e"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/regression-results.json",
+      "sha256": "b8552b5d6beafa7eb14edd5b3129c79874a9bb68be76b181e9c1897aa7a0cb3a"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/native-build.log",
+      "sha256": "53185e3d9c3b40187cbb155349fc59f8e02734222874417d50a9280db2e82995"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/native-desktop.json",
+      "sha256": "42737cca2ce626d3232e851857f8971f4fdea14eb5ce344f0c40638806614c34"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/native-desktop.json.foreground.json",
+      "sha256": "b839b593cd6c3609f1ca23c133fe038860305d9b8f449591f3c4812b3b04ff01"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/architect-initial/review.json",
+      "sha256": "efee355353f67f75a884d255a5ec55cff9e2aaf7724905f6afcaf6d4e29f7ccf"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/architect/review.json",
+      "sha256": "6f755ea2da3e1d401e755654eac1698233e54fc337f9c25a2b523f2d6a7b160c"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/architect/method-review.json",
+      "sha256": "07550bd443041a117a28b3ea789f907e8ea63c17804f0a7293698deafae266c3"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/architect/module-graph-candidate.json",
+      "sha256": "34b068d30aab207a5f0d6776c333f0afd28d927ff53790f66272f7440b958869"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/reviewer/review.json",
+      "sha256": "8c56fdac1137574f70cebdf6666cce437a379b93fc5bb43154acf7bae1ef6a11"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/reviewer/candidate-review.json",
+      "sha256": "aa3f885b59ac179b226ae0b6af33d3e50df652b7855d6b13357a9198e88ff4ad"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/summary.json",
+      "sha256": "37a0944996b0e5ae9fbe91cba3bb07a7dcd02456566a90125138fb4d0ad219d8"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/pair-summary.json",
+      "sha256": "26cea97bc7e09fa6fe9775a976812e67ea22ad74e0ff4ed08777790b6b84d476"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/run.mjs",
+      "sha256": "caca2cd9617d121a6c47916354dc593685ce439c836c5a9558cc2952dd06b2d3"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/protocol.json",
+      "sha256": "5d8006130612fe3946387aa0afa32cf2ea3914b4b26d57895fbc97279765b16a"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/baseline/results.json",
+      "sha256": "a81a7297bc8c66a4a24baf922ee35972d5f544a7e9f93c78b6f0b1cfb1357266"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/candidate/results.json",
+      "sha256": "0238e321b271570acf6b86c8f2823457a2bae4cac6f6d9c6009583a6327f8365"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/baseline-profile/results.json",
+      "sha256": "b7e6faa76dadfdae32c2f74f897d49c6124d1c22a04bf8ef25e861d41b2042e8"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/candidate-profile/results.json",
+      "sha256": "224c320b2471a5f9392b587488edab1983c02e3733dcc6e8c30cd1fa8cdbd8bf"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/baseline-profile/first-arrow.cpuprofile",
+      "sha256": "77ec16e251df039d83a5c08d53a544e940e4cb21907cbebc43ee71c573fa5279"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/sre/candidate-profile/first-arrow.cpuprofile",
+      "sha256": "b5347b93acc14ef440ad06bd490724f002eddc2432836c51fff0eef64d4df7c4"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-browser.log",
+      "sha256": "4f3269553d4c761c35235e9e369f8722105a604d0924c080df176e6f88f710a0"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-render-preparation.log",
+      "sha256": "715c63a69446fb5bf051e266be5370a3a3c2d3c9be3e66fa21e64df525cd2804"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-selection-preparation.log",
+      "sha256": "736916f1c288f7b5ab3dc29e5c6c19235d03b67edda474f99c66f24d302524c7"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-alpha-contract.log",
+      "sha256": "2adab51d13a5b2bd17fe08f4bec1942190391c73d4a9cdbfe56a3d72e347fad6"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-selection-contract.log",
+      "sha256": "4e34621b96100303c85ff05ffe944756fd7509b895f1a8946af605781d474878"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-selection-source.log",
+      "sha256": "eda2a85dcec93995bb38f98e673dd499ecaf2ca82205fddb0d6017a477c76099"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-masked-transform.log",
+      "sha256": "52aee6fca0967757414d15263ed1e15f66696e399bcc8ad0baa1b10a04457917"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-pending-contract.log",
+      "sha256": "c57931e066e98a9a807b1decf4e7b075a4de9a67d63509be2dd50d50f28694f4"
+    },
+    {
+      "path": "build-web-work/task-planning/selection-preview-cost/test-clipboard-contract.log",
+      "sha256": "32f1f6d9f66f68f46a6be10794aa3fcf6c31e85321dd4717917ea716220c112b"
+    },
+    {
+      "path": "web-app/tests/selection-cut-transform.test.ts",
+      "sha256": "c219e8528ff2c4fc4057aa549b17cade4fa0d91ceb44ec17c50ada8938a2a0b0"
+    },
+    {
+      "path": "web-app/tests/scene-contract.mjs",
+      "sha256": "906d5f7c3c47e0d4319540d2f27c59dfc524b8fbfeb0462f642c674814b566ff"
+    },
+    {
+      "path": "web-app/tests/native-desktop.mjs",
+      "sha256": "8076b93d965aa504a98e048596746bdf7f71d8fdde9e082567fd803d1a0a09b4"
+    },
+    {
+      "path": "web-app/package.json",
+      "sha256": "98812e81230d282fbe36400ec6d6123bab3b68fa35ae384cc1dacaef94cd9960"
+    },
+    {
+      "path": ".github/workflows/studio.yml",
+      "sha256": "c7522f0768359120a4fa64426fe298d68e3ca7bcf4b2fd61c9338eac1604c8a2"
+    }
+  ]
+}

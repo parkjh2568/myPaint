@@ -1,0 +1,37 @@
+{
+    "schema": 1,
+    "scope": "Hand-authored deterministic input and literal expected pixels for one new-UI spray tick. This fixes random/time inputs; it does not claim the Qt random generator, distribution or physical timing is identical.",
+    "document": {
+        "width": 32,
+        "height": 24,
+        "background": [37, 59, 61, 0],
+        "active": 1,
+        "layers": [
+            { "name": "lower opaque", "visible": true, "rgba": [71, 93, 117, 255] },
+            { "name": "active hidden RGB", "visible": true, "rgba": [193, 71, 117, 0] },
+            { "name": "hidden upper", "visible": false, "rgba": [21, 55, 177, 128] }
+        ]
+    },
+    "input": {
+        "center": [12.5, 12.5],
+        "size": 4,
+        "tickMs": 35,
+        "random": [0, 0.25, 0.25, 0.25, 0.5, 0.25, 0.75, 0.25, 0, 0.25, 0.25, 0.25, 0.5, 0.25, 0.75, 0.25],
+        "rgba": [255, 0, 255, 255],
+        "opaqueHex": "#ff00ff"
+    },
+    "expected": {
+        "inkPixels": [
+            [12, 12],
+            [14, 12],
+            [12, 14],
+            [10, 12],
+            [12, 10]
+        ],
+        "tickCount": 1,
+        "randomCalls": 16,
+        "unchanged": "Every other active pixel, both other layers, layer metadata, background, dimensions and active index remain byte-exact.",
+        "redoSeedPixel": [28, 20],
+        "history": "One completed spray is one Undo/Redo; cancelling restores the source and its pre-existing Redo. No timer may draw after either finish."
+    }
+}

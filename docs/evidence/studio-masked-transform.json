@@ -1,0 +1,337 @@
+{
+  "date": "2026-11-05",
+  "status": "Implemented and verified for the explicit phase scope; overall migration/production acceptance remains open",
+  "scope": {
+    "mobileTablet": "Web only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "noCommitPushDeployment": true
+  },
+  "issue": {
+    "severity": "Major",
+    "cost": "M",
+    "name": "Repeated nearest selection resize irreversibly resamples previous displayed pixels",
+    "trigger": "Original opaque/keyOFF rect3x2, separate pointer gestures3x2→2x3→3x2; original six labels become0,0,2,3,3,5 instead of0,1,2,3,4,5, then settle creates a false edit and consumes old Redo.",
+    "rootCause": "Each gesture snapshots current already-resampled Raster; dialog also passed current pixels to geometry. Original sourceMask/sourceRect were already correctly independent and are not the defect.",
+    "rootIndependentBaseline": {
+      "path": "build-web-work/task-planning/masked-transform/root-baseline.json",
+      "sha256": "4fad7dfba4b34064c75bb30965cf030f57b93c7688898d9a2cfe0b82d56c347b"
+    },
+    "SREBaseline": {
+      "path": "build-web-work/task-planning/masked-transform/sre/pointer-baseline/results.json",
+      "sha256": "5eb654270a294beffa8f047881a49c5d3d408089d208b01579f8cf471d6d225b"
+    },
+    "baselineScope": "Two public SRE cases: same-gesture reference recovery already passed, distinct-gesture recovery failed3 related assertions. One product defect, not3. Root separate reproduction confirms same lost labels, no private Studio hook.",
+    "qt": {
+      "cases": 12,
+      "assertions": 104,
+      "raw": {
+        "path": "build-web-work/task-planning/masked-transform/architect/qt-oracle.json",
+        "sha256": "76a1d0d9d108de626dcb2d3d783738af26552152a90c387efdb07c421c3ceb8a"
+      },
+      "assertionsReport": {
+        "path": "build-web-work/task-planning/masked-transform/architect/assertions.json",
+        "sha256": "463f7b848e82c377ce0d0c6d89905a57c989d08b21bcda11086bc10c925dccad"
+      },
+      "literal": {
+        "path": "build-web-work/task-planning/masked-transform/architect/literal-reference.json",
+        "sha256": "beeb747722c3e584fcf87890175fb78a26ca2293252bdd5a5147ebc600bea699"
+      },
+      "review": {
+        "path": "build-web-work/task-planning/masked-transform/architect/review.json",
+        "sha256": "0adbcdd237693f173b9bfdb288d9d3bfcf481422d400ca59e8def18859d3a5a6"
+      },
+      "manifest": {
+        "path": "build-web-work/task-planning/masked-transform/architect/manifest.json",
+        "sha256": "bae98fb63ba3c25497aebad70f020bf9ce41eeaf1e935c19d3c7daec497a2c95"
+      },
+      "coreDiagnostic": {
+        "path": "build-web-work/task-planning/masked-transform/architect/resize-chain-core.json",
+        "sha256": "b4594ab8dd8d32ded916e336fc01f3566efa6812f4de94b82c841d0ad6734e2c"
+      },
+      "limits": "Actual Qt public Canvas oracle, not12 browser/native UI cases. Qt premultiplied storage RGB differs from TS raw policy. Same-gesture Qt not observed; web pointer protection separately verified. Four rotations with transparent key are not assumed NoOp: actualQt7 key pixels change."
+    }
+  },
+  "implementation": {
+    "methods": [
+      "Studio.pointerDown",
+      "Studio.pointerMove",
+      "Studio.cancelPointer",
+      "Studio.transformSelection"
+    ],
+    "fields": [
+      "Selection.resizeSource?: Raster",
+      "Drag.selectionResizeSource?: Raster"
+    ],
+    "fix": "Persistent nearest-resize backing descriptor, no backing copy. Freeze drag sampling base from snapshot for entire gesture. Restore current/base/modified on same-gesture return and cancel. Async base input is copied for Worker and checked before publication. Successful rotate/flip/shear materializes displayed current then releases old base.",
+    "identity": "originalPixels is initial-selection NoOp identity used by pointer/Arrow movement and pointer resize; explicit async geometry success preserves modified=true and sets originalPixels=undefined after all checks. This invalidates a comparison reference, not original document pixels/sourceMask. Same-size dialog early return and failures do not invalidate it.",
+    "guards": "Abort/document identity/revision/epoch/active/selection/current Raster identity and dimensions plus captured resizeSource identity; final aggregate limits before synchronized field publication.",
+    "sourceMask": "Original source rect/mask are unchanged by payload geometry. Clear uses original stride; copy/render/settle use transformed payload geometry.",
+    "architecture": {
+      "path": "build-web-work/task-planning/masked-transform/static-review/method-review.json",
+      "sha256": "d21174302b3696dde23e63605d9506cd81772b43bebd0daa79381c472e929f1c"
+    },
+    "graph": {
+      "path": "build-web-work/task-planning/masked-transform/static-review/module-graph.json",
+      "sha256": "66c986b1995502fe5f91038cebb8032c0f938d73d2525c35749a69117020d6ad"
+    },
+    "independentFinalReview": {
+      "path": "build-web-work/task-planning/masked-transform/reviewer/candidate-final-review.json",
+      "sha256": "eb54db8a6e09ba9c0e7849f1082bbad339cdbd67faaf89cdd907ac89b324898d"
+    },
+    "helpersAdded": 0,
+    "dependenciesAdded": 0,
+    "engineFormatRustChanged": false,
+    "reviewCorrections": [
+      "Freeze the entire gesture base, rather than reading mutable q.resizeSource after visiting original dimensions.",
+      "Restore base in the same-gesture start-size branch as well as cancelPointer.",
+      "Do not equate a restored explicit transparent-key payload with an unmodified document; invalidate initial identity only on successful explicit geometry."
+    ],
+    "correctionsScope": "These were design/candidate review findings resolved before final acceptance; not counted as additional baseline product defects."
+  },
+  "verification": {
+    "freshNode": {
+      "passed": 192,
+      "log": {
+        "path": "build-web-work/task-planning/masked-transform/node-final.log",
+        "sha256": "5c1a6315c17bce9936f88927b85ad4fc2e97e33b90393546dcf06a32156204cc"
+      },
+      "scope": "Unchanged engine regression; does not directly import UI Studio."
+    },
+    "newCIEntry": {
+      "command": "npm run test:masked-transform",
+      "cases": 9,
+      "stages": 62,
+      "report": {
+        "path": "build-web-work/task-planning/masked-transform/canonical-ui-final/results.json",
+        "sha256": "f5e216190b7b28807375063c330afc54cfa2f45164727e783ed328f749603d19"
+      },
+      "log": {
+        "path": "build-web-work/task-planning/masked-transform/canonical-ui-final.log",
+        "sha256": "87bd8ba4c2125fd482f202fd5e43fbff3d04fe387eefa31c94cd290aa92cb6b3"
+      },
+      "SREOriginalEight": {
+        "path": "build-web-work/task-planning/masked-transform/sre/candidate-final-expanded/results.json",
+        "sha256": "7157e11415bb5f6815a0facd08ff2422974d30139c1527912fe83403e22158c2"
+      },
+      "SREOriginalEightSummary": {
+        "path": "build-web-work/task-planning/masked-transform/sre/candidate-final-summary.json",
+        "sha256": "a7c8e97f4fde45a4d25da473f1887b6a826fea88bcf49ca40f930cd0a34bd44e"
+      },
+      "independentTestReview": {
+        "path": "build-web-work/task-planning/masked-transform/reviewer/final-test-review.json",
+        "sha256": "8472044d15a8f5ff208570cd8a168dea8bffb9fef601eef7a45190cfb8beff0f"
+      },
+      "SRETargetedTwo": {
+        "path": "build-web-work/task-planning/masked-transform/sre/candidate-nine-targeted/results.json",
+        "sha256": "6e4fe7774b960d9c9305a911a4327976920141fb9dd9d91ed86d1aa1dc15de04"
+      },
+      "SRETargetedTwoSummary": {
+        "path": "build-web-work/task-planning/masked-transform/sre/candidate-nine-targeted-summary.json",
+        "sha256": "389b09f9eba65da0490bd8bef9d36e1dc74f5ebb93d42ea956ec17d3ba40bbdd"
+      },
+      "test": {
+        "path": "web-app/tests/masked-transform-contract.mjs",
+        "sha256": "f26dafe3a75f5357444bb077dd9f75bb72defc94c1625d532f89ed5c5a65c5b0"
+      },
+      "qtResizeFixture": {
+        "path": "web-app/tests/fixtures/masked-transform-qt-resize.json",
+        "sha256": "b0de050dd604cd32595e2569e7e2bd375fbb52309326581aede419f60c163dae"
+      },
+      "literalTransformFixture": {
+        "path": "web-app/tests/fixtures/masked-transform-literal.json",
+        "sha256": "70600b991a9380581864dee1651e5584fc9da8237c541d00c17ccb66e8c311a7"
+      },
+      "scope": "Public pointer same/distinct gestures, synthetic pointercancel, ABA final output, displayed-payload bake, named wrong-profile failure/retry, original triangle/hole mask chains and explicit keyON dialog roundtrip+Arrow/Enter. Actual codec/geometry Workers and independently read PNG; modeled native IPC/clipboard. Intermediate in-gesture target dimensions are intended pointer coordinates, not private actual state observations."
+    },
+    "crop": {
+      "cases": 10,
+      "newCases": 6,
+      "report": {
+        "path": "build-web-work/task-planning/masked-transform/crop-candidate/results.json",
+        "sha256": "0722a47deb4dc8bdd1e68ac7af39d273bdc03cfcf2a4add152eda3f9696d1357"
+      },
+      "test": {
+        "path": "web-app/tests/selection-crop-contract.mjs",
+        "sha256": "2a3adfa9a6e77abc68b47430b609f7012dc71292c8ba759518072e81ff873d80"
+      },
+      "scope": "Existing4 expectations retained. New rect/lasso rotate/flip order→Qt literal nearest→negative crop/positive expansion/fully outside cancel. Literal transpose maps; original mask stride clearing, all-layer raw metadata, oneUndoRedo and empty crop noWorker. Single nearest after baked geometry, not a substitute for persistent backing tests."
+    },
+    "existingSelection": {
+      "maskCases": 8,
+      "failureCases": 6,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/masked-transform/selection/results.json",
+          "sha256": "a4c2ed9c84b43b0aa32d01aeba5a34db5b5f8449d0161675febac69bcdf830dc"
+        },
+        {
+          "path": "build-web-work/task-planning/masked-transform/failure/results.json",
+          "sha256": "2fd077df8a7a403ab02318fb11408badc91cce5bbc640c20e277ea2287077964"
+        }
+      ]
+    },
+    "existingSourceAndPaste": {
+      "sourceCases": 7,
+      "pasteCases": 4,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/masked-transform/source/results.json",
+          "sha256": "adefc916dd2a61d22e939107b6deac9d2a24b597e618d55c57541ade2fca2b77"
+        },
+        {
+          "path": "build-web-work/task-planning/masked-transform/paste/results.json",
+          "sha256": "fd8a7ca4c3ae9483741996315a530fb1040ca267848cb707d04ce73282378ebe"
+        }
+      ]
+    },
+    "existingFinalRegressions": {
+      "webPassed": 48,
+      "pendingPassed": 36,
+      "clipboardPassed": 4,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/masked-transform/browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        },
+        {
+          "path": "build-web-work/task-planning/masked-transform/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        },
+        {
+          "path": "build-web-work/task-planning/masked-transform/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        },
+        {
+          "path": "build-web-work/task-planning/masked-transform/storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        },
+        {
+          "path": "build-web-work/task-planning/masked-transform/shear/results.json",
+          "sha256": "ded57d973ae94e75b4edec023c55f4b946f831f0921d60fa76df23be60532a62"
+        },
+        {
+          "path": "build-web-work/task-planning/masked-transform/pending/results.json",
+          "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+        },
+        {
+          "path": "build-web-work/task-planning/masked-transform/clipboard/results.json",
+          "sha256": "38a47fd1715cad0f547170d818e19455ef5174ce7bbc2dad1845037ed6c99bc9"
+        }
+      ]
+    },
+    "WKDiagnostic": {
+      "cases": 4,
+      "report": {
+        "path": "build-web-work/task-planning/masked-transform/native-probe/results.json",
+        "sha256": "d0cc13eff7a0a46937f7a7b10c56191ffd99a40fc7633d8cff0fb6efa2680ef3"
+      },
+      "source": {
+        "path": "build-web-work/task-planning/masked-transform/native-probe/source.json",
+        "sha256": "6f558448c6027796b939dadf3bf1f56fa369afb91c4ac694611f339b36e7adc2"
+      },
+      "overlay": {
+        "path": "build-web-work/task-planning/masked-transform/native-probe/overlay.json",
+        "sha256": "8c5a64511ad1483ade21d7264919124c190483754703b1e49ee8edf6a67d54ee"
+      },
+      "assets": {
+        "path": "build-web-work/task-planning/masked-transform/native-probe/assets.json",
+        "sha256": "8aba37d0eeb20ff4ddcbcddb94071ff44f73c801d98d94e9439681da3879611f"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/masked-transform/native-probe/app.json",
+        "sha256": "273e6a18198afd88ee870f3cb7475ce5ecd5ab8fda350954db2a290a35b8be93"
+      },
+      "scope": "Root temporary actual WK async Studio/geometry Worker diagnostic. Raw backing roundtrip, displayed rotation rebase, explicit-key pending, original-mask identity. Direct owned candidate checks, not public gestures/physical/OS/performance/RSS acceptance. Ordinary smoke suffix byte-exact."
+    },
+    "macOSOrdinary": {
+      "phasesPassed": 4,
+      "sceneChecks": 21,
+      "report": {
+        "path": "build-web-work/task-planning/masked-transform/native-desktop.json",
+        "sha256": "1e24af45827477b39ed88578e53ca504cdda3cd33d2ec1264ea001cdc3b3eca1"
+      },
+      "foreground": {
+        "path": "build-web-work/task-planning/masked-transform/native-desktop.json.foreground.json",
+        "sha256": "c4214c46f66c5a0f691dbb3a50bfefb24670b4d744a0e368db702b2c5f58cf79"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/masked-transform/final-app.json",
+        "sha256": "3f9cb648fcdf559fdb4d728e533ef93403f9ffb964e5ecbfcd9ed5df7645159b"
+      },
+      "binarySHA256": "992cdf6001f6f907feeeea9bb1d74870ff689ad044bc9bd79cfdaa55dadc187a",
+      "scope": "Final standard app, isolated recovery/codec/quit/scene with existing activation adapter. Not OS clipboard/picker/IME, signing or physical/performance acceptance."
+    },
+    "format": {
+      "path": "build-web-work/task-planning/masked-transform/format-check-final.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "typecheck": {
+      "path": "build-web-work/task-planning/masked-transform/typecheck-final.log",
+      "sha256": "86fd21d3a4c331af9cda136fdaa8bc8807301aedba733d35beae2083e7cce6d8"
+    },
+    "webBuild": {
+      "path": "build-web-work/task-planning/masked-transform/build-final.log",
+      "sha256": "ef174e42be55a1de9175d5db94492ab2e55c528ec29cf171d273a83290f49d25"
+    },
+    "standardDesktopBuild": {
+      "path": "build-web-work/task-planning/masked-transform/desktop-build-final.log",
+      "sha256": "851f947b6a56d9df61c882b88edb8da8eb1b6bf31ff40a6b1d5966b5fac811e9"
+    },
+    "restoredStandardDesktop": {
+      "path": "build-web-work/task-planning/masked-transform/desktop-restore-standard.log",
+      "sha256": "f80ccba55f591d7be90001a64be62f6605203ae631ad007daa4a7802acd7c88b"
+    }
+  },
+  "performanceAndMemory": {
+    "scope": "Correctness repair, no speedup or RSS/p95 benchmark claim. Earlier mask/Source-clear performance is a different phase.",
+    "independentResourceReview": {
+      "path": "build-web-work/task-planning/masked-transform/sre/final-resource-review.json",
+      "sha256": "bab5472d74cf87cd97bd3a56d535032a0681ead42db14ca9a8b22306516539cc"
+    },
+    "ownership": "Backing descriptor retains a reference, no backing clone at creation. Current4*R and backing4*B can be distinct or alias. Pointer initial originalPixels can alias base. Successful explicit geometry releases originalPixels, so do not always add an old4*S plane. SourceMask retains originalS bytes.",
+    "transient": "Async input clones base4*B, not shrunken displayed4*R, and Worker output is extra4*Rnext. Exact-base async return still performs Worker clone/resize before reusing preserved identity; no CPU/allocation savings inferred.",
+    "observedWKReferences": "Tiny3x2 roundtrip current/base unique explicit buffers24→48→24bytes; rotation followed6x4 resize retains24+96=120bytes. This counts only selection field buffers, excluding document/cache/Canvas/Worker/transients/RSS.",
+    "limits": "Resource profiles bound base/current dimensions and each operation; global live process memory/long sessions and synchronous large handle resampling remain open measured gates."
+  },
+  "snapshots": {
+    "beforeSource17": {
+      "path": "build-web-work/task-planning/masked-transform/before-source.json",
+      "sha256": "59e54241df43d633aa90152bb91c4c57e6c3012d97bf127d6ee3c5da4762415d"
+    },
+    "finalSource17": {
+      "path": "build-web-work/task-planning/masked-transform/final-source.json",
+      "sha256": "716a477c6da7f35d644c88337d15033272ce2d95c036256213b04e0fe3757572"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/masked-transform/candidate-assets.json",
+      "sha256": "d82ff5a59c07a02b9da2dd1c09ca241bfbd53eadaa3bbe8a67149eb0de1ebded"
+    },
+    "testsAndCI7": {
+      "path": "build-web-work/task-planning/masked-transform/final-tests.json",
+      "sha256": "a3cbfb3fa64bc573c3bb3468294ae73265aa3485456e01c86ba026f710666940"
+    },
+    "frontendFiles": 14,
+    "rustFiles": 3
+  },
+  "diagnosticNotes": [
+    "Initial expanded crop test treated dialog close as geometry completion; delayed Worker start lost test keypresses. Initial raw preserved; await actual geometry job completion fixed the test. Not a crop product defect.",
+    "Temporary WK probe initial compile had unused render-only imports and TypeScript pre-await property narrowing; diagnostic corrected, product source unchanged.",
+    "Initial promotion assumed single-line CI run; actual workflow has a multiline browser block. New alias inserted into existing block and verified; no remote CI result claimed.",
+    "v1 candidate and its24+11 passing regressions are separate from final explicit identity policy and final executions.",
+    "Reviewer flagged missing explicit-key Arrow/Enter and actual cut delivery verification in original8; final9 adds them rather than broadening original8 claims."
+  ],
+  "cleanup": {
+    "path": "build-web-work/task-planning/masked-transform/cleanup.json",
+    "sha256": "d4ffc72f1a42c5707edb99519f41fa81e3cb6101c8ea9bdc65f6ee006bf9910d"
+  },
+  "openGates": [
+    "Remaining explicit F01–F10/17-tool combinations: key/mixed-alpha/multiple layers and arbitrary transform-order/path/device permutations are not all covered by finite mask fixtures.",
+    "Nondegenerate huge lasso and large synchronous handle resampling CPU, max documents/long-session/RSS; matched-DPR WK checker and broad/disjoint dirty rendering.",
+    "Android physical web input/recovery, Safari web, Windows executable, actual OS clipboard/picker/IME and disk/atomic-replacement failures.",
+    "Native GIF internal memory, remote CI, signing/notarization, safe homepage staging/rollback/public release.",
+    "Repeated independent PNG fixture readers are shared-test-semantics cleanup candidates; keep decoder oracle independent of production code."
+  ]
+}

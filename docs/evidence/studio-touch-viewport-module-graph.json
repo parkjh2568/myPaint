@@ -1,0 +1,815 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "Current QF19/20 source17 and frozen payload9 AST/hash audit. No runtime/platform conclusions inferred from graph shape.",
+  "sourceManifest": {
+    "path": "build-web-work/task-planning/touch-viewport-contract/accepted-source.json",
+    "sha256": "8e9085849e641a2ce74c9476ad52f2eb57033c26aa9f41ba3da0f463e41a7524"
+  },
+  "bundleManifest": {
+    "path": "build-web-work/task-planning/touch-viewport-contract/final-bundle/bundle.json",
+    "sha256": "606f871265861a337614c16907a6a5a0269ce3aed391c5200c291e151a044295"
+  },
+  "source": {
+    "method": "TypeScript AST imports/re-exports/import-type queries/dynamic import and Worker URL assets; unique from/to/kind relationships. CSS asset is not a TypeScript node; external packages are not local graph nodes. Mixed imports count as runtime relationships, with erased type bindings annotated. Worker asset is included in runtime dependency graph but is a separate execution realm.",
+    "nodes": [
+      {
+        "path": "web-app/src/engine/document.ts",
+        "sha256": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650"
+      },
+      {
+        "path": "web-app/src/engine/format.ts",
+        "sha256": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38"
+      },
+      {
+        "path": "web-app/src/engine/operations.ts",
+        "sha256": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334"
+      },
+      {
+        "path": "web-app/src/env.d.ts",
+        "sha256": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2"
+      },
+      {
+        "path": "web-app/src/main.ts",
+        "sha256": "e8604c541a7340d5e655391ba7ef02563790af657c8dbd8f70e62f2a92af5e26"
+      },
+      {
+        "path": "web-app/src/platform/codec.ts",
+        "sha256": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79"
+      },
+      {
+        "path": "web-app/src/platform/native-smoke.ts",
+        "sha256": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7"
+      },
+      {
+        "path": "web-app/src/platform/native.ts",
+        "sha256": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704"
+      },
+      {
+        "path": "web-app/src/platform/storage.ts",
+        "sha256": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f"
+      },
+      {
+        "path": "web-app/src/platform/surface.ts",
+        "sha256": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3"
+      },
+      {
+        "path": "web-app/src/platform/tiles.ts",
+        "sha256": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400"
+      },
+      {
+        "path": "web-app/src/ui/icons.ts",
+        "sha256": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a"
+      },
+      {
+        "path": "web-app/src/workers/codec.worker.ts",
+        "sha256": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b"
+      }
+    ],
+    "edges": [
+      {
+        "from": "web-app/src/engine/format.ts",
+        "to": "fflate",
+        "kind": "runtime-static",
+        "line": 1,
+        "local": false,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 1,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/engine/format.ts",
+        "to": "pako",
+        "kind": "runtime-static",
+        "line": 2,
+        "local": false,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 2,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/engine/format.ts",
+        "to": "web-app/src/engine/document.ts",
+        "kind": "runtime-static",
+        "line": 3,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "State",
+          "ResourceProfile"
+        ],
+        "declarations": [
+          {
+            "line": 3,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/engine/operations.ts",
+        "to": "web-app/src/engine/document.ts",
+        "kind": "runtime-static",
+        "line": 1,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "State",
+          "Color",
+          "ResourceProfile"
+        ],
+        "declarations": [
+          {
+            "line": 1,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/env.d.ts",
+        "to": "jpeg-js",
+        "kind": "type-only",
+        "line": 15,
+        "local": false,
+        "syntax": "import type query",
+        "declarations": [
+          {
+            "line": 15,
+            "syntax": "import type query"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/platform/native.ts",
+        "kind": "runtime-static",
+        "line": 1,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 1,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/style.css",
+        "kind": "asset-css",
+        "line": 2,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 2,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/platform/surface.ts",
+        "kind": "runtime-static",
+        "line": 3,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 3,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/platform/tiles.ts",
+        "kind": "runtime-static",
+        "line": 4,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "PixelRect",
+          "SceneRaster"
+        ],
+        "declarations": [
+          {
+            "line": 4,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/engine/document.ts",
+        "kind": "runtime-static",
+        "line": 5,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "State",
+          "Color"
+        ],
+        "declarations": [
+          {
+            "line": 5,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/engine/operations.ts",
+        "kind": "runtime-static",
+        "line": 17,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 17,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/platform/codec.ts",
+        "kind": "runtime-static",
+        "line": 18,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "Raster"
+        ],
+        "declarations": [
+          {
+            "line": 18,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/platform/storage.ts",
+        "kind": "runtime-static",
+        "line": 19,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "RecoveryEntry"
+        ],
+        "declarations": [
+          {
+            "line": 19,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/ui/icons.ts",
+        "kind": "runtime-static",
+        "line": 20,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "Tool"
+        ],
+        "declarations": [
+          {
+            "line": 20,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/main.ts",
+        "to": "web-app/src/platform/native-smoke.ts",
+        "kind": "runtime-dynamic",
+        "line": 4148,
+        "local": true,
+        "syntax": "import()",
+        "declarations": [
+          {
+            "line": 4148,
+            "syntax": "import()"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/codec.ts",
+        "to": "web-app/src/platform/surface.ts",
+        "kind": "runtime-static",
+        "line": 1,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 1,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/codec.ts",
+        "to": "web-app/src/engine/document.ts",
+        "kind": "runtime-static",
+        "line": 2,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "State",
+          "Color",
+          "ResourceProfile"
+        ],
+        "declarations": [
+          {
+            "line": 2,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/codec.ts",
+        "to": "web-app/src/engine/operations.ts",
+        "kind": "type-only",
+        "line": 12,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "*"
+        ],
+        "declarations": [
+          {
+            "line": 12,
+            "syntax": "import"
+          },
+          {
+            "line": 13,
+            "syntax": "re-export"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/codec.ts",
+        "to": "web-app/src/workers/codec.worker.ts",
+        "kind": "worker-asset",
+        "line": 47,
+        "local": true,
+        "syntax": "new Worker(new URL(...))",
+        "declarations": [
+          {
+            "line": 47,
+            "syntax": "new Worker(new URL(...))"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/native-smoke.ts",
+        "to": "web-app/src/engine/document.ts",
+        "kind": "runtime-static",
+        "line": 1,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "BrushSettings",
+          "ResourceProfile"
+        ],
+        "declarations": [
+          {
+            "line": 1,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/native-smoke.ts",
+        "to": "web-app/src/main.ts",
+        "kind": "type-only",
+        "line": 2,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "*"
+        ],
+        "declarations": [
+          {
+            "line": 2,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/native-smoke.ts",
+        "to": "web-app/src/platform/codec.ts",
+        "kind": "runtime-static",
+        "line": 3,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 3,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/native-smoke.ts",
+        "to": "web-app/src/platform/native.ts",
+        "kind": "runtime-static",
+        "line": 4,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 4,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/native-smoke.ts",
+        "to": "web-app/src/platform/storage.ts",
+        "kind": "type-only",
+        "line": 5,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "*"
+        ],
+        "declarations": [
+          {
+            "line": 5,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/native-smoke.ts",
+        "to": "web-app/src/platform/tiles.ts",
+        "kind": "runtime-static",
+        "line": 6,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 6,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/storage.ts",
+        "to": "web-app/src/platform/native.ts",
+        "kind": "runtime-static",
+        "line": 1,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 1,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/storage.ts",
+        "to": "web-app/src/engine/document.ts",
+        "kind": "runtime-static",
+        "line": 2,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "ResourceProfile"
+        ],
+        "declarations": [
+          {
+            "line": 2,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/platform/tiles.ts",
+        "to": "web-app/src/platform/surface.ts",
+        "kind": "runtime-static",
+        "line": 1,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "Context2D",
+          "Surface"
+        ],
+        "declarations": [
+          {
+            "line": 1,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/workers/codec.worker.ts",
+        "to": "web-app/src/engine/format.ts",
+        "kind": "runtime-static",
+        "line": 1,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [],
+        "declarations": [
+          {
+            "line": 1,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/workers/codec.worker.ts",
+        "to": "web-app/src/engine/operations.ts",
+        "kind": "runtime-static",
+        "line": 2,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "GeometryChange"
+        ],
+        "declarations": [
+          {
+            "line": 2,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/workers/codec.worker.ts",
+        "to": "web-app/src/engine/document.ts",
+        "kind": "runtime-static",
+        "line": 11,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "Color",
+          "State",
+          "ResourceProfile"
+        ],
+        "declarations": [
+          {
+            "line": 11,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/workers/codec.worker.ts",
+        "to": "web-app/src/platform/codec.ts",
+        "kind": "type-only",
+        "line": 19,
+        "local": true,
+        "syntax": "import",
+        "erasedTypeBindings": [
+          "*"
+        ],
+        "declarations": [
+          {
+            "line": 19,
+            "syntax": "import"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/workers/codec.worker.ts",
+        "to": "buffer/index.js",
+        "kind": "runtime-dynamic",
+        "line": 88,
+        "local": false,
+        "syntax": "import()",
+        "declarations": [
+          {
+            "line": 88,
+            "syntax": "import()"
+          }
+        ]
+      },
+      {
+        "from": "web-app/src/workers/codec.worker.ts",
+        "to": "jpeg-js/lib/encoder.js",
+        "kind": "runtime-dynamic",
+        "line": 89,
+        "local": false,
+        "syntax": "import()",
+        "declarations": [
+          {
+            "line": 89,
+            "syntax": "import()"
+          }
+        ]
+      }
+    ],
+    "rawDeclarationCount": 35,
+    "uniqueEdgeCount": 34,
+    "edgeCounts": {
+      "runtime-static": 24,
+      "type-only": 5,
+      "asset-css": 1,
+      "runtime-dynamic": 3,
+      "worker-asset": 1
+    },
+    "localRuntimeEdgeCount": 24,
+    "localTypeOnlyEdgeCount": 4,
+    "runtimeCycles": [],
+    "pureTypeOnlyCycles": [],
+    "combinedCyclesWithTypeEdges": [
+      [
+        "web-app/src/platform/codec.ts",
+        "web-app/src/workers/codec.worker.ts"
+      ],
+      [
+        "web-app/src/main.ts",
+        "web-app/src/platform/native-smoke.ts"
+      ]
+    ],
+    "sourceLevelMainRuntimeImportFromSmoke": [],
+    "smokeTranspileKeepsMainImport": false,
+    "snapshot": {
+      "sourceDirectory": "/Users/jhpark/code/myService/myPaint/web-app/src",
+      "scope": "QF19/20 current frontend, accepted-source.json hash verified before/after AST parsing; no app/network/build/test execution. Logical node paths normalize to web-app/src and physical sourceDirectory is recorded."
+    }
+  },
+  "emitted": {
+    "sourceManifest": "build-web-work/task-planning/touch-viewport-contract/accepted-source.json",
+    "sourceManifestSha256": "8e9085849e641a2ce74c9476ad52f2eb57033c26aa9f41ba3da0f463e41a7524",
+    "manifest": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/touch-viewport-contract/accepted-assets.json",
+    "manifestSha256": "40b9188b5d1435871bfed647f258ecd89854d0aff6db7d0733800d24abbdfba1",
+    "site": "build-web-work/task-planning/touch-viewport-contract/final-bundle",
+    "method": "고정 touch-viewport final bundle 파일의 source/asset SHA-256과 JavaScript AST를 읽기 검증했다. 브라우저·네이티브·네트워크를 실행하지 않았다.",
+    "nodes": [
+      {
+        "path": "assets/codec.worker-DjqGsUQn.js",
+        "sha256": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+        "topLevelAwait": 0
+      },
+      {
+        "path": "assets/buffer-DU0qbHNf.js",
+        "sha256": "5c113f74252e7c942876d5076dd71ed24775ffdf9cd133500a5a2f1803d9cca3",
+        "topLevelAwait": 0
+      },
+      {
+        "path": "assets/encoder-Bl-BehpH.js",
+        "sha256": "dee06d7074f91f718964ad9ac8edfc439229b9ddb1f226ba8e2c3b804b3dd448",
+        "topLevelAwait": 0
+      },
+      {
+        "path": "assets/index-CE5XuSrg.js",
+        "sha256": "895ccd33027b1587d35e33a920ccbde9dd7c6c387e6a33f72445876e8dabc497",
+        "topLevelAwait": 0
+      },
+      {
+        "path": "assets/native-smoke-BhQsqgl4.js",
+        "sha256": "b35f31e74728658084b408dbccdcad3071d9c256d1223b941c25117cdc731ff6",
+        "topLevelAwait": 0
+      }
+    ],
+    "edges": [
+      {
+        "from": "assets/codec.worker-DjqGsUQn.js",
+        "to": "assets/buffer-DU0qbHNf.js",
+        "kind": "dynamic"
+      },
+      {
+        "from": "assets/codec.worker-DjqGsUQn.js",
+        "to": "assets/encoder-Bl-BehpH.js",
+        "kind": "dynamic"
+      },
+      {
+        "from": "assets/buffer-DU0qbHNf.js",
+        "to": "assets/codec.worker-DjqGsUQn.js",
+        "kind": "static"
+      },
+      {
+        "from": "assets/encoder-Bl-BehpH.js",
+        "to": "assets/codec.worker-DjqGsUQn.js",
+        "kind": "static"
+      },
+      {
+        "from": "assets/index-CE5XuSrg.js",
+        "to": "assets/native-smoke-BhQsqgl4.js",
+        "kind": "dynamic"
+      },
+      {
+        "from": "assets/native-smoke-BhQsqgl4.js",
+        "to": "assets/index-CE5XuSrg.js",
+        "kind": "static"
+      }
+    ],
+    "assetSha256": {
+      "index.html": "e28a767d4c86b58bed8153baf5e080d09c2f876e0f61774b6f7ddd4a82a04c6c",
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/codec.worker-DjqGsUQn.js": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+      "assets/buffer-DU0qbHNf.js": "5c113f74252e7c942876d5076dd71ed24775ffdf9cd133500a5a2f1803d9cca3",
+      "assets/encoder-Bl-BehpH.js": "dee06d7074f91f718964ad9ac8edfc439229b9ddb1f226ba8e2c3b804b3dd448",
+      "assets/index-CE5XuSrg.js": "895ccd33027b1587d35e33a920ccbde9dd7c6c387e6a33f72445876e8dabc497",
+      "assets/native-smoke-BhQsqgl4.js": "b35f31e74728658084b408dbccdcad3071d9c256d1223b941c25117cdc731ff6",
+      "assets/index-h8X3Xu-X.css": "08c088ffee39557a735c9190bda37f8f8eb98c64df77ba05374e84f10e4d3bb6"
+    },
+    "sourceSha256": {
+      "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+      "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+      "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+      "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+      "web-app/src/main.ts": "e8604c541a7340d5e655391ba7ef02563790af657c8dbd8f70e62f2a92af5e26",
+      "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+      "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+      "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+      "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+      "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+      "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+      "web-app/src/style.css": "7e5d8c13e565d48bb7a9685b92628ee522795dc260be17cc7e3cc43734be5712",
+      "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+      "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+      "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+      "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+      "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+    },
+    "assetManifestPathPrefix": "Studio bundle app-root paths; 9 payload files include LICENSE, 5 JavaScript chunks",
+    "staticEvaluationCycles": [],
+    "allLoadEdgeCycles": [
+      [
+        "assets/buffer-DU0qbHNf.js",
+        "assets/codec.worker-DjqGsUQn.js",
+        "assets/encoder-Bl-BehpH.js"
+      ],
+      [
+        "assets/index-CE5XuSrg.js",
+        "assets/native-smoke-BhQsqgl4.js"
+      ]
+    ],
+    "htmlPreloadsSmoke": false,
+    "ok": true
+  },
+  "astDelta": {
+    "beforeMembers": 133,
+    "afterMembers": 135,
+    "changed": [
+      "MethodDeclaration:sync",
+      "MethodDeclaration:createColorWheel",
+      "MethodDeclaration:resizeView",
+      "MethodDeclaration:point",
+      "MethodDeclaration:pointerDown",
+      "MethodDeclaration:pointerMove",
+      "MethodDeclaration:cancelPointer",
+      "MethodDeclaration:command"
+    ],
+    "added": [
+      "PropertyDeclaration:viewLeft",
+      "PropertyDeclaration:viewTop"
+    ],
+    "importsIdentical": true,
+    "unchanged": [
+      {
+        "name": "textLayoutSteps",
+        "equal": true
+      },
+      {
+        "name": "paintText",
+        "equal": true
+      },
+      {
+        "name": "textRaster",
+        "equal": true
+      },
+      {
+        "name": "paintShape",
+        "equal": true
+      },
+      {
+        "name": "shapeRaster",
+        "equal": true
+      },
+      {
+        "name": "pendingState",
+        "equal": true
+      },
+      {
+        "name": "exportImage",
+        "equal": true
+      }
+    ]
+  }
+}

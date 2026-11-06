@@ -1,0 +1,944 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "All34QF own completion conditions and dependency gates audited at current pre-edit source17/dist8. This is not overall goal completion or physical platform acceptance.",
+  "authority": {
+    "project247": {
+      "path": "build-web-work/task-planning/completion-audit/before-project-files.json",
+      "sha256": "b9e3ac3383fe8ef0e2f4aaf2d28ed0a97c0d3f216bdc5a19aea1f1ff95922039"
+    },
+    "runtime17": {
+      "path": "build-web-work/task-planning/completion-audit/before-source.json",
+      "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/completion-audit/before-assets.json",
+      "sha256": "d54cc881361fb7392cd7829b534a4f5a4c818715329170dc405acf646ab712e0"
+    },
+    "sourceSnapshot": "build-web-work/task-planning/completion-audit/frozen-source"
+  },
+  "statusSemantics": "ownCriteriaStatus proved is a scoped criterion result, not automatic whole-task closure. allPredecessorsAndOwnCriteriaProved also requires all listed predecessors. Historical execution is reused only with stated source scope. No checklist boxes changed by inference.",
+  "summary": {
+    "tasks": 34,
+    "ownCriteria": {
+      "proved": 6,
+      "partial": 25,
+      "missing": 3
+    },
+    "fullDependencyClosure": [
+      "QF-01"
+    ],
+    "goalComplete": false
+  },
+  "rows": [
+    {
+      "id": "QF-01",
+      "ownCriteriaStatus": "proved",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 0,
+      "detailKey": "rows",
+      "remaining": [],
+      "title": "전환 범위와 아키텍처 결정 기록",
+      "dependsOn": [],
+      "allPredecessorsAndOwnCriteriaProved": true
+    },
+    {
+      "id": "QF-02",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 1,
+      "detailKey": "rows",
+      "remaining": [
+        "17도구×최소 기준 입력/예상 결과/실행기/허용차의 한정된 coverage 인덱스를 만들고 실제 빈 칸만 보완한다. 모든 옵션 순열 전수 검증으로 확대할 필요는 없다."
+      ],
+      "title": "기존 편집·파일·실패 동작을 회귀 fixture로 고정",
+      "dependsOn": [
+        "QF-01"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-03",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 2,
+      "detailKey": "rows",
+      "remaining": [
+        "지원 대상 기기/브라우저별 필수 workload·목표·반복·성공/보류 조건을 먼저 고정한다.",
+        "이미 있는 재현 harness를 기준으로 부족한 동일 workload 비교만 추가한다."
+      ],
+      "title": "비교 성능 측정기와 대상 기기·예산 확정",
+      "dependsOn": [
+        "QF-01"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-04",
+      "ownCriteriaStatus": "proved",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 3,
+      "detailKey": "rows",
+      "remaining": [],
+      "title": "문서·알파·비동기 확정 계약 설계",
+      "dependsOn": [
+        "QF-02"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-05",
+      "ownCriteriaStatus": "proved",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 4,
+      "detailKey": "rows",
+      "remaining": [],
+      "title": "독립 웹 앱 빌드와 최소 실행 셸 준비",
+      "dependsOn": [
+        "QF-01",
+        "QF-03"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-06",
+      "ownCriteriaStatus": "proved",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 5,
+      "detailKey": "rows",
+      "remaining": [],
+      "title": "엔진 문서 상태와 메모리 소유권 구현",
+      "dependsOn": [
+        "QF-04",
+        "QF-05"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-07",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 6,
+      "detailKey": "rows",
+      "remaining": [
+        "둥근 필압/경도/보정의 대표 경계 입력과 literal 예상값을 좁게 고정한다.",
+        "Android 웹 실제 펜/터치 취소·장치 전환과 Windows 입력을 별도 검증한다."
+      ],
+      "title": "핵심 브러시·지우개와 단일 입력 경로 구현",
+      "dependsOn": [
+        "QF-06"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-08",
+      "ownCriteriaStatus": "proved",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 7,
+      "detailKey": "rows",
+      "remaining": [],
+      "title": "변경 패치 기반 Undo/Redo와 예산 구현",
+      "dependsOn": [
+        "QF-06",
+        "QF-07"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-09",
+      "ownCriteriaStatus": "proved",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 8,
+      "detailKey": "rows",
+      "remaining": [],
+      "title": "PNG와 RPAINT01의 제한된 안전 입출력 구현",
+      "dependsOn": [
+        "QF-04",
+        "QF-06"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-10",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 9,
+      "detailKey": "rows",
+      "remaining": [
+        "QF10의 bounded queue가 브러시 이벤트/codec job/선택 packet 중 어디까지 적용되는지 명시하고 실제 바이트 입장 정책 또는 지원 환경 실패 정책을 고정한다.",
+        "점 생략·임의 새 제한·새 디코더를 이 감사만으로 도입하지 않는다. 작업 수 제한과 바이트 한도, 안전한 실패를 구분해 부족한 인수만 보완한다."
+      ],
+      "title": "렌더링·Worker 경계와 제한된 작업 큐 구현",
+      "dependsOn": [
+        "QF-05",
+        "QF-06",
+        "QF-07",
+        "QF-09"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-11",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      },
+      "rowIndex": 10,
+      "detailKey": "rows",
+      "remaining": [
+        "이번 감사와 root fresh 결과를 이용해 현재의 조건부 개발 지속/레거시 대체 보류 결정을 명시한다.",
+        "QF03/QF07/QF10의 열린 gate를 제거하거나 실제 근거와 책임 범위로 남긴다."
+      ],
+      "title": "핵심 Qt-free PoC의 진행/중단 판정",
+      "dependsOn": [
+        "QF-02",
+        "QF-03",
+        "QF-07",
+        "QF-08",
+        "QF-09",
+        "QF-10"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-12",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 0,
+      "detailKey": "tasks",
+      "remaining": [
+        "모든 필압·두께·흐림·모양·입력 장치 교차 조합 미완료. Qt premul RGB와 straight RGBA 정책 차이를 실패 허용 오차로 해석하지 않음.",
+        "전체 허용 크기·형태/기기에서 main-thread 합성·snapshot·GC를 포함한 반응성 인수 미완료. thin-ring 퇴행 등 불리한 표본 유지."
+      ],
+      "title": "나머지 픽셀 도구와 취소 가능한 채우기 이식",
+      "dependsOn": [
+        "QF-11"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-13",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 1,
+      "detailKey": "tasks",
+      "remaining": [
+        "둥근 사각형 radius TS min(14,w/2,h/2) vs Qt12 파라미터 차이. 실제 corner pixel 대조와 의도된 차이 정책 미판정. 색 테스트의 직선/내부 픽셀로 곡률 동등성 완료 불가."
+      ],
+      "title": "도형 도구와 미확정 미리보기 이식",
+      "dependsOn": [
+        "QF-11"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-14",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 2,
+      "detailKey": "tasks",
+      "remaining": [
+        "모든 offset/zoom/DPR/변형 chain·한도 조합 전수 아님. generic cropState padding과 UI crop intersection의 의도된 차이 유지.",
+        "F01/F05/F06/F07의 전체 명세·옵션·실기기 matrix가 닫히지는 않았다. 전체 요구를 871 mask literal 또는 단일 성공 PNG로 완료 처리 금지."
+      ],
+      "title": "선택·클립보드 후보·자르기·붙여넣기 이식",
+      "dependsOn": [
+        "QF-11"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-15",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 3,
+      "detailKey": "tasks",
+      "remaining": [
+        "원격 폰트 로드는 오프라인 정책상 별개. 허용 시스템 font의 준비/대체·확정 이전 표시와 확정 raster 일치 요구를 정하고 검증해야 한다. 실제 오표시 결함 재현으로 분류하지 않음.",
+        "실제 OS composition session·도구 전환/회전 모든 경로와 가상 키보드는 합성 이벤트만으로 증명 불가.",
+        "macOS 및 지원 Windows 실제 한글 조합·저장/도구/회전·단축키·취소 인수가 필요."
+      ],
+      "title": "문자·한글 IME·글꼴과 래스터 확정 구현",
+      "dependsOn": [
+        "QF-11"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-16",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 4,
+      "detailKey": "tasks",
+      "remaining": [
+        "EXIF orientation 1–8의 비대칭 tiny JPEG pixel/dimension oracle 및 Chrome/WK 실제 import fixture를 찾지 못함. 옵션 존재는 실제 모든 방향 인수와 다름.",
+        "실제 File drag/drop→decoder→삽입 취소/늦은 완료·여러 종류 파일 선택까지 현재 공개 matrix 확인 필요. paste 성공을 drop 성공으로 세지 않음.",
+        "현재 source17 전체에서 bulk16이 방금 재실행된 것은 아님. 레이어 한도/대형 hidden·동일 이름 등 모든 public 조합 인수는 분리."
+      ],
+      "title": "전체 이미지 형식·레이어·변형 기능 동등성 확보",
+      "dependsOn": [
+        "QF-11",
+        "QF-14"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-17",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 5,
+      "detailKey": "tasks",
+      "remaining": [
+        "작업 문구의 출력 미리보기는 남았다. matte 출력 자체가 틀렸다는 뜻이나 데이터 손실 버그로 분류하지 않음.",
+        "지우개 모든 opacity/hardness/shape·출력 matte/skin 교차 전수 미완료."
+      ],
+      "title": "투명 문서·보조색·불투명 출력 바탕 UI 완성",
+      "dependsOn": [
+        "QF-09",
+        "QF-11",
+        "QF-16"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-18",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 6,
+      "detailKey": "tasks",
+      "remaining": [
+        "old web/browser.js를 실제 실행 중인 탭과 current UI의 동시 실행·교차 복구 인수는 현 테스트에서 직접 확인하지 못함. 저장소 주입만으로 그 전체 완료 불가."
+      ],
+      "title": "웹 파일·다운로드·클립보드·복구와 이행 완성",
+      "dependsOn": [
+        "QF-09",
+        "QF-11",
+        "QF-14",
+        "QF-15"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-19",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 7,
+      "detailKey": "tasks",
+      "remaining": [
+        "mobile landscape→portrait while pending selection/text+manual zoom+virtual keyboard 상태의 공개 복합 fixture가 없음. canvas 크기 확인만으로 해당 상태 보존 완료 불가.",
+        "실제 Android virtual keyboard/브라우저 chrome·복구 및 긴 오류 dialog+낮은 가로 배치 인수 누락."
+      ],
+      "title": "모바일·태블릿·데스크톱 반응형 셸 구현",
+      "dependsOn": [
+        "QF-05",
+        "QF-11"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-20",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 8,
+      "detailKey": "tasks",
+      "remaining": [
+        "실제 pen+finger 동시/손바닥·fingerDraw on/off·늦은 release 교차 인수 누락. finger-first를 pen으로 승격하는 정책을 현재 완료라고 주장하지 않음.",
+        "실제 bounding box/클릭 hit 영역 측정 후 필요한 touch-only 조정. 이번에는 CSS 읽기만 수행.",
+        "실제 Android web 우선. Windows/macOS 실제 pen·다른 브라우저 모바일 웹의 소유권/취소는 별도 인수.",
+        "browser page zoom 대안의 키보드·보조공학 안내/실제 200% 확대 상태는 미인수. 단순 버튼 존재로 전체 접근성 완료 불가."
+      ],
+      "title": "멀티터치 탐색·펜 우선·입력 밀도 구현",
+      "dependsOn": [
+        "QF-07",
+        "QF-10",
+        "QF-11",
+        "QF-19"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-21",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 9,
+      "detailKey": "tasks",
+      "remaining": [
+        "skin dialog 중 실제 IME composition·pending selection/curve/editor와 saved/history identity 전체 불변 matrix는 직접 검증되지 않음.",
+        "모든 modal/다운로드/초기 gate/error·폰트/대비/actual touch 전체 visual QA가 아님. 과거 palette 버그를 현재 미해결로 재분류하지 않음."
+      ],
+      "title": "Studio/Classic 98 스킨과 환경설정 구현",
+      "dependsOn": [
+        "QF-05",
+        "QF-11",
+        "QF-19"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-22",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 10,
+      "detailKey": "tasks",
+      "remaining": [
+        "설명 필드는 없고 명령 메타데이터는 commands path와 HTML labels/command handlers로 나뉜다. layer merge/rename/arrow는 여전히 glyph. 전체 요구의 단일 정의·설명 연결은 남음. 자잘한 helper 추출로 해결할 일이 아님.",
+        "새 사용자의 도구 구분/더보기 탐색 사용성 및 전체 명령의 touch-only 발견 가능성 인수 없음.",
+        "fractional Canvas exact은 작은 icon 가독성·대비비·보조공학 실제 이름/탐색 검증이 아니다. screen reader/대비 측정/200% zoom·둘 이상의 DPR UI 인수 미완료."
+      ],
+      "title": "도구 아이콘·명령 메타데이터·접근성 고도화",
+      "dependsOn": [
+        "QF-11",
+        "QF-19",
+        "QF-21"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-23",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      },
+      "rowIndex": 11,
+      "detailKey": "tasks",
+      "remaining": [
+        "O(total planes) allocation은 source 확인. 현재 실측 지연/실제 OOM 또는 Major로 분류하지 않음. untouched selection 해제 fast path를 별도 동일 bytes/clean/Redo/validate 회귀 후 검토.",
+        "32Mi 전체 목표·50ms/P95·연속 near-max 자연 browser GC/RSS·모든 cold/dirty/장치 인수는 미완료. weak collected를 peak resident memory bounded 또는 무한 장기 누수 부재로 일반화 금지."
+      ],
+      "title": "실측 기반 픽셀·이력·합성 경로 최적화",
+      "dependsOn": [
+        "QF-03",
+        "QF-11",
+        "QF-12",
+        "QF-13",
+        "QF-14",
+        "QF-16"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-24",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 0,
+      "detailKey": "rows",
+      "remaining": [
+        "저장/복구를 실행하면서 실제 입력 및 권위 문서 반영 지연을 같은 fixture로 측정한 예산 인수가 없다.",
+        "main.ts:3104 autoRecover snapshot cloneState 및 pendingState:2361 전체 복사는 동기다. 현재 자료로 최대 snapshot 준비 구간을 허용 예산 이내라고 말할 수 없다.",
+        "manual export와 자동복구의 조합별 peak snapshot/encoded/IPC 수명·메모리 상한 및 실패/취소 인수가 남는다. 최대2 Worker는 메모리 예산의 충분조건이 아니다."
+      ],
+      "title": "인코딩·복구·장기 작업의 응답성과 메모리 최적화",
+      "dependsOn": [
+        "QF-10",
+        "QF-18",
+        "QF-23"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-25",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 1,
+      "detailKey": "rows",
+      "remaining": [
+        "Wasm 도입의 필요성/우선순위를 QF25의 채택·미채택 결정으로 명시 종료한 기록은 확인되지 않았다. 일반적인 보류 문구와 미선택은 전체 완료와 같지 않다.",
+        "복사/바인딩/초기 로딩 포함 같은 알고리즘의 목표 기기 비교는 없다. 현재 CPU cold 병목의 관측만으로 Wasm 이득 또는 무이득을 판정할 수 없다."
+      ],
+      "title": "조건부 Qt-free Wasm 계산 커널 비교",
+      "dependsOn": [
+        "QF-23"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-26",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 2,
+      "detailKey": "rows",
+      "remaining": [
+        "대상 장치 GPU texture/readback/alpha/device-loss/fallback 비용 비교와 채택 인수는 없다.",
+        "유지비 또는 필요성에 따른 QF26 명시 미채택 종료 결정은 일반 보류 문구 수준이다. 합성 contextlost 검사는 실제 GPU 장치 손실을 대체하지 못한다."
+      ],
+      "title": "조건부 GPU 합성·고급 렌더러 비교",
+      "dependsOn": [
+        "QF-23"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-27",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 3,
+      "detailKey": "rows",
+      "remaining": [
+        "현재8자산의 실제 첫 네트워크 전송/ready, 한국어 IME/한글 범위 대상 장치 및 장시간 여러 문서 반복 열기 자원 인수는 남는다.",
+        "유한3burst/106 memory sample과 forcedGC는 장기 자연 GC 수명 또는 RSS 반환/상한을 보장하지 않는다. 모델 IPC의 파일 fixture 보관을 제품 누수로 세면 안 된다."
+      ],
+      "title": "초기 로딩·자산·DPR·장시간 자원 최적화",
+      "dependsOn": [
+        "QF-19",
+        "QF-21",
+        "QF-22",
+        "QF-23",
+        "QF-24"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-28",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 4,
+      "detailKey": "rows",
+      "remaining": [
+        "Windows 실제 실행/설치·펜·IME·클립보드·오프라인/파일 동작과 두 OS의 대표 startup/RSS 비교 인수는 남는다.",
+        "macOS 실제 OS 입력/IME/파일 선택기 전 조합과 서명/공증은 로컬 smoke에 포함되지 않는다. 셸 최종 인수는 아직 부분이다."
+      ],
+      "title": "데스크톱 셸 PoC와 최종 런타임 결정",
+      "dependsOn": [
+        "QF-11",
+        "QF-19",
+        "QF-20"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-29",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 5,
+      "detailKey": "rows",
+      "remaining": [
+        "실제 Windows ACL/share/reparse/파일잠금/ReplaceFile/디스크부족과 OS picker는 미검증이다.",
+        "APFS Stage::write ENOSPC는 Tauri UI×OS ENOSPC 전 조합 또는 강제 rename/commit/directory-sync 실패 검사가 아니다.",
+        "서명/공증·설치본의 실제 배포 상태 및 지원 filesystem 전체 metadata 정책의 확인이 남는다."
+      ],
+      "title": "네이티브 안전 저장·복구 위치 인계·OS 통합",
+      "dependsOn": [
+        "QF-18",
+        "QF-28"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-30",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 6,
+      "detailKey": "rows",
+      "remaining": [
+        "Android 실기기 Chrome 웹, iPhone/iPad Safari 웹, Windows native의 필수 파일·IME·DPR·펜/터치·클립보드·장시간 조합이 미확인이다.",
+        "목표 기기 성능표/안정 p95/전역50ms·물리 표시 지연은 완료되지 않았다. 미확인 필수 대상은 출시 차단 게이트로 남는다.",
+        "알려진 critical case가 수정되었다는 로컬 회귀는 모든 데이터 손실P0/필수 미이식 없음의 전 범위 증명이 아니다."
+      ],
+      "title": "기능·예외·실기기·성능 통합 인수",
+      "dependsOn": [
+        "QF-12",
+        "QF-13",
+        "QF-14",
+        "QF-15",
+        "QF-16",
+        "QF-17",
+        "QF-18",
+        "QF-19",
+        "QF-20",
+        "QF-21",
+        "QF-22",
+        "QF-24",
+        "QF-27",
+        "QF-29"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-31",
+      "ownCriteriaStatus": "partial",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 7,
+      "detailKey": "rows",
+      "remaining": [
+        "현재 commit의 공개 remote GitHub Actions 실행 결과/URL은 로컬 코드 읽기로 확인되지 않았다. CI 설정 존재와 공개 CI PASS는 다르다.",
+        "native CI는 build/unit 단계이며 test:native-desktop 실제 앱 검사가 현재 workflow에 없다. OS UI/서명 검증을 포함한다고 표시하면 안 된다.",
+        "STUDIO_ACCEPTANCE_MATRIX.md:3의 unqualified 현재 제품 index-B_qt7xyr.js 문구가 최신 DRGbE4uz snapshot과 다르다. 날짜별 역사 구분은 있으나 첫 기준 문구 정리가 필요하다.",
+        "전 의존성/설치본 notices inventory, 중복/완료TODO/잘못된 주석·전체 deadcode 정리 완료의 근거는 없다. 이번에는 추천만 한다."
+      ],
+      "title": "CI·정적 검사·의존성·문서 품질 정리",
+      "dependsOn": [
+        "QF-05",
+        "QF-11"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-32",
+      "ownCriteriaStatus": "missing",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 8,
+      "detailKey": "rows",
+      "remaining": [
+        "현 stageBundle의 허용/필수 집합은 index/retropaint.js/retropaint.wasm/qtloader.js/licenses이며 Vite assets/*를 거부한다. 새 Studio manifest staging 이행은 구현되지 않았다.",
+        "CI 임시 cp dist+python HTTP는 transactional homepage 업데이트·기존 manifest 이행·다른 파일 보존 인수가 아니다.",
+        "새 Pages MIME/cache/헤더·오래 열린 탭의 hashed lazy chunks 보존·복구 이행·교체 실패 rollback과 안전 prune가 실제 Studio 산출물로 확인되지 않았다."
+      ],
+      "title": "새 정적 산출물의 안전 staging과 Pages 이행",
+      "dependsOn": [
+        "QF-18",
+        "QF-27",
+        "QF-31"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-33",
+      "ownCriteriaStatus": "missing",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 9,
+      "detailKey": "rows",
+      "remaining": [
+        "QF30 필수 플랫폼/성능과 QF32 staging이 미완료라 출시 후보 전환·공개 인수 게이트는 아직 충족하지 않는다.",
+        "현재 Studio를 실제 public Pages에서 다운로드/재열기/복구·홈페이지 보존·oldtab lazy asset/unsaved 안정성까지 확인한 자료가 없다.",
+        "현재 새 제품용 rollback package/운영 절차의 통합 인수는 로컬 snapshot 보존으로 대체되지 않는다."
+      ],
+      "title": "출시 후보·전환·공개 인수·되돌리기 준비",
+      "dependsOn": [
+        "QF-30",
+        "QF-31",
+        "QF-32"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    },
+    {
+      "id": "QF-34",
+      "ownCriteriaStatus": "missing",
+      "evidence": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      },
+      "rowIndex": 10,
+      "detailKey": "rows",
+      "remaining": [
+        "QF33 미충족으로 legacy 제거의 선행조건이 성립하지 않았다. 현재 Qt CMake, web build/stage, Qt CI와 reference 앱이 남아 있는 것은 의도한 전환 보호다.",
+        "따라서 전체 활성 제품 경로/불필요 SDK·릴리스·아이콘·임시 어댑터 정리가 완료되었다고 할 수 없다. 삭제 권고를 지금 실행하지 않는다.",
+        "Git history 용량 축소는 별도 명시 요청/작업이며 본 태스크에서 자동 수행하면 안 된다."
+      ],
+      "title": "안정화 후 Qt 경로와 전환용 코드 정리",
+      "dependsOn": [
+        "QF-33"
+      ],
+      "allPredecessorsAndOwnCriteriaProved": false
+    }
+  ],
+  "independentAudits": [
+    {
+      "role": "architect",
+      "result": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "sha256": "b38b0c1f54599dbe2b633087accbd8ba0d640dbb3eedcff04d220ccfcbf19cfb"
+      }
+    },
+    {
+      "role": "reviewer",
+      "result": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "sha256": "c190d016fde7ffd5f575765350667fea129d642bf247cc5cd5555ea18990f7f2"
+      }
+    },
+    {
+      "role": "sre",
+      "result": {
+        "path": "build-web-work/task-planning/completion-audit/reviews/qf24-34.json",
+        "sha256": "1085e4bf8d115c008ed87d9f4bca7a3dfe544ac0530fcebc969483d4d41f78f1"
+      }
+    }
+  ],
+  "freshLocalVerification": {
+    "typescript": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/completion-audit/check.log",
+        "sha256": "86fd21d3a4c331af9cda136fdaa8bc8807301aedba733d35beae2083e7cce6d8"
+      }
+    },
+    "format": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/completion-audit/format.log",
+        "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+      }
+    },
+    "unit": {
+      "passed": 229,
+      "failed": 0,
+      "log": {
+        "path": "build-web-work/task-planning/completion-audit/unit.log",
+        "sha256": "1133c6f8d2f55f109b7950a6b2135f771795bcf8de7b389a3f09c71057475d99"
+      }
+    },
+    "staticBuild": {
+      "passed": true,
+      "byteExactPreviousAssets8": true,
+      "log": {
+        "path": "build-web-work/task-planning/completion-audit/build.log",
+        "sha256": "3d5d55bd66bbc38049a3ea3ad8cd9f66a644c355421e567bc54fd11527621bfb"
+      }
+    },
+    "legacyBuild": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/completion-audit/legacy-build.log",
+        "sha256": "8c35b1682f73592d30612d7b0fabdb384fcfff35cb5a076cb48b85b1368aa794"
+      }
+    },
+    "legacyCTest": {
+      "passedGroups": 5,
+      "failedGroups": 0,
+      "host": "macOS; UIoffscreen; not Windows/Linux platform validation",
+      "log": {
+        "path": "build-web-work/task-planning/completion-audit/legacy-ctest.log",
+        "sha256": "2b322010d3a2592991141296debf884579d6072819a8e1a56a5f5b36af53dffc"
+      }
+    }
+  },
+  "userObjectives": [
+    {
+      "id": 1,
+      "status": "implemented-with-open-integration-gates",
+      "evidence": [
+        "docs/STUDIO_ARCHITECTURE.md",
+        "web-app/src/engine/document.ts",
+        "web-app/src/platform/storage.ts",
+        "web-app/src/platform/native.ts",
+        "web-app/src-tauri/src/persistence.rs"
+      ],
+      "explanation": "Local offline product domain, data model, browser IndexedDB/recovery schema, project format and typed native IPC documented/implemented. Remote server DB/account authentication are outside approved offline product; browser origin/file grants and local IPC permissions are boundaries. Full feature/platform/deployment gates below remain open."
+    },
+    {
+      "id": 2,
+      "status": "analysis-and-refactor-implemented-validation-incomplete",
+      "evidence": [
+        "docs/evidence/studio-module-graph.json",
+        "docs/STUDIO_ARCHITECTURE.md",
+        "docs/STUDIO_REVIEW_AND_RCA.md"
+      ],
+      "explanation": "Current source graph/data ownership and staged actual fixes exist; all34criteria audit prevents broad equivalence claims from narrowtests. Newly identified missing contract work remains."
+    },
+    {
+      "id": 3,
+      "status": "implemented-for-specific-incidents-not-global-completion",
+      "evidence": [
+        "docs/STUDIO_REVIEW_AND_RCA.md",
+        "docs/evidence/studio-fill-failure.json",
+        "docs/evidence/studio-pending-contracts.json",
+        "docs/evidence/studio-high-minification.json"
+      ],
+      "explanation": "Actual setup/pending/data failures have fixes and regression evidence. Historical99ms cause remainsunproven, and a rejectedcandidate is not a resolvedincident."
+    },
+    {
+      "id": 4,
+      "status": "measured-optimizations-implemented-target-budget-acceptance-open",
+      "evidence": [
+        "docs/STUDIO_MAX_DOCUMENT.md",
+        "docs/evidence/studio-bounded-resize.json",
+        "docs/evidence/studio-resize-memory.json"
+      ],
+      "explanation": "CPU/copy/history/render/codec/memory observations and accepted/rejected candidates preserved. Physicalpen/tail/stableRSS/targetdevice budgets not certified. Local network-free runtime has no remoteDB/N+1 service query path."
+    },
+    {
+      "id": 5,
+      "status": "four-independent-roles-executed",
+      "evidence": [
+        "build-web-work/task-planning/completion-audit/reviews/qf01-11.json",
+        "build-web-work/task-planning/completion-audit/reviews/qf12-23.json",
+        "build-web-work/task-planning/completion-audit/reviews/qf24-34.json"
+      ],
+      "explanation": "Root implementation/current verification plus independent Architect/Reviewer/SRE condition audits. Missing gates are not silently approved."
+    },
+    {
+      "id": 6,
+      "status": "not-ready-for-complete-production-acceptance",
+      "evidence": [
+        ".github/workflows/studio.yml",
+        "docs/STUDIO_ACCEPTANCE_MATRIX.md",
+        "docs/QT_FREE_MIGRATION_TASKS.md"
+      ],
+      "explanation": "Local tests/checks pass, but unimplemented Studio staging, UI/fixture gaps, platform and release acceptance remain. No PR/push/publicCI success inferred."
+    }
+  ],
+  "confirmedDefects": [
+    {
+      "severity": "Minor",
+      "id": "touch-target-minimum",
+      "scope": "CSSminimum declarations contradict approved48logicalpixel target; actualcoarsepointerboundingboxes stillneedmeasurement.",
+      "locations": [
+        "web-app/src/style.css:306",
+        "web-app/src/style.css:455",
+        "web-app/src/style.css:463",
+        "web-app/src/style.css:562"
+      ]
+    }
+  ],
+  "concreteRemainingWork": [
+    {
+      "rank": 1,
+      "task": "QF-32",
+      "kind": "implementation-missing",
+      "action": "Implement Studio immutable bundle manifest and safe staging using shared existing Qt ownership/Git/manual/symlink/retention/rollback protections. Validate temporaryGit/HTTP, not actual homepage publication.",
+      "reason": "Approved web deployment workflow currently cannot accept Vite output; actual source requires Qt filenames and wasm."
+    },
+    {
+      "rank": 2,
+      "task": "QF-13/16",
+      "kind": "compatibility-verification",
+      "action": "IndependentQt roundedrectgeometry and JPEG EXIF8orientation fixtures, then fix confirmed differences.",
+      "reason": "Radius12 vs14 source difference and absent EXIFfixtures cannot be accepted from color/Shift tests."
+    },
+    {
+      "rank": 3,
+      "task": "QF-17/19/20/22",
+      "kind": "ui-and-input-contract-gaps",
+      "action": "Opaque export matte preview,48pxactualtouchhit targets, virtualkeyboard/rotation pending preservation and accessibility contracts.",
+      "reason": "Declared tokens and outputmatte code do not prove required usable UI."
+    },
+    {
+      "rank": 4,
+      "task": "QF-23/24",
+      "kind": "measurable-copy-cost",
+      "action": "Measure untouchedselection settle wholeclone and storage/recovery snapshot boundaries; use guarded inline fastpath only with source/NoOp/Redo/exception proof.",
+      "reason": "Current source shows avoidable fullcopy path; not a reproduced data-loss or quantified performanceMajor."
+    },
+    {
+      "rank": 5,
+      "task": "QF-02/03/07/10/11/25/26/27/30/31",
+      "kind": "remaining-local-and-target-acceptance",
+      "action": "Complete specificfixture/proceed-or-defer/targetbudget/conditionaltechnology decisions and source-matched validation. Keep physical/remote checks open."
+    },
+    {
+      "rank": 6,
+      "task": "QF-28/29/30/33/34",
+      "kind": "platform-and-release-gates",
+      "action": "ActualAndroidweb/Windows/OSIME/filefailure, signing/publicURL/oldtabs/recovery handoff and laterQtcleanup only after predecessor acceptance.",
+      "reason": "No device/OS/published result can be inferred from localMacmodels."
+    }
+  ],
+  "externalAvailability": {
+    "Android": "User hasAndroidavailable; no adb executable or standardmacOSsdkplatformtools found. No device test performed.",
+    "Windows": "No actual Windows host acceptance performed in this audit.",
+    "publicCIAndDeployment": "No commit/push/deploy; local staging tests remain authorized and reversible."
+  },
+  "policy": {
+    "mobile": "web only",
+    "packages": [
+      "Windows",
+      "macOS"
+    ],
+    "commitPushPublish": false
+  },
+  "documentCorrections": [
+    {
+      "path": "docs/STUDIO_ACCEPTANCE_MATRIX.md",
+      "correction": "Old fill-failure bundle labelled current; now points to audited runtime17/assets8 and dates historical records."
+    },
+    {
+      "path": "docs/STUDIO_ARCHITECTURE.md",
+      "correction": "Intro graph counts updated to actual canonical35declarations/34relations/5type-only/type-inclusiveSCC2. Runtime/source/emitted graph data unchanged."
+    }
+  ]
+}

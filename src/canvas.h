@@ -7,6 +7,7 @@
 #include <exception>
 class QTextEdit;
 class QPainter;
+class QPointingDevice;
 
 namespace paint {
 enum class Tool {
@@ -35,6 +36,8 @@ class Canvas : public QWidget {
     Tool tool = Tool::Pencil;
     QColor foreground = Qt::black, background = Qt::white;
     int thickness = 3;
+    int brushOpacity = 100, brushHardness = 100, brushStabilization = 25;
+    bool pressureEnabled = true;
     bool fillShape = false, outlineShape = true, transparentSelection = false, grid = false;
     QFont textFont;
     bool transparentText = true, brushSquare = false;
@@ -80,6 +83,7 @@ class Canvas : public QWidget {
     void mouseMoveEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
     void mouseDoubleClickEvent(QMouseEvent *) override;
+    void tabletEvent(QTabletEvent *) override;
     void keyPressEvent(QKeyEvent *) override;
     void wheelEvent(QWheelEvent *) override;
     void dragEnterEvent(QDragEnterEvent *) override;
@@ -95,9 +99,21 @@ class Canvas : public QWidget {
     bool dragging = false, moving = false, resizingSelection = false, resizingCanvas = false;
     bool rightButton = false;
     Qt::MouseButton gestureButton = Qt::NoButton;
+    const QPointingDevice *gestureDevice = nullptr;
     bool panning = false, resizeWidth = false, resizeHeight = false;
     bool selectionFromDocument = false, selectionModified = false;
     QPoint start, last, hover, selectionOffset;
+    struct BrushStroke {
+        QImage coverage, base;
+        QPointF position, filtered;
+        QColor color;
+        qreal pressure = 1;
+        int size = 1, opacity = 100, hardness = 100, stabilization = 0;
+        bool eraser = false, pressureSensitive = false;
+    } brushStroke;
+    bool tabletInput = false;
+    qreal tabletPressure = 1;
+    QPointF pointerPosition;
     QImage selection;
     QRect selectionRect;
     QPainterPath selectionMask;
@@ -111,6 +127,7 @@ class Canvas : public QWidget {
     QPoint documentPoint(QPointF point) const;
     QPoint constrained(QPoint point, Qt::KeyboardModifiers modifiers) const;
     void drawStroke(QPoint from, QPoint to);
+    void drawBrush(QPointF point, qreal pressure, bool finish = false);
     void drawShape(QPainter &painter, QPoint end) const;
     void liftSelection(QPainterPath mask, QRect rect);
     void fillAt(QPoint point);

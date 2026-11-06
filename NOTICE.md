@@ -34,11 +34,21 @@ The font source identity is recorded by SHA-256 in the Wasm probe evidence.
 
 ## Web distribution
 
-The web packaging tool includes the complete Qt source archive for the recorded
-Qt commit, Qt LICENSES (including Qt third-party license texts), the matching
-application sources and build tools, Emscripten and linked C/C++ runtime license
-texts, and the font license. The license page links these local files.
+The web packaging tool links the official Qt archive for the exact unmodified
+Qt commit, and includes the matching application sources and build tools,
+Qt LICENSES (including third-party license texts), Emscripten and C/C++ runtime
+license texts, and the font license. The pinned Qt source download is:
+https://codeload.github.com/qt/qtbase/tar.gz/025bdad181de241e81bf853c8a2d7bf3d19261a9
+
+The official archive was verified against all 23,476 files of the local Qt
+source archive. The distributor remains responsible for keeping the source
+offer available; if the upstream download becomes unavailable, restore a
+verified local archive with --bundle-qt-source. The archive can also be bundled
+for a self-contained distribution. No license or relinking material is omitted.
 BUILDING.txt records the tested configuration and application rebuild/relink
 steps, including replacement of application source. No modification or reverse
 engineering restriction is imposed on the recipient's applicable Qt rights.
 See docs/WEB_BUILD.md for the local packaging workflow.
+
+
+Qt-free Studio (`web-app/`)는 별도의 TypeScript/Canvas 엔진과 Windows/macOS Tauri 셸을 개발 중이다. 웹 런타임의 fflate 0.8.3 MIT 고지는 `web-app/public/THIRD_PARTY_NOTICES.txt`에 포함하며 정적 빌드에 복사한다. Tauri/Rust 의존성의 전체 배포 고지, Windows 배포와 macOS 서명·공증은 설치형 공개 전 검증 항목이다. 위 레거시 Qt 고지가 새 엔진에 Qt를 포함한다는 뜻은 아니다.

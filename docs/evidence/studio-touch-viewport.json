@@ -1,0 +1,494 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "QF19/20 projection ownership, scoped touch hit targets and offset-only pending-text visibility. Progress toward all34-task goal, not full QF19/20, platform or release acceptance.",
+  "platforms": {
+    "mobileTablet": "browser only",
+    "executables": [
+      "Windows",
+      "macOS"
+    ]
+  },
+  "source": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "e8604c541a7340d5e655391ba7ef02563790af657c8dbd8f70e62f2a92af5e26",
+    "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+    "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "7e5d8c13e565d48bb7a9685b92628ee522795dc260be17cc7e3cc43734be5712",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "frozenSourceDirectory": "build-web-work/task-planning/touch-viewport-contract/frozen-source",
+  "changedRuntime": [
+    "web-app/src/main.ts",
+    "web-app/src/style.css"
+  ],
+  "entry": "assets/index-CE5XuSrg.js",
+  "bundle": {
+    "payloadFiles": 9,
+    "payloadBytes": 285903,
+    "manifest": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/final-bundle/bundle.json",
+      "sha256": "606f871265861a337614c16907a6a5a0269ce3aed391c5200c291e151a044295"
+    },
+    "previousPayloadBytes": 283019
+  },
+  "rca": [
+    {
+      "severity": "Major",
+      "id": "projection-ownership",
+      "trigger": "Workspace size/backing or origin changes while a live pointer owns a provisional gesture, followed by move/up/cancel without an independent reconciliation.",
+      "beforeEvidence": [
+        "resize-cancel-before.json",
+        "reviews/sre-baseline-cancel.json",
+        "origin-before.json"
+      ],
+      "observed": "Cancel preserved raw source and old Redo but left stale backing and made the first visible next click fail. Size-equal origin64->104 during up committed17 unintended pencil pixels in the controlled source.",
+      "cause": "resizeView returned during drag/stroke; cancel did not flush geometry. Origin was not tracked and event boundaries could use a different projection.",
+      "fix": "Track view left/top/width/height with capped DPR/backing; validate at down/move and resize. Roll back only live provisional/navigation owners on material change, reconcile after cancellation, recheck ownership before consuming input. Released resize/preparation jobs retain ownership.",
+      "finalEvidence": "reviews/sre-final-results.json / material cancel/up and position-only source/Redo/nextclick/oneUndo checks"
+    },
+    {
+      "severity": "Minor",
+      "id": "text-visibility",
+      "trigger": "Manual56% pending text in800x600 document, viewport390x844->390x500.",
+      "observed": "Textarea bottom455.25 exceeded workspace bottom406 by49.25px; pixels, client dimensions, value and caret were unchanged.",
+      "cause": "Resize centered the camera without preserving visibility of the focused text box.",
+      "fix": "Only on material viewport change, pan camera offsets to show focused editor. Keep DOM node/value/client dimensions/scroll/caret/composition/manual zoom and document coordinates. Oversized boxes expose the leading edge at8px; no claim of entire caret visibility."
+    },
+    {
+      "severity": "Minor",
+      "id": "touch-cascade-and-budget",
+      "trigger": "Touch density and phone/tablet/short views; explicit mobile/zoom/palette/input rules overrode48px token; fixed rail/layer sizing omitted content/gutter budget.",
+      "observed": "Phone header44px/zoom26px/input44px; tablet clipped tools and desktop-touch action buttons42.8px. Forced17px desktop gutter left42 of48px visible in66px rail.",
+      "fix": "Scoped48px touch targets, active checkbox labels, auto-fit swatches, intrinsic minmax rail,3x2 layer actions, outer scrolling/sticky panel heading, small header title wrapping and responsive color-wheel CSS. Fine-pointer compact sizing is retained.",
+      "finalEvidence": "14 viewport/skin/manual-touch matrix cases plus forced gutter in final20; targets measured after scrolling."
+    }
+  ],
+  "implementation": {
+    "newMethodsOrHelpers": 0,
+    "newViewportFields": [
+      "viewLeft",
+      "viewTop"
+    ],
+    "changedMethods": [
+      "MethodDeclaration:sync",
+      "MethodDeclaration:createColorWheel",
+      "MethodDeclaration:resizeView",
+      "MethodDeclaration:point",
+      "MethodDeclaration:pointerDown",
+      "MethodDeclaration:pointerMove",
+      "MethodDeclaration:cancelPointer",
+      "MethodDeclaration:command"
+    ],
+    "newRuntimeModules": 0,
+    "dependenciesChanged": false,
+    "sharedRect": "Existing point(e, bounds?) consumes one cached canvas rect for move/coalesced samples; all sequential work remains in owning methods.",
+    "panel": "Properties/layers command opens requested section and scrolls the same panel. Drawer/short-height inspector scrolls as a whole with sticky close and scroll padding. Layer visibility remains a native checkbox with an associated hit label.",
+    "preservedAlgorithms": [
+      "textLayoutSteps",
+      "paintText",
+      "textRaster",
+      "paintShape",
+      "shapeRaster",
+      "pendingState",
+      "exportImage"
+    ]
+  },
+  "validation": {
+    "touchViewport": {
+      "checks": 20,
+      "errors": 0,
+      "sourceDriverSha256": "b9d194a096f0b028043325273c6b35a51787924dab70079d2e5b1f1c627d22c5",
+      "scope": "Public normal-web Chromium DOM/Canvas/Workers and real file chooser/download fixtures, without native IPC model or private Studio hooks. Coarse touch, rotation, virtual keyboard height and composition events are emulated; no physical mobile/IME/native acceptance or performance claim. Position-only safe-area padding and17px desktop scrollbar gutter are controlled CSS emulations. Released asynchronous resize jobs remain in selection-resize-contract, not duplicated here.",
+      "hitMeasurements": {
+        "controlObservations": 1941,
+        "touchControlObservations": 1659,
+        "notUniqueElements": "Counts include the same controls after public scrolling in multiple states/skins/contexts; they are not distinct widgets or independent user samples.",
+        "minTouchWidth": 48,
+        "minTouchHeight": 48,
+        "pointTests": 9705,
+        "blockedPoints": 0,
+        "maxObservedWidthClip": 0,
+        "maxObservedHeightClip": 0,
+        "method": "Each rendered enabled target is publicly scrolled into view. Checkbox uses associated active label. Visibility clipping uses scrollport client dimensions including scrollbar exclusion, plus center/four edge elementFromPoint. Coarse/explicit touch requires>=48 in each axis; fine mouse is checked for clipping/hit, not coerced into touch48 policy."
+      },
+      "editing": {
+        "materialResize": "Trusted pencil stroke, emulated1280x800->390x844, both synthetic pointercancel and real pointerup after material change must roll back original full raw/metadata and preserve oldRedo. First visible-marker-derived next click and oneUndo are exact.",
+        "positionOnly": {
+          "before": {
+            "backing": [
+              892,
+              710
+            ],
+            "origin": [
+              64,
+              53
+            ],
+            "css": [
+              892,
+              710
+            ],
+            "dpr": 1,
+            "ready": "true"
+          },
+          "afterPaddingSwap": {
+            "backing": [
+              892,
+              710
+            ],
+            "origin": [
+              104,
+              53
+            ],
+            "css": [
+              892,
+              710
+            ],
+            "dpr": 1,
+            "ready": "true"
+          },
+          "contract": "Equal size892x710, origin64->104: real mouseUp rolls back; original raw+oldRedo+next gesture+oneUndo exact. CSS10/50->50/10 equal-total padding is safe-area emulation, not OS UIKit/inset event."
+        },
+        "stationarySelection": "A12x12 selection includes the4x4 red source marker and shifts right1px. PNG matches full literal red-shifted raster, differs visibly from original, and stays byte-identical across manual125%/390x500/320x500/360x844/844x390. Escape restores source and oldRedo.",
+        "stationaryText": "Visible pending text PNG differs from source, then stays byte-identical across viewport changes. Client258x118, caret60..66, scrollTop48 and value are preserved; synthetic composition blocks Ctrl+Enter commit, leading-edge clamp supports oversized editor;125% stays manual. Glyph geometry is not compared between platforms."
+      },
+      "gutter": {
+        "rail": 79,
+        "clientWidth": 62,
+        "scrollWidth": 62,
+        "reserved": 17,
+        "buttonWidth": 48,
+        "shownWidth": 48,
+        "columns": "79px 689px",
+        "density": "touch",
+        "coarse": false,
+        "scope": "Actual desktop-style Chrome client geometry with manual touch at768 and forced17px WebKit scrollbar/stable gutter. Not an actual Windows scrollbar setting or physical coarse tablet."
+      },
+      "limits": [
+        "All viewports/touch/IME/keyboard heights and safe-area/gutter conditions are controlled browser/CSS emulation atDPR1, not physical devices, Retina, Windows, Android/iOS native or UIKit.",
+        "Normal web file input is filled through Playwright filechooser.setFiles with fixture bytes. Application download Blobs are read back; OS file dialogs/filesystem saves and actual downloads are not validated.",
+        "No performance/p95, RSS/memory, exhaustive accessibility or screen-reader certification claims. Measurement counts are deterministic observations, not user-study samples.",
+        "Inspector targets are checked after scrolling; this is not the same initial-scroll protocol as baseline31 states and no rate/percentage improvement is inferred.",
+        "Released asynchronous resize-job lifecycle stays in separate selection-resize-contract and is not asserted here.",
+        "Synthetic composition verifies application flag/state preservation only, not real language input candidates or platform keyboard routing."
+      ]
+    },
+    "unit": {
+      "passed": 229,
+      "failed": 0,
+      "scope": "Shipped engine and extracted scheduling/gesture methods; scheduling/drawing/viewport/DPR are modeled in the two existing isolated fixtures. Assertions preserved; actual geometry separately checked in browser."
+    },
+    "pointer": {
+      "checks": 26,
+      "failures": 0,
+      "scope": "Actual Chromium CDP mouse events, public canvas pixels and native IPC model. CDP resets only test navigation history to isolate editing from back/forward destinations; application default navigation/focus policy is unchanged and is not asserted. No production test hooks or operating-system persistence claims."
+    },
+    "releasedSelectionResize": {
+      "cases": 10,
+      "ok": true,
+      "scope": "Actual public DOM/Canvas/PNG Worker and clipboard payload. Trusted mouse-down with capture plus synthetic moves/release, held channel fault injection. Full raw hiddenRGB and independent PNG checks; not physical cadence/native OS/performance acceptance."
+    },
+    "webRegression": {
+      "basic": 13,
+      "concurrency": 3,
+      "editing": 13,
+      "storage": 13,
+      "shear": 6,
+      "total": 48,
+      "errors": 0
+    },
+    "native": {
+      "runs": 4,
+      "ok": true,
+      "binarySha256": "94d19bbaf35f1f3e289b4cb790a23122efcd68769eaeacb9fc7df67cdb5a5f6a",
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform."
+    },
+    "formatTypeBuild": "Final tsc/Vite, Prettier, desktop app and manifest build passed. Remote CI not run.",
+    "performance": {
+      "scope": "Actual production public UI, trusted mouse capture plus synthetic coalesced samples. Read-only synchronous canvas getBoundingClientRect call count, not forced-layout, CPU/FPS/latency measurement. Actual PNG/one Undo checked; modeled native file IPC.",
+      "cases": [
+        {
+          "samples": 4,
+          "variant": "before",
+          "reads": 5,
+          "pngPixelSha": "191b797675978071f29692ff29847a58a3985ce88113c729cee41efdfd374da7",
+          "oneUndo": true
+        },
+        {
+          "samples": 4,
+          "variant": "after",
+          "reads": 1,
+          "pngPixelSha": "191b797675978071f29692ff29847a58a3985ce88113c729cee41efdfd374da7",
+          "oneUndo": true
+        },
+        {
+          "samples": 16,
+          "variant": "before",
+          "reads": 17,
+          "pngPixelSha": "191b797675978071f29692ff29847a58a3985ce88113c729cee41efdfd374da7",
+          "oneUndo": true
+        },
+        {
+          "samples": 16,
+          "variant": "after",
+          "reads": 1,
+          "pngPixelSha": "191b797675978071f29692ff29847a58a3985ce88113c729cee41efdfd374da7",
+          "oneUndo": true
+        },
+        {
+          "samples": 64,
+          "variant": "before",
+          "reads": 65,
+          "pngPixelSha": "191b797675978071f29692ff29847a58a3985ce88113c729cee41efdfd374da7",
+          "oneUndo": true
+        },
+        {
+          "samples": 64,
+          "variant": "after",
+          "reads": 1,
+          "pngPixelSha": "191b797675978071f29692ff29847a58a3985ce88113c729cee41efdfd374da7",
+          "oneUndo": true
+        }
+      ],
+      "errors": [],
+      "ok": true
+    }
+  },
+  "review": {
+    "roles": [
+      "Architect",
+      "Implementation Engineer",
+      "Reviewer",
+      "SRE/Optimizer"
+    ],
+    "finalScopedFindings": {
+      "Blocker": 0,
+      "Major": 0,
+      "Minor": 0
+    },
+    "history": "Original baseline and candidate logs retained. First UI matrix asserted that Tab can never leave native modal; independent bare-HTML control showed the same neutral browser-UI focus, without app background focus/click. Test now permits only neutral hasFocus=false and requires next Tab return. Skin-only wait also raced density application; public-state wait now requires both. Selection fixture strengthened from blank area to visible red-marker shift before final20. Earlier isolated-unit fixtures lacked newly read DOM/DPR; fixtures now supply geometry without weakening assertions. Mobile overlay scrollbar probe did not reproduce a gutter and is not treated as Windows evidence."
+  },
+  "remaining": [
+    "Actual Android keyboard/IME/rotation and native Windows/macOS file/pen/touch integration",
+    "VisualViewport-only shrink/pan while layout viewport is unchanged, real IME candidate UI and display zoom/DPR variants",
+    "Oversized text box leading edge is preserved, not full caret visibility across every large zoom",
+    "MQL preference change deferred during gesture and wheel/continuous gesture policies remain separate hypotheses",
+    "Broader accessibility/screen-reader, long-run RSS/p95 and full platform acceptance",
+    "Existing roundrect WK boundary AA and other QF gates",
+    "Public CI, signing/notarization, legacy recovery handoff and approved Pages release"
+  ],
+  "overallAudit": {
+    "proved": 6,
+    "partial": 26,
+    "missing": 2,
+    "dependencyClosure": [
+      "QF-01"
+    ],
+    "goalComplete": false
+  },
+  "graph": {
+    "path": "docs/evidence/studio-touch-viewport-module-graph.json",
+    "sha256": "6db95f83799b336ef26b4084535b3af8f0c88f6529678aa45c693ecbee94bedc"
+  },
+  "references": {
+    "before-source.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/before-source.json",
+      "sha256": "d26c6c20e13e282f42c9be938336b87f78c9c96b616f9b8efe7498be3d5f4a2e"
+    },
+    "accepted-source.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/accepted-source.json",
+      "sha256": "8e9085849e641a2ce74c9476ad52f2eb57033c26aa9f41ba3da0f463e41a7524"
+    },
+    "accepted-assets.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/accepted-assets.json",
+      "sha256": "40b9188b5d1435871bfed647f258ecd89854d0aff6db7d0733800d24abbdfba1"
+    },
+    "final-bundle/bundle.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/final-bundle/bundle.json",
+      "sha256": "606f871265861a337614c16907a6a5a0269ce3aed391c5200c291e151a044295"
+    },
+    "resize-cancel-before.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/resize-cancel-before.json",
+      "sha256": "53c63fc71e7e400ab02a6cb4a27c02a1325f7de3a89c815b83a3e7b58bfd5a21"
+    },
+    "resize-cancel-after.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/resize-cancel-after.json",
+      "sha256": "6a217adadd7cc7f977f1b075b3b3aea8cb1f48df11a7a0a68f7d8629b9d922ba"
+    },
+    "editor-viewport-before.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/editor-viewport-before.json",
+      "sha256": "cff29c8749e01e0105f6625d6a4f8d9e5fb5d295887b82f2261772e2f4b3196d"
+    },
+    "editor-viewport-after.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/editor-viewport-after.json",
+      "sha256": "226f081c30510ce8f96784e3f7e2d7bb6d3a8f06f2d2a0a51aa6f4bb3d46e450"
+    },
+    "origin-before.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/origin-before.json",
+      "sha256": "8a9f99be24010b9af65739ed6345bc697977c2606ff56b98ec87be610746f7fe"
+    },
+    "origin-after.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/origin-after.json",
+      "sha256": "90550dae66a8edd80d1758114b4dd8a63ca779235ebeb0263dfe363965eb466e"
+    },
+    "scrollbar-prototype.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/scrollbar-prototype.json",
+      "sha256": "1719623a4ee9ac994af6b0c4a7776879b1f9438bd9bc9f83f3143b5af9953d97"
+    },
+    "scrollbar-desktop-prototype.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/scrollbar-desktop-prototype.json",
+      "sha256": "6f38ffb7f5aced3982e42ad4d8db3aff40ef1a52341469804ae16e96a66525c5"
+    },
+    "coalesced-rect-counts.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/coalesced-rect-counts.json",
+      "sha256": "49ff6116cc1962bebcfaf9834fe60a082788642909cfb7a46af325bfa0c1d4b8"
+    },
+    "accepted-unit.log": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/accepted-unit.log",
+      "sha256": "ef257fb46142677563f61aed382ed8516be6e12d772f425d3aed080b4c8d5528"
+    },
+    "accepted-pointer.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/accepted-pointer.json",
+      "sha256": "d44c45b1794753e2637633179ec43cca7b116e1fca7b17a743c0d2cae3908bea"
+    },
+    "accepted-selection-resize.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/accepted-selection-resize.json",
+      "sha256": "0e36b351b32e7e3735f9359e911d648b8719dd910ce060fbf080b7666a060e79"
+    },
+    "browser/results.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/browser/results.json",
+      "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+    },
+    "browser/concurrency.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/browser/concurrency.json",
+      "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+    },
+    "editing.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/editing.json",
+      "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+    },
+    "storage/results.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/storage/results.json",
+      "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+    },
+    "shear/results.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/shear/results.json",
+      "sha256": "e520c3bf3d18933141a2f49f7fbd867c9cb2e9259b2f9ca8425b07c032661956"
+    },
+    "native-desktop.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/native-desktop.json",
+      "sha256": "e878cd8ffed4401ffeaa991afa5ed876649770ae3856f8f67742f4e6f6e627cf"
+    },
+    "format.log": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "native-build.log": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/native-build.log",
+      "sha256": "43c604713b9755a379c33087bc6eb9741603e0ad8afc8ec4d884180ad2032570"
+    },
+    "studio-build.log": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/studio-build.log",
+      "sha256": "96e0c289a1a0f8fcdf31a7bcd8f4b76fdd6c54b1d9bac215880c03ec1046b6d3"
+    },
+    "ast-delta.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/ast-delta.json",
+      "sha256": "585483ad54c06105732523c827fd3495f11df6ac18f0938c41263c36db713b60"
+    },
+    "unit.log": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/unit.log",
+      "sha256": "8ca4d1967985a0c5f22bc1e093ddaeb7d7821c65012ac722bc164e8fc0f66c49"
+    },
+    "unit-with-viewport-fixtures.log": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/unit-with-viewport-fixtures.log",
+      "sha256": "3df49ae63d1c0e4aa3672aa3bc8bc77320d5e284044612a77611ed95b920ee35"
+    },
+    "reviews/architect-candidate.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/architect-candidate.json",
+      "sha256": "fddd2eb9696f051e81bed66d495057fccd242e314e154130f07d04df38517f46"
+    },
+    "reviews/architect-design.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/architect-design.json",
+      "sha256": "aa73b94f21aa0a46714983af3915cce2bf1ccb45750b90961dd1f547395ea67e"
+    },
+    "reviews/architect-final-addendum.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/architect-final-addendum.json",
+      "sha256": "6a9cbe9070866d6617e5471dd013c0a8de8ac096ddb19d061e73b5fd4f86b72e"
+    },
+    "reviews/reviewer-before.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/reviewer-before.json",
+      "sha256": "b00629a12bf05566a7ed8b5b153b912f542e6f702a06720bb492c3e12d7bca71"
+    },
+    "reviews/reviewer-final.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/reviewer-final.json",
+      "sha256": "a0a5ecbb541fdfe6cd4cf7f1958d3df926d96e04116cfee93ffee0575809b5bd"
+    },
+    "reviews/sre-390-classic.png": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-390-classic.png",
+      "sha256": "cf8d12d644b718a2463be13dfa5c51327865349aed6a3681a3e7ab34a9cc1668"
+    },
+    "reviews/sre-390-studio.png": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-390-studio.png",
+      "sha256": "9617eb07af1bd72e252d1b0cae8545dc3de2179ec373c28abd2a91f371893893"
+    },
+    "reviews/sre-baseline-cancel.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-baseline-cancel.json",
+      "sha256": "36b4961bdaa69c0e8d7ca3894005eb73eb522c720b37daab102f93bc192f7841"
+    },
+    "reviews/sre-baseline-layout.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-baseline-layout.json",
+      "sha256": "3a1310914c13bc946e63a6fab22aad4ef1f729bd0a6b334b2818c839aff202c5"
+    },
+    "reviews/sre-baseline-summary.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-baseline-summary.json",
+      "sha256": "d07f9d701550cb23147eafad6817e2118cc969ad53be500f1b4177b25fb100be"
+    },
+    "reviews/sre-candidate-18-pass.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-candidate-18-pass.json",
+      "sha256": "89dc0ebdde3863d19ad14444e0f6af64940d2ecf3a76813f6b0d49b5a0d9fa0b"
+    },
+    "reviews/sre-final-manifest.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-final-manifest.json",
+      "sha256": "07531f9ad396ac9d1c4b3e04f2cfad208e5e1a4aeb92ce18e8b3323925710d55"
+    },
+    "reviews/sre-final-results.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-final-results.json",
+      "sha256": "847832846ea117273952f0cd1c24e0e94bbf9dd639cac321f16e400e8c72d3b2"
+    },
+    "reviews/sre-final-summary.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-final-summary.json",
+      "sha256": "841b53f6ed89a95965476263a42737943bd204b06d64ff6fc51cd067b5f79deb"
+    },
+    "reviews/sre-first-18-results.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-first-18-results.json",
+      "sha256": "f95f5dc02a0c016f144498f0880fc3f1df69142317bdec77f4190c6791b9fe2b"
+    },
+    "reviews/sre-native-dialog-diagnostic.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-native-dialog-diagnostic.json",
+      "sha256": "9d738a1cdfb293e14505a2fc3f4827aa7404a86f3bc51d393272e8c1844062f5"
+    },
+    "reviews/sre-preference-diagnostic.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-preference-diagnostic.json",
+      "sha256": "7cd7fbb31f46129ab6cfb22c29c5072dcf0409257e2dc0b43cc470701a116c59"
+    },
+    "reviews/sre-second-18-results.json": {
+      "path": "build-web-work/task-planning/touch-viewport-contract/reviews/sre-second-18-results.json",
+      "sha256": "15038a5560c0b1f91689a87fdcc79a36ed5cfcf208f05ac358b709c5aaa91075"
+    }
+  },
+  "integrity": {
+    "path": "build-web-work/task-planning/touch-viewport-contract/final-integrity.json",
+    "sha256": "53fe024cd017952cf990a1367ea559dd40ad93d81533ed7037f579c17b4ae3a9"
+  }
+}

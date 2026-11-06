@@ -1,0 +1,390 @@
+{
+  "date": "2026-11-05",
+  "status": "Square brush/eraser geometry, event semantics and option UI implemented and locally validated; complete migration and release acceptance remain open",
+  "scope": {
+    "mobileAndTablet": "Web browsers only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "verified": [
+      "Chromium public UI with modeled file IPC",
+      "Actual bundled macOS WKWebView and isolated native persistence"
+    ],
+    "physicalDevicesVerified": false,
+    "windowsExecutionVerified": false
+  },
+  "changes": [
+    {
+      "severity": "Major",
+      "cost": "L",
+      "issue": "Legacy hard square strokes had been approximated by soft maximum-coverage dabs, changing integer boundary pixels, ignored options and repeated-event alpha.",
+      "fix": "Dedicated clipped scanline algorithm with width1 fixed-point line path. Floor document coordinates, integer brush size; hard square normalizes opacity/hardness/stabilization/pressure to the legacy policy. Existing straight RGBA composition remains.",
+      "compatibility": "Geometry/events are compared with Qt6.12 observations. Qt premultiplied color rounding is not imposed on straight-RGBA storage. This does not establish every Qt/platform/input combination."
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "issue": "Square pointer release and other mouse-button transitions were replayed as drawing moves, darkening translucent ink.",
+      "reproduction": "Left+middle stationary click became [88,135,206,255] or [79,142,216,255] rather than two-pass [121,108,165,255], depending on release order.",
+      "fix": "Ignore nonowner mouse button transitions for active hard square strokes. Let endStroke handle a changed terminal endpoint once; real drawing/coalesced moves retain their event semantics.",
+      "before": {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/chord-before.json",
+        "sha256": "9d2930ef2024108dd290ca55b667e7874f4df32b6d347d28adab254cf3e49dcc"
+      }
+    },
+    {
+      "severity": "Minor",
+      "cost": "S",
+      "issue": "Inactive hard-square options appeared editable and the explanatory state did not refresh immediately.",
+      "fix": "Synchronize on square toggle, disable inapplicable options, preserve their values for returning to round mode, show a concise explanation using existing skin tokens."
+    },
+    {
+      "severity": "Minor",
+      "cost": "S",
+      "issue": "Hard square strokes retained an unused per-pixel maximum-coverage plane.",
+      "fix": "Keep only original touched-tile snapshots for hard square. Shared tile allocation commits registration after allocations; round mode retains its coverage plane."
+    }
+  ],
+  "architecture": {
+    "publicFormatChanged": false,
+    "newRuntimeDependencies": false,
+    "engineImportsDOMOrPlatform": false,
+    "helpers": "captureStrokeTile owns shared before-image allocation/registration; moveSquareStroke separates a distinct raster algorithm from the round hot path; rasterMultiplyAdd is a bounded shared numeric algorithm. Sequential work remains within these owning methods.",
+    "numericPolicy": "Exact signed integer mantissa product+sum, one Number rounding at bounded clip/intercept boundaries. BigInt is outside row/pixel loops. Cap shifts retain separate multiply/add rounding.",
+    "moduleGraph": {
+      "path": "build-web-work/task-planning/square-tools/final-module-graph.json",
+      "sha256": "86b37db341a1d4dd2c3f828de62d4b66d44c1c11497b0d80908e2dab18f14b73"
+    },
+    "finalSourceGraph": {
+      "path": "build-web-work/task-planning/square-tools/final-source-graph.json",
+      "sha256": "58ad3f7b370bf4f04a162bb2c8f4b7cfc125228bd44230a8106397b2dbf9e799"
+    },
+    "finalStaticGraph": {
+      "path": "build-web-work/task-planning/square-tools/final-static-graph.json",
+      "sha256": "4c3e365380d3f38f5c28485263d77887b81d29dd75e8b53f536f58ecf88f7e6e"
+    },
+    "independentBoundaryReview": {
+      "path": "build-web-work/task-planning/square-tools/chord-dependency-boundary-review.json",
+      "sha256": "3e1b0ce8cc8aef74cc938f328038f14be7160a37a40340b075b76a2ca1501c5a"
+    }
+  },
+  "provenance": {
+    "baselineSource": {
+      "path": "build-web-work/task-planning/square-tools/before-source.json",
+      "sha256": "9857620008c9afad38eb20e44d743b9be2ef420d5bd1723505fa0faef0327f21"
+    },
+    "finalSource": {
+      "path": "build-web-work/task-planning/square-tools/final-source.json",
+      "sha256": "10b3c86e611d9182f85d69430ca651282aaf6823be57f24df248602cd4f3cd7e"
+    },
+    "finalAssets": {
+      "path": "build-web-work/task-planning/square-tools/final-manifest.json",
+      "sha256": "5610695b1200d7ec5ea031c4985a5be716d5a2b47b2293668ee040e48ac8ba4c"
+    },
+    "frozenSite": "build-web-work/task-planning/square-tools/chord-candidate-site/mypaint",
+    "sourceFiles": 17,
+    "assetFiles": 8,
+    "binarySha256": "05355ba01d4c2cb34815e52218e2c9ff3be59237a81f70d64ed34190fcff1fb5",
+    "preservedApp": "build-web-work/task-planning/square-tools/final-app/myPaint Studio.app",
+    "referenceArtifacts": {
+      "path": "build-web-work/task-planning/square-tools/reference-evidence/manifest.json",
+      "sha256": "65bfcc33f8e16908f6235fca5384e67d4cc29a2060a92dc7fccb48b156aa7f3d"
+    },
+    "previousGraph": {
+      "path": "build-web-work/task-planning/basic-tools/final-module-graph.json",
+      "sha256": "85baa6550a56e4503ee478b19cfb63afbc355b006f8e9479771d37ebd3f66a2c"
+    }
+  },
+  "verification": {
+    "typeAndBuild": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/square-tools/native-build.log",
+        "sha256": "7006e787f217eff1fda2ec4d55424856b378e735448d3872cd0759e1c1b2757e"
+      }
+    },
+    "format": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/square-tools/final-format.log",
+        "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+      }
+    },
+    "node": {
+      "tests": 176,
+      "failures": 0,
+      "log": {
+        "path": "build-web-work/task-planning/square-tools/chord-node.log",
+        "sha256": "2f8c79778a82987674a7a24f1e70648af48726f4d924129a106cfdc1a1a2425a"
+      }
+    },
+    "geometry": {
+      "legacyCanvasCases": 161,
+      "wideGestures": 693,
+      "width1Gestures": 4543,
+      "total": 5397,
+      "scope": "These are fixture cases inside seven new Node tests, not 5397 separate test-runner tests. Source geometry and independent literal RGBA are asserted without tolerance."
+    },
+    "independentCore": {
+      "checks": 178,
+      "report": {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/engine-final.json",
+        "sha256": "a03d8a61ae516115682f26009999703bea555da7457eae07846e4c90c1264620"
+      }
+    },
+    "numeric": {
+      "exactLibmInputs": 1291,
+      "report": {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/numeric-split.json",
+        "sha256": "5f181bd886488c0c34b1e395a962e368928e3bb599ec2505b9797e7f81dbc7a9"
+      },
+      "scope": "Executed before removing unused coverage; numeric helper body unchanged in final source. Not a universal IEEE754 fma proof."
+    },
+    "squareUI": {
+      "cases": 35,
+      "layouts": 3,
+      "report": {
+        "path": "build-web-work/task-planning/square-tools/chord-ui/ui-results.json",
+        "sha256": "e34eb1f9f8927eb253f37d3128ceb705151682c4cdcce74a4b785bb9f1806246"
+      },
+      "roundOptionsRestored": true,
+      "physicalDeviceClaim": false
+    },
+    "existingUI": [
+      {
+        "name": "eraser-picker",
+        "checks": 31,
+        "report": {
+          "path": "build-web-work/task-planning/square-tools/regression-eraser-picker",
+          "sha256": "89f66e1dc110d0f43c424f96b6014fedf8524d56a308e7f0bf01991733852dc1"
+        }
+      },
+      {
+        "name": "pointer",
+        "checks": 26,
+        "report": {
+          "path": "build-web-work/task-planning/square-tools/regression-pointer.json",
+          "sha256": "07882d8f0b1637f486a5836c63843a143c1f87f1f8ad4ef5cfe55146acffa35d"
+        }
+      },
+      {
+        "name": "basic-browser",
+        "checks": 10,
+        "report": {
+          "path": "build-web-work/task-planning/square-tools/regression-browser/results.json",
+          "sha256": "30347c0d5d39dc49c95231e7c07d6875d4e10162279e19fbefeba49a8e87c360"
+        }
+      },
+      {
+        "name": "concurrency",
+        "checks": 3,
+        "report": {
+          "path": "build-web-work/task-planning/square-tools/regression-browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        }
+      },
+      {
+        "name": "editing",
+        "checks": 13,
+        "report": {
+          "path": "build-web-work/task-planning/square-tools/regression-editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        }
+      }
+    ],
+    "native": {
+      "report": {
+        "path": "build-web-work/task-planning/square-tools/final-native.json",
+        "sha256": "fea309b4f40598fa9c76659298d1ffa6aaecf3907df4ce61bdca76b13de570e2"
+      },
+      "processStages": 4,
+      "sceneChecks": 21,
+      "squareCoreChecks": [
+        "square-thin-clipped",
+        "square-wide-fixed-boundary",
+        "square-event-source-over"
+      ],
+      "gifChecks": [
+        "gif-static-red-8x6",
+        "gif-animation-first-red",
+        "gif-transparent-rgba"
+      ],
+      "legacyFilesUnchanged": true,
+      "scope": "Actual macOS release/WKWebView, filesystem recovery, codec, quit and scene runs. The three square checks are in-app JavaScriptCore checks, not physical pointer automation. No Windows, OS file-dialog, signing or notarization acceptance."
+    },
+    "cppOracleFormatting": {
+      "report": {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/oracle-format.json",
+        "sha256": "95052f5b7b998d27791bdd2640b94e39a02a43f633a0c7253aec0d8bf02ea7f0"
+      },
+      "semanticChange": false
+    },
+    "ci": "Added test:square-contract to the existing web job. Remote CI has not been executed in this work."
+  },
+  "performance": {
+    "freshProcessReport": {
+      "path": "build-web-work/task-planning/square-tools/reference-evidence/perf-fresh-results.json",
+      "sha256": "84d4283b4a664447c3932043456688d3124038a227b016ef9a007c04250dd285"
+    },
+    "freshProcessMediansMs": [
+      {
+        "name": "round translucent brush",
+        "baseline": 49.76249999999993,
+        "candidate": 49.20433300000002,
+        "samplesPerSide": 3
+      },
+      {
+        "name": "round opaque brush",
+        "baseline": 43.83095800000001,
+        "candidate": 44.55899999999997,
+        "samplesPerSide": 3
+      },
+      {
+        "name": "round transparent eraser",
+        "baseline": 56.967750000000024,
+        "candidate": 59.92045800000005,
+        "samplesPerSide": 3
+      },
+      {
+        "name": "round background eraser",
+        "baseline": 50.88170899999977,
+        "candidate": 50.21420799999987,
+        "samplesPerSide": 3
+      }
+    ],
+    "interpretation": "Same output hashes/history in four matched round cases. Final medians range from about -1.3% to +5.2%; small samples, not zero-regression/p95/physical latency proof. Earlier same-process cohorts showed variance and are retained; no GC/JIT causal attribution.",
+    "preservedCohorts": [
+      {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/perf-fixed-results.json",
+        "sha256": "a5fcf7bc002127f53e12875f108b670ac2bcc834b8286ef09fab05df987772f8"
+      },
+      {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/perf-split-results.json",
+        "sha256": "12b36391e0cebd053f8e91ab01262f3fa6cc9101bb4c30367b81924ac510d5b9"
+      },
+      {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/perf-warm-results.json",
+        "sha256": "dc1f3824b37767d0d593c01235e969f020fb7ed28b73457521b9965e1efa74a6"
+      },
+      {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/perf-fresh-results.json",
+        "sha256": "84d4283b4a664447c3932043456688d3124038a227b016ef9a007c04250dd285"
+      }
+    ],
+    "algorithmWork": {
+      "report": {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/perf-final-work-results.json",
+        "sha256": "d4921cd388349ffb15bd84c9f4fb5fbfb9cd057d73a952c0386507e95012b739"
+      },
+      "cases": [
+        {
+          "name": "32768 horizontal",
+          "rows": 24,
+          "pixels": 262208,
+          "coverageBytes": 0,
+          "beforeBytes": 8388608
+        },
+        {
+          "name": "32768 shallow diagonal",
+          "rows": 72,
+          "pixels": 255644,
+          "coverageBytes": 0,
+          "beforeBytes": 8388608
+        },
+        {
+          "name": "2048 true diagonal",
+          "rows": 2056,
+          "pixels": 22530,
+          "coverageBytes": 0,
+          "beforeBytes": 3014656
+        },
+        {
+          "name": "large outside clipped diagonal",
+          "rows": 256,
+          "pixels": 2786,
+          "coverageBytes": 0,
+          "beforeBytes": 262144
+        },
+        {
+          "name": "32768 clipped thin",
+          "rows": 32773,
+          "pixels": 32768,
+          "coverageBytes": 0,
+          "beforeBytes": 1048576
+        }
+      ],
+      "scope": "Instrumented bounded work and reachable ArrayBuffers; instrumented and ordinary outputs agree. Not RSS/GPU memory or hard-square versus old-soft-square speedup."
+    }
+  },
+  "rejectedOrCorrectedCandidates": [
+    "Naive nearest-line/polygon models failed Qt held-out boundary cases; expectations were not weakened.",
+    "Early integrated square moveStroke increased round timings in one cohort. Separated algorithms and retained all timing cohorts.",
+    "Initial control UI did not refresh disabled state on toggle; sync(false) fixed it.",
+    "One old browser attempt disconnected; original error retained. Confirmed process exit before one retry. Final chord candidate completed normally.",
+    "First allocation-failure test set round opacity0 and never reached allocation. Corrected test setup to opacity1; initial failure log retained.",
+    "Promotion precondition used a redundant path prefix and failed before file mutation. An unchanged baseline build completed, then corrected set-e promotion and final build succeeded; prepromotion-build.log retained."
+  ],
+  "independentReview": {
+    "architect": "Independent Qt reference/model and final AST/asset/platform-boundary review; no additional runtime execution claimed for graph review.",
+    "reviewer": "Independent width1 and public UI oracles completed earlier. A later manual review turn could not run because workspace credits were unavailable.",
+    "sreOptimizer": "Independent final engine/input/resource diff review found no additional confirmed defect; final C++ oracle token-equivalence checked. Root executed independent runners and final integration checks.",
+    "implementation": "Root implemented, integrated and executed final checks; no claim that every reviewer reran every platform."
+  },
+  "remaining": [
+    {
+      "severity": "Major",
+      "cost": "M",
+      "issue": "Pencil width1 slope tie differs by six pixels from Qt in recorded (8,8)→(15,9) case.",
+      "next": "Separate geometry analysis from existing pencil opacity/max-coverage policy; add a focused regression before changing pencil.",
+      "evidence": {
+        "path": "build-web-work/task-planning/square-tools/reference-evidence/pencil-unresolved.json",
+        "sha256": "74528f848a6352a472aa8d618b6e9e3aec3638e3be999ef3101fb3b6a4880e1d"
+      }
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "issue": "Classic98 generic button background overrides color swatches. Desktop/mobile screenshot shows grey palette.",
+      "next": "Preserve swatch semantic background through Classic normal/active states; verify computed colors and selection in both skins.",
+      "source": "web-app/src/style.css: :root[data-skin=classic] button background versus .swatches button",
+      "screenshot": {
+        "path": "build-web-work/task-planning/square-tools/chord-ui/mobile-classic.png",
+        "sha256": "f158d98cb37433a3d3583bbb6d0848dc8ffe35cce79d7b0c9b2c0e210069881b"
+      }
+    },
+    {
+      "severity": "Major",
+      "cost": "L",
+      "issue": "Cold50ms target, bounded maximum-mip preparation, broad/disjoint dirty work, long sessions and process memory remain unaccepted."
+    },
+    {
+      "severity": "Major",
+      "cost": "M",
+      "issue": "Physical Android Chrome and Safari web, Windows execution, OS dialogs/IME/clipboard, signing/notarization and remote CI remain unverified."
+    },
+    {
+      "severity": "Major",
+      "cost": "M",
+      "issue": "Complete17-tool/F01–F10 option combinations and safe sibling homepage staging/rollback remain open."
+    },
+    {
+      "severity": "Minor",
+      "cost": "M",
+      "issue": "Same-opaque-color eraser temporary allocations, picked-alpha visibility UX and native GIF metadata/RSS remain open."
+    }
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "publicDeploymentChanged": false,
+    "homepageRepositoryModified": false,
+    "goalComplete": false
+  },
+  "primaryReferences": [
+    "https://doc.qt.io/qt-6/coordsys.html",
+    "https://github.com/qt/qtbase/blob/v6.12.0/src/gui/painting/qrasterizer.cpp",
+    "https://github.com/qt/qtbase/blob/v6.12.0/src/gui/painting/qcosmeticstroker.cpp",
+    "https://github.com/qt/qtbase/blob/v6.12.0/src/gui/painting/qpaintengineex.cpp#L785"
+  ]
+}

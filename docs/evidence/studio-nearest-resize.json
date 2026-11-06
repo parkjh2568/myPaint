@@ -1,0 +1,290 @@
+{
+  "date": "2026-11-06",
+  "status": "검증된 국소 개선을 적용했다. 전체 코드검사·성능·플랫폼·출시 목표는 진행 중이다.",
+  "scope": "최대 크기 nearest resize의 실제 동기 비용을 측정하고 기존 동작·메모리 소유권을 유지하는 최소 개선만 적용했다.",
+  "source": {
+    "before": {
+      "path": "build-web-work/task-planning/large-nearest-resize/before-source.json",
+      "sha256": "2df9339520492cd4e86b65e3c2aab5624d3998e95353faa90268e49abdf5d173"
+    },
+    "candidate": {
+      "path": "build-web-work/task-planning/large-nearest-resize/candidate-source.json",
+      "sha256": "1c41e119c7e2ab7e2e13ac3a43fc2014f20239c4d0a4d8bedd8e5a559ddf1b6e"
+    },
+    "beforeAssets": {
+      "path": "build-web-work/task-planning/large-nearest-resize/before-assets.json",
+      "sha256": "7fbd32490239ce3a6cf1c26d9a8f2e248065af990a3cb75336e11970af1c1b0e"
+    },
+    "candidateAssets": {
+      "path": "build-web-work/task-planning/large-nearest-resize/candidate-assets.json",
+      "sha256": "f31134989d3ba3534077a24e9ee72f7f56517befdd5ec08399505111a76eaf71"
+    },
+    "changedProduction": [
+      "web-app/src/engine/operations.ts:resizeState nearest branch"
+    ],
+    "unchangedProductionSources": 16,
+    "newHelpers": 0,
+    "newModules": 0,
+    "newDependencies": 0,
+    "mainSha256": "9243e5903949ad0c9fd79efdea9ecccea1aee1be5667da0266c25ebd89e17ad9",
+    "operationsSha256": "dde12112065d3c37bbaf12ec1b9e66b5d2a75fdfd8cb6d3d555f99622cc624e7"
+  },
+  "implementation": {
+    "changes": [
+      "같은 source row가 연속되면 완성된 직전 output row의 바이트를 복사한다.",
+      "출력 폭이 원본과 같으면 해당 원본 행을 새 output에 복사한다.",
+      "정렬된 원본의 정확히2배 가로 확대는 같은 원본 word를 두 출력 word에 쓴다."
+    ],
+    "preserved": [
+      "Qt ceil-center lower-tie X/Y mapping, 기존4W Int32 map와 nearest sentinel",
+      "straight RGBA·alpha0 hidden RGB·sourceMask stride·레이어/active/background",
+      "레이어별 fresh output과 이전행 상태 초기화·원본 backing/offset guards",
+      "검증 선행·candidate 반환 원자성·smooth/padding/API/형식/Rust",
+      "UI gesture base/원본복귀/NoOp·Worker input 소유권·취소/Redo 계약"
+    ],
+    "comments": "기존 Qt tie 의미 주석은 유효하다. 새 TODO·작업완료 주석·헬퍼·캐시를 추가하지 않았다. 포맷/타입/noUnused 검사를 통과했다."
+  },
+  "verification": {
+    "node": {
+      "tests": 217,
+      "pass": 217,
+      "newTests": 6,
+      "test": {
+        "path": "web-app/tests/nearest-bulk.test.ts",
+        "sha256": "80e79c9c2d2db226605d0fbe774d076a653dc08a1fbea3b512ba9bbe009a6ca0"
+      },
+      "log": {
+        "path": "build-web-work/task-planning/large-nearest-resize/node-final.log",
+        "sha256": "6070d9f25f7f7f6687c0b5435c91ab46183355ae552861be38f78d783f13d15b"
+      },
+      "beforeCoverage": {
+        "log": {
+          "path": "build-web-work/task-planning/large-nearest-resize/nearest-bulk-before.log",
+          "sha256": "d4d15998c7e277c8baa9538385b22a2d057fc67bb05be302011dd0f1b2b694fc"
+        },
+        "pass": 4,
+        "fail": 2,
+        "meaning": "기존 구현에는 새 set/copyWithin 주입 경로가 없어 assert.throws가 실패했다. 기존 런타임 결함 재현이 아니다."
+      }
+    },
+    "checkCommands": {
+      "path": "build-web-work/task-planning/large-nearest-resize/check-commands.json",
+      "sha256": "e430c8117be4046bd8479b8906e57777bb433f98ab3906f8d65c66983c1c2220"
+    },
+    "publicNineSuites": {
+      "path": "build-web-work/task-planning/large-nearest-resize/regression-results.json",
+      "sha256": "d2310abbc1fdeca94009df4f150eb4c5c5a972b4ea0a61dff1692837109ff8b6"
+    },
+    "scene": {
+      "candidate": {
+        "path": "build-web-work/task-planning/large-nearest-resize/scene-candidate/results.json",
+        "sha256": "c8e752dae62240ff1bc0c8a66e9c1841345cb7b131a38909b1c1977068acb8f9"
+      },
+      "historicalBeforeReference": {
+        "path": "build-web-work/task-planning/large-nearest-resize/scene-before/results.json",
+        "sha256": "cc68241ecad7e142abc7c8ff7e51d60274970b88053dbeac2e5a123b1db9a45e"
+      },
+      "beforeProvenance": {
+        "path": "build-web-work/task-planning/large-nearest-resize/scene-before/provenance.json",
+        "sha256": "144ae0d918666bca34942139b176b5cec33203e0d7d72ba57f8c20124ba4ac15"
+      },
+      "framePairs": 56,
+      "documentPairs": 12,
+      "faultRetriesPerSide": 2,
+      "scope": "후보는 새 실제 실행이다. 이전 실행 reference는 source17/asset8 일치를 확인한 직전 단계의 실제 후보이며 새 baseline 실행으로 세지 않는다. 전체 raw frames·PNG bytes를 비교하고 RPaint export는 executed preservation assertion에서 입력 bytes와 직접 비교했다."
+    },
+    "ordinaryMacOS": {
+      "result": {
+        "path": "build-web-work/task-planning/large-nearest-resize/native-desktop.json",
+        "sha256": "34d91d5548876327f295ac3ecaf3a41b13cf7c26f6f775a72d6ebf22d1330c37"
+      },
+      "foreground": {
+        "path": "build-web-work/task-planning/large-nearest-resize/native-desktop.json.foreground.json",
+        "sha256": "d433136cbab93ca0872d0d59de00d42837200ba00d09b20eee84ea34acd47f84"
+      },
+      "phases": 4,
+      "sceneChecks": 21,
+      "binarySha256": "f77efe7c957701bf02db99f0b27baecd0416bc61bb698c86384aa8256e75872b",
+      "ordinaryDefaultAndFrozenMatch": true,
+      "setupCorrection": {
+        "path": "build-web-work/task-planning/large-nearest-resize/native-setup-path-failure.json",
+        "sha256": "3d636ca1ebad45e1369e0b265aaf1e52e3a6026fde11546ac67afeb3b7e25d70"
+      }
+    },
+    "dedicatedWK": {
+      "result": {
+        "path": "build-web-work/task-planning/large-nearest-resize/native-probe/results.json",
+        "sha256": "8154c9080c5f739aa5badb5ea89a4aa1788126a10086d0a80148f8909efdf306"
+      },
+      "overlay": {
+        "path": "build-web-work/task-planning/large-nearest-resize/native-probe/overlay.json",
+        "sha256": "6eb290a8bdbb2d85e90a93fe91432622f5b254b1c7ce31584769c7508873018a"
+      },
+      "cases": 4,
+      "scope": "별도 사본의 직접 engine과 실제 geometry Worker, 두32Mi 출력·8191 neighbor·unaligned3layers의 모든 raw 채널/원본 SHA/guard. 성능·공개 native gesture·OS picker 인수와 구분한다."
+    }
+  },
+  "performance": {
+    "observations": {
+      "path": "build-web-work/task-planning/large-nearest-resize/performance-observations.json",
+      "sha256": "1777fcfbf67a68d937f5fd86cf8a1228b24b6e9a224fbff5919f4029cecc6843"
+    },
+    "nodeBefore": {
+      "path": "build-web-work/task-planning/large-nearest-resize/sre/baseline-scope/summary.json",
+      "sha256": "8885e4a6649ba877edf3f2a265bb4d631fc227ae652d4452b8224f0e48b10b55"
+    },
+    "nodeCandidatePrototype": {
+      "path": "build-web-work/task-planning/large-nearest-resize/prototype/combined/summary.json",
+      "sha256": "3e85403139fd63d1ba12b6ff7abf69f84dc6bd75e1c38d0df1d5837a90d6ed69"
+    },
+    "nodeScope": "동일 resource-scoped 프로토콜로 각 fixture cold1/warm2/timed4,10초 child watchdog, GC/fullraw/hash는 clock 밖. 채택된 prototype은 실제 제품과 nearest 의미가 같고 제품 UI/WK/217을 별도로 검증했다.",
+    "nodeWarmMedianMs": {
+      "vertical": [
+        47.84,
+        6.9413
+      ],
+      "horizontal2x": [
+        48.876,
+        30.9514
+      ],
+      "axischange": [
+        47.937,
+        29.3109
+      ]
+    },
+    "uiInitialPairsMs": {
+      "horizontal2xCallback": [
+        72.4,
+        56.2
+      ],
+      "horizontal2xReady": [
+        811.8,
+        758.3
+      ],
+      "verticalCallback": [
+        73.2,
+        24.4
+      ],
+      "verticalReady": [
+        682.3,
+        700.9
+      ]
+    },
+    "resourceLedger": {
+      "maxSingleOutputBytes": 134217728,
+      "xMapBytes": "4*targetWidth, 최대131072",
+      "newFullPlaneScratch": 0,
+      "firstMainPixelPlaneModelBytes": 268435456,
+      "laterTargetReplacementModelBytes": 402653184,
+      "meaning": "문서64MiB+별도 selection/base64MiB+새target128MiB 모델. 원본/drag/resizeSource는 별칭을 중복계산하지 않는다. 후속 target 교체 시 이전128MiB와 새128MiB가 공존할 수 있다. cache/codec/observer/GPU/GC를 포함한 RSS·peak가 아니다. Worker 입력 pixels.slice() 동기 비용도 남는다."
+    },
+    "independentSRE": {
+      "path": "build-web-work/task-planning/large-nearest-resize/sre/ui-pair-summary.json",
+      "sha256": "bef716c8371ddf2b78e41f29aa449a330a15e3078d5e629c7ac476b7a1d249e5"
+    },
+    "independentManifest": {
+      "path": "build-web-work/task-planning/large-nearest-resize/sre/ui-pair-manifest.json",
+      "sha256": "230dbdaa46f79cfd4d42a8871510d8b25cfc2c0b9c44c4d2ecf106b47a4fbb6e"
+    }
+  },
+  "experiments": {
+    "genericRuns": {
+      "summary": {
+        "path": "build-web-work/task-planning/large-nearest-resize/runs-prototype/summary.json",
+        "sha256": "540b696d822f73a4a2160f39ce36c58e8d52f8e62d91f1bd8216219d351257e7"
+      },
+      "fullRGBAOutputs": 126,
+      "decision": "대부분 비율에서 퇴행하여 보류. 기존 Xmap의 두 표현을 추가하지 않는다.",
+      "examplesMedianMs": {
+        "nearIdentity": [
+          49.274,
+          124.216
+        ],
+        "near2x": [
+          49.644,
+          62.347
+        ],
+        "wideRepeat256": [
+          59.822,
+          9.527
+        ]
+      }
+    },
+    "unroll": {
+      "summary": {
+        "path": "build-web-work/task-planning/large-nearest-resize/unroll-prototype/summary.json",
+        "sha256": "33e8924de3ccedcd13045a80c0b4722acae3563eafe324e97866d383504ae7c7"
+      },
+      "fullRGBAOutputs": 105,
+      "decision": "4개 반복은 일부 퇴행,8개는48→42ms 정도의 제한적 이득과 코드중복으로 보류."
+    },
+    "largeLassoCache": {
+      "summary": {
+        "path": "docs/evidence/studio-lasso-path-investigation.json",
+        "sha256": "6291e294cfcb684d8fe662600f3c3424be623dbd85f939f1a46240549254ba90"
+      },
+      "decision": "근접65536점 RAF4–6ms에서 병목이 확인되지 않아 Path2D 캐시를 보류했다. Enter 후 points array 교체 소유권·native O(P) 저장 부담을 추가하지 않았다."
+    }
+  },
+  "architecture": {
+    "canonicalGraph": {
+      "path": "docs/evidence/studio-module-graph.json",
+      "sha256": "344fd075e92d31dd6b1466859735ca0d4a9c84dcd8241e7911869e9f29807b20"
+    },
+    "architect": {
+      "path": "build-web-work/task-planning/large-nearest-resize/architect/review.json",
+      "sha256": "27502f3eeab8bf67c6ff271383257870adc7cdec55facb7b45f2862b65cd0242"
+    },
+    "method": {
+      "path": "build-web-work/task-planning/large-nearest-resize/architect/method-review.json",
+      "sha256": "bfc212e55122559b305364d008c51292e6a057825f1322a360c2b99ffb2adf5d"
+    },
+    "reviewer": {
+      "path": "build-web-work/task-planning/large-nearest-resize/reviewer/candidate-final-review.json",
+      "sha256": "3ff93efd9a0f52c33620725829a1271cf7582b2b2f7560ab20f7b627effdffaa"
+    },
+    "testDelta": {
+      "path": "build-web-work/task-planning/large-nearest-resize/reviewer/delta-final-review.json",
+      "sha256": "3f623fa26d0af7d9da720a5ef036a3e9fc54a84721c9beff6835d2388c0c949f"
+    },
+    "runtimeCycles": 0,
+    "scope": "17source/14frontend/3Rust, TS13/관계34. AST는 resizeState nearest then block만 바뀌며 함수밖·validation/Xmap/smooth/padding/metadata/import 관계는 동일하다. 기존 type-inclusive SCC2와 dynamic load SCC2를 runtime-static cycle로 세지 않는다."
+  },
+  "remaining": [
+    {
+      "priority": "P1",
+      "cost": "M–L",
+      "issue": "대형 handle resize는 여전히 동기다. exact2도56ms, 일반 비율은약68ms. 최신 target coalescing·cancellable Worker/bounded 작업의 소유권 설계를 먼저 검토한다."
+    },
+    {
+      "priority": "P1",
+      "cost": "M",
+      "issue": "축소 미리보기 준비가 앱ready의 큰 비중이다. 이번 관측은약0.7초이며 작은 MessagePort 작업들이 누적된다. kernel 개선을 전체 ready 개선으로 일반화하지 않는다."
+    },
+    {
+      "priority": "P2",
+      "cost": "M",
+      "issue": "장기 RSS·후속128Mi target 공존·Worker 시작/clone·실제 입력 cadence와 큰 비퇴화 path를 측정한다."
+    },
+    {
+      "priority": "P2",
+      "cost": "플랫폼별",
+      "issue": "Android는 실제 웹 검증, Safari/Windows·OS picker/IME·디스크 실패·서명/공증·원격CI/게시 인수는 남아 있다."
+    }
+  ],
+  "policy": {
+    "mobileTablet": "웹만 제공한다. Android/iOS native project나 package를 추가하지 않았다.",
+    "desktopPackages": [
+      "Windows",
+      "macOS"
+    ],
+    "commitPushPublish": false,
+    "wholeGoalComplete": false,
+    "cppChangedThisPhase": false,
+    "ctest": "C++/Qt를 바꾸지 않아 이번 단계에서 CTest를 새로 실행하지 않았다. 이전 실행은 역사적 기록이다."
+  },
+  "cleanup": {
+    "path": "build-web-work/task-planning/large-nearest-resize/cleanup.json",
+    "sha256": "66222172ad282338fcd08f3f882453e3b24e67a8fccd74d9156b737a68ea01ae"
+  }
+}

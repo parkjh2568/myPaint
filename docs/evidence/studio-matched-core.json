@@ -1,0 +1,749 @@
+{
+  "date": "2026-11-06",
+  "goalComplete": false,
+  "QF03Complete": false,
+  "status": "Partial: identical opaque core fixtures and ownership/timing boundaries verified across native Qt and Node; full UI/device/latency/performance gates remain open",
+  "previousGoalTurn": "progress: measurement-tool correctness/metadata/lifecycle repaired and exercised; independent final audit accepted partial scope",
+  "productRuntimeSources": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b",
+    "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+    "web-app/src/platform/native-smoke.ts": "4c318c88435b82982addb8876c4169e8e6564c0b6738ed3a6867f2b2e516d2d8",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "4d46f4cbf2d02db6add183af5d4cd6232fac9417fadff627ce3dba85dd0992fd"
+  },
+  "legacyCoreSources": {
+    "src/document.cpp": "89bbb0aad6c8a74c59436aa79ba114fa99b8b39e4f18be72ac506e57bb91f13a",
+    "src/document.h": "f308a31183f85418749ba5dd52931a0311351c2ce007e32019ea8c4f3d280bf8"
+  },
+  "changedRuntimeFiles": [],
+  "newOrChangedDevelopmentInputs": {
+    "tests/matched_core_probe.cpp": "9d67f5d9b8dbd1c1b04450482c2b26f6fb56fe4278a23e3ae4d774ce1a05496d",
+    "web-app/tests/matched-core.mjs": "51d28285524a63d89508200a814f8d44774f4512ed22ece350c39fae9836b8e3",
+    "web-app/tests/core-fixtures.mjs": "fab4077352f1fc299db5041dbf0f6e70729a8195aa99e1bbfecb04ab284a6674",
+    "web-app/tests/fixtures/matched-core.json": "d1cb4ef84c917611bba3c9111142049f80d71eee145012f78911b4e451f4c2b7",
+    "web-app/tests/fixtures/matched-core-README.md": "e8f80203cd8596c3645dcb316c8639be07ce362b2f892dedad4c6798c0b2f619",
+    "CMakeLists.txt": "a3536465d5e1291d7217f3dc780191ffbcb537bc4404c62cd6efa80e8a18bc96",
+    "web-app/package.json": "155415fd313fb6244648811bb3190c6631cba240d560c97402913259265a2b36"
+  },
+  "compiledInputs": {
+    "sourceAndBinary": {
+      "tests/matched_core_probe.cpp": {
+        "sha256": "9d67f5d9b8dbd1c1b04450482c2b26f6fb56fe4278a23e3ae4d774ce1a05496d",
+        "bytes": 19278
+      },
+      "web-app/tests/matched-core.mjs": {
+        "sha256": "51d28285524a63d89508200a814f8d44774f4512ed22ece350c39fae9836b8e3",
+        "bytes": 12796
+      },
+      "web-app/tests/core-fixtures.mjs": {
+        "sha256": "fab4077352f1fc299db5041dbf0f6e70729a8195aa99e1bbfecb04ab284a6674",
+        "bytes": 5614
+      },
+      "web-app/tests/fixtures/matched-core.json": {
+        "sha256": "d1cb4ef84c917611bba3c9111142049f80d71eee145012f78911b4e451f4c2b7",
+        "bytes": 5454
+      },
+      "src/document.cpp": {
+        "sha256": "89bbb0aad6c8a74c59436aa79ba114fa99b8b39e4f18be72ac506e57bb91f13a",
+        "bytes": 22957
+      },
+      "src/document.h": {
+        "sha256": "f308a31183f85418749ba5dd52931a0311351c2ce007e32019ea8c4f3d280bf8",
+        "bytes": 5428
+      },
+      "build-native-relocated/libpaintcore.a": {
+        "sha256": "f67e237f27bff9c3e3dc7d0c8645b154d001ccc2dff1119c5a18ed54b9690d8f",
+        "bytes": 78992
+      },
+      "build-native-relocated/matched_core_probe": {
+        "sha256": "5cc3b94587e87c15e189e21a51ef7ecb13df43d2827100062f2c951d483f5ce2",
+        "bytes": 184496
+      },
+      "CMakeLists.txt": {
+        "sha256": "a3536465d5e1291d7217f3dc780191ffbcb537bc4404c62cd6efa80e8a18bc96",
+        "bytes": 6522
+      },
+      "web-app/package.json": {
+        "sha256": "155415fd313fb6244648811bb3190c6631cba240d560c97402913259265a2b36",
+        "bytes": 4504
+      }
+    },
+    "buildCacheSha256": "a90a72db73937c2d21f56596899830e29d65aad727e77fe7babaa1dd8cd94720",
+    "scope": "Source/binary snapshot captured before execution and verified unchanged afterward; timings are recorded under verification and referenced raw results."
+  },
+  "fixtures": {
+    "canonicalSpec": "web-app/tests/fixtures/matched-core.json",
+    "specSha256": "d1cb4ef84c917611bba3c9111142049f80d71eee145012f78911b4e451f4c2b7",
+    "manifestSha256": "2d913bed8a2411cbbc878c8bb25860d7f1d8fac26607ea62db85b4be2cb792c1",
+    "count": 6,
+    "opaqueSourcePlanes": 7,
+    "independentRedOutputPlanes": 3,
+    "totalWireBytes": 37681237,
+    "wireFiles": {
+      "build-web-work/task-planning/qf03-matched-core/fixtures/rgb-800x600-1.rpaint": {
+        "sha256": "f49e5bfb45138b67889aaa4969409a6d8d1fe26ad0b902546014b8481958befb",
+        "bytes": 1643374,
+        "planes": 1
+      },
+      "build-web-work/task-planning/qf03-matched-core/fixtures/white-800x600-1.rpaint": {
+        "sha256": "0bde25eb35308b060f646ba7b65714ee4dd6e21c6309c263c2d96286163d9b73",
+        "bytes": 9736,
+        "planes": 1
+      },
+      "build-web-work/task-planning/qf03-matched-core/fixtures/rgb-2048x2048-1.rpaint": {
+        "sha256": "e9f4fe0ee775ec19ed34a28b0440587eb3247a33323fb09c6bf75cb15d49bbb8",
+        "bytes": 14355646,
+        "planes": 1
+      },
+      "build-web-work/task-planning/qf03-matched-core/fixtures/white-2048x2048-1.rpaint": {
+        "sha256": "958654586fa60eb3679a8e41a40d351401477671df03fd8b9efb593ed99241b6",
+        "bytes": 78055,
+        "planes": 1
+      },
+      "build-web-work/task-planning/qf03-matched-core/fixtures/rgb-1536x2048-2.rpaint": {
+        "sha256": "9fa12d76763b1f296d342b2fde9792bc3b15f705880640142fb03189d78b46f9",
+        "bytes": 21535067,
+        "planes": 2
+      },
+      "build-web-work/task-planning/qf03-matched-core/fixtures/white-1536x2048-1.rpaint": {
+        "sha256": "15dc1304a0d88f53e51a3fc31473d045aa30816058689e82c7ab64517ad064cd",
+        "bytes": 59359,
+        "planes": 1
+      }
+    },
+    "derivation": "Python modulo32-bit integer arithmetic before Node wire producer; archived checker verifies full planes/prefix and three full red outputs without product imports",
+    "formatLineage": {
+      "source": "Independent Python modulo32-bit integer loop, no TS/Qt/product imports",
+      "planes": 7,
+      "firstRgbPrefix": [
+        40,
+        69,
+        173,
+        255,
+        172,
+        52,
+        10,
+        255,
+        3,
+        175,
+        103,
+        255,
+        192,
+        195,
+        112,
+        255
+      ],
+      "preFormatSpecSha256": "5f52084b5b701f70726aa7f653e32b6cb85d382802efd3c482f1c52cc2d2e500",
+      "formattedSpecSha256": "d1cb4ef84c917611bba3c9111142049f80d71eee145012f78911b4e451f4c2b7",
+      "semanticEquivalentAfterFormatting": true
+    },
+    "producer": "Node zlib/CRC and explicit PNG/RPAINT01 fields, no production encoder import",
+    "scope": "All source/replacement alpha255; old low-alpha/raw-PNG contracts remain separate."
+  },
+  "operationContracts": {
+    "project-decode": "Identical whole wire SHA -> exact metadata/all visible+hidden canonical RGBA planes; memory decoder API only",
+    "project-encode": "Identical decoded State -> production encoder output; self-read every iteration and final3representatives cross-read; compressed bytes need not match",
+    "flood": "Immutable single white plane -> independent full opaque-red output; Qt shallow handle/share check outside, production COW detach+allocation inside; TS full ROI allocation inside",
+    "deep-copy": "Forced mutable-pixel copy: Qt State+eachQImage.copy inside, TScloneState inside; actual constBits/buffer nonalias checked outside; not normal Qt shallow snapshot cost",
+    "includedExcluded": "Validation/hash/input and handle setup/file writes/caller-owned release outside per-call timer; callee-internal RAII/natural GC may be inside. Interleaved verification can perturb cache/GC. Total elapsed starts at different setup boundaries."
+  },
+  "verification": {
+    "comparison": {
+      "ok": true,
+      "scope": "Matched API correctness/method validation; no ratios or stable-tail claim",
+      "fixtures": 6,
+      "sourcePlanes": 7,
+      "operationsPerBackend": 12,
+      "validatedWarmupsPerBackend": 12,
+      "validatedMeasuredCallsPerBackend": 36,
+      "sameInputWireSha256": true,
+      "sameInputFullPlaneSha256": true,
+      "allMetadataVerifiedByBothProbes": true,
+      "crossDecodedProjectsPerBackend": 3,
+      "nearestRank24RowsVerified": true,
+      "encodedSizes": [
+        {
+          "id": "rgb-800x600-1",
+          "qtEncodedBytes": 1675204,
+          "studioEncodedBytes": 1663745,
+          "compressedBytesEqualRequired": false
+        },
+        {
+          "id": "rgb-2048x2048-1",
+          "qtEncodedBytes": 14484964,
+          "studioEncodedBytes": 14534237,
+          "compressedBytesEqualRequired": false
+        },
+        {
+          "id": "rgb-1536x2048-2",
+          "qtEncodedBytes": 21816822,
+          "studioEncodedBytes": 21802722,
+          "compressedBytesEqualRequired": false
+        }
+      ]
+    },
+    "crossScope": "Final representative3encoded RGB files per backend; each local encoding iteration separately verified against independent metadata/full-plane goldens",
+    "serialExecution": {
+      "scope": "Serial block order Qt -> Node -> Qt cross -> Node cross; method validation, not ABBA/repeated paired performance or a speedup ratio",
+      "startedAt": "2026-11-06T06:02:58.058082+00:00",
+      "jobs": [
+        {
+          "name": "qt",
+          "argv": [
+            "/Users/jhpark/code/myService/myPaint/build-native-relocated/matched_core_probe",
+            "--fixtures",
+            "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/qf03-matched-core/fixtures",
+            "--spec",
+            "/Users/jhpark/code/myService/myPaint/web-app/tests/fixtures/matched-core.json",
+            "--output",
+            "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/qf03-matched-core/qt",
+            "--samples",
+            "3",
+            "--warmups",
+            "1",
+            "--budget-ms",
+            "90000"
+          ],
+          "cwd": "/Users/jhpark/code/myService/myPaint",
+          "loadAtStart": [
+            8.90234375,
+            11.51708984375,
+            16.9365234375
+          ],
+          "outerExactChildTimeoutSeconds": 120,
+          "exitCode": 0,
+          "wallSeconds": 12.350986166973598,
+          "loadAtEnd": [
+            8.18505859375,
+            11.22998046875,
+            16.73876953125
+          ]
+        },
+        {
+          "name": "studio",
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "/Users/jhpark/code/myService/myPaint/web-app/tests/matched-core.mjs"
+          ],
+          "cwd": "/Users/jhpark/code/myService/myPaint/web-app",
+          "loadAtStart": [
+            8.18505859375,
+            11.22998046875,
+            16.73876953125
+          ],
+          "outerExactChildTimeoutSeconds": 120,
+          "exitCode": 0,
+          "wallSeconds": 29.172287583933212,
+          "loadAtEnd": [
+            8.5927734375,
+            11.0947265625,
+            16.53076171875
+          ]
+        },
+        {
+          "name": "qt-cross",
+          "argv": [
+            "/Users/jhpark/code/myService/myPaint/build-native-relocated/matched_core_probe",
+            "--fixtures",
+            "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/qf03-matched-core/fixtures",
+            "--spec",
+            "/Users/jhpark/code/myService/myPaint/web-app/tests/fixtures/matched-core.json",
+            "--output",
+            "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/qf03-matched-core/qt-cross",
+            "--verify",
+            "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/qf03-matched-core/studio"
+          ],
+          "cwd": "/Users/jhpark/code/myService/myPaint",
+          "loadAtStart": [
+            8.5927734375,
+            11.0947265625,
+            16.53076171875
+          ],
+          "outerExactChildTimeoutSeconds": 120,
+          "exitCode": 0,
+          "wallSeconds": 0.35240658291149884,
+          "loadAtEnd": [
+            8.3046875,
+            10.9931640625,
+            16.462890625
+          ]
+        },
+        {
+          "name": "studio-cross",
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "/Users/jhpark/code/myService/myPaint/web-app/tests/matched-core.mjs"
+          ],
+          "cwd": "/Users/jhpark/code/myService/myPaint/web-app",
+          "loadAtStart": [
+            8.3046875,
+            10.9931640625,
+            16.462890625
+          ],
+          "outerExactChildTimeoutSeconds": 120,
+          "exitCode": 0,
+          "wallSeconds": 2.2411157919559628,
+          "loadAtEnd": [
+            8.3046875,
+            10.9931640625,
+            16.462890625
+          ]
+        }
+      ],
+      "ok": true
+    },
+    "negativeControls": {
+      "ok": true,
+      "cases": [
+        {
+          "case": "duplicate-operation",
+          "backend": "qt",
+          "exitCode": 1,
+          "timingRows": 0,
+          "log": "negative-duplicate-operation-qt.log",
+          "resultFile": null
+        },
+        {
+          "case": "duplicate-operation",
+          "backend": "studio",
+          "exitCode": 1,
+          "timingRows": 0,
+          "log": "negative-duplicate-operation-studio.log",
+          "resultFile": null
+        },
+        {
+          "case": "bad-wire",
+          "backend": "qt",
+          "exitCode": 1,
+          "timingRows": 0,
+          "log": "negative-bad-wire-qt.log",
+          "resultFile": "build-web-work/task-planning/qf03-matched-core/negative-bad-wire-qt/results.json"
+        },
+        {
+          "case": "bad-wire",
+          "backend": "studio",
+          "exitCode": 1,
+          "timingRows": 0,
+          "log": "negative-bad-wire-studio.log",
+          "resultFile": "build-web-work/task-planning/qf03-matched-core/negative-bad-wire-studio/results.json"
+        },
+        {
+          "case": "oversize-wire",
+          "backend": "qt",
+          "exitCode": 1,
+          "timingRows": 0,
+          "log": "negative-oversize-wire-qt.log",
+          "resultFile": "build-web-work/task-planning/qf03-matched-core/negative-oversize-wire-qt/results.json"
+        },
+        {
+          "case": "oversize-wire",
+          "backend": "studio",
+          "exitCode": 1,
+          "timingRows": 0,
+          "log": "negative-oversize-wire-studio.log",
+          "resultFile": "build-web-work/task-planning/qf03-matched-core/negative-oversize-wire-studio/results.json"
+        },
+        {
+          "case": "existing-output",
+          "backend": "qt",
+          "exitCode": 1,
+          "priorResultsAndManifestUnchanged": true,
+          "log": "negative-existing-output-qt.log"
+        },
+        {
+          "case": "existing-output",
+          "backend": "studio",
+          "exitCode": 1,
+          "priorResultsAndManifestUnchanged": true,
+          "log": "negative-existing-output-studio.log"
+        },
+        {
+          "case": "existing-output",
+          "backend": "producer",
+          "exitCode": 1,
+          "priorResultsAndManifestUnchanged": true,
+          "log": "negative-existing-output-producer.log"
+        }
+      ],
+      "sourceFiles6Unchanged": true
+    },
+    "budgetControls": {
+      "ok": true,
+      "cases": [
+        {
+          "backend": "qt",
+          "exitCode": 1,
+          "ok": false,
+          "error": "Soft operation budget exhausted",
+          "preservedRows": 6,
+          "preservedAttempts": 21,
+          "preservedWarmups": 6,
+          "result": "build-web-work/task-planning/qf03-matched-core/budget-qt/results.json"
+        },
+        {
+          "backend": "studio",
+          "exitCode": 1,
+          "ok": false,
+          "error": "AssertionError [ERR_ASSERTION]: Soft operation budget exhausted\n    at file:///Users/jhpark/code/myService/myPaint/web-app/tests/matched-core.mjs:152:17",
+          "preservedRows": 3,
+          "preservedAttempts": 8,
+          "preservedWarmups": 2,
+          "result": "build-web-work/task-planning/qf03-matched-core/budget-studio/results.json"
+        }
+      ],
+      "scope": "Controlled soft checkpoint exhaustion; earlier completed attempts retained. Not an OS hard-time guarantee or app timing acceptance."
+    },
+    "ctest": {
+      "passed": 6,
+      "failed": 0,
+      "groups": [
+        "web_stage",
+        "studio_build",
+        "ui",
+        "smoke",
+        "allocation_failure",
+        "core"
+      ],
+      "scope": "Existing Qt/offscreen/build regressions; not6OS GUI or physical-device tests"
+    },
+    "format": "JS/C++ pass",
+    "typescript": "pass",
+    "localBuild": "pass",
+    "initialProbeCompileFailure": "Ambiguous QCommandLineOption brace overloads fixed by explicit QString option names; initial log preserved; final build clean"
+  },
+  "issuesResolved": [
+    {
+      "severity": "Major",
+      "scope": "Development measurement validity",
+      "issue": "Row count alone allowed duplicate decode to conceal missingdeepcopy",
+      "resolution": "Pin canonical spec SHA and exact full fixture/case arrays before timing; duplicate control rejects both backends with zero rows"
+    },
+    {
+      "severity": "Major",
+      "scope": "Development oracle provenance",
+      "issue": "Mutable manifest expectations were not pinned to committed independent spec",
+      "resolution": "Both consumers load and match canonical spec; full metadata/plane hashes verified"
+    },
+    {
+      "severity": "Minor",
+      "scope": "Development ownership/read bounds",
+      "issue": "Directory adoption and pre-size-only read claims were too broad",
+      "resolution": "Exclusive fresh directory creation, descriptor-capped reads, owned atomic Qt writes; general hostile-filesystem no-overwrite claim excluded"
+    },
+    {
+      "severity": "Minor",
+      "scope": "Development observability/metadata",
+      "issue": "Warmups/partial attempts and operand/destruction/golden-format labels were incomplete",
+      "resolution": "Separate validated warmup/measured/failed attempts, sourceplane versus wire bytes, caller/callee release; retain pre/post formatSHA with parsed equality"
+    }
+  ],
+  "encodedOutputs": {
+    "build-web-work/task-planning/qf03-matched-core/qt/rgb-800x600-1.rpaint": {
+      "sha256": "4eccea1643993f9b9001680d3a292808dc313e5662e638ce27bb39b922aa830d",
+      "bytes": 1675204
+    },
+    "build-web-work/task-planning/qf03-matched-core/qt/rgb-2048x2048-1.rpaint": {
+      "sha256": "8e0bc41f271557f1610f691c06d99ac9f308d6a03836ca8578d4f4870ff28687",
+      "bytes": 14484964
+    },
+    "build-web-work/task-planning/qf03-matched-core/qt/rgb-1536x2048-2.rpaint": {
+      "sha256": "82dfb0151bd53477df3f5c243127d30d4536657a59bc4099f978473d7d7f6112",
+      "bytes": 21816822
+    },
+    "build-web-work/task-planning/qf03-matched-core/studio/rgb-800x600-1.rpaint": {
+      "sha256": "5c78b255a4a335a92c104cf21000ddce1241a84b993ba02e80d897529789600f",
+      "bytes": 1663745
+    },
+    "build-web-work/task-planning/qf03-matched-core/studio/rgb-2048x2048-1.rpaint": {
+      "sha256": "6e7e6520c9a97b52d5f8e5339287adc9e74c975a0ff9c249d6a271343a8bbecb",
+      "bytes": 14534237
+    },
+    "build-web-work/task-planning/qf03-matched-core/studio/rgb-1536x2048-2.rpaint": {
+      "sha256": "fffa5df3486598fd73b25e87da439f9c62e6a75a79dad1dcd05590478d39616d",
+      "bytes": 21802722
+    }
+  },
+  "statisticalLimits": {
+    "defaultWarmups": 1,
+    "measuredPerOperation": 3,
+    "rawCallsPerBackend": 48,
+    "validatedWarmupsPerBackend": 12,
+    "validatedMeasuredPerBackend": 36,
+    "quantiles": "nearest rank; n3p95/p99=max, not stable tails",
+    "order": "Serial Qt block then Node block, no ABBA/counterbalancing or isolated host certification",
+    "backendDifference": "Native Qt Release clang/CoreGui versus Node V8/GC; Qt nativePNG default vsfflatelevel1. NotWasm/UI or overallappspeed comparison. No ratios calculated."
+  },
+  "payload": {
+    "entry": "assets/index-DIgO41Ne.js",
+    "files": 9,
+    "bytes": 291664,
+    "sourceInputs": 125,
+    "hashes": {
+      "LICENSE": "56a608c8e81aeec574eb9e3380fb3a0e0869156385b2d036f7887e4d9123bb80",
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/buffer-DU0qbHNf.js": "5c113f74252e7c942876d5076dd71ed24775ffdf9cd133500a5a2f1803d9cca3",
+      "assets/codec.worker-DjqGsUQn.js": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+      "assets/encoder-Bl-BehpH.js": "dee06d7074f91f718964ad9ac8edfc439229b9ddb1f226ba8e2c3b804b3dd448",
+      "assets/index-BiPiFrZI.css": "4c481eccc0d58fadad8a52621eb206fe0d15896ac4afbc000e5688669797b154",
+      "assets/index-DIgO41Ne.js": "ba6f5feeb60149f9f676af7f9a1411ec7ffa4317f78994dec056a8278131c53e",
+      "assets/native-smoke-CaoeFRl8.js": "eac0a56d42de27c8de5ffc23bf5ab642d7889c357fcaa1ab9c709f823e8dfeb8",
+      "index.html": "b103748340390bd086872fb900a153d39e383bd8b0ee97887160eeefcb48d1ff"
+    },
+    "unchanged": true,
+    "largeFixtureOutputsBundled": false
+  },
+  "taskAudit": {
+    "ownProved": 7,
+    "partial": 25,
+    "missing": 2,
+    "dependenciesClosed": [
+      "QF-01",
+      "QF-02",
+      "QF-04"
+    ],
+    "QF03": "partial",
+    "QF05QF06": "not auto-closed"
+  },
+  "remaining": [
+    "Common actual Qt/Studio UI trace and presentation/input boundaries",
+    "Decode/fill CPU profiles on matched operands and shippedWorker; controlled nonprofiled candidate comparisons before optimization",
+    "Actual Android model/OS/Chrome/DPR/refresh and physical web acceptance; pending user answer",
+    "ColdWAN/ready/requiredtransfer, snapshot/codec/storage/nativeI-O/IDB stages",
+    "Stablep50/p95/p99 cohorts, completepeakRSS/GPU/longsession and fixed pertargetbudgets",
+    "Currentguarded nativeapp rebuild/actualGUI, Windows/WebView2, signing/release/staging/rollback"
+  ],
+  "gitIndexConfigUnchanged": {
+    "/Users/jhpark/code/myService/myPaint/.git/index": "97ba1bdcc5be543453783454ae6e9b93525f5bf142662da739b4fb013832dca6",
+    "/Users/jhpark/code/myService/myPaint/.git/config": "f13edd5ed90f3f8d6113e97fb498997117dcce4fe134d4902676a618f1504f00",
+    "/Users/jhpark/code/myService/parkjh2568.github.io/.git/index": "4b864409423a5070e55f3e8613b2595ccd670b7a3726d509c071903a5beecaff",
+    "/Users/jhpark/code/myService/parkjh2568.github.io/.git/config": "8b4bacdd76435d49e0eb4004a54681c89f67edd17bcc0bc2a74c5a07905ba19d"
+  },
+  "homepageWritten": false,
+  "committedOrPushed": false,
+  "references": {
+    "build-web-work/task-planning/qf03-matched-core/source-before.json": {
+      "sha256": "8bccb649e90250b2a1c3561ec06c0bbf85a1091389d22b52f459d61afc141df6",
+      "bytes": 1754
+    },
+    "build-web-work/task-planning/qf03-matched-core/accepted-source.json": {
+      "sha256": "8bccb649e90250b2a1c3561ec06c0bbf85a1091389d22b52f459d61afc141df6",
+      "bytes": 1754
+    },
+    "build-web-work/task-planning/qf03-matched-core/candidate-inputs.json": {
+      "sha256": "04435d7571422e4706126a74d063cb514861e8ffc3548767a48704a709353117",
+      "bytes": 1743
+    },
+    "build-web-work/task-planning/qf03-matched-core/fixtures/manifest.json": {
+      "sha256": "2d913bed8a2411cbbc878c8bb25860d7f1d8fac26607ea62db85b4be2cb792c1",
+      "bytes": 7604
+    },
+    "build-web-work/task-planning/qf03-matched-core/golden-derivation.json": {
+      "sha256": "cc6f5aa25a9bde329195cba0830632e81f2eb7c809bf8298ac1b4c4c9fc9ae41",
+      "bytes": 499
+    },
+    "build-web-work/task-planning/qf03-matched-core/golden-spec-before-format.json": {
+      "sha256": "5f52084b5b701f70726aa7f653e32b6cb85d382802efd3c482f1c52cc2d2e500",
+      "bytes": 9334
+    },
+    "build-web-work/task-planning/qf03-matched-core/independent-reference.py": {
+      "sha256": "8ebec986b1d73fb415d5b5d37edbcfc48ca7d0c8cbc2204e04663cee96f75067",
+      "bytes": 1223
+    },
+    "build-web-work/task-planning/qf03-matched-core/independent-reference.log": {
+      "sha256": "5d631d54617249c2e91735332243b985bcf5e70f9784aeac73db816dc2a38179",
+      "bytes": 41
+    },
+    "build-web-work/task-planning/qf03-matched-core/fixture-generation.log": {
+      "sha256": "76a6870ea40c47059662573d8bea6952e04e8aa82aeef8867ea137485a00faa2",
+      "bytes": 288
+    },
+    "build-web-work/task-planning/qf03-matched-core/qt-build.log": {
+      "sha256": "b6cba50fbf5cda49f2d61552862874605f6884946c14e8d6497187614a988327",
+      "bytes": 6179
+    },
+    "build-web-work/task-planning/qf03-matched-core/qt-build-final.log": {
+      "sha256": "078566113fbe33dd205e7a541e6690e00b4fdc35986f4f8326a9bf825b2f2924",
+      "bytes": 189
+    },
+    "build-web-work/task-planning/qf03-matched-core/run-comparison.py": {
+      "sha256": "398438089ac42e24162c9dde05f4aa7d4981d822dd35f5494ac2aab91f639cc9",
+      "bytes": 3056
+    },
+    "build-web-work/task-planning/qf03-matched-core/serial-execution.json": {
+      "sha256": "f8fc173414539951acd112d54d1deb593243b3f52fad92dc14602f8397fd3647",
+      "bytes": 3284
+    },
+    "build-web-work/task-planning/qf03-matched-core/qt/results.json": {
+      "sha256": "e0f8f30b1e4106e9b24f4bee615c8221b2dc7a7683044d5ec640f8b42706ebaa",
+      "bytes": 23466
+    },
+    "build-web-work/task-planning/qf03-matched-core/studio/results.json": {
+      "sha256": "75deaf9066dad07fe4919fca3334ee6df5f7f8c8304e31060a9bba803a973794",
+      "bytes": 20158
+    },
+    "build-web-work/task-planning/qf03-matched-core/qt-cross/results.json": {
+      "sha256": "6043acb7038726328780af75020792575c18c7dc6f7959eb5a7a8bdbe3bd7995",
+      "bytes": 1914
+    },
+    "build-web-work/task-planning/qf03-matched-core/studio-cross/results.json": {
+      "sha256": "24aec047a56d5f0ee01d7294e1369c7797f6c3fa05f3873f1ae69c1a7edc3377",
+      "bytes": 2559
+    },
+    "build-web-work/task-planning/qf03-matched-core/comparison.json": {
+      "sha256": "cec441ef074a119d6ba24d5a48609d5f5f6d2f4ae500ab8d33b393b061464498",
+      "bytes": 937
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-controls.json": {
+      "sha256": "156887c23c0c5e94b5335b69ff3a597bc28affeacffb7d84194707463014a4f8",
+      "bytes": 2092
+    },
+    "build-web-work/task-planning/qf03-matched-core/budget-controls.json": {
+      "sha256": "8a3b6bbfb8cf3f5257dbfc9047a89c9cfc40b64aa2f1ab0e86301961b6465b3f",
+      "bytes": 909
+    },
+    "build-web-work/task-planning/qf03-matched-core/budget-qt/results.json": {
+      "sha256": "878e0020219f39293cf32b9a49daeb2f169a2fe18d87ff98315c9d600905b7aa",
+      "bytes": 10562
+    },
+    "build-web-work/task-planning/qf03-matched-core/budget-studio/results.json": {
+      "sha256": "578064b768ad7e22e74be150b8c9dd116db6e6bbe0724696873e3f9960ae923a",
+      "bytes": 4957
+    },
+    "build-web-work/task-planning/qf03-matched-core/format-all-final.log": {
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae",
+      "bytes": 159
+    },
+    "build-web-work/task-planning/qf03-matched-core/typecheck.log": {
+      "sha256": "86fd21d3a4c331af9cda136fdaa8bc8807301aedba733d35beae2083e7cce6d8",
+      "bytes": 43
+    },
+    "build-web-work/task-planning/qf03-matched-core/ctest.log": {
+      "sha256": "98a6f12ee46a74b160b6e455991d6a3c19f240067addb27224956c3ed866ea8e",
+      "bytes": 686
+    },
+    "build-web-work/task-planning/qf03-matched-core/studio-build-final.log": {
+      "sha256": "690d7e80dcf2f14002dcef5c154b2a59823c00916f7357aaadc1212dc34256a9",
+      "bytes": 1089
+    },
+    "build-web-work/task-planning/qf03-matched-core/final-bundle/bundle.json": {
+      "sha256": "f1a728e04daa4545e7157effd16f57efb7d0e6855d6fef12512a984797558c10",
+      "bytes": 15125
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/architect-design.json": {
+      "sha256": "86e50bd8e63ce18ebc7bd53e06c9aa6067a69f05dae251a4f9fbf8366f421efb",
+      "bytes": 16098
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/architect-candidate.json": {
+      "sha256": "56e827447ff17127a6c509b301214a7378b1ceb66a347e18ca7cf7c0b7835de3",
+      "bytes": 12517
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/architect-fixed-candidate.json": {
+      "sha256": "47920a01163cf755067a03eed072a7d1eb5903eb343044d6c619c706136ed73f",
+      "bytes": 9437
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/reviewer-design.json": {
+      "sha256": "d5f187d74afab9293d8b4be2c2f4cd46b9beb41c4c08a1fb6b0a1acd48ae047a",
+      "bytes": 10049
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/reviewer-candidate.json": {
+      "sha256": "921b9a4723cc6127bc52ca22abc080319078d98344580a7c286f678bdcc72f67",
+      "bytes": 9020
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/reviewer-fixed-candidate.json": {
+      "sha256": "d5de7cfc0658760a033d73a56c879871de7eb381e2f1ff2c379a9f79d05fc3ce",
+      "bytes": 7109
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/sre-design.json": {
+      "sha256": "9deb8c8b3bac1b3b159e3cbea32e01744a143f27da050199ba0f70e44f5d063c",
+      "bytes": 16883
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/sre-candidate.json": {
+      "sha256": "30e8b4b81300efcff649abf9c286e2df98ca30182867770860626df17a6b3f1c",
+      "bytes": 9048
+    },
+    "build-web-work/task-planning/qf03-matched-core/reviews/sre-fixed-candidate.json": {
+      "sha256": "be1e5b9eca770ac3a6d8972628e60c50d9f5472c01e5892f008b2f93de334849",
+      "bytes": 7744
+    },
+    "build-web-work/task-planning/qf03-matched-core/qt.log": {
+      "sha256": "e0f8f30b1e4106e9b24f4bee615c8221b2dc7a7683044d5ec640f8b42706ebaa",
+      "bytes": 23466
+    },
+    "build-web-work/task-planning/qf03-matched-core/studio.log": {
+      "sha256": "a2de55a07d0c4ac453afa992c745e0dc515b0cbc0cd37ed650883ae99de366e1",
+      "bytes": 166
+    },
+    "build-web-work/task-planning/qf03-matched-core/qt-cross.log": {
+      "sha256": "6043acb7038726328780af75020792575c18c7dc6f7959eb5a7a8bdbe3bd7995",
+      "bytes": 1914
+    },
+    "build-web-work/task-planning/qf03-matched-core/studio-cross.log": {
+      "sha256": "4ee22b7d875495d017ee3ae41f3994169034965bbbf4a54b43d6ee5c2110bc93",
+      "bytes": 170
+    },
+    "build-web-work/task-planning/qf03-matched-core/budget-qt.log": {
+      "sha256": "878e0020219f39293cf32b9a49daeb2f169a2fe18d87ff98315c9d600905b7aa",
+      "bytes": 10562
+    },
+    "build-web-work/task-planning/qf03-matched-core/budget-studio.log": {
+      "sha256": "dcadf930dfe08a8bd5e00eb5189d82d4a862ab42afbca0f845295ede70ed2c52",
+      "bytes": 343
+    },
+    "build-web-work/task-planning/qf03-matched-core/serial-execution.log": {
+      "sha256": "eb6a7a501d715094f3668c899b2e469fa994dc9c71d05529473c428245a7b30c",
+      "bytes": 2290
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-existing-output-producer.log": {
+      "sha256": "722cbabcda1e6119fdc4d25585469a29a79a5b9ca254e0ce203b5afd44968dca",
+      "bytes": 394
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-bad-wire-studio.log": {
+      "sha256": "86a38c9321b1d7dc0c1121a145f3ac5d69f471de5bab6eb6e41d76a099908091",
+      "bytes": 525
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-duplicate-operation-studio.log": {
+      "sha256": "c18024cea8a45e623444cd1e12be3d870d7eda4f6402ca0fe368d28fdcf36d60",
+      "bytes": 1698
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-duplicate-operation-qt.log": {
+      "sha256": "3dde78afe552ae5e301a7fa1daac35eb34e885d6b833ecabc2930a0d8954b0c7",
+      "bytes": 770
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-bad-wire-qt.log": {
+      "sha256": "d5197b15e66f89a1f6ca618c4b372ce09a0c982b5dcb75e86f58c3f5f4a3724f",
+      "bytes": 931
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-oversize-wire-qt.log": {
+      "sha256": "87b3a4ec539e4366c7c9a4cbb6c8d1c2bcc4388cf24ed04db78007552993facf",
+      "bytes": 929
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-existing-output-studio.log": {
+      "sha256": "6a88075b2c8d97fbc3578def48ae1d410c3c4ea49fecb8ccee71cff2eac64578",
+      "bytes": 545
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-oversize-wire-studio.log": {
+      "sha256": "0f289a8e66fff8362b578503cb171f8c7e685afbe36a18260630518ad72dc6ea",
+      "bytes": 449
+    },
+    "build-web-work/task-planning/qf03-matched-core/negative-existing-output-qt.log": {
+      "sha256": "9652d8af7f2466cfbbd9b6862f4ebfc85577d19dfb6d1cd86f292198e9ec2ec6",
+      "bytes": 757
+    }
+  }
+}

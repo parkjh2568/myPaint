@@ -1,0 +1,1766 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "Required response contracts for all10 operations; public fault correctness and baseline CPU decomposition. Not full migration, natural Worker-fault occurrence, OS clipboard, all native stability or speedup acceptance.",
+  "platforms": {
+    "mobileTablet": "browser only",
+    "executables": [
+      "Windows",
+      "macOS"
+    ]
+  },
+  "source": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "809e911ded986d2ec0257d08faf523e14f7bff3a1545b00ac770bfed2efe8a70",
+    "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+    "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "changedRuntime": [
+    "web-app/src/platform/codec.ts"
+  ],
+  "entry": "assets/index-CnFyP_9m.js",
+  "bundle": {
+    "payloadFiles": 9,
+    "payloadBytes": 290519,
+    "sourceInputCount": 114,
+    "manifest": {
+      "path": "build-web-work/task-planning/codec-reply-contract/final-bundle/bundle.json",
+      "sha256": "0e16ab00b9dca5a6a63430ae662b630a6c331946d3592b38913e5202a116d1f2"
+    }
+  },
+  "implementation": {
+    "changedFunction": "platform/codec.runCodec",
+    "newHelpersOrModules": 0,
+    "newFields": 0,
+    "dependenciesChanged": false,
+    "publicFunctionSignatureChanged": false,
+    "engineFormatWorkerRustChanged": false,
+    "preflight": "Canonical10 operation allowlist before active slot/Worker/transfer.",
+    "envelope": "Non-null non-array object, canonical profile; own error field rejects including empty/undefined/null with fallback.",
+    "state": "Array containers, bounded1..profile.layers before scan, string names and typed planes, four own background components; then shared engine validate.",
+    "image": "Typed profile-bounded exact RGBA plane; fill own undefined is normal NoOp, other fill rasters require safe integer source-contained ROI.",
+    "selection": "Required image/mask, exact input crop dimensions and mask length; binary scan remains in yielded main owner.",
+    "lifecycle": "Existing finally owns timer/abort/termination/active decrement. messageerror rejects immediately instead of waiting for20s deadline."
+  },
+  "rca": [
+    {
+      "id": "missing-write-result",
+      "severity": "Major (injected fault boundary)",
+      "trigger": "Missing/null/empty bytes in otherwise matching profile real Worker reply.",
+      "before": "All4 write ops prepared actual9-byte undefined/4-byte null/0-byte files. Clipboard model accepted9-byte undefined PNG and actual cut cleared active source/oldRedo. OS clipboard acceptance remains untested.",
+      "fix": "Require typed nonempty bounded bytes before resolving any write result."
+    },
+    {
+      "id": "invalid-state-plane-or-color",
+      "severity": "Major (injected fault boundary)",
+      "trigger": "Project-read/geometry/layer-edit state uses Array/Uint8Array instead of Uint8ClampedArray; sparse background has four holes.",
+      "before": "Public Array/Uint8 planes replaced/corrupted document and oldRedo. Independent Node stub+real engine installed sparse background; clone/UndoRedo later invalid.",
+      "fix": "Validate wire container, typed planes, bounded metadata, own4 color fields and existing state resource rules before consumer commit."
+    },
+    {
+      "id": "missing-result-silent-noop",
+      "severity": "Minor (injected fault boundary)",
+      "trigger": "Missing project-read state or fill image property; fill ROI outside source.",
+      "before": "Public project-read/missing fill image and wholly-outside fill ROI silently returned no change. Consumer source supports clipping; partial-clipping behavior was not a separate public assertion. Existing downstream selection/geometry absent-field controls already rejected.",
+      "fix": "Operation-required fields and ROI; preserve real fill own image:undefined success."
+    },
+    {
+      "id": "messageerror-delay",
+      "severity": "Minor (modeled event boundary)",
+      "trigger": "Synthetic deserialization-error event.",
+      "before": "No handler, so release depended on existing20s timeout.",
+      "fix": "Reject immediately via same finally; test timeout/abort/late duplicate and two-slot reuse."
+    }
+  ],
+  "validation": {
+    "unitTotal": 323,
+    "independentContract": {
+      "records": 89,
+      "childCases": 88,
+      "baselinePass": 33,
+      "baselineFail": 56,
+      "baselineFailureIncludesParent": true,
+      "finalPass": 89,
+      "scope": "Real runCodec/engine with modeled Worker and controlled20s timer; not actual Worker/platform."
+    },
+    "publicUi": {
+      "cases": 27,
+      "baselineFail": 22,
+      "baselineControlPass": 5,
+      "finalPass": 27,
+      "errors": 0,
+      "scope": "Public normal-web chooser, editing, Undo/Redo, actual download files and codec Workers. Named test-only faults replace one real Worker reply; these are not naturally observed Worker faults. The large lasso path uses trusted pointerdown plus8193 synthetic public moves/release to reach the actual selection Worker. ClipboardItem/getType transport is modeled, without OS clipboard, native persistence, physical device or performance validation.",
+      "sparseBackground": "Independent Node+real-engine model, not part of public27."
+    },
+    "webRegression": {
+      "basic": 13,
+      "concurrency": 3,
+      "editing": 13,
+      "storage": 13,
+      "shear": 6,
+      "total": 48
+    },
+    "fillFailure": {
+      "groups": 10,
+      "eachFaultRepeated": 2,
+      "scope": "Existing constructor/post/event/timeout/UI source and retry checks."
+    },
+    "selectionPreparation": 13,
+    "clipboardModel": 4,
+    "recoveryFault": 5,
+    "actualNative": {
+      "firstAttempt": {
+        "ok": false,
+        "exitCode": 1,
+        "error": "Codec20s timeout in first persistence branch; operation unknown from stdout."
+      },
+      "sameBinaryRetry": {
+        "ok": true,
+        "runs": 4,
+        "exitCode": 0,
+        "binarySha256": "af2fb336046b22ba77c00df3f1c851a37584f5db27ba61f6fae4e8ba33d7cd65",
+        "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform."
+      },
+      "environment": "Retry used temporary caffeinate awake assertion and current unlocked console observation. First capture had a wrong relative path and was corrected during retry. No causal attribution to sleep/load or product code established."
+    },
+    "formatTypeBuild": "Final tsc/Vite, formatter, native and Studio immutable builds passed. Remote CI not run."
+  },
+  "performance": {
+    "source": "Frozen production Worker/format unchanged by shipped validation fix.",
+    "decomposition": {
+      "result": "PASS bounded independent codec timing probes; no production edits or reply mutation",
+      "baseline": {
+        "source17": {
+          "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+          "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+          "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+          "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+          "web-app/src/main.ts": "809e911ded986d2ec0257d08faf523e14f7bff3a1545b00ac770bfed2efe8a70",
+          "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+          "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+          "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+          "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+          "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+          "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+          "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+          "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+          "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+          "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+          "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+          "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+        },
+        "assets9": {
+          "index.html": "5e1b6a9f598cbcf8c31e3db2af440e0ff45fa63a697e95b90d38b73e2c76b0bc",
+          "LICENSE": "56a608c8e81aeec574eb9e3380fb3a0e0869156385b2d036f7887e4d9123bb80",
+          "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+          "assets/codec.worker-DjqGsUQn.js": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+          "assets/buffer-DU0qbHNf.js": "5c113f74252e7c942876d5076dd71ed24775ffdf9cd133500a5a2f1803d9cca3",
+          "assets/encoder-Bl-BehpH.js": "dee06d7074f91f718964ad9ac8edfc439229b9ddb1f226ba8e2c3b804b3dd448",
+          "assets/index-BiPiFrZI.css": "4c481eccc0d58fadad8a52621eb206fe0d15896ac4afbc000e5688669797b154",
+          "assets/index-BZZOX9cr.js": "9672b31c599b578579c221e2c633a4e2754ced7c1fd9b0df0e9c7236ab357fe4",
+          "assets/native-smoke-B4CxioB7.js": "92a60b17e253588aef55576ee0721b99a3cc3cdc83dffa8a84e4ec09166b45cd"
+        },
+        "workerSha256": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+        "productionLiteralObservation": {
+          "patches": 11,
+          "inverseReconstructsExactOriginal": true,
+          "candidateSha256": "bf2935905043f7d80ab44af72ea1b2e09f68da11a234e17ed9dc212dace9161b"
+        }
+      },
+      "runtime": {
+        "browser": "156.0.8078.80",
+        "node": "v24.22.1",
+        "extraChromeArgs": [],
+        "sameContextSequentialN3": true,
+        "forceMainGcBetweenJobs": true
+      },
+      "cohorts": [
+        {
+          "id": "A",
+          "file": "results.json",
+          "scope": "Original frozen production Worker immediate post: 27 jobs, fresh Worker each. Actual constructor-to-main reply API interval; no observer in production body."
+        },
+        {
+          "id": "B",
+          "file": "results.json",
+          "scope": "esbuild source observation:27 jobs with ready bootstrap and original handler/reply untouched; useful decomposition, not production-emitted-code performance. See D for direct original bundle confirmation."
+        },
+        {
+          "id": "C",
+          "file": "references.json",
+          "scope": "Pure Node production encodeProject n3 on3 inputs; wall and entire-process CPU. Node includes JIT/GC/background thread CPU, not Chrome worker thread CPU. All6 inputs produce exact references and full raw roundtrips."
+        },
+        {
+          "id": "D",
+          "file": "production-observed-results.json",
+          "scope": "Original Vite production bundle with11 reversible inline clock observations,9 jobs n3 web16high/desktop128low/high. No rebundle; original encode/handler/reply operations retained. Separate BroadcastChannel telemetry. Primary function decomposition evidence."
+        },
+        {
+          "id": "E",
+          "file": "control-results.json",
+          "scope": "Original unmodified production worker bundle imported by ready-only wrapper;6 jobs n3 web4low/desktop128low. Proves ~1s remains after module import before input post."
+        }
+      ],
+      "counts": {
+        "main": 54,
+        "literalProductionObserved": 9,
+        "unmodifiedReadyControl": 6,
+        "totalChrome": 69,
+        "nodeCpu": 9,
+        "allJobsOk": true,
+        "errors": [],
+        "failures": []
+      },
+      "roundtrip": {
+        "nodeFixtureCases": 6,
+        "nodeProjectFullRoundtrips": 6,
+        "nodeDirectRawPngLayerRoundtrips": 9,
+        "chromeByteIdenticalEveryReply": true,
+        "chromeFullProjectDecodes": 17,
+        "chromeFullPngCompositeDecodes": 6,
+        "allInputBuffersDetached": true,
+        "checks": "Dimensions, full bytewise RGBA including alpha0 RGB/alpha1/128/255, hidden plane pixels, Unicode layer names, visible, active hidden layer, background; PNG export matches composite, raw direct PNG separately preserves hidden RGB. Every reply has exact encoded-byte SHA and size vs production source reference."
+      },
+      "productionImmediate": [
+        {
+          "id": "web4-low",
+          "width": 1024,
+          "height": 1024,
+          "layers": 1,
+          "entropy": "low",
+          "snapshotBytes": 4194304,
+          "encodedBytes": 6706,
+          "constructorToReplyMs": {
+            "min": 55.199951171875,
+            "max": 69.39990234375,
+            "samples": [
+              62.10009765625,
+              69.39990234375,
+              55.199951171875
+            ]
+          },
+          "postReturnToReplyMs": {
+            "min": 55.199951171875,
+            "max": 69.2998046875,
+            "samples": [
+              61.10009765625,
+              69.2998046875,
+              55.199951171875
+            ]
+          }
+        },
+        {
+          "id": "web4-high",
+          "width": 1024,
+          "height": 1024,
+          "layers": 1,
+          "entropy": "high",
+          "snapshotBytes": 4194304,
+          "encodedBytes": 4196303,
+          "constructorToReplyMs": {
+            "min": 191.39990234375,
+            "max": 259.10009765625,
+            "samples": [
+              216,
+              259.10009765625,
+              191.39990234375
+            ]
+          },
+          "postReturnToReplyMs": {
+            "min": 191.199951171875,
+            "max": 258.900146484375,
+            "samples": [
+              215.10009765625,
+              258.900146484375,
+              191.199951171875
+            ]
+          }
+        },
+        {
+          "id": "web16-high-pixelmax",
+          "width": 2048,
+          "height": 2048,
+          "layers": 1,
+          "entropy": "high",
+          "snapshotBytes": 16777216,
+          "encodedBytes": 16782789,
+          "constructorToReplyMs": {
+            "min": 689.89990234375,
+            "max": 828.400146484375,
+            "samples": [
+              689.89990234375,
+              782.300048828125,
+              828.400146484375
+            ]
+          },
+          "postReturnToReplyMs": {
+            "min": 689.599853515625,
+            "max": 828.10009765625,
+            "samples": [
+              689.599853515625,
+              782.199951171875,
+              828.10009765625
+            ]
+          }
+        },
+        {
+          "id": "web24-low-aggregatemax",
+          "width": 2048,
+          "height": 1536,
+          "layers": 2,
+          "entropy": "low",
+          "snapshotBytes": 25165824,
+          "encodedBytes": 32367,
+          "constructorToReplyMs": {
+            "min": 255.199951171875,
+            "max": 277.5,
+            "samples": [
+              263.39990234375,
+              255.199951171875,
+              277.5
+            ]
+          },
+          "postReturnToReplyMs": {
+            "min": 255,
+            "max": 277.199951171875,
+            "samples": [
+              263.10009765625,
+              255,
+              277.199951171875
+            ]
+          }
+        },
+        {
+          "id": "desktop128-low",
+          "width": 4096,
+          "height": 4096,
+          "layers": 2,
+          "entropy": "low",
+          "snapshotBytes": 134217728,
+          "encodedBytes": 152969,
+          "constructorToReplyMs": {
+            "min": 1345.300048828125,
+            "max": 1416.89990234375,
+            "samples": [
+              1345.300048828125,
+              1416.89990234375,
+              1371
+            ]
+          },
+          "postReturnToReplyMs": {
+            "min": 1343.60009765625,
+            "max": 1416.699951171875,
+            "samples": [
+              1343.60009765625,
+              1416.699951171875,
+              1370.89990234375
+            ]
+          }
+        },
+        {
+          "id": "desktop128-high",
+          "width": 4096,
+          "height": 4096,
+          "layers": 2,
+          "entropy": "high",
+          "snapshotBytes": 134217728,
+          "encodedBytes": 134253340,
+          "constructorToReplyMs": {
+            "min": 5688.60009765625,
+            "max": 6579.60009765625,
+            "samples": [
+              6579.60009765625,
+              6546,
+              5688.60009765625
+            ]
+          },
+          "postReturnToReplyMs": {
+            "min": 5687.7001953125,
+            "max": 6579.199951171875,
+            "samples": [
+              6579.199951171875,
+              6545.10009765625,
+              5687.7001953125
+            ]
+          }
+        }
+      ],
+      "productionLiteralStages": [
+        {
+          "id": "web16-high-pixelmax",
+          "stages": {
+            "constructorToWrapperMs": {
+              "min": 4.199951171875,
+              "max": 8.099853515625,
+              "samples": [
+                8.099853515625,
+                4.199951171875,
+                4.699951171875
+              ]
+            },
+            "wrapperToImportStartMs": {
+              "min": 0,
+              "max": 0.10009765625,
+              "samples": [
+                0,
+                0.10009765625,
+                0
+              ]
+            },
+            "importMs": {
+              "min": 5.699951171875,
+              "max": 13.900146484375,
+              "samples": [
+                13.900146484375,
+                6.199951171875,
+                5.699951171875
+              ]
+            },
+            "readyDispatchMs": {
+              "min": 0.199951171875,
+              "max": 0.699951171875,
+              "samples": [
+                0.699951171875,
+                0.39990234375,
+                0.199951171875
+              ]
+            },
+            "handlerToProjectStartMs": {
+              "min": 0,
+              "max": 0.099853515625,
+              "samples": [
+                0.099853515625,
+                0,
+                0
+              ]
+            },
+            "projectMs": {
+              "min": 688.5,
+              "max": 759.39990234375,
+              "samples": [
+                688.5,
+                759.39990234375,
+                749.300048828125
+              ]
+            },
+            "handlerTotalMs": {
+              "min": 689,
+              "max": 759.699951171875,
+              "samples": [
+                689,
+                759.699951171875,
+                749.39990234375
+              ]
+            },
+            "replyPostMs": {
+              "min": 0,
+              "max": 0.400146484375,
+              "samples": [
+                0.400146484375,
+                0.199951171875,
+                0
+              ]
+            },
+            "replyToMainMs": {
+              "min": 0.2001953125,
+              "max": 0.600341796875,
+              "samples": [
+                0.600341796875,
+                0.300048828125,
+                0.2001953125
+              ]
+            },
+            "pngMs": {
+              "min": 683.800048828125,
+              "max": 754.699951171875,
+              "samples": [
+                683.800048828125,
+                754.699951171875,
+                745.099853515625
+              ]
+            },
+            "packMs": {
+              "min": 2.599853515625,
+              "max": 4.2001953125,
+              "samples": [
+                4.2001953125,
+                2.89990234375,
+                2.599853515625
+              ]
+            },
+            "zlibMs": {
+              "min": 365.5,
+              "max": 420.89990234375,
+              "samples": [
+                365.5,
+                420.89990234375,
+                412.2001953125
+              ]
+            },
+            "crcMs": {
+              "min": 305.5,
+              "max": 324.2998046875,
+              "samples": [
+                305.5,
+                323.89990234375,
+                324.2998046875
+              ]
+            },
+            "adlerMs": {
+              "min": 32.89990234375,
+              "max": 35.39990234375,
+              "samples": [
+                32.89990234375,
+                35.300048828125,
+                35.39990234375
+              ]
+            },
+            "deflateMs": {
+              "min": 332.199951171875,
+              "max": 385.5,
+              "samples": [
+                332.199951171875,
+                385.5,
+                376.60009765625
+              ]
+            },
+            "pngAssemblyEtcMs": {
+              "min": 6,
+              "max": 8.599853515625,
+              "samples": [
+                8.599853515625,
+                7.000244140625,
+                6
+              ]
+            }
+          }
+        },
+        {
+          "id": "desktop128-low",
+          "stages": {
+            "constructorToWrapperMs": {
+              "min": 3.900146484375,
+              "max": 25.400146484375,
+              "samples": [
+                25.400146484375,
+                5.7001953125,
+                3.900146484375
+              ]
+            },
+            "wrapperToImportStartMs": {
+              "min": 0.099853515625,
+              "max": 0.199951171875,
+              "samples": [
+                0.199951171875,
+                0.099853515625,
+                0.10009765625
+              ]
+            },
+            "importMs": {
+              "min": 5.400146484375,
+              "max": 9.89990234375,
+              "samples": [
+                9.89990234375,
+                5.400146484375,
+                5.599853515625
+              ]
+            },
+            "readyDispatchMs": {
+              "min": 0.400146484375,
+              "max": 1.2001953125,
+              "samples": [
+                1.2001953125,
+                0.400146484375,
+                0.500244140625
+              ]
+            },
+            "handlerToProjectStartMs": {
+              "min": 0,
+              "max": 0.10009765625,
+              "samples": [
+                0.099853515625,
+                0.10009765625,
+                0
+              ]
+            },
+            "projectMs": {
+              "min": 1203.199951171875,
+              "max": 1288.599853515625,
+              "samples": [
+                1228.699951171875,
+                1203.199951171875,
+                1288.599853515625
+              ]
+            },
+            "handlerTotalMs": {
+              "min": 1203.400146484375,
+              "max": 1288.699951171875,
+              "samples": [
+                1228.7998046875,
+                1203.400146484375,
+                1288.699951171875
+              ]
+            },
+            "replyPostMs": {
+              "min": 0,
+              "max": 0.10009765625,
+              "samples": [
+                0,
+                0.10009765625,
+                0.10009765625
+              ]
+            },
+            "replyToMainMs": {
+              "min": 0.099853515625,
+              "max": 0.199951171875,
+              "samples": [
+                0.10009765625,
+                0.099853515625,
+                0.199951171875
+              ]
+            },
+            "pngMs": {
+              "min": 1202.800048828125,
+              "max": 1288.300048828125,
+              "samples": [
+                1226.60009765625,
+                1202.800048828125,
+                1288.300048828125
+              ]
+            },
+            "packMs": {
+              "min": 22.300048828125,
+              "max": 39.10009765625,
+              "samples": [
+                39.10009765625,
+                22.300048828125,
+                25.099853515625
+              ]
+            },
+            "zlibMs": {
+              "min": 1176.699951171875,
+              "max": 1260.199951171875,
+              "samples": [
+                1184.2001953125,
+                1176.699951171875,
+                1260.199951171875
+              ]
+            },
+            "crcMs": {
+              "min": 2.599853515625,
+              "max": 3.300048828125,
+              "samples": [
+                3,
+                3.300048828125,
+                2.599853515625
+              ]
+            },
+            "adlerMs": {
+              "min": 218.800048828125,
+              "max": 275.500244140625,
+              "samples": [
+                218.800048828125,
+                223.500244140625,
+                275.500244140625
+              ]
+            },
+            "deflateMs": {
+              "min": 953.099853515625,
+              "max": 984.599853515625,
+              "samples": [
+                965.10009765625,
+                953.099853515625,
+                984.599853515625
+              ]
+            },
+            "pngAssemblyEtcMs": {
+              "min": 0.2998046875,
+              "max": 0.5,
+              "samples": [
+                0.2998046875,
+                0.5,
+                0.400390625
+              ]
+            }
+          }
+        },
+        {
+          "id": "desktop128-high",
+          "stages": {
+            "constructorToWrapperMs": {
+              "min": 4.800048828125,
+              "max": 16.400146484375,
+              "samples": [
+                4.800048828125,
+                16.400146484375,
+                5.10009765625
+              ]
+            },
+            "wrapperToImportStartMs": {
+              "min": 0.099853515625,
+              "max": 0.199951171875,
+              "samples": [
+                0.099853515625,
+                0.099853515625,
+                0.199951171875
+              ]
+            },
+            "importMs": {
+              "min": 4.900146484375,
+              "max": 10.10009765625,
+              "samples": [
+                5.900146484375,
+                10.10009765625,
+                4.900146484375
+              ]
+            },
+            "readyDispatchMs": {
+              "min": 0.5,
+              "max": 1,
+              "samples": [
+                1,
+                0.500244140625,
+                0.5
+              ]
+            },
+            "handlerToProjectStartMs": {
+              "min": 0.099853515625,
+              "max": 0.199951171875,
+              "samples": [
+                0.199951171875,
+                0.10009765625,
+                0.099853515625
+              ]
+            },
+            "projectMs": {
+              "min": 5972.699951171875,
+              "max": 6253.2001953125,
+              "samples": [
+                6253.2001953125,
+                5972.699951171875,
+                6094.60009765625
+              ]
+            },
+            "handlerTotalMs": {
+              "min": 5973,
+              "max": 6253.5,
+              "samples": [
+                6253.5,
+                5973,
+                6094.800048828125
+              ]
+            },
+            "replyPostMs": {
+              "min": 0.099853515625,
+              "max": 0.10009765625,
+              "samples": [
+                0.099853515625,
+                0.10009765625,
+                0.10009765625
+              ]
+            },
+            "replyToMainMs": {
+              "min": 0.199951171875,
+              "max": 0.5,
+              "samples": [
+                0.2998046875,
+                0.5,
+                0.199951171875
+              ]
+            },
+            "pngMs": {
+              "min": 5912.900146484375,
+              "max": 6204.39990234375,
+              "samples": [
+                6204.39990234375,
+                5912.900146484375,
+                6028.199951171875
+              ]
+            },
+            "packMs": {
+              "min": 28,
+              "max": 39.800048828125,
+              "samples": [
+                32.7998046875,
+                39.800048828125,
+                28
+              ]
+            },
+            "zlibMs": {
+              "min": 3151.39990234375,
+              "max": 3319.39990234375,
+              "samples": [
+                3319.39990234375,
+                3190.500244140625,
+                3151.39990234375
+              ]
+            },
+            "crcMs": {
+              "min": 2617.60009765625,
+              "max": 2801,
+              "samples": [
+                2801,
+                2617.60009765625,
+                2779.300048828125
+              ]
+            },
+            "adlerMs": {
+              "min": 226.099853515625,
+              "max": 257.60009765625,
+              "samples": [
+                233.400146484375,
+                257.60009765625,
+                226.099853515625
+              ]
+            },
+            "deflateMs": {
+              "min": 2924.800048828125,
+              "max": 3085.39990234375,
+              "samples": [
+                3085.39990234375,
+                2932.499755859375,
+                2924.800048828125
+              ]
+            },
+            "pngAssemblyEtcMs": {
+              "min": 51.2001953125,
+              "max": 69.5,
+              "samples": [
+                51.2001953125,
+                64.999755859375,
+                69.5
+              ]
+            }
+          }
+        }
+      ],
+      "unmodifiedProductionReady": [
+        {
+          "id": "web4-low",
+          "postReturnToReplyMs": {
+            "min": 40.199951171875,
+            "max": 42.699951171875,
+            "samples": [
+              41.199951171875,
+              40.199951171875,
+              42.699951171875
+            ]
+          },
+          "importMs": {
+            "min": 3.699951171875,
+            "max": 7.199951171875,
+            "samples": [
+              7.199951171875,
+              3.800048828125,
+              3.699951171875
+            ]
+          },
+          "constructorToWrapperMs": {
+            "min": 2.7998046875,
+            "max": 7.2001953125,
+            "samples": [
+              7.2001953125,
+              3,
+              2.7998046875
+            ]
+          }
+        },
+        {
+          "id": "desktop128-low",
+          "postReturnToReplyMs": {
+            "min": 1190.400146484375,
+            "max": 1274.599853515625,
+            "samples": [
+              1274.599853515625,
+              1242.300048828125,
+              1190.400146484375
+            ]
+          },
+          "importMs": {
+            "min": 3.800048828125,
+            "max": 5.5,
+            "samples": [
+              5.5,
+              4.10009765625,
+              3.800048828125
+            ]
+          },
+          "constructorToWrapperMs": {
+            "min": 3.300048828125,
+            "max": 22.5,
+            "samples": [
+              22.5,
+              5.800048828125,
+              3.300048828125
+            ]
+          }
+        }
+      ],
+      "nodeDirectCpu": [
+        {
+          "id": "web4-low",
+          "wallMs": {
+            "min": 35.429709,
+            "max": 39.39175,
+            "samples": [
+              35.93116699999996,
+              39.39175,
+              35.429709
+            ]
+          },
+          "processCpuMs": {
+            "min": 43.244,
+            "max": 45.613,
+            "samples": [
+              45.017,
+              45.613,
+              43.244
+            ]
+          },
+          "processUserCpuMs": {
+            "min": 41.757,
+            "max": 43.683,
+            "samples": [
+              43.683,
+              42.604,
+              41.757
+            ]
+          },
+          "processSystemCpuMs": {
+            "min": 1.334,
+            "max": 3.009,
+            "samples": [
+              1.334,
+              3.009,
+              1.487
+            ]
+          }
+        },
+        {
+          "id": "web4-high",
+          "wallMs": {
+            "min": 99.40941699999985,
+            "max": 111.42358300000001,
+            "samples": [
+              100.60891700000002,
+              99.40941699999985,
+              111.42358300000001
+            ]
+          },
+          "processCpuMs": {
+            "min": 106.184,
+            "max": 116.775,
+            "samples": [
+              106.184,
+              107.619,
+              116.775
+            ]
+          },
+          "processUserCpuMs": {
+            "min": 102.512,
+            "max": 112.032,
+            "samples": [
+              102.512,
+              104.175,
+              112.032
+            ]
+          },
+          "processSystemCpuMs": {
+            "min": 3.444,
+            "max": 4.743,
+            "samples": [
+              3.672,
+              3.444,
+              4.743
+            ]
+          }
+        },
+        {
+          "id": "desktop128-low",
+          "wallMs": {
+            "min": 1318.1660420000007,
+            "max": 1341.2407920000005,
+            "samples": [
+              1341.2407920000005,
+              1318.1660420000007,
+              1337.1100420000002
+            ]
+          },
+          "processCpuMs": {
+            "min": 1219.651,
+            "max": 1237.212,
+            "samples": [
+              1237.212,
+              1219.651,
+              1223.605
+            ]
+          },
+          "processUserCpuMs": {
+            "min": 1107.022,
+            "max": 1109.328,
+            "samples": [
+              1107.276,
+              1109.328,
+              1107.022
+            ]
+          },
+          "processSystemCpuMs": {
+            "min": 110.323,
+            "max": 129.936,
+            "samples": [
+              129.936,
+              110.323,
+              116.583
+            ]
+          }
+        }
+      ],
+      "conclusions": [
+        {
+          "finding": "Low entropy128MiB synchronous encodeProject is dominated by zlibSync: deflate plus Adler32, rather than module import/message delivery.",
+          "evidence": "D:project1203–1289ms,zlib1177–1260ms,deflate953–985ms,Adler219–276ms. E:unmodified body ready post→reply1190–1275ms vs body import3.8–5.5ms."
+        },
+        {
+          "finding": "High entropy128MiB also spends substantial time computing PNG CRC over much larger compressed bytes.",
+          "evidence": "D:project5973–6253ms,zlib3151–3319ms,CRC2618–2801ms;encoded134253340bytes,vs low152969bytes."
+        },
+        {
+          "finding": "Source recompiled observation and emitted production bundle show different high-entropy CRC timings. Use literal emitted-bundle cohort for attribution.",
+          "evidence": "B desktophighCRC1313–1569ms;D2618–2801ms. Different cohort/time/compiler/JIT conditions; no causal claim about which compiler optimization accounts for the difference."
+        },
+        {
+          "finding": "No basis to recommend moving work into Worker: encode already executes there. Worker pool/startup-only changes do not address the measured second-scale sync encode interval.",
+          "evidence": "Unmodified production-ready control retains ~1.19–1.27s after readiness. No pool implementation or production change performed."
+        },
+        {
+          "finding": "These measurements do not establish that every millisecond is Chrome CPU.",
+          "evidence": "D is Worker function wall duration and can include GC, allocation and descheduling. Separate Node process CPU1.22–1.24s for desktoplow vs wall1.32–1.34s supports CPU-heavy codec work in Node, without equating Node CPU to Chrome worker CPU."
+        }
+      ],
+      "limits": [
+        "n3 samples on one desktop host, sequential contexts; not p95, throughput capacity, mobile-device guarantee or thermally controlled benchmark.",
+        "No natural30s timer, full UI/recovery transaction, OS native IPC/fs, RSS or background-app behavior measured here. Previous recovery probe covers UI/IDB/model separately.",
+        "Fresh Worker means fresh global; HTTP/code caches are not forced cold each sample. Constructor→wrapper includes browser startup/scheduling; wrapper import includes fetch/parse/evaluate under temporary packaging.",
+        "Inter-realm timeOrigin+now values have timer precision/origin alignment uncertainty (~0.1ms observed). Raw reply delta can be -0.1ms; do not interpret it as physical negative latency or precise scheduling time.",
+        "Stage scopes are nested: Adler+deflate inside zlib; zlib+CRC+pack+assembly inside PNG; PNG inside project. Never add nested durations to whole time.",
+        "Explicit forced main-context GC occurs between jobs and outside timing. Worker allocations/GC inside encode remain part of synchronous wall time.",
+        "Compression parameters remain production level1. No format, dimension, pool, cache, compression-level or reply-value modification."
+      ],
+      "cleanup": {
+        "allFiveProbeRunsBrowserClosed": true,
+        "ownServerPid": 51585,
+        "ownPort": 9053,
+        "ownServerStopped": true,
+        "otherBrowserOrServersNotTouched": true
+      }
+    },
+    "crcPrototype": {
+      "decision": "DO NOT ADOPT from these measurements: correctness PASS, high-entropy benefit consistent, but low-entropy project no-regression gate not established. Keep source prototype separate for future same-production-build validation.",
+      "causeDriven": true,
+      "rationale": "Original emitted bundle decomposition identified high-entropy PNG CRC2618–2801ms of5973–6253ms encode. Indexed private CRC loop targets that measured cost; not a style-only edit. It does not address low-entropy ~1s encode dominated by deflate/Adler with CRC2–3ms.",
+      "scope": "Cause-driven CRC indexed-loop prototype, temporary only. Unobserved original frozen production Worker vs original bundle with only private CRC loop indexed. Original reply shape/bytes/transfer preserved. Fresh Worker constructor→main reply; fixture creation, digest/roundtrip validation and forced GC outside measurement. No full UI/recovery/clone/storage/native OS timings or worker thread CPU claim.",
+      "patch": {
+        "scope": "Temporary cause-driven CPU candidate only. Original emitted bundle changes one private CRC loop; no handler/codec parameter/reply/API change. Source prototype shows corresponding production TypeScript edit, not applied to repository.",
+        "originalBundleSha256": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+        "candidateBundleSha256": "d9164750b7e96ab024680f9c9fc82786043934e57ca3be830438cf97a441439d",
+        "inverseBundleReconstructionExact": true,
+        "before": "function zn(e){let t=4294967295;for(let n of e)t=Rn[(t^n)&255]^t>>>8;return(t^4294967295)>>>0}",
+        "after": "function zn(e){let t=4294967295;for(let n=0;n<e.length;n++)t=Rn[(t^e[n])&255]^t>>>8;return(t^4294967295)>>>0}",
+        "originalSourceSha256": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+        "candidateSourceSha256": "7900a2d50fb9b0c93b38d5c4d1d106704083a9b0651cf1f7c5d49bcf2cf2cb98",
+        "inverseSourceReconstructionExact": true,
+        "sourceBefore": "    for (const b of bytes) c = crcTable[(c ^ b) & 255] ^ (c >>> 8);",
+        "sourceAfter": "    for (let i = 0; i < bytes.length; i++) c = crcTable[(c ^ bytes[i]) & 255] ^ (c >>> 8);"
+      },
+      "cohorts": [
+        {
+          "file": "crc-candidate-results.json",
+          "jobs": 36,
+          "pairedN3Cases": [
+            "web16-high-pixelmax",
+            "desktop128-high",
+            "desktop128-low"
+          ],
+          "operations": [
+            "project-write",
+            "png-write"
+          ],
+          "order": "baseline→candidate samples0,2; candidate→baseline sample1",
+          "ok": true
+        },
+        {
+          "file": "crc-low-recheck-results.json",
+          "jobs": 6,
+          "pairedN3Cases": [
+            "desktop128-low"
+          ],
+          "operations": [
+            "project-write"
+          ],
+          "order": "baseline→candidate samples0,2; candidate→baseline sample1",
+          "ok": true,
+          "concurrency": "Root reported no compiler/native/large-GUI work and maintaining quiet during repeat coordination; Architect simultaneously ran27 public UI baseline cases on32×24 document. This is a bounded known workload, not OS-level load isolation. No claim every sample was globally quiescent."
+        }
+      ],
+      "correctness": {
+        "allJobsOk": true,
+        "errors": [],
+        "failures": [],
+        "allReplyBytesExactlyMatchOriginalSourceReference": true,
+        "allInputPlanesDetached": true,
+        "fullProjectDecodes": 8,
+        "fullPngCompositeDecodes": 6,
+        "checks": "Full width/height, RGBA including transparent hidden RGB, alpha1/128/255, hidden layer planes, Unicode names, visible, active hidden layer, background. Every sample encoded SHA/size vs original production source reference; first per cohort/operation/case decoded bytewise. Project includes original raw PNG for every plane. PNG export validated against original composite. Original reply shape/value and transfer untouched."
+      },
+      "comparisons": [
+        {
+          "id": "web16-high-pixelmax",
+          "operation": "project-write",
+          "originalWholeMs": [
+            881.7998046875,
+            796.099853515625,
+            757.89990234375
+          ],
+          "candidateWholeMs": [
+            516.800048828125,
+            549.400146484375,
+            509.10009765625
+          ],
+          "candidateDeltaMs": [
+            -364.999755859375,
+            -246.69970703125,
+            -248.7998046875
+          ],
+          "candidateDeltaPercent": [
+            -41.39258751466007,
+            -30.98853817668842,
+            -32.82752826832473
+          ],
+          "allThreeCandidateFaster": true
+        },
+        {
+          "id": "web16-high-pixelmax",
+          "operation": "png-write",
+          "originalWholeMs": [
+            849.199951171875,
+            930.599853515625,
+            1029.5
+          ],
+          "candidateWholeMs": [
+            571.400146484375,
+            586.400146484375,
+            759
+          ],
+          "candidateDeltaMs": [
+            -277.7998046875,
+            -344.19970703125,
+            -270.5
+          ],
+          "candidateDeltaPercent": [
+            -32.71312066188218,
+            -36.986864518722044,
+            -26.274890723652256
+          ],
+          "allThreeCandidateFaster": true
+        },
+        {
+          "id": "desktop128-high",
+          "operation": "project-write",
+          "originalWholeMs": [
+            7721.199951171875,
+            7998.10009765625,
+            7047.89990234375
+          ],
+          "candidateWholeMs": [
+            3661.5,
+            3923.7998046875,
+            4861.900146484375
+          ],
+          "candidateDeltaMs": [
+            -4059.699951171875,
+            -4074.30029296875,
+            -2185.999755859375
+          ],
+          "candidateDeltaPercent": [
+            -52.57861442321177,
+            -50.94085149250227,
+            -31.01632807146466
+          ],
+          "allThreeCandidateFaster": true
+        },
+        {
+          "id": "desktop128-high",
+          "operation": "png-write",
+          "originalWholeMs": [
+            3268.5,
+            3165.599853515625,
+            3205.5
+          ],
+          "candidateWholeMs": [
+            2049.39990234375,
+            1959.7998046875,
+            2273.400146484375
+          ],
+          "candidateDeltaMs": [
+            -1219.10009765625,
+            -1205.800048828125,
+            -932.099853515625
+          ],
+          "candidateDeltaPercent": [
+            -37.29845793655346,
+            -38.09072860200564,
+            -29.078142365173143
+          ],
+          "allThreeCandidateFaster": true
+        },
+        {
+          "id": "desktop128-low",
+          "operation": "project-write",
+          "originalWholeMs": [
+            1256.5,
+            1226.099853515625,
+            1241.699951171875
+          ],
+          "candidateWholeMs": [
+            1253.099853515625,
+            1300.199951171875,
+            1414.39990234375
+          ],
+          "candidateDeltaMs": [
+            -3.400146484375,
+            74.10009765625,
+            172.699951171875
+          ],
+          "candidateDeltaPercent": [
+            -0.2706045749602093,
+            6.043561414984344,
+            13.908348068217812
+          ],
+          "allThreeCandidateFaster": false
+        },
+        {
+          "id": "desktop128-low",
+          "operation": "png-write",
+          "originalWholeMs": [
+            1155,
+            997.900146484375,
+            940.199951171875
+          ],
+          "candidateWholeMs": [
+            782.099853515625,
+            847.699951171875,
+            969.699951171875
+          ],
+          "candidateDeltaMs": [
+            -372.900146484375,
+            -150.2001953125,
+            29.5
+          ],
+          "candidateDeltaPercent": [
+            -32.28572696834415,
+            -15.051625740477014,
+            3.1376304543763167
+          ],
+          "allThreeCandidateFaster": false
+        }
+      ],
+      "lowRepeat": [
+        {
+          "id": "desktop128-low",
+          "operation": "project-write",
+          "originalWholeMs": [
+            1377.7998046875,
+            1336.699951171875,
+            1285.2998046875
+          ],
+          "candidateWholeMs": [
+            1444.5,
+            1540.5,
+            1265.199951171875
+          ],
+          "candidateDeltaMs": [
+            66.7001953125,
+            203.800048828125,
+            -20.099853515625
+          ],
+          "candidateDeltaPercent": [
+            4.841065812723655,
+            15.246506790806347,
+            -1.5638260771783097
+          ],
+          "allThreeCandidateFaster": false
+        }
+      ],
+      "interpretation": [
+        "High-entropy project and PNG consistently improved in all n3 paired samples: private CRC candidate is a real measured optimization for these inputs.",
+        "Low-entropy project first cohort had two slower candidate samples (+6.0%,+13.9%). Independent repeat again had two slower samples (+4.8%,+15.2%). Cause of the low variation was not established; do not dismiss it as merely noise or claim no regression.",
+        "Small n3 with other browser work is insufficient to prove a universal non-regression. Current performance adoption verdict is no-go, even though format/pixels are exact.",
+        "No further CPU alternatives tested after root requested stopping expansion. No production code/test changed."
+      ],
+      "limits": [
+        "Actual Chrome fresh Worker constructor→original reply whole API interval; fixture construction, clone/UI/recovery/storage and roundtrip/hash outside timing.",
+        "Private CRC loop only changes in emitted candidate; source prototype is corresponding frozen TypeScript one-line change. No full production rebuild candidate was measured in this cohort.",
+        "No per-thread Chrome CPU, OS/fs/native IPC, natural timer, mobile/RSS/p95 claims.",
+        "n3 is sequential on one machine; no statistical guarantee or globally isolated system load."
+      ],
+      "actualDrivers": {
+        "candidate": "afb6483ae5e643506b496f45112d4a118a0213517e7e4ae7788250311a3cb884",
+        "repeat": "b3a5e2c1086f3efea819edc9fe1ea69487d2795a69b6eeeeaf941e0f4603f014",
+        "client": "076f3cad4ece521f55158542e25f62f5b0c2605a2d06da23767a904b47393e3d"
+      },
+      "provenanceNote": "Repeat raw result inherits runSha256 of its template run-crc-candidate.mjs; actual repeat driver hash is recorded here separately.",
+      "cleanup": {
+        "allFiveProbeRunsBrowserClosed": true,
+        "ownServerPid": 51585,
+        "ownPort": 9053,
+        "ownServerStopped": true,
+        "otherBrowserOrServersNotTouched": true
+      }
+    },
+    "adoption": "CRC prototype not applied: all bytes/roundtrips passed and high entropy improved, but low controls mixed/regressed. No production performance improvement claimed."
+  },
+  "evidenceCorrections": [
+    "Clipboard first diagnostic sampled before injection and was superseded by explicit reply/cleanup wait; all original raw files retained.",
+    "Final UI driver strengthens JPG decode/BMP header and valid cut PNG+Undo without weakening fault acceptance. Same final27 baseline/candidate driver hash.",
+    "SRE rebuilt instrumented Worker differs from original bundle; original-bundle literal clock-only cohort and unmodified-ready control separate packaging effects. CRC candidate and repeat remain separate from shipped product."
+  ],
+  "review": {
+    "roles": [
+      "Architect",
+      "Implementation Engineer",
+      "Reviewer",
+      "SRE/Optimizer"
+    ],
+    "scopedRequiredCodeFindings": {
+      "Blocker": 0,
+      "Major": 0,
+      "Minor": 0
+    },
+    "openVerification": [
+      {
+        "id": "native-first-timeout",
+        "state": "Root cause unknown; same binary retry passed4runs; retain first failure and independent read review.",
+        "gate": "QF24/QF30 native timing/stability; repeat failure merits phase timestamps."
+      }
+    ]
+  },
+  "remaining": [
+    "Native20s timeout attribution under actual runtime/load and first-run conditions.",
+    "Same-production-build CRC source experiment with stable low/high paired controls; prototype is not shipped.",
+    "Further encoder/checksum alternatives only after cost/buffer/format compatibility evidence; actual WK/OS I/O/RSS/input-tail budgets remain.",
+    "Public Android web/IME/rotation, Windows/OS clipboard/file/pen/touch/accessibility, public CI/signing/recovery handoff/approved Pages release.",
+    "Full explicit-format/pixel compatibility and remaining migration predecessors; shape validation is not recomputation/authentication of arbitrary semantically wrong but well-shaped output."
+  ],
+  "overallAudit": {
+    "proved": 6,
+    "partial": 26,
+    "missing": 2,
+    "dependencyClosure": [
+      "QF-01"
+    ],
+    "goalComplete": false
+  },
+  "graph": {
+    "path": "docs/evidence/studio-codec-reply-module-graph.json",
+    "sha256": "cf42fca88bba66897eff90a5117f63ad39be70148be3fbffdb30a9abbb146a7c"
+  },
+  "references": {
+    "accepted-assets.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/accepted-assets.json",
+      "sha256": "c192e4e94620f85c57b2aa7c4d79127ea5408cae1b8e62ead7ae5e12ea6ae9fb"
+    },
+    "accepted-source.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/accepted-source.json",
+      "sha256": "b18e07e6372c19dcf01d7b10e3c63381a8dddc6a094f70f03c467560fb00faa5"
+    },
+    "ast-delta.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/ast-delta.json",
+      "sha256": "0065800ca2159f714ceaff2897e03e5e90810ddcb98373a0663c29ecc9d73ac2"
+    },
+    "before-bundle/bundle.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/before-bundle/bundle.json",
+      "sha256": "65ffd18d713598719c467cad5eb55ced1bef1b3fdf1321590b958b434e129f25"
+    },
+    "before-final-ui/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/before-final-ui/results.json",
+      "sha256": "f2e90a135fa538321f12ee62b3612c27fd59c56c4cd7cfc1c329e4708bff5b53"
+    },
+    "before-source.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/before-source.json",
+      "sha256": "2f05d3fe303d3924ad180e674ba6f848ccb48308e428d1f054704c22cfc7dd4d"
+    },
+    "before-ui/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/before-ui/results.json",
+      "sha256": "4e1b2885fb2a62276300f4e777178418eb93e71a03395aa3e028e87d25e2072d"
+    },
+    "browser/concurrency.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/browser/concurrency.json",
+      "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+    },
+    "browser/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/browser/results.json",
+      "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+    },
+    "browser.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/browser.log",
+      "sha256": "f6c29f5c7c2f0c5bd79e7beb44bd149247addbb7099fa9baa1e25466220d5671"
+    },
+    "candidate-build.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/candidate-build.log",
+      "sha256": "2781e86ea1a181b76260c92ef3f754d3c5069bdaf5a8c12b8444b0af2d31bfb3"
+    },
+    "candidate-final-build.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/candidate-final-build.log",
+      "sha256": "f5f9a91b01d64655c6a160706b64185f13472318a9c4a7b7fdd83ead68938011"
+    },
+    "candidate-source.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/candidate-source.json",
+      "sha256": "0ce4f7bfe587aa08ed74a97bfef0431e8c5b4abba96b68d478566b4f32de31bf"
+    },
+    "candidate-v2-build.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/candidate-v2-build.log",
+      "sha256": "b64e0d49854dfda347d5e3fb37c79ee1f49304e6b8dce69a0344536be610b830"
+    },
+    "candidate-v2-source.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/candidate-v2-source.json",
+      "sha256": "b18e07e6372c19dcf01d7b10e3c63381a8dddc6a094f70f03c467560fb00faa5"
+    },
+    "candidate-v2-ui/production-source-manifest.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/candidate-v2-ui/production-source-manifest.json",
+      "sha256": "b18e07e6372c19dcf01d7b10e3c63381a8dddc6a094f70f03c467560fb00faa5"
+    },
+    "candidate-v2-ui/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/candidate-v2-ui/results.json",
+      "sha256": "e6643c0660835e601bee0ffabc9c29b0e439e2d77526e5ea741fe5e0af1eaf72"
+    },
+    "candidate-v2-ui/verification-manifest.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/candidate-v2-ui/verification-manifest.json",
+      "sha256": "43a32518f9c35dfb240106074f40abf5f3d1800f4b52da24bde3d9b05ec069a8"
+    },
+    "clipboard/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/clipboard/results.json",
+      "sha256": "fb759b5b1f7cfb47d8e67aeaf6b7d97fedf8356c9a5329afe346dd10000fc126"
+    },
+    "clipboard.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/clipboard.log",
+      "sha256": "131df50d4c2943a2d9c17165d40fd287cf639e449457ae096b6dc631757faa66"
+    },
+    "contract-candidate.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/contract-candidate.log",
+      "sha256": "79c380587703ec66bcdc01ddc033cde3a98a684fa56d1423285c3db29da6af68"
+    },
+    "cut-before/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/cut-before/results.json",
+      "sha256": "8eba65ce1be10a4e4b6bc61a7bb15d26a4e8601912c6c8771886e3fbd20adbf4"
+    },
+    "editing.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/editing.json",
+      "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+    },
+    "fill-failure/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/fill-failure/results.json",
+      "sha256": "301c8dd36e0f00720675ffc5805f0035cde4b3468af5e9a8451cc4f5973abfba"
+    },
+    "fill-failure.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/fill-failure.log",
+      "sha256": "c91fe1ad7b0921fde06dac1c41c4e967939e806f777a5e13a61589d994c88c2a"
+    },
+    "final-bundle/bundle.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/final-bundle/bundle.json",
+      "sha256": "0e16ab00b9dca5a6a63430ae662b630a6c331946d3592b38913e5202a116d1f2"
+    },
+    "format.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "http-before.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/http-before.log",
+      "sha256": "32f69ac25f118f170dbbf334dd82b4fe4564c8beb5f10988ac5675f91eb3ebb4"
+    },
+    "http-candidate-v2.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/http-candidate-v2.log",
+      "sha256": "aa8114ff4545aa7e242d74d1c08b0c31502c14a3589034be810ebbde6e7fadec"
+    },
+    "http-candidate.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/http-candidate.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-build.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/native-build.log",
+      "sha256": "8e1b996138a10892f8133f0aab03dbf7b3142274be246efcb31a66bcb73c51cb"
+    },
+    "native-desktop-retry.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/native-desktop-retry.json",
+      "sha256": "054b31798abff7364cde0d79cacf82ffd29562415131b048e919e56190d4893b"
+    },
+    "native-desktop-retry.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/native-desktop-retry.log",
+      "sha256": "054b31798abff7364cde0d79cacf82ffd29562415131b048e919e56190d4893b"
+    },
+    "native-desktop.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/native-desktop.json",
+      "sha256": "9308ec4104665cc3811f07d1b2c5b7288f7249b2c5d931f15023ac9253822c4e"
+    },
+    "native-desktop.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/native-desktop.log",
+      "sha256": "d390f545f4a47f2cb1fbed00773e87012c0e50e6184c0993dde8cdfa0a382321"
+    },
+    "native-retry-environment.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/native-retry-environment.json",
+      "sha256": "6ef594206b0dc59bf582697f4145068c476e6767f1353efc7f388ae8598ad9f7"
+    },
+    "priority-before/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/priority-before/results.json",
+      "sha256": "7eea661ecb355a6304570281c57ed9cdb423948a16bbbb43ac7d0a334f64f94a"
+    },
+    "recovery/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/recovery/results.json",
+      "sha256": "2af7e5ebc67ca8341be0e417a207a5c674ced17a718f00d4beedaa75d8b9e61e"
+    },
+    "recovery.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/recovery.log",
+      "sha256": "57250cb9e88ca1812a0a4afec3efa301db02c908e118e3d1d453937b563e9303"
+    },
+    "reviews/architect-design/codec-response-design.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/architect-design/codec-response-design.json",
+      "sha256": "a5dfefb9ce07d19529a0f397d41b3db3dbbeb088fbe3f09d3f019651f378b2e0"
+    },
+    "reviews/architect-ui/review.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/architect-ui/review.json",
+      "sha256": "ea0924ca64f138a6bf71c9f3f4da8c6ae30539f17dfea74e37c4903bcfeb88c0"
+    },
+    "reviews/reviewer/baseline-expanded.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/baseline-expanded.log",
+      "sha256": "c8021679781cc5a180155b8406e5df0a03ff768d72bb1d16ea771f78d106eee6"
+    },
+    "reviews/reviewer/baseline-final89.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/baseline-final89.log",
+      "sha256": "06addef0284608401dd992b07e5eba9bcaa09da722b8f6423a9c8ba5afaab336"
+    },
+    "reviews/reviewer/baseline-provenance.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/baseline-provenance.json",
+      "sha256": "2bfec1619fa9756280b87058ed1d2ab3fecdf01f9666bac93d8163fedbd4d0aa"
+    },
+    "reviews/reviewer/baseline.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/baseline.log",
+      "sha256": "8b8ec3b044899c6391ff8db89de564301baf2bb870f43d10d8c83a60580b09bd"
+    },
+    "reviews/reviewer/candidate-provenance.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/candidate-provenance.json",
+      "sha256": "e2e4cacaf2d593c08ae3c8318310a0ad643c2fde36717579552d63ecbaab0fb2"
+    },
+    "reviews/reviewer/candidate-review.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/candidate-review.json",
+      "sha256": "fe8c37ae8173ced1239d17916221a65cef83e6d51263ed5b4d867d341dbe41b2"
+    },
+    "reviews/reviewer/candidate.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/candidate.log",
+      "sha256": "d0152b2402e730e0776cdfa9b11454b2af137f1205f6a4dc4559b7a99e047930"
+    },
+    "reviews/reviewer/final-provenance.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/final-provenance.json",
+      "sha256": "26bead159baf349c8c9a5f38dbdc931174a8574e12052bce130632cc101cc98e"
+    },
+    "reviews/reviewer/final-review.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/final-review.json",
+      "sha256": "4fd6d5c5ca00de05a7965f2919d5154fcc130821b0ca275cb427b7f1e7540339"
+    },
+    "reviews/reviewer/final89.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/final89.log",
+      "sha256": "53517d33fa68ef600516ffed65cc8b26883d43158d89a2e712c9d3458e50e624"
+    },
+    "reviews/reviewer/frozen-baseline/package.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/frozen-baseline/package.json",
+      "sha256": "1239d4d885dcad42201a27ed9324f8f0f760b78700d8db9ced39a511cffe7eae"
+    },
+    "reviews/reviewer/frozen-candidate/package.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/frozen-candidate/package.json",
+      "sha256": "1239d4d885dcad42201a27ed9324f8f0f760b78700d8db9ced39a511cffe7eae"
+    },
+    "reviews/reviewer/native-timeout-review.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/native-timeout-review.json",
+      "sha256": "b3598354e9ebda727ac8631db5871efef6f1a8b0e3479f33ef5e6c005e01f52c"
+    },
+    "reviews/reviewer/sparse-background-results-initial.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/sparse-background-results-initial.json",
+      "sha256": "f882784b3095dd735f5f7c19f6f9a9fde9816d395e5a93f8928da89395ad11f7"
+    },
+    "reviews/reviewer/sparse-background-results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/sparse-background-results.json",
+      "sha256": "e5420eaf285eb12e3f1b72d102e9ee2855136a0b5bb5735a6b20deb954ff0a26"
+    },
+    "reviews/reviewer/sparse-background.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/sparse-background.log",
+      "sha256": "a904848bdda229ae4629b5b320523dd5df0797ac6195d2fe174a3f7d32e4ed84"
+    },
+    "reviews/reviewer/sparse-baseline-9750-provenance.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/sparse-baseline-9750-provenance.json",
+      "sha256": "601e19b5ed957b64673fddc30161eb33e7d9e7442a529a5691a463fdda74979c"
+    },
+    "reviews/reviewer/test-ready.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/reviewer/test-ready.json",
+      "sha256": "043e0388a19411976e5f7561425719b105c536cf2b901a5050f4182b61d34db9"
+    },
+    "reviews/sre/assets.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/assets.json",
+      "sha256": "901f422c89fb0bb91470c4e2b078b216f0ff699386b0f4becbd98bd7909b7412"
+    },
+    "reviews/sre/cleanup.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/cleanup.json",
+      "sha256": "fb5a42fe690af0686e458b8cd02c39496aae4b8d6112b11292a41e47f3a89156"
+    },
+    "reviews/sre/control-results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/control-results.json",
+      "sha256": "1bf0fba1099e5ec762d03a2c878d9dafca5f46d02d0a13a97fcd535fb84b286e"
+    },
+    "reviews/sre/crc-candidate-patch.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/crc-candidate-patch.json",
+      "sha256": "f21e59769457edfb8589e87646361295e5dfdb37046264efa8d26ab2e8789f4c"
+    },
+    "reviews/sre/crc-candidate-references.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/crc-candidate-references.json",
+      "sha256": "8551cc8dc59e9eb7f28815a17f056c6d7bd827e87373786aa81795b2a1389c71"
+    },
+    "reviews/sre/crc-candidate-references.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/crc-candidate-references.log",
+      "sha256": "7fac10c98c9bcdb10f00d2f1198c21209aafcbb29f742734251f856a701e4087"
+    },
+    "reviews/sre/crc-candidate-results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/crc-candidate-results.json",
+      "sha256": "0f3af738f468cd14c69de95c2bc68c2e0854cd621cff172429f17964183a01e5"
+    },
+    "reviews/sre/crc-candidate-summary.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/crc-candidate-summary.json",
+      "sha256": "323400556604ffea6cb3b01dba9ae6ec62b7a495d3c05e957f800c293c9f937b"
+    },
+    "reviews/sre/crc-low-recheck-results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/crc-low-recheck-results.json",
+      "sha256": "85d719a9511ba9b14521a7ac7f31686552612ad23983cc9b51ddbca883f47469"
+    },
+    "reviews/sre/final-integrity.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/final-integrity.json",
+      "sha256": "d614af1ccabd785a85ac36ecd21433afd0638592498140c7d8b0ffa5f1368a2d"
+    },
+    "reviews/sre/instrumented/package.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/instrumented/package.json",
+      "sha256": "6dc1b06d6b093e9cccb20bee06a93836eee0420ae26803ca2ce4065d82f070d1"
+    },
+    "reviews/sre/node-reference.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/node-reference.log",
+      "sha256": "e684345948d6fef079fabdd6bbc72cc234f838761d2a74280971508205a88ef6"
+    },
+    "reviews/sre/package.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/package.json",
+      "sha256": "6dc1b06d6b093e9cccb20bee06a93836eee0420ae26803ca2ce4065d82f070d1"
+    },
+    "reviews/sre/production-bundle-observation-patches.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/production-bundle-observation-patches.json",
+      "sha256": "74de50ff873c5b1bb9541a2b805865f42baaa4e35d7919155ed9b0772c0a2fe4"
+    },
+    "reviews/sre/production-observed-results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/production-observed-results.json",
+      "sha256": "8553e759e1eb8db8e138752692d7d1fce8d28d601fe4177b50be5162bcc682e7"
+    },
+    "reviews/sre/provenance.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/provenance.json",
+      "sha256": "318b89c6ddd281f0a85d52b03c56c3c71102b86b766900c61bfbbb7a48bf1451"
+    },
+    "reviews/sre/references.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/references.json",
+      "sha256": "c9535f500fea784ac1760223e9ce96f3c5ea0293d6dae3bfa90e88b7df396b23"
+    },
+    "reviews/sre/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/results.json",
+      "sha256": "130b95a95150bdd63a749a7c4273e28d73af7d56702b07c7b505955ab2f1b960"
+    },
+    "reviews/sre/run-control.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/run-control.log",
+      "sha256": "d75e4cc767e28eacd22d0c0a85c1327b81dda9e16bca81b0c9448f127b4f92c1"
+    },
+    "reviews/sre/run-crc-candidate.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/run-crc-candidate.log",
+      "sha256": "9159361ca097eb25e7c86f49034a638d5b8f420616ae89c762a92716f1e426ac"
+    },
+    "reviews/sre/run-crc-low-recheck.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/run-crc-low-recheck.log",
+      "sha256": "e91344ca1e028f08c688f5227cccdc72e71be817f5f7209e3cc91c5bdcf46596"
+    },
+    "reviews/sre/run-production-observed.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/run-production-observed.log",
+      "sha256": "22afaef5b6e4ee413f39327a70ea26b7b9d99845c96695f45708a13d7e85afc8"
+    },
+    "reviews/sre/run.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/run.log",
+      "sha256": "4a7e8aabfeb6ec46b0eda595914945d9bfa48c35a239d4dce305f30897f863e2"
+    },
+    "reviews/sre/source/package.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/source/package.json",
+      "sha256": "6dc1b06d6b093e9cccb20bee06a93836eee0420ae26803ca2ce4065d82f070d1"
+    },
+    "reviews/sre/source17.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/source17.json",
+      "sha256": "2f05d3fe303d3924ad180e674ba6f848ccb48308e428d1f054704c22cfc7dd4d"
+    },
+    "reviews/sre/summary-final.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/reviews/sre/summary-final.json",
+      "sha256": "f57693dd9bf94910903c7964fc5ce93f8f31371db926db41c739d2a4c058db79"
+    },
+    "scope.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/scope.json",
+      "sha256": "62f5bfce477d0b23ffc041a813e138cffd3aa37cb54c2787f57643de0034b3b8"
+    },
+    "selection-preparation/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/selection-preparation/results.json",
+      "sha256": "753befd712304cbfc449dc7a874dd74d15acd99ee3a24999461ec885d0fc640d"
+    },
+    "selection-preparation.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/selection-preparation.log",
+      "sha256": "8bf8ce2d9ea46ebb01976e93f8ef56c3599fb1a6bc02913cabdbd4316e5812fe"
+    },
+    "shear/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/shear/results.json",
+      "sha256": "e81dc2ded70712c70196b0afd95ca927327f3c305a4d478364badacc1bc170c2"
+    },
+    "source-graph.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/source-graph.json",
+      "sha256": "7be3ba81fececaad3149d43a1381ad36fcf9e1a0035c19d0c1a854e28af0ebb9"
+    },
+    "source-graph.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/source-graph.log",
+      "sha256": "18748567567df284d506aebf25d6a89b255d3e1442ab1917662ec29cfd59da8b"
+    },
+    "static-graph.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/static-graph.json",
+      "sha256": "d117fc9e5feed5023f39bf09327119fdd5e58c7b004bc2643f9715087705e820"
+    },
+    "static-graph.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/static-graph.log",
+      "sha256": "6d71d19ff407d1a4e0c50785e48b36f9d04c6ed6c873a6a86af0edc80b47b0ff"
+    },
+    "storage/results.json": {
+      "path": "build-web-work/task-planning/codec-reply-contract/storage/results.json",
+      "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+    },
+    "studio-build.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/studio-build.log",
+      "sha256": "79c83a4f1831044beba7e1608a3f9f0e1a1db89b6f76c35072ea7da7fdef648c"
+    },
+    "unit.log": {
+      "path": "build-web-work/task-planning/codec-reply-contract/unit.log",
+      "sha256": "12c0701263da02d99d67746f6a5663fe6a30bfa3d4b6a472bf543fba334f1f53"
+    }
+  }
+}

@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "date": "2026-11-06",
+  "status": "Latest-source actual macOS four-branch integration smoke passed once after unlocked-console observation; overall goal and platform/performance/release gates remain open.",
+  "runtimeSources": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b",
+    "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+    "web-app/src/platform/native-smoke.ts": "4c318c88435b82982addb8876c4169e8e6564c0b6738ed3a6867f2b2e516d2d8",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "4d46f4cbf2d02db6add183af5d4cd6232fac9417fadff627ce3dba85dd0992fd"
+  },
+  "binary": {
+    "sha256": "d1da36e38326a016a9d4a1b2dfd434c4c0aa4cd890b9bb6dec841890525413d3",
+    "bytes": 9605728,
+    "bundled": true
+  },
+  "frontend": {
+    "entry": "assets/index-DIgO41Ne.js",
+    "nativeFiles": 8,
+    "nativeBytes": 290584,
+    "webFiles": 9,
+    "webBytes": 291664,
+    "difference": "web staging adds 1080B LICENSE; 8 native/frontend payload files have the same SHA256 as web dist/studio"
+  },
+  "execution": {
+    "mode": "foreground",
+    "modeSelection": "platform-default",
+    "launcher": "/usr/bin/open -n -W",
+    "appExitCode": null,
+    "appExitObserved": false,
+    "launchWaitAndMarkers": "All four LaunchServices waits completed with launcherExitCode0, plus exactly one branch-specific success marker and required result assertions",
+    "cohorts": 1,
+    "branches": [
+      {
+        "name": "persistence",
+        "wallMs": 9721,
+        "ok": true
+      },
+      {
+        "name": "codec",
+        "wallMs": 2605,
+        "ok": true
+      },
+      {
+        "name": "quit",
+        "wallMs": 981,
+        "ok": true
+      },
+      {
+        "name": "scene",
+        "wallMs": 5697,
+        "ok": true
+      }
+    ],
+    "persistenceEncodedBytes": 67126671,
+    "legacyFixturesUnchanged": [
+      "recovery.rpaint",
+      "session.lock"
+    ],
+    "watchdogMs": 120000,
+    "codecDeadlineMs": 20000,
+    "consoleLockedBefore": false,
+    "consoleLockedAfter": false,
+    "temporaryRootRemoved": true,
+    "ownedProcessesRemaining": false
+  },
+  "limits": [
+    "Before/after lock observations do not establish every instant of focus/visibility or historical timeout causality.",
+    "Persistence launch wall includes process startup/test/IPC/verification/exit; it is not core decode, stable-tail, pointer-to-presentation or performance budget acceptance.",
+    "Latest main48695 is included, but smoke does not inject late A recovery-list rejection after B installation; that deterministic guard regression remains the separately documented Chromium IPC model.",
+    "OS file picker, clipboard/IME, manual visual acceptance, Windows, physical Android and release signing/publishing not exercised.",
+    "Scene maxBytes92269648 is application tile accounting, not whole-process or WK/GPU peak memory.",
+    "Historical project-read-large20s failure and120s no-marker failure remain preserved; no watchdog or production codec deadline changed."
+  ],
+  "changes": {
+    "runtime": 0,
+    "helpers": 0,
+    "dependencies": 0,
+    "gitCommit": false,
+    "gitPush": false,
+    "homepageWritten": false
+  },
+  "rawEvidence": {
+    "accepted-source.json": {
+      "path": "build-web-work/task-planning/qf04-native-current/accepted-source.json",
+      "sha256": "8bccb649e90250b2a1c3561ec06c0bbf85a1091389d22b52f459d61afc141df6",
+      "bytes": 1754
+    },
+    "baseline.json": {
+      "path": "build-web-work/task-planning/qf04-native-current/baseline.json",
+      "sha256": "347b3eba62262bd8caac8fd547c57d9ff8596a1334f2127a5a3a6b391ee8c44f",
+      "bytes": 1027
+    },
+    "build.log": {
+      "path": "build-web-work/task-planning/qf04-native-current/build.log",
+      "sha256": "9e85df658ed3e52a1defbf0c14490e19fafd7e272f86e4c00759ec7e4d51773a",
+      "bytes": 1429
+    },
+    "console-before.json": {
+      "path": "build-web-work/task-planning/qf04-native-current/console-before.json",
+      "sha256": "cc62f1fc22a53947b57935c6e4b04635011e739c92e6e023aec59fc197a10b84",
+      "bytes": 238
+    },
+    "console-after.json": {
+      "path": "build-web-work/task-planning/qf04-native-current/console-after.json",
+      "sha256": "764a22516a150a5e77a3ae701e45a54cf03e54594c92e11b6d1678559b1a83e2",
+      "bytes": 75
+    },
+    "native-desktop.json": {
+      "path": "build-web-work/task-planning/qf04-native-current/native-desktop.json",
+      "sha256": "b771ad5f132e09c85affcbf4014bd3bf152e6e6140a321829b4eea96674ae01a",
+      "bytes": 33539
+    },
+    "native-desktop.log": {
+      "path": "build-web-work/task-planning/qf04-native-current/native-desktop.log",
+      "sha256": "731c1085c2dc5870c863de24aa42a0a4f06e3fcda5b07d2ebab11ae7f6fe000d",
+      "bytes": 33626
+    },
+    "summary.json": {
+      "path": "build-web-work/task-planning/qf04-native-current/summary.json",
+      "sha256": "8e9aeb11ff7f81889e1afd9b4d53cecae0e79fc5118d7d79df35b97445202a14",
+      "bytes": 2008
+    },
+    "cleanup.json": {
+      "path": "build-web-work/task-planning/qf04-native-current/cleanup.json",
+      "sha256": "15c132a61fabe61bd9a25943b23b9e15d2738d16962510c491c8a8a4ef778e62",
+      "bytes": 209
+    },
+    "environment.json": {
+      "path": "build-web-work/task-planning/qf04-native-current/environment.json",
+      "sha256": "2a644317e1c38db6554c30b10e857d9c3498290466dcb181e2be018e77e78797",
+      "bytes": 273
+    }
+  },
+  "reviews": {}
+}

@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "date": "2026-11-06",
+  "status": "Bounded basic usability implementation and scoped validation complete; original goal remains paused",
+  "summary": {
+    "date": "2026-11-06",
+    "scope": "Bounded basic usability request; original goal remains paused",
+    "tests": {
+      "node": 327,
+      "newUsability": 19,
+      "web": 48,
+      "nativeIpcModel": 16,
+      "pending": 36,
+      "clipboard": 4,
+      "bulkEdit": 16,
+      "pointerChecks": 26,
+      "actualMacBranches": 4,
+      "formatCheck": true,
+      "typeCheck": true
+    },
+    "runtimeChanged": [
+      "web-app/src/main.ts",
+      "web-app/src/platform/native-smoke.ts",
+      "web-app/src/style.css"
+    ],
+    "engineAndCodecUnchanged": true,
+    "sourcesAndGitMetadataVerified": true,
+    "payload": {
+      "files": 9,
+      "bytes": 301653,
+      "entry": "assets/index-CZpI2Zsi.js",
+      "sourceInputs": 126
+    },
+    "native": {
+      "binarySha256": "b005cf5dcd51d43238502d462470a846bd5743f786c6eeff647176f06b7bfd8b",
+      "appExitCode": null,
+      "appExitObserved": false,
+      "launchWaitAndMarkersPassed": true,
+      "temporaryRootRemoved": true,
+      "legacyFixturesUnchanged": true,
+      "consoleLockedAfter": false
+    },
+    "cleanup": {
+      "serverPid": 8080,
+      "exactCommandAndCwdVerified": true,
+      "signal": "SIGTERM",
+      "ownedNativeRemaining": false
+    },
+    "limitations": [
+      "New paste payload events and failure are modeled; OS clipboard permission/format transport and actual Windows/Android hardware remain separately unverified.",
+      "Actual macOS smoke checks the three direct actions and cancellation in native/runtime Quit; picker/write-failure matrix is modeled Chromium IPC.",
+      "Browser tab-close confirmation is controlled by browser; programmatic menu Paste may still show browser permission UI.",
+      "Earlier pending wrapper180s expired; all36 then passed and direct command later exited0. Logs retained."
+    ],
+    "commitPushHomepagePublish": false
+  },
+  "permanentTests": "web-app/tests/usability.mjs; npm run test:usability; included in studio.yml web job",
+  "codeDesign": "Existing owning methods/DOM events and geometry pipeline; no new runtime helper methods/modules/dependencies. EditDocument adds optional fit flag to preserve camera for edge/keyboard resize.",
+  "raw": {
+    "baseline.json": {
+      "path": "build-web-work/task-planning/basic-usability/baseline.json",
+      "sha256": "3eb59d4ee74d3da6ec25cfc02dd04dcf85f0141d06d1a762463d0b194dda7e1c",
+      "bytes": 1617
+    },
+    "current-source.json": {
+      "path": "build-web-work/task-planning/basic-usability/current-source.json",
+      "sha256": "6f5e378002b368f3b0372a416a3cb39fed459515ae1e67995720439012c9592d",
+      "bytes": 1754
+    },
+    "verification-summary.json": {
+      "path": "build-web-work/task-planning/basic-usability/verification-summary.json",
+      "sha256": "3f0b09dafc137c19195e760592a4571908e4b5a88adc1527b5f841b8046efe18",
+      "bytes": 1747
+    },
+    "final-executions.json": {
+      "path": "build-web-work/task-planning/basic-usability/final-executions.json",
+      "sha256": "0aac1e8b05790a0a045fe4974becff53d3f4921825b43bfa2e90ba0f9d2e7eaa",
+      "bytes": 1672
+    },
+    "final-ui/results.json": {
+      "path": "build-web-work/task-planning/basic-usability/final-ui/results.json",
+      "sha256": "316554eca4cbafe5b80d5f1921b359d8caa4b93ff515ec88a248b93a8460bc33",
+      "bytes": 2570
+    },
+    "unit-final.log": {
+      "path": "build-web-work/task-planning/basic-usability/unit-final.log",
+      "sha256": "e1316cf4c3a86b18b9fd08486693a4b5b59681845fec510fe3ddc5e95a722a0d",
+      "bytes": 28146
+    },
+    "format-check.log": {
+      "path": "build-web-work/task-planning/basic-usability/format-check.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae",
+      "bytes": 159
+    },
+    "ui-suite-summary.json": {
+      "path": "build-web-work/task-planning/basic-usability/ui-suite-summary.json",
+      "sha256": "534b7f952f2714d9c3f9bbabebc488bba2fbd76e7fd5f15b7b8ccfbc565a0eb4",
+      "bytes": 799
+    },
+    "native-persistence.json": {
+      "path": "build-web-work/task-planning/basic-usability/native-persistence.json",
+      "sha256": "cd2d0d8046dee72c84054ccb88cbf462995f2f4d222404448e923c366def2dba",
+      "bytes": 2407
+    },
+    "pending-final.json": {
+      "path": "build-web-work/task-planning/basic-usability/pending-final.json",
+      "sha256": "16c33ee0a1537cbfb5f4405c6a8e993eafb79a85dfb80bf87047d50b7e3257e7",
+      "bytes": 1962
+    },
+    "pending-direct.log": {
+      "path": "build-web-work/task-planning/basic-usability/pending-direct.log",
+      "sha256": "c57931e066e98a9a807b1decf4e7b075a4de9a67d63509be2dd50d50f28694f4",
+      "bytes": 1515
+    },
+    "clipboard.json": {
+      "path": "build-web-work/task-planning/basic-usability/clipboard.json",
+      "sha256": "6982384ce8b1a634d25d3c604993028311b91f91ed97bebcb3a2fbf5fb286751",
+      "bytes": 4912
+    },
+    "bulk.json": {
+      "path": "build-web-work/task-planning/basic-usability/bulk.json",
+      "sha256": "b9826b444ed9efb2ee2f97130c9b523e3ffb46a6d5e7531f9ce774144df25378",
+      "bytes": 1835
+    },
+    "pointer.json": {
+      "path": "build-web-work/task-planning/basic-usability/pointer.json",
+      "sha256": "b03725114a9324f9ed3a9d6e1ed6db72f0a2bd17416a231739c9d7a9106b4512",
+      "bytes": 57912
+    },
+    "native-desktop.json": {
+      "path": "build-web-work/task-planning/basic-usability/native-desktop.json",
+      "sha256": "94943aba76cd9641c7ced3f6f58058c75ad3f80b5b4531a7494f55c3a4d31338",
+      "bytes": 33527
+    },
+    "native-build.log": {
+      "path": "build-web-work/task-planning/basic-usability/native-build.log",
+      "sha256": "d3f2bd5e34bfe93120de65a4408b29e7bdde6ede01bc24f7377607c53993baaa",
+      "bytes": 1429
+    },
+    "build-manifest-final.log": {
+      "path": "build-web-work/task-planning/basic-usability/build-manifest-final.log",
+      "sha256": "c5758de4d1760f2dd516e6c8297efd68aad8b455a5cb4327ad2b5e1dd11b11f1",
+      "bytes": 1089
+    }
+  }
+}

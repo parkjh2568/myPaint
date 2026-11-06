@@ -1,0 +1,434 @@
+{
+  "recordedAt": "2026-11-05",
+  "status": "Measured optimization adopted after independent correctness checks. Overall migration remains active; the50ms initial-render target and release acceptance are not complete.",
+  "platformScope": "Mobile/tablet web only. Native packages Windows/macOS only. These native measurements are actual macOS27.0 build26A428 / Apple M1 Pro WKWebView; they do not certify Windows, Android or physical input latency.",
+  "sourceSha256": {
+    "web-app/src/engine/document.ts": "2917f4e47d16c9d842fb39147f5dcaad2b097e4103dd36b9b3f55348233a3936",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "f42c5606383df251dc4c3aaecdc9def32e8c4626020614ea923f11478d515a23",
+    "web-app/src/platform/codec.ts": "90ed15cbb74916b79f495ee7d97acc15ab4c05db3af4bf86d1da8773d6cd5831",
+    "web-app/src/platform/native-smoke.ts": "301ca93c13ea8098c627fb916e1c6a594fbe5afcba0f7a6a58040e54faebd8af",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "a49c915995101078885f1e90d902eca485d96b091770ca4b7c0d7bab28c51281",
+    "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "sourceManifest": {
+    "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-source.json",
+    "sha256": "f4fee3a1675b87b38bb7cd14adea162755d2647c31034b63651dc6dfeed5880a"
+  },
+  "webBundle": {
+    "root": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-site/mypaint",
+    "manifest": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-manifest.json",
+      "sha256": "4c5293139875a48fbfffe6088ca4de93fffa20366519155d8c2a35f9d08f201b"
+    },
+    "sha256": {
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/buffer-DyZedAtx.js": "eb04a57dbb4dfe75682a503da2659932e135648d527e26c4e00ddc21a4f4ad79",
+      "assets/codec.worker-Bo-_aV3G.js": "f4195f84d994821913c5f5f8a3e580f32585a5631f7bae9a5126454ff38c5ec9",
+      "assets/encoder-Ygiwl0RX.js": "16950585094af9d3e4a2bb026da7559d0808b92847178029e0b9b031fc0d838f",
+      "assets/index-DA6LMf06.js": "15d61028e547fb2dd6a0e8bbd263fe28cae5d09516136f80d7391610c26da956",
+      "assets/index-aClAeViE.css": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601",
+      "assets/native-smoke-CLW9ApmE.js": "1b72ab2f944129362049da98d8c1030ab77cf3c50f8673ba340db83ada14f81d",
+      "index.html": "feb5525c6cb60560f53666d15976c5abf1764ea7a98dcd4d4ce19a0b478a9ef8"
+    }
+  },
+  "implementation": {
+    "file": "web-app/src/platform/tiles.ts",
+    "beforeSha256": "26bbc7fdde53233026ec05d2a7dfafa6b43c545b1868eacf6250fc0ec9a1fa63",
+    "afterSha256": "a49c915995101078885f1e90d902eca485d96b091770ca4b7c0d7bab28c51281",
+    "change": "The uniform mip rectangle predicate uses one row-linear index, four word comparisons per iteration and a0..3-word tail. First mismatch still exits the whole predicate. No new helper, cache, allocation, format or pixel arithmetic.",
+    "evidence": "The isolated8k candidate differed in only tiles.ts across17 recorded sources; same camera, source hashes, replay hashes, upload/capture requests and resource peaks."
+  },
+  "measurementDesign": {
+    "renderMs": "Production Studio.render API-return elapsed inside a test rAF. Production Canvas-to-Canvas captures remain timed. Additional test readback/reference work follows the timing batch.",
+    "cold": "Renderer caches empty after fixture setup; this does not prove OS/CPU/GPU hardware caches are cold.",
+    "queueAndRaf": "Scheduling indicators, not physical presentation/input latency.",
+    "clock": "WK reports integer-ms samples here.0ms does not mean zero cost.",
+    "setup": "750ms startup drain plus rAF settling occurs before target document installation. setupMs includes startupDrainMs and, for16layer, authorityHashBeforeMs; do not sum these overlapping durations.",
+    "correctness": "Timed12 phases and later replay are separate.16layer has14 replay phases+authority+3local engine checks; max-mip has4 replay hashes and2 authority passes. These are not per-timed-frame readbacks.",
+    "longTask": "No supported PerformanceObserver LongTask result is claimed.",
+    "memory": "Logical source/scene RGBA cache estimates exclude authoritative documents, history, browser/GPU internals and verification readback/hash scratch."
+  },
+  "startupInterferenceRca": {
+    "firstFailure": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/scene-functional.json",
+      "sha256": "4f856f5f20326b79dc54b5d7dcc213f05efbe985c2fb508d5ce07230035116c0"
+    },
+    "ownershipDiagnostic": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/ownership-diagnostic.json",
+      "sha256": "ff7e179a469b43054c1a2b6fb66193ebfb042952da427110ce7a697cae971309"
+    },
+    "drawTrace": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/draw-trace.json",
+      "sha256": "fb8c3d5df4719a41f3d04ffa36724f17a62977b62658d09102d771d9f638cf46"
+    },
+    "traceSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/draw-trace-native-smoke.ts",
+      "sha256": "96dfb6baa3f9b3664032070dcce7c577b2ba5ff901085e7973f6f18a2516832c"
+    },
+    "observation": "An unexpected scheduled frame appeared with unchanged owner/camera; actual draw stack reached Studio.run. In this input-free run the constructor500ms openRecovery callback returns while busy, but run.finally schedules draw.",
+    "fix": "Drain the known startup recovery workflow before installing the benchmark fixture, then retain strict pending-frame/camera/owner guards. Temporary draw wrapper removed.",
+    "scope": "Test harness stabilization only; ordinary application startup has no added wait."
+  },
+  "sceneBaseline": {
+    "raw": {
+      "path": "/private/tmp/mypaint-wk-scene-timing-final-sre-20261105/results.json",
+      "sha256": "3f1fb667dedae24846939684b59a2e817717ae101699254fe889662267465fbc"
+    },
+    "summary": {
+      "path": "/private/tmp/mypaint-wk-scene-timing-final-sre-20261105/summary.json",
+      "sha256": "15b5e560c60fc7294114e9ba455a08028dfd90893a3e7d977872d259e36115ce"
+    },
+    "app": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/scene-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "sha256": "a7682361faaa2fa29d14cf7df6c2819b5e9249dc25668bc37e50ca83d1dded5f"
+    },
+    "source": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/scene-source.json",
+      "sha256": "1a9f2da7e402d34fe9036ccf2738fa049a522f999a58ea9df46aab172c618a87"
+    },
+    "assets": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/scene-manifest.json",
+      "sha256": "5db3bc195ba11f827ab9804f8f65156497caa374f7febd33a18813df8dd8e95c"
+    },
+    "document": [
+      2048,
+      2048,
+      16
+    ],
+    "geometry": {
+      "canvas": [
+        1904,
+        1436
+      ],
+      "view": [
+        952,
+        718
+      ],
+      "derivedPaperMatrix": [
+        2,
+        0,
+        0,
+        2,
+        -602.5,
+        -307
+      ],
+      "devicePixelRatio": 2
+    },
+    "coldMs": [
+      101,
+      95,
+      91
+    ],
+    "unchangedSamples": 27,
+    "unchangedReportedRangeMs": [
+      0,
+      1
+    ],
+    "coldUploads": 96,
+    "coldPutImageDataBytes": 100499520,
+    "coldCaptures": 16,
+    "dirtyMs": [
+      15,
+      11,
+      14
+    ],
+    "maxTiles": 64,
+    "maxEstimatedBytes": 111436096
+  },
+  "apiDiagnostic": {
+    "summary": {
+      "path": "/private/tmp/mypaint-wk-api-profile-final-sre-20261105/summary.json",
+      "sha256": "b4bbf67e067d7afc22bbdc9d51f0b414a7221757a9dce8de652e3b59d987c778"
+    },
+    "controlRaw": {
+      "path": "/private/tmp/mypaint-wk-api-control-final-sre-20261105/results.json",
+      "sha256": "b1085a39ba09f01031b2d4b0f4fc534c83b38dac4502d96a1c8fa8b148ecae83"
+    },
+    "profileRaw": {
+      "path": "/private/tmp/mypaint-wk-api-profile-final-sre-20261105/results.json",
+      "sha256": "a1db71088ee2b35276d7d6ba24bca960497bd84ceafb1c933020d13e0ec14369"
+    },
+    "comparison": {
+      "path": "/private/tmp/mypaint-wk-api-profile-final-sre-20261105/comparison.json",
+      "sha256": "2e871807d45576e19254774d9cb502cd43434e9712e90cb12f0e8c6b77909f2a"
+    },
+    "controlApp": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/scene-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "sha256": "a7682361faaa2fa29d14cf7df6c2819b5e9249dc25668bc37e50ca83d1dded5f"
+    },
+    "profileApp": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/api-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "sha256": "7b8295511a3e092182c1b36417789cf71765fe3cbcba0fe0e29fbc7b2261d2e1"
+    },
+    "profileSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/api-source.json",
+      "sha256": "58aeac99fdd585774a31a906e16d7b62366bf533aba07bf667d5285a2b072384"
+    },
+    "profileAssets": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/api-manifest.json",
+      "sha256": "f1cf678d8bd363de768591157cf2ce8c698fd0ea26fd066ace4f0892e9c0f933"
+    },
+    "samples": "one control plus one instrumented process; not a before/after speed estimate",
+    "getImageDataCallsInsideRender": 0,
+    "cold": {
+      "controlRenderMs": 117,
+      "profileRenderMs": 103,
+      "putImageDataCalls": 96,
+      "putImageDataMs": 55,
+      "imageDataConstructors": 96,
+      "imageDataConstructorMs": 11,
+      "exclusiveApiMs": 71,
+      "unattributedMs": 32
+    },
+    "scope": "1ms quantization and instrumentation overhead apply. PutImageData API time is not a GPU transfer measurement. Unattributed time is not assigned to JS/GC. Main restore and capture copies reported0ms at this resolution; not proof of zero cost."
+  },
+  "maxMipComparison": {
+    "baselineRaw": {
+      "path": "/private/tmp/mypaint-wk-max-mip-reviewer-run-20261105-01/results.json",
+      "sha256": "b9094db0cc2b45dfa96d469804b9a8a81ceb572ffbeecccda8b4729438cf3b38"
+    },
+    "candidateRaw": {
+      "path": "/private/tmp/mypaint-wk-max-mip-reviewer-unroll-20261105-01/results.json",
+      "sha256": "2154694d265dcb012bf64af46615c0180d93eac2e798f8e01bb7081da80ae4b2"
+    },
+    "comparison": {
+      "path": "/private/tmp/mypaint-wk-max-mip-reviewer-unroll-20261105-01/baseline-comparison.json",
+      "sha256": "7486bacd232d51a94dbcd4485bb64494dc1ee055fb7a03859bc9dd08d6c5436d"
+    },
+    "baselineSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/mip-source.json",
+      "sha256": "8bff78cfc48c41d83ae8677562727249d04a54e0c8287de63d44f75c1541f275"
+    },
+    "candidateSource": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/unroll-source.json",
+      "sha256": "04060cc855de93c14dd6ca7f3648a8a25c507ed4a08378fc3ba81c1e7327cbd8"
+    },
+    "baselineAssets": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/mip-manifest.json",
+      "sha256": "be45a40002687774335a5cf62f2634d6d2502f66fcda38e3a91a8e3a1ee4e05c"
+    },
+    "candidateAssets": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/unroll-manifest.json",
+      "sha256": "dc76fbc37b66cd1874cabf882d7ab7b7c11202d73f8f9446c0bc905a35dcf07c"
+    },
+    "baselineApp": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/mip-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "sha256": "48d959a9e6de5be15d2783c06228af019cf08009178937d82a60909a19893770"
+    },
+    "candidateApp": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/unroll-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "sha256": "a10c784f417397f6a7eca7846e2b8b4ff9f79fce891bbf4b94ab72e3e8d4be89"
+    },
+    "geometry": {
+      "camera": [
+        1904,
+        1436,
+        952,
+        718,
+        0.1123046875,
+        16,
+        129,
+        2
+      ],
+      "document": [
+        8192,
+        4096,
+        2
+      ],
+      "matrix": [
+        0.224609375,
+        0,
+        0,
+        0.224609375,
+        32,
+        258
+      ],
+      "mipFactor": 4
+    },
+    "coldMs": {
+      "baseline": [
+        361,
+        345,
+        343
+      ],
+      "unroll": [
+        286,
+        272,
+        271
+      ],
+      "baselineMedian": 345,
+      "unrollMedian": 272,
+      "medianReductionPercent": 21.15942028985507
+    },
+    "steadyDirtyRollbackReportedRangeMs": [
+      0,
+      1
+    ],
+    "maxTiles": 30,
+    "maxEstimatedBytes": 34080768,
+    "correctness": "5fixture checks,12 timed samples,4 later replay hashes and2 authority passes per fresh process; all3 fresh runs match the baseline. No scene18/GIF3 claim for this render-only variant.",
+    "sourcePreparation": "Known white/raw-zero authority hashes are generated independently in Node. No target-buffer readback/hash before the timed batch; initialization is reported separately."
+  },
+  "finalSceneVerification": {
+    "raw": {
+      "path": "/private/tmp/mypaint-wk-scene-unroll-final-sre-20261105/results.json",
+      "sha256": "ede833cc0289e94fb95c87888c60eb8c0e272d8903561a2fee824a4055ac3c47"
+    },
+    "summary": {
+      "path": "/private/tmp/mypaint-wk-scene-unroll-final-sre-20261105/summary.json",
+      "sha256": "42ac788f9d5ea0775e46c9b7474dd541a73bc43a90c01ae2b3696ddd29d2a0d6"
+    },
+    "coldMs": [
+      135,
+      94,
+      94
+    ],
+    "unchangedSamples": 27,
+    "unchangedReportedRangeMs": [
+      0,
+      1
+    ],
+    "dirtyMs": [
+      12,
+      14,
+      14
+    ],
+    "retainedOutlierMs": 135,
+    "interleavedRaw": {
+      "path": "/private/tmp/mypaint-wk-interleave-final-sre-20261105/results.json",
+      "sha256": "f3be80296762abb6ef1789cb2143ee830ca6e69b146366a4dbc68c0526cd783b"
+    },
+    "interleavedSummary": {
+      "path": "/private/tmp/mypaint-wk-interleave-final-sre-20261105/summary.json",
+      "sha256": "2f39e8236be0d13bd535e6f10dd8a58ecde594d3b5c586dea1471a085a227680"
+    },
+    "interleavedColdMs": {
+      "A": {
+        "n": 3,
+        "samples": [
+          111,
+          96,
+          95
+        ],
+        "min": 95,
+        "median": 96,
+        "max": 111
+      },
+      "B": {
+        "n": 3,
+        "samples": [
+          92,
+          99,
+          94
+        ],
+        "min": 92,
+        "median": 94,
+        "max": 99
+      }
+    },
+    "interleavedOrder": "A/B, B/A, A/B;6 fresh processes. All source/geometry/authority/check/request/budget contracts match.",
+    "interpretation": "The135ms sample was not reproduced in the additional3 final samples but remains recorded. No p95/p99, stable-tail or50ms-goal certification."
+  },
+  "verification": {
+    "node": {
+      "tests": 166,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-node.log",
+        "sha256": "1be2b136f7780ec564b3f52cf346d1fc061a8adb9d9aa90901f5a986affc8119"
+      }
+    },
+    "typecheckBuild": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-build.log",
+      "sha256": "f9e675a36d86751e063a95ddf8596f09c734405dfe83feece60b020ec8f2a4dd"
+    },
+    "format": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "tiles": {
+      "mandatory": 74,
+      "informational": 4,
+      "totalRecords": 78,
+      "newSmallChecks": 11,
+      "newRawUploadChecks": 10,
+      "originalOwnerCancelUploads": 0,
+      "pageErrors": [],
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/unroll-tiles/results.json",
+        "sha256": "7c80b96d2e41a29cb74efacbd3976c07172d8a1db4c440778175ad2f82add1f0"
+      },
+      "provenance": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/unroll-tiles/reviewer-provenance.json",
+        "sha256": "8e92726c08ec53b0fecca059668d3a44f9da6048f275666e920ee50db3f2b18d"
+      },
+      "test": {
+        "path": "/Users/jhpark/code/myService/myPaint/web-app/tests/tiles.mjs",
+        "sha256": "6991f14c3b5b57b24c9b4d8eec10852b5012cf581f1abae43e628b9571aca97f"
+      },
+      "scope": "The candidate source and test are byte-identical to the adopted product. Existing4 informational RGBA comparisons retain their recorded differences; not78 byte-exact claims."
+    },
+    "browser": {
+      "checks": 10,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-browser/results.json",
+        "sha256": "30347c0d5d39dc49c95231e7c07d6875d4e10162279e19fbefeba49a8e87c360"
+      }
+    },
+    "actualMacOS": {
+      "processes": 4,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-native.json",
+        "sha256": "e24a8819ccdcfebe7232601d7b03a8130b422f4cf3552263d4de6735784362de"
+      },
+      "binary": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/wk-render/final-app/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "binaryAtExecution": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "binarySha256": "b3b0c8e2e2b36085238d51587a2a9a481f5c5741919712be4fc5a07ef49f4ff9",
+      "sceneChecks": 18,
+      "timedSamples": 12,
+      "gifChecks": {
+        "codec": true,
+        "checks": [
+          "gif-static-red-8x6",
+          "gif-animation-first-red",
+          "gif-transparent-rgba"
+        ]
+      },
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform."
+    }
+  },
+  "remaining": [
+    {
+      "priority": "P1",
+      "issue": "Initial16layer draw remains roughly90~100+ms with100MB requested uploads; evaluate viewport-external upload/initialization work with cache-validity and pixel oracles before changing policy."
+    },
+    {
+      "priority": "P1",
+      "issue": "Max-mip initial render remains271~286ms in the adopted experiment. Bounded preparation/worker scheduling needs a separate ownership, cancellation and memory design to address the UI blocking goal."
+    },
+    {
+      "priority": "P1",
+      "issue": "Cold tails, broad/corner dirty workloads and physical input/memory/long-session acceptance remain."
+    },
+    {
+      "priority": "Release gates",
+      "issue": "Remaining tool options, GIF native metadata/RSS, physical Android/Safari web, Windows execution, OS dialogs/IME/clipboard, staging/rollback and signing/notarization."
+    }
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "published": false,
+    "goalComplete": false
+  }
+}

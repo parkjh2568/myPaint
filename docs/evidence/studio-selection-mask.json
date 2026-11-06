@@ -1,0 +1,425 @@
+{
+  "date": "2026-11-05",
+  "status": "Three confirmed legacy selection/resize/crop contract defects fixed and final bounded acceptance passed; full migration/performance/platform acceptance remains open.",
+  "scope": {
+    "mobileTablet": "Web only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "noCommitPushDeployment": true
+  },
+  "issues": [
+    {
+      "id": "selection-membership",
+      "severity": "Major",
+      "cost": "M",
+      "trigger": "Integer diagonal and self-intersecting lasso paths.",
+      "rootCause": "Canvas AA coverage threshold>=128 represents pixel area, while the legacy aliased clip has different edge membership and integer pointer coordinates.",
+      "baseline": {
+        "path": "build-web-work/task-planning/selection-mask/contract-baseline/results.json",
+        "sha256": "ccdb95fe95683ab1548317092afc2eebab432c2e90023c51ef0952e54b619b40"
+      },
+      "baselineNarrowProbe": {
+        "path": "build-web-work/task-planning/selection-mask/probe-mask-baseline.json",
+        "sha256": "d6ab78b1550d4bab5a2a913965e876e4fb2d8c76cf2fbe8a7f09b32038e2fbfa"
+      },
+      "reproduction": "Four shape×keyOFF/ON cases: triangle/bowtie initial raw+PNG differ in4/8, concave/hole4 controls match. Same-path opaque probe: triangle5pixels/bowtie4 differ.",
+      "fix": "Floor/deduplicate lasso inputs, compute bbox inline without spread arrays; pure polygonMask uses aliased scan conversion and binary1B/pixel mask consumed consistently by lift/source-preview/source-clear."
+    },
+    {
+      "id": "nearest-boundary",
+      "severity": "Major",
+      "cost": "S/M",
+      "trigger": "Nearest resize lands exactly between source pixels, e.g.2→3.",
+      "rootCause": "The prior center Math.round tie chose the upper index; Qt FastTransformation chooses the lower one.",
+      "baseline": {
+        "path": "build-web-work/task-planning/selection-mask/nearest-before.log",
+        "sha256": "1d0fb8b3ad408bd9c9bb28ce49dd38d51c864331f4a153635e29c366890b4c97"
+      },
+      "reproduction": "Core baseline fails at2→1; public eight-case suite isolates6 nearest stage failures using observed initial payload independently of mask errors.",
+      "fix": "Use ceil(center)-1 in existing nearest branch. Preserve raw RGBA and metadata; smooth resize is unchanged. Existing clipboard expectation now uses literal Qt20→30 and20→25 maps rather than the old center formula."
+    },
+    {
+      "id": "negative-ui-crop",
+      "severity": "Major",
+      "cost": "S",
+      "trigger": "Partially/fully negative selection crop.",
+      "rootCause": "UI passed the whole selection rect to a generic crop API whose intentional contract pads outside bounds. Legacy UI crops the pending document intersection.",
+      "baseline": {
+        "path": "build-web-work/task-planning/selection-mask/crop-baseline-final/results.json",
+        "sha256": "8c2708d21291449eb68f7ed68a88f94624c605d399fd9126e5a90f714a2d6b91"
+      },
+      "reproduction": "Same final test baseline1PASS/3FAIL. Partial rect/lasso produced10×8 instead of7×6. Fully outside committed10×8 and discarded Redo instead of retaining pending NoOp.",
+      "fix": "Clip only the UI crop request to its nonnegative pending intersection, return before edit on empty intersection. Generic cropState padding API and tests remain intact."
+    }
+  ],
+  "architecture": {
+    "engineAlgorithmAdded": "polygonMask in existing engine/operations.ts. A real pixel-ownership algorithm shared by DOM integration, Node and WK validation; no statement-sized helper/new module/service introduced.",
+    "uiMethodsChanged": [
+      "pointerDown",
+      "pointerMove",
+      "pointerUp",
+      "makeSelection",
+      "draw source-preview",
+      "clearSelectionSource",
+      "command crop"
+    ],
+    "engineMethodsChanged": [
+      "polygonMask added",
+      "resizeState nearest branch"
+    ],
+    "stateFlow": "Floored pointer path→binary mask→straight-RGBA/key selection→owned resize/copy candidate→clear original source mask and clip destination→validate/prepare→commit. Cancel/failure retains prior document/Redo; unmodified selection is NoOp.",
+    "internalMask": "sourceMask RGBA4*S→Uint8Array S. Original source stride stays tied to source width after selected payload resize. Lifted source pixels4*S remain; explicit initial pixel+mask storage8*S→5*S plus O(path points/edges), not an RSS bound.",
+    "formatProfileRustCodecUnchanged": true,
+    "dependenciesAdded": 0,
+    "smallHelpersAdded": 0,
+    "moduleGraph": {
+      "path": "build-web-work/task-planning/selection-mask/static-review/module-graph.json",
+      "sha256": "393979222aef4d9e63e4b99be24b92a9502123d087231c7606d6432a8480bcc7"
+    },
+    "review": {
+      "path": "build-web-work/task-planning/selection-mask/static-review/final-review.json",
+      "sha256": "64577713084ad8e91b12fe964fbd493f0939bbf838cbeceab455ae1b97542c27"
+    },
+    "reviewer": {
+      "path": "build-web-work/task-planning/selection-mask/final-reviewer.json",
+      "sha256": "c084c2540c32634b2cd768d4390343b652ba371332d676889e4fa03706436127"
+    }
+  },
+  "qtOracles": {
+    "canvas": {
+      "cases": 13,
+      "checks": 160,
+      "report": {
+        "path": "build-web-work/task-planning/selection-mask/qt-oracle/qt-oracle.json",
+        "sha256": "6bd4e7751eeb2403bb68bf3bfdcd584d3c17aa56e7d94d486bb9521a221e7bd0"
+      },
+      "manifest": {
+        "path": "build-web-work/task-planning/selection-mask/qt-oracle/manifest.json",
+        "sha256": "75b955de002e9db2150f403f0b20c9d22fe34539e33204579cf8779839187a21"
+      },
+      "scope": "Actual Qt6.12 public Canvas events/clipboard and state/history for selection masks, negative movement, resizing, copy/cut/crop/cancel. Independent opaque-marker masks separate geometry from premultiplied stored RGB."
+    },
+    "maskLiterals": {
+      "cases": 871,
+      "fixture": {
+        "path": "web-app/tests/fixtures/polygon-mask-qt.json",
+        "sha256": "2092ad5964738d6719315912f52b444c7c469dea2915679da128d5ae8a9b0097"
+      },
+      "composition": {
+        "smallIntegerFractionalRetraceAndSeam": 601,
+        "largeExternal": 30,
+        "extremeExternal": 24,
+        "heldOutFarComplexAndReverse": 100,
+        "negativeOriginHalfTies": 8,
+        "actualDerivedViewports": 108
+      },
+      "reuseAudit": {
+        "path": "build-web-work/task-planning/selection-mask/static-review/oracle-reuse-review.json",
+        "sha256": "7f65491f1b6419e6aa21b51af7ec9536554c93139cfdd77c0e75bf3c56cfc9d3"
+      },
+      "scope": "Full raw input/viewport/mask multiset checked against six actual Qt datasets; these are engine masks, not871 public UI/hardware tests."
+    },
+    "nearest": {
+      "axisPairs": 1024,
+      "horizontalChecks": 1024,
+      "verticalChecks": 1024,
+      "fixture": {
+        "path": "web-app/tests/fixtures/nearest-qt.json",
+        "sha256": "daea09b2c405749b0fe23beec29ab7d54babf861c8c05cb1f8ee728ef09c54db"
+      },
+      "raw": {
+        "path": "build-web-work/task-planning/selection-mask/qt-oracle/nearest-axis.json",
+        "sha256": "e7a93da0faf15fe5fdd11df09e525bf8c4b45f02b2db9eea16d46b83c1cb0705"
+      },
+      "scope": "Source and destination dimensions1..32, opaque labels. Coordinate oracle only; raw RGB is not re-quantized into Qt storage."
+    },
+    "referenceSources": [
+      {
+        "title": "Qt6.12 outline mapping, viewport clip trigger and coordinate conversion",
+        "url": "https://github.com/qt/qtbase/blob/v6.12.0/src/gui/painting/qoutlinemapper.cpp"
+      },
+      {
+        "title": "Qt6.12 aliased rasterizer precision",
+        "url": "https://github.com/qt/qtbase/blob/v6.12.0/src/gui/painting/qrasterizer.cpp"
+      }
+    ]
+  },
+  "reviewReturnedToImplementation": [
+    {
+      "issue": "Initial alias candidate matched601 small masks but failed long external edges due to pre-clip precision.",
+      "before": {
+        "path": "build-web-work/task-planning/selection-mask/qt-extreme-clip-oracle/comparison.json",
+        "sha256": "40e23cdbba19cd4ebf9677041ebb66ac9756cff9cd2f4e791f3e09f3320af78c"
+      },
+      "fix": "When outside the legacy1024px trigger margin, clip the polygon before1/64 vertex quantization and16.16 scan conversion. Large30/extreme24/farcomplex100 were verified independently."
+    },
+    {
+      "issue": "World-coordinate rounding differs from device-local rounding at negative-origin exact half ties.",
+      "before": {
+        "path": "build-web-work/task-planning/selection-mask/qt-farcomplex-oracle/negative-origin-tie/comparison.json",
+        "sha256": "9eddf65c65a319bec2301f75a950c55a8a96e1e1efbd0133e4217a2f162ed6a5"
+      },
+      "fix": "Quantize clipped vertices relative to the output origin, then restore the integer origin; actual negative-origin8 and derived108 match."
+    },
+    {
+      "issue": "Universal crop-invariance was an incorrect test assumption.",
+      "record": {
+        "path": "build-web-work/task-planning/selection-mask/polygon-763.log",
+        "sha256": "d7b0a7a14823b0490e7d5dba0cfa3946e03789db170a20bec19422a52b707b12"
+      },
+      "proof": {
+        "path": "build-web-work/task-planning/selection-mask/qt-derived-viewport-oracle/comparison.json",
+        "sha256": "b3d3f615d84d868692fb19b3fdd8859aaf3653c0ca070f1e37c1fc174bb042e6"
+      },
+      "fix": "Actual Qt differs from full-mask slices in8 of108 derived viewports because clip-trigger/quantization changes. Replace the assumed slices with108 actual viewport literals. Full871 now pass. These are candidate/test findings, not additional pre-existing product defects."
+    }
+  ],
+  "verification": {
+    "node": {
+      "passed": 192,
+      "newTestDefinitions": 4,
+      "report": {
+        "path": "build-web-work/task-planning/selection-mask/node-final.log",
+        "sha256": "5c87711a0b558ce0d8279dbc4cc6c937e608422d6cdb5e06c885e36f0b221cc6"
+      },
+      "scope": "Includes871 actual Qt masks,1024 axis pairs in both orientations, invalid input and100k identical-point path. The last test is not nondegenerate worst-case timing."
+    },
+    "finalCIEntry": {
+      "command": "npm run test:selection-contract",
+      "log": {
+        "path": "build-web-work/task-planning/selection-mask/ci-alias.log",
+        "sha256": "c8626bdce66c49591307b66c741f1faa777e53849e3765d0126c4b8418b67f04"
+      },
+      "publicMask": {
+        "cases": 8,
+        "stageChecks": 88,
+        "report": {
+          "path": "build-web-work/task-planning/selection-mask/ci-alias/ui/results.json",
+          "sha256": "ff1967d31ad5655ff1108d9f295159c2c6787c275fc552b252ba2959437ba4b7"
+        }
+      },
+      "publicCrop": {
+        "cases": 4,
+        "report": {
+          "path": "build-web-work/task-planning/selection-mask/ci-alias/crop/results.json",
+          "sha256": "a0ee270716383da30d0f6999a09d9a667ec8b86f2201399368dca18679943771"
+        }
+      },
+      "failure": {
+        "cases": 6,
+        "report": {
+          "path": "build-web-work/task-planning/selection-mask/ci-alias/failure/results.json",
+          "sha256": "28f91808ae1a0d90607c6c4aa1f1632f1dd9c3d36b2eef142b9f1274d37d6890"
+        }
+      },
+      "scope": "Actual Chromium public UI, actual codec/geometry Workers, actual ClipboardItem PNG bytes and independent Node zlib decoding. Native file IPC/clipboard delivery/rejection modeled; no OS permission, physical input or hardware claim."
+    },
+    "independentPublicRuns": {
+      "mask": {
+        "path": "build-web-work/task-planning/selection-mask/contract-candidate-v3/results.json",
+        "sha256": "f4e7b04b4b10b9cd413851d8e074f9e25db9290a966c14a853c5756f6fe4cc5e"
+      },
+      "failure": {
+        "path": "build-web-work/task-planning/selection-mask/failure-candidate-v3/results.json",
+        "sha256": "28f91808ae1a0d90607c6c4aa1f1632f1dd9c3d36b2eef142b9f1274d37d6890"
+      },
+      "cropV1": {
+        "path": "build-web-work/task-planning/selection-mask/crop-reviewer-final.json",
+        "sha256": "bd1c64cb6ffe521761a91651e8c370e76afe0ff32686266e71a0bbc5d9332053"
+      },
+      "sreSummary": {
+        "path": "build-web-work/task-planning/selection-mask/sre-evidence/final-v3-summary.json",
+        "sha256": "e3622b3702600676194326ef80b2472f6faaf3e8efa50abe35ee8fc8f237d3db"
+      },
+      "scope": "Repeated/cross-reviewed evidence, not additional unique test counts. CropV1 predates mask kernel replacement; final CI-entry crop4 tests finalV3."
+    },
+    "existingFinalRegressions": {
+      "webPassed": 48,
+      "pendingPassed": 36,
+      "clipboardPassed": 4,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/selection-mask/browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-mask/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-mask/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-mask/storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-mask/shear/results.json",
+          "sha256": "a6668c5b3bca7c23540a9b155f094a71323233be7964ebd2703585e292f5973d"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-mask/pending/results.json",
+          "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-mask/clipboard/results.json",
+          "sha256": "24a509032d313e306b83a28244c65e84a01b93501c9eb644bf1fa4e684ab7d62"
+        }
+      ]
+    },
+    "WKDiagnostic": {
+      "masks": 871,
+      "axisPairs": 1024,
+      "horizontalChecks": 1024,
+      "verticalChecks": 1024,
+      "workerCases": 4,
+      "report": {
+        "path": "build-web-work/task-planning/selection-mask/native-selection/results.json",
+        "sha256": "eeafe442d15f24dd3c43a7b2c659cbc744409f489156815541f020426d8a0c36"
+      },
+      "source": {
+        "path": "build-web-work/task-planning/selection-mask/native-selection/source.json",
+        "sha256": "318827600baaeaeb48408d9159e2056e98117978d8acfb615c7c513a9988061b"
+      },
+      "overlay": {
+        "path": "build-web-work/task-planning/selection-mask/native-selection/manifest.json",
+        "sha256": "0634d4a02bb5200a5052e32689b393431661299d09aa74b563d88a949cec8695"
+      },
+      "assets": {
+        "path": "build-web-work/task-planning/selection-mask/native-selection/assets.json",
+        "sha256": "38fc556045e0053a11298022a678cb60963c71adcd74a3e8e44d8d8abe33e3f0"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/selection-mask/native-selection/app.json",
+        "sha256": "1a7d1ea489c6d46a67ee54eee3b43a73dc078d76222ca1045bb9bdd2a0d981fc"
+      },
+      "scope": "Actual WK JavaScriptCore direct engine plus real runGeometry Worker. Temporary render branch only; no public UI, UI history, physical input, OS integration or performance claim."
+    },
+    "macOSOrdinary": {
+      "phasesPassed": 4,
+      "sceneChecks": 21,
+      "report": {
+        "path": "build-web-work/task-planning/selection-mask/native-desktop.json",
+        "sha256": "909ab4bb6bf0c96f527cd1396f05c5d80dde10e354b95eeb9e979555579a1e87"
+      },
+      "foreground": {
+        "path": "build-web-work/task-planning/selection-mask/native-desktop.json.foreground.json",
+        "sha256": "fadc5149326b7583f8d1f58a1fafbe612cab2f0ec6e9fbbdc81400b9da9004ee"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/selection-mask/final-app.json",
+        "sha256": "22ad0d31c3fc9302f9c6deede0f52d80c7bdc8b3c5aade7e285d8fd052f7984a"
+      },
+      "binarySHA256": "82f923a5d35677aa1b8061f6c54d02e7fd7202936594eac1f7772f34bf48cc3f",
+      "scope": "Standard-build app without overlay; original recovery/codec/quit/scene assertions and isolated persistence, activation-assisted. No OS dialogs/signing/physical latency/performance acceptance."
+    },
+    "format": {
+      "path": "build-web-work/task-planning/selection-mask/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "webBuild": {
+      "path": "build-web-work/task-planning/selection-mask/build-v3.log",
+      "sha256": "3fe0f1f70251db9cea77e19c2113fa6ce9758dc4862060602940056343a2b2a2"
+    },
+    "desktopBuild": {
+      "path": "build-web-work/task-planning/selection-mask/final-desktop-build.log",
+      "sha256": "246a9b2a2781e40e5936755f5bf52a6daeb5d81fe0b8fb87155e26e034a2b43e"
+    }
+  },
+  "performance": {
+    "raw": {
+      "path": "build-web-work/task-planning/selection-mask/mask-performance/results.json",
+      "sha256": "59e72cb147ccb45d9a01592bbf61ed341445899bb0ed4c7d8072b85a641fea89"
+    },
+    "independentAudit": {
+      "path": "build-web-work/task-planning/selection-mask/mask-performance/review.json",
+      "sha256": "1345434a0adefd4450030d4d9ab58eb42546fd12c5657103e70124de2507ed3b"
+    },
+    "postRunHTTP": {
+      "path": "build-web-work/task-planning/selection-mask/mask-performance/post-http-check.json",
+      "sha256": "059333f3441339e877a29189f318527dc949d8433149d581ae1f7180f5d4754d"
+    },
+    "samples": 64,
+    "scenarios": "512²/1024² rectangle, concave, hole,66-point comb; axis-aligned masks whose full before/after literal output matches. Four interleaved samples per side,2 warmups; GC/setup/checks/hash excluded from timing.",
+    "median1024ms": [
+      {
+        "shape": "rectangle",
+        "before": 58.65000003576279,
+        "after": 0.2500000596046448
+      },
+      {
+        "shape": "concave",
+        "before": 37.700000047683716,
+        "after": 0.20000004768371582
+      },
+      {
+        "shape": "hole",
+        "before": 31.30000001192093,
+        "after": 0.30000001192092896
+      },
+      {
+        "shape": "comb",
+        "before": 47.44999998807907,
+        "after": 0.8999999761581421
+      }
+    ],
+    "explicitMaskOutput1024Bytes": {
+      "before": 4194304,
+      "after": 1048576,
+      "saved": 3145728
+    },
+    "returnedReadback1024Bytes": {
+      "before": 4194304,
+      "after": 0,
+      "scope": "Cumulative returned ImageData buffers per mask call, not simultaneous live/peak memory. Mask path only, not all application rendering."
+    },
+    "limits": [
+      "Pure mask-kernel comparison, not entire selection lift/UI/Worker/native/physical latency, peak RSS or worst-path acceptance.",
+      "512 rectangle202ms is the median of395.3/8.7/7.4/779ms; large variance and512 hole438.5ms sample retained. Some after0ms values are below timer resolution. No stable multiplier or universal speedup claim.",
+      "JS edge/clipping arrays, Canvas internals, application copies and whole-process memory excluded.",
+      "Correctness jobs were terminal before measurement; dedicated-machine/exclusive quiescence is not proved. Execution-time HTTP response hash absent; local bundle hash and later HTTP equality are preserved."
+    ]
+  },
+  "snapshots": {
+    "before": {
+      "path": "build-web-work/task-planning/selection-mask/before-source.json",
+      "sha256": "2b1307658337a59bd4a6333894ff302f6951b1901f551ccc159fed528f018a91"
+    },
+    "finalSource17": {
+      "path": "build-web-work/task-planning/selection-mask/final-source.json",
+      "sha256": "bf63407a1d7ccddb30b6b2cb10fb3d6aaf24a18027bbf20a6583ab471976ed22"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/selection-mask/candidate-v3-assets.json",
+      "sha256": "b07f0ee23f3bbaf206c46a90ce82a048cb80507dd63706e10fb7e653aaef1be7"
+    },
+    "testsAndCI": {
+      "path": "build-web-work/task-planning/selection-mask/final-tests.json",
+      "sha256": "7b77e63c538af7a328bb9ee4c30fe71b1f446b25d3a07fac1daeb2813bc887b8"
+    },
+    "frontendFiles": 14,
+    "rustFiles": 3
+  },
+  "diagnosticCorrections": [
+    "Baseline UI36 stage failures include dependent assertions and are not36 independent defects. Initial mask4/8 and isolated nearest6/8 are distinct sampled failures.",
+    "SRE prior chat frontend15 wording was incorrect; manifests use frontend14+Rust3=17.",
+    "Selector/menu name, asynchronous job waits and native BUTTON Enter focus errors were harness problems; final same-driver baseline/candidate and traces are preserved separately.",
+    "Canvas-readback failure baseline proves the removed path only; final failure suite injects actual1024B Uint8Array mask allocation once and verifies injection count1.",
+    "Baseline601/final871 and formatter byte changes are historical inputs, not current-file byte equality. Parsed literal equality/current CI fixture hashes are checked.",
+    "A misplaced temporary test-generation cwd was a harness setup error before test creation; preserved in the harness-path-error directory and nearest-startup-missing-test.log, not a product failure."
+  ],
+  "cleanup": {
+    "path": "build-web-work/task-planning/selection-mask/cleanup.json",
+    "sha256": "b5d7a5c1a777915fa01884353888953efb3bab2395507832c2204460da6ca05f"
+  },
+  "openGates": [
+    "Remaining F06/tool/format combinations, pasted selection without source, single-layer transparent-background hidden RGB Source-clear policy, rotate/flip/mask/resize/cancel sequences",
+    "Nondegenerate huge active-edge paths and synchronous pointer responsiveness; long-session/RSS and actual maximum documents",
+    "Matched-DPR WK checker and broad/disjoint dirty rendering",
+    "Android physical web input/recovery, Safari web, Windows executable, real OS dialogs/IME and actual disk-shortage/atomic-replacement failures",
+    "Native GIF decoder internal memory, remote CI, signing/notarization and safe homepage staging/rollback/public release"
+  ]
+}

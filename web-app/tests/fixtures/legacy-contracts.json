@@ -1,0 +1,959 @@
+{
+    "schema": 1,
+    "scope": "QF-02 bounded reference inputs/expected behavior and allowed raster differences. Inventory is not all-options/new-UI/platform/performance acceptance. Existing fixes stay fixed unless a new reproducible contradiction is found.",
+    "run": {
+        "independentNode": "npm --prefix web-app test",
+        "legacyQt": "cmake --build build-native-relocated --target core_tests ui_tests allocation_tests --parallel 2; ctest --test-dir build-native-relocated --output-on-failure --parallel 2",
+        "sprayConsumer": "npm --prefix web-app run test:spray-contract (local production-assets server required)",
+        "producer": "See contracts-README.md; regeneration writes a separate output and must not replace stored expectations automatically."
+    },
+    "policies": {
+        "stored-rgba": {
+            "mandatory": "Existing decoded/stored straight RGBA and alpha0 hidden RGB, dimensions and metadata are exact where the named raw fixture applies. Mask/outside-source bytes are exact.",
+            "allowance": "No blanket pixel tolerance. Decoder color conversion/legacy premultiplication is separately declared."
+        },
+        "qt-premultiplied": {
+            "mandatory": "Alpha exact; Qt reference channel equivalence uses round(channel*alpha/255). Named geometry masks/row spans remain exact.",
+            "allowance": "Qt pixelColor unpremultiplication need not equal newly stored straight RGB; this does not relax source-file raw preservation."
+        },
+        "raster-local": {
+            "mandatory": "Named input bounds, geometry/interior/color/alpha, commit count and state behavior; exact masks remain exact when explicitly referenced.",
+            "allowance": "QPainter versus Canvas2D boundary antialiasing/soft-dab rasterization may differ under the recorded per-case policy. No permission for missing geometry, broader dirty regions or hidden data changes."
+        },
+        "text-local": {
+            "mandatory": "Text value/preedit/clip/viewport/alpha and pending ownership; existing rasterized text pixels are stored pixels.",
+            "allowance": "New glyph rasterization depends on installed font/OS/backend. Cross-OS glyph identity is not a baseline requirement; OS IME acceptance remains separate."
+        },
+        "state-exact": {
+            "mandatory": "Preserve the state fields actually observed by each owner: engine revision/saved IDs in engine tests, public dirty/saved/pending and replayed Redo in public tests. Files/candidates install only on success.",
+            "allowance": "Public UI assertions do not claim private numeric revision observations or actual OS delivery."
+        }
+    },
+    "fixes": [
+        {
+            "id": "F01",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "selection": [20, 20],
+                "resize": [30, 25],
+                "quarterTurn": [25, 30],
+                "pasteExtent": [45, 35]
+            },
+            "expected": {
+                "copySize": [30, 25],
+                "rotatedSize": [25, 30],
+                "cropSize": [45, 35],
+                "history": "one Undo restores original dimensions"
+            },
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "resizedSelectionCopyAndRotate",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/clipboard-contract.mjs",
+                    "anchor": "Resized pending selection copies 30x25 exact",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "OS clipboard permission and arbitrary transform order remain platform/feature acceptance."
+        },
+        {
+            "id": "F02",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "owner": "left",
+                "other": "middle",
+                "events": ["owner down", "other down", "other up", "owner up"]
+            },
+            "expected": {
+                "gesture": "other button does not replace/end owner",
+                "history": "one edit, exact Undo/Redo"
+            },
+            "policies": ["state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "gestureOwnsItsButton",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/pointer-contract.mjs",
+                    "anchor": "owner",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Other device mixtures are separate input acceptance."
+        },
+        {
+            "id": "F03",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "layers": "two identical names/pixels in distinct buffers",
+                "operation": "explicit reorder, active-index restoration"
+            },
+            "expected": {
+                "structure": "reorder remains historical",
+                "active": "restored by Undo/Redo",
+                "saved": "revision IDs remain distinct"
+            },
+            "policies": ["state-exact"],
+            "references": [
+                {
+                    "path": "tests/core_tests.cpp",
+                    "anchor": "reorderedIdenticalLayers",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/metadata.test.ts",
+                    "anchor": "identical layer names and RGBA still reorder",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Full layer UI/device permutations remain feature acceptance."
+        },
+        {
+            "id": "F04",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "pending": ["selection", "text", "curve", "polygon"],
+                "actions": ["begin", "cancel", "commit"]
+            },
+            "expected": {
+                "undo": "enabled while pending",
+                "redo": "disabled while pending, restored on cancel"
+            },
+            "policies": ["state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "pendingActionsAndReleaseModifiers",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/pending-contract.mjs",
+                    "anchor": "redo",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "These are command ownership baselines, not every device/option."
+        },
+        {
+            "id": "F05",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "pending": ["selection", "text", "curve", "polygon"],
+                "failures": ["save cancel", "save failure", "close cancel", "size cancel"]
+            },
+            "expected": {
+                "pixels": "unchanged",
+                "pending": "preserved",
+                "path": "unchanged",
+                "redo": "preserved",
+                "successfulRetry": "commits once"
+            },
+            "policies": ["state-exact", "stored-rgba"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "pendingCommandsPreserveState",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/pending-contract.mjs",
+                    "anchor": "save_cancel",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "OS picker, ENOSPC and other host failure acceptance are separate."
+        },
+        {
+            "id": "F06",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "operations": [
+                    "outside-document selection move",
+                    "resize",
+                    "zoom",
+                    "rejected oversized candidate"
+                ]
+            },
+            "expected": {
+                "bounds": "follow displayed candidate",
+                "rejection": "original, pending and history unchanged"
+            },
+            "policies": ["state-exact", "stored-rgba"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "rejectedSelectionMoveIsUnchanged",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/crop.test.ts",
+                    "anchor": "crop rejects non-integer coordinates",
+                    "role": "studio-consumer"
+                },
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::resizedSelectionCopyAndRotate()",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/editing.mjs",
+                    "anchor": "Two-finger navigation restores a provisional selection",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "All transform-order and device combinations are not implied."
+        },
+        {
+            "id": "F07",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "state": "visible background, translucent active layer, hidden other layer",
+                "action": "cut with no selection"
+            },
+            "expected": {
+                "payload": "active raw RGBA only",
+                "change": "clear only active layer",
+                "undo": "restore active bytes",
+                "copy": "visible composite"
+            },
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "cutUsesActiveLayer",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/clipboard-contract.mjs",
+                    "anchor": "cut",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Actual OS clipboard delivery remains separate."
+        },
+        {
+            "id": "F08",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "events": ["unconstrained shape move", "same-position release with Shift"]
+            },
+            "expected": {
+                "geometry": "final modifier is applied",
+                "history": "single edit"
+            },
+            "policies": ["raster-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "pendingActionsAndReleaseModifiers",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/pointer-contract.mjs",
+                    "anchor": "Shift",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Physical modifier delivery and other options remain separate."
+        },
+        {
+            "id": "F09",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "edits": 4106,
+                "historyLimit": 4096,
+                "actions": ["undo", "shrink budget", "branch after saved state"]
+            },
+            "expected": {
+                "pixels": "unchanged by pruning",
+                "history": "at most4096, nearest oversized entry allowed",
+                "saved": "unique IDs, no stale clean branch",
+                "redo": "nearest remaining future preserved"
+            },
+            "policies": ["state-exact"],
+            "references": [
+                {
+                    "path": "tests/core_tests.cpp",
+                    "anchor": "historyLimitsAtUndoPosition",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/history.test.ts",
+                    "anchor": "4096 history boundary",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "History byte accounting is not total process memory."
+        },
+        {
+            "id": "F10",
+            "legacyStatus": "fixed-reference",
+            "input": {
+                "actions": [
+                    "cancel staged write",
+                    "complete an old recovery generation",
+                    "retry current operation"
+                ]
+            },
+            "expected": {
+                "files": "original or newer snapshot preserved",
+                "document": "no stale asynchronous replacement",
+                "cancel": "owner releases resources"
+            },
+            "policies": ["state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "recoveryDiscardsStaleSnapshot",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/native-persistence.mjs",
+                    "anchor": "old generation",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Performance targets, tail latency and RSS are QF-03/QF-24, not fixture acceptance."
+        }
+    ],
+    "tools": [
+        {
+            "id": "brush",
+            "input": "press→move→release; opaque/soft/opacity endpoint and cancel literals",
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["raster-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "smoothBrushEndpointsAndUndo",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/core.test.ts",
+                    "anchor": "stroke overlap opacity",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "pencil",
+            "input": "hard square size1; options ignored, one gesture and exact Undo",
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["qt-premultiplied", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "pencilAndUndo",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/eraser-picker-contract.mjs",
+                    "anchor": "pencil-Qt-slope-7-1-literal",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "eraser",
+            "input": "single/multilayer erasure; hiddenRGB NoOp, one Undo and cancel",
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "brushEraserAndPicker",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/eraser-picker-contract.mjs",
+                    "anchor": "transparent-half",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "fill",
+            "input": "bounded region with literal membership/alpha key; cancel does not install",
+            "expected": {
+                "document": "only matched connected active-layer region changes",
+                "history": "one effective fill; true NoOp creates no entry; cancellation preserves Redo"
+            },
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "fillAndHiddenLayer",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/flood-key.test.ts",
+                    "anchor": "actual Qt fill membership",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "picker",
+            "input": "visible composite sample; left/right routing, outside NoOp",
+            "expected": {
+                "document": "exactly unchanged RGBA/layers/metadata",
+                "history": "no entry; existing Redo preserved",
+                "ui": "foreground/secondary color from visible sample"
+            },
+            "policies": ["state-exact", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "brushEraserAndPicker",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/eraser-picker-contract.mjs",
+                    "anchor": "스포이트",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "spray",
+            "input": "fixed35ms tick and16 RNG values, literal five-point raster; release/cancel stops timer",
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "lostMouseGrabStopsSpray",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/spray-contract.mjs",
+                    "anchor": "spray-literal.json",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "color-eraser",
+            "input": "local capsule foreground→target matching; raw outside bytes, cancel/NoOp",
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["qt-premultiplied", "state-exact"],
+            "references": [
+                {
+                    "path": "web-app/tests/fixtures/color-eraser-qt-oracle.cpp",
+                    "anchor": "click-local-disk",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/color-eraser-qt.test.ts",
+                    "anchor": "all 18 captures",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "line",
+            "input": "endpoint/color/button/Shift geometry and single commit",
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["raster-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "shapes_data",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/shape-color-contract.mjs",
+                    "anchor": "직선",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "curve",
+            "input": "accepted controls and provisional color ownership; cancellation",
+            "expected": {
+                "document": "unchanged while pending; only declared pixels may change on accepted final commit",
+                "history": "no entry while pending; one effective final commit; cancel preserves prior Redo",
+                "pending": "Accepted preview/points/text survive cancellation or rejection of surrounding save/close/size commands. Cancelling the pending operation itself with Escape discards it and restores prior authority/Redo."
+            },
+            "policies": ["raster-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "curveAndPolygon",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/shape-color-contract.mjs",
+                    "anchor": "curve",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "rectangle",
+            "input": "corner bounds, fill/stroke color and same-position Shift release",
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["raster-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "shapes_data",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/shape-color-contract.mjs",
+                    "anchor": "사각형",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "roundrect",
+            "input": {
+                "legacy": "Qt shapes_data/shapes: press10,10 → release50,40; dirty then Undo returns original. This reference asserts workflow, not the Studio maximum12 raster.",
+                "studio": "Declared independent-axis maximum12, float/degenerate/negative/Shift geometry policy, verified by roundrect-contract.mjs."
+            },
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["raster-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "shapes_data",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/roundrect-contract.mjs",
+                    "anchor": "roundrect",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "ellipse",
+            "input": "bounding geometry and fill/stroke/button alpha; Shift circle",
+            "expected": {
+                "document": "only declared stroke/raster pixels change under the per-case visibility policy",
+                "history": "one effective accepted gesture; cancel preserves original pixels and prior Redo"
+            },
+            "policies": ["raster-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "shapes_data",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/shape-color-contract.mjs",
+                    "anchor": "타원",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "polygon",
+            "input": "accepted vertices/closure and retained pending colors",
+            "expected": {
+                "document": "unchanged while pending; only declared pixels may change on accepted final commit",
+                "history": "no entry while pending; one effective final commit; cancel preserves prior Redo",
+                "pending": "Accepted preview/points/text survive cancellation or rejection of surrounding save/close/size commands. Cancelling the pending operation itself with Escape discards it and restores prior authority/Redo."
+            },
+            "policies": ["raster-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "curveAndPolygon",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/shape-color-contract.mjs",
+                    "anchor": "polygon",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "select",
+            "input": "rectangular crop/move/resize; key mask and source bytes outside selection",
+            "expected": {
+                "document": "unchanged while pending; only declared pixels may change on accepted final commit",
+                "history": "no entry while pending; one effective final commit; cancel preserves prior Redo",
+                "pending": "Accepted preview/points/text survive cancellation or rejection of surrounding save/close/size commands. Cancelling the pending operation itself with Escape discards it and restores prior authority/Redo."
+            },
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "resizedSelectionCopyAndRotate",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/selection-alpha-contract.mjs",
+                    "anchor": "alpha",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "lasso",
+            "input": "external Qt polygon masks/holes/negative coordinates; outside source unchanged",
+            "expected": {
+                "document": "unchanged while pending; only declared pixels may change on accepted final commit",
+                "history": "no entry while pending; one effective final commit; cancel preserves prior Redo",
+                "pending": "Accepted preview/points/text survive cancellation or rejection of surrounding save/close/size commands. Cancelling the pending operation itself with Escape discards it and restores prior authority/Redo."
+            },
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "freeSelectionKeepsOutsidePixels",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/polygon-mask.test.ts",
+                    "anchor": "polygon mask matches 871 literal Qt aliased clips",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "text",
+            "input": "Unicode/preedit state, viewport clip, alpha composition and cancellation",
+            "expected": {
+                "document": "unchanged while pending; only declared pixels may change on accepted final commit",
+                "history": "no entry while pending; one effective final commit; cancel preserves prior Redo",
+                "pending": "Accepted preview/points/text survive cancellation or rejection of surrounding save/close/size commands. Cancelling the pending operation itself with Escape discards it and restores prior authority/Redo."
+            },
+            "policies": ["text-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "koreanTextCommit",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/text-alpha-contract.mjs",
+                    "anchor": "문자",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        },
+        {
+            "id": "pan",
+            "input": "viewport moves while pixels/history/pending colors stay unchanged",
+            "expected": {
+                "document": "exactly unchanged RGBA/layers/metadata",
+                "history": "No document edit. Reference observes composite/dirty or full source preservation; pre-existing Redo seed/replay is not asserted by this pan owner.",
+                "ui": "camera translation only"
+            },
+            "policies": ["state-exact", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "panDoesNotEdit",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/scene-contract.mjs",
+                    "anchor": "name: '화면 이동'",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+        }
+    ],
+    "data": [
+        {
+            "path": "web-app/tests/fixtures/qt-project.json",
+            "sha256": "529e69a04a8173302deb7f508d4eb98c712a74a913944345af54d4e13defd189",
+            "kind": "recorded-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/color-eraser-qt.json",
+            "sha256": "a09ff6b0af2143853fb860900ff0fe04c0216fbfca69e7f664ae6e2936d3e2dc",
+            "kind": "recorded-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/flood-key-qt.json",
+            "sha256": "647597fac29ec52d3d4b75921caa1256013e453a2b54b9e81fb190c39d627e21",
+            "kind": "recorded-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/nearest-qt.json",
+            "sha256": "daea09b2c405749b0fe23beec29ab7d54babf861c8c05cb1f8ee728ef09c54db",
+            "kind": "recorded-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/polygon-mask-qt.json",
+            "sha256": "2092ad5964738d6719315912f52b444c7c469dea2915679da128d5ae8a9b0097",
+            "kind": "recorded-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/polygon-mask-dense-qt.json",
+            "sha256": "10ed75e5f76528359015b1f843400a0d4a512351b21f6ce317d13616111f9639",
+            "kind": "derived-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/square-qt.json",
+            "sha256": "329d82a51f76f7070e5fcdc822216df847a6d1fe83fbd5934a7aa2fb00741f42",
+            "kind": "recorded-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/square-wide-qt.json",
+            "sha256": "fec3b107adf7651c92c35fe3c617d730c013ed38818b0a1ebbbfbbae3c482841",
+            "kind": "derived-qt",
+            "scope": "Recorded Qt zero-length line, point and segment coverage combined by per-row union for the complete press/move gesture. Not a direct single-gesture capture; no Studio output generates expected data."
+        },
+        {
+            "path": "web-app/tests/fixtures/square-thin-qt.json",
+            "sha256": "46226d404651403b4bd948e48306dd8ef4846f6ab3afaace74a70da862a49861",
+            "kind": "recorded-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/square-ui-qt.json",
+            "sha256": "0ce7a0cf3b5e76d51a16a96bc5698f8b4418c128a279c2324dc3bf975a1548f2",
+            "kind": "recorded-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/masked-transform-literal.json",
+            "sha256": "70600b991a9380581864dee1651e5584fc9da8237c541d00c17ccb66e8c311a7",
+            "kind": "mixed-literal-qt",
+            "scope": "Authored label matrices plus resize tables derived from recorded Qt nearest-axis mappings; independent of Studio expected raster generation."
+        },
+        {
+            "path": "web-app/tests/fixtures/masked-transform-qt-resize.json",
+            "sha256": "b0de050dd604cd32595e2569e7e2bd375fbb52309326581aede419f60c163dae",
+            "kind": "derived-qt",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/fixtures/gif-input.json",
+            "sha256": "6aeced81af06fef9ad42ddf4221685d4543d62271176e2a1255ad5b909b4df72",
+            "kind": "independent-wire",
+            "scope": "Frozen reference, not regenerated by Studio. Read the file scope and selected consumer policy; a fixture does not establish all UI/platform parity."
+        },
+        {
+            "path": "web-app/tests/format-compat.test.ts",
+            "sha256": "1d71e03f491054117714bec68154b8efad4fa70a38bf20003230bc6e7fe199b3",
+            "kind": "independent-wire-producer",
+            "scope": "UI-independent producer. PNG wire builder uses Node zlib/bitwise CRC plus literal expected values; Qt producer links paintcore/QtCore/Gui."
+        },
+        {
+            "path": "web-app/tests/fixtures/qt-project-oracle.cpp",
+            "sha256": "80f6e3d972bd0bdc8ff8ce574d786e8f1dd3a3c5939390a6ac84eea5631b985e",
+            "kind": "legacy-qt-producer",
+            "scope": "UI-independent producer. PNG wire builder uses Node zlib/bitwise CRC plus literal expected values; Qt producer links paintcore/QtCore/Gui."
+        },
+        {
+            "path": "web-app/tests/fixtures/spray-literal.json",
+            "sha256": "60a9555e9a7ecfe87c68fc3ea65862aa6853406d5a33fe69f69cc9a957087005",
+            "kind": "independent-literal",
+            "scope": "Explicit RNG/time inputs and five literal pixel coordinates; no product rasterizer used to generate expected data. Not a random-distribution or physical-time claim."
+        }
+    ],
+    "formats": {
+        "validProject": {
+            "source": "web-app/tests/fixtures/qt-project.json",
+            "expected": "32×24, two Unicode layers, active1, transparent background, full alpha+Qt-premultiplied channel reference"
+        },
+        "independentWire": {
+            "source": "web-app/tests/format-compat.test.ts",
+            "expected": "All named PNG types/depths/filters/Adam7 and independently assembled little-endian project records; literal RGBA"
+        },
+        "malformed": {
+            "source": [
+                "tests/core_tests.cpp",
+                "web-app/tests/format-compat.test.ts",
+                "web-app/tests/decoder-boundaries.test.ts"
+            ],
+            "expected": "Invalid/truncated/trailing/UTF8/count/bounds input rejects before replacing a document; selected independent wire errors reject in standalone decoder tests.",
+            "seedKind": "Mixed: independent wire producer plus mutations of product-encoded seeds. Mutation tests are not an independent encoder oracle."
+        },
+        "transparentPng": {
+            "source": "web-app/tests/format-compat.test.ts",
+            "expected": "Literal alpha0, partial alpha and opaque samples; exact independent expected bytes after decoding"
+        }
+    },
+    "domains": [
+        {
+            "id": "layers",
+            "input": "Legacy20x10 blank: add visible red layer active1, hide, Undo twice, Redo twice; identical-layer permutation is F03.",
+            "expected": "Composite red→white; Undo removes added layer and clears dirty; Redo restores active1 and hidden visibility. Rename/reorder metadata and pixel ownership use separate literal engine assertions.",
+            "policies": ["state-exact", "stored-rgba"],
+            "references": [
+                {
+                    "path": "tests/core_tests.cpp",
+                    "anchor": "void CoreTests::layerHistory()",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/metadata.test.ts",
+                    "anchor": "metadata history owns no pixel buffers",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Public add/delete button parity is not established by these engine/reference cases; QF-16 remains separate."
+        },
+        {
+            "id": "undo",
+            "input": "Commit red, mark saved, Undo; prepare blue, fail write, then replay the retained Redo.",
+            "expected": "Original pixels/revision/dirty and Redo survive failure; successful Redo returns saved red state.",
+            "policies": ["state-exact"],
+            "references": [
+                {
+                    "path": "tests/core_tests.cpp",
+                    "anchor": "void CoreTests::preparedEditPreservesRedo()",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/core.test.ts",
+                    "anchor": "save revision remains unique across branch",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Preparation ownership is not every OS write-failure mode."
+        },
+        {
+            "id": "pending-selection",
+            "input": "Paste/move/resize pending selection; cancel or complete the declared single gesture.",
+            "expected": "Only a successful commit changes authority/history; cancel retains original outside bytes and prior Redo.",
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::pasteMoveResizeUndo()",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/pending-contract.mjs",
+                    "anchor": "selection",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "All transform orders and physical input are feature/platform acceptance."
+        },
+        {
+            "id": "pending-text",
+            "input": "Text tool/preedit 한; pending candidate rejects until commit-string 한글 ABC; settle and Undo.",
+            "expected": "Text/preedit stays pending on rejection; commit changes state once, Undo returns clean. New glyph edges are backend-local.",
+            "policies": ["text-local", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::preeditCannotBeSilentlyDiscarded()",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/pending-contract.mjs",
+                    "anchor": "text",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Actual OS IME/glyph/font acceptance is separate."
+        },
+        {
+            "id": "storage-failure",
+            "input": "Prepare a staged save and cancel or fail before atomic publication.",
+            "expected": "Existing file and pending document/history remain; successful publication is not reported as an uncommitted save.",
+            "policies": ["state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::cancelStagedSavePreservesFile()",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/native-persistence.mjs",
+                    "anchor": "save",
+                    "role": "studio-consumer"
+                }
+            ],
+            "deferred": "Mock IPC is not actual OS picker/ENOSPC/Windows I/O."
+        },
+        {
+            "id": "clipboard-recovery",
+            "input": "Text cut while editor owns selection; image cut active layer; stale recovery completes after a newer document.",
+            "expected": "Text cut does not clear layer pixels; image payload follows F07; stale work preserves current document/new recovery.",
+            "policies": ["stored-rgba", "state-exact"],
+            "references": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::textClipboardDoesNotCutLayer()",
+                    "role": "legacy-input-and-assertion"
+                },
+                {
+                    "path": "web-app/tests/native-persistence.mjs",
+                    "anchor": "old generation",
+                    "role": "studio-consumer"
+                },
+                {
+                    "path": "web-app/tests/clipboard-contract.mjs",
+                    "anchor": "cut",
+                    "role": "studio-consumer"
+                },
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::recoveryDiscardsStaleSnapshot()",
+                    "role": "legacy-input-and-assertion"
+                }
+            ],
+            "deferred": "OS clipboard permissions and full recovery migration/platform gates remain.",
+            "relatedFixes": ["F07", "F10"]
+        }
+    ]
+}

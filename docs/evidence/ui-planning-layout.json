@@ -1,0 +1,1619 @@
+{
+  "browser": "156.0.8078.80",
+  "kind": "Desktop Chrome viewport/touch emulation; not real Android/iOS",
+  "cases": [
+    {
+      "name": "phone",
+      "geometry": {
+        "viewport": {
+          "width": 390,
+          "height": 844,
+          "visualWidth": 390,
+          "visualHeight": 844,
+          "dpr": 2,
+          "maxTouchPoints": 1
+        },
+        "screen": {
+          "x": 0,
+          "y": 89,
+          "width": 390,
+          "height": 755,
+          "right": 390,
+          "bottom": 844
+        },
+        "qtWindows": [
+          {
+            "x": 0,
+            "y": 89,
+            "width": 390,
+            "height": 755,
+            "right": 390,
+            "bottom": 844
+          }
+        ],
+        "canvas": [
+          {
+            "css": {
+              "x": 0,
+              "y": 89,
+              "width": 390,
+              "height": 755,
+              "right": 390,
+              "bottom": 844
+            },
+            "bufferWidth": 780,
+            "bufferHeight": 1510
+          }
+        ],
+        "coarse": true,
+        "hover": false,
+        "controls": [
+          {
+            "name": "text",
+            "rect": {
+              "x": 0,
+              "y": 89,
+              "width": 9,
+              "height": 7,
+              "right": 9,
+              "bottom": 96
+            }
+          },
+          {
+            "name": "checkbox",
+            "rect": {
+              "x": 4,
+              "y": 3,
+              "width": 0,
+              "height": 0,
+              "right": 4,
+              "bottom": 3
+            }
+          },
+          {
+            "name": "연필",
+            "rect": {
+              "x": 12,
+              "y": 182,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 214
+            }
+          },
+          {
+            "name": "브러시",
+            "rect": {
+              "x": 12,
+              "y": 216,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 248
+            }
+          },
+          {
+            "name": "스프레이",
+            "rect": {
+              "x": 12,
+              "y": 250,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 282
+            }
+          },
+          {
+            "name": "지우개",
+            "rect": {
+              "x": 12,
+              "y": 284,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 316
+            }
+          },
+          {
+            "name": "색 지우개",
+            "rect": {
+              "x": 12,
+              "y": 318,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 350
+            }
+          },
+          {
+            "name": "채우기",
+            "rect": {
+              "x": 12,
+              "y": 352,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 384
+            }
+          },
+          {
+            "name": "스포이트",
+            "rect": {
+              "x": 12,
+              "y": 386,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 418
+            }
+          },
+          {
+            "name": "직선",
+            "rect": {
+              "x": 12,
+              "y": 420,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 452
+            }
+          },
+          {
+            "name": "곡선",
+            "rect": {
+              "x": 12,
+              "y": 454,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 486
+            }
+          },
+          {
+            "name": "사각형",
+            "rect": {
+              "x": 12,
+              "y": 488,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 520
+            }
+          },
+          {
+            "name": "둥근 사각형",
+            "rect": {
+              "x": 12,
+              "y": 522,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 554
+            }
+          },
+          {
+            "name": "타원",
+            "rect": {
+              "x": 12,
+              "y": 556,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 588
+            }
+          },
+          {
+            "name": "다각형",
+            "rect": {
+              "x": 12,
+              "y": 590,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 622
+            }
+          },
+          {
+            "name": "사각 선택",
+            "rect": {
+              "x": 12,
+              "y": 624,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 656
+            }
+          },
+          {
+            "name": "자유 선택",
+            "rect": {
+              "x": 12,
+              "y": 658,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 690
+            }
+          },
+          {
+            "name": "문자",
+            "rect": {
+              "x": 12,
+              "y": 692,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 724
+            }
+          },
+          {
+            "name": "이동",
+            "rect": {
+              "x": 12,
+              "y": 726,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 758
+            }
+          },
+          {
+            "name": "checkbox",
+            "rect": {
+              "x": 378,
+              "y": 130,
+              "width": 12,
+              "height": 39,
+              "right": 390,
+              "bottom": 169
+            }
+          },
+          {
+            "name": "이미지 내보내기",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 16,
+              "height": 6,
+              "right": 16,
+              "bottom": 6
+            }
+          },
+          {
+            "name": "프로젝트 다운로드",
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 16,
+              "height": 6,
+              "right": 16,
+              "bottom": 6
+            }
+          },
+          {
+            "name": "text",
+            "rect": {
+              "x": 142,
+              "y": 428,
+              "width": 234,
+              "height": 37,
+              "right": 376,
+              "bottom": 465
+            }
+          },
+          {
+            "name": "선 굵기",
+            "rect": {
+              "x": 142,
+              "y": 527,
+              "width": 234,
+              "height": 40,
+              "right": 376,
+              "bottom": 567
+            }
+          },
+          {
+            "name": "불투명도",
+            "rect": {
+              "x": 142,
+              "y": 592,
+              "width": 234,
+              "height": 21,
+              "right": 376,
+              "bottom": 613
+            }
+          },
+          {
+            "name": "경도",
+            "rect": {
+              "x": 142,
+              "y": 638,
+              "width": 234,
+              "height": 21,
+              "right": 376,
+              "bottom": 659
+            }
+          },
+          {
+            "name": "선 보정",
+            "rect": {
+              "x": 142,
+              "y": 684,
+              "width": 234,
+              "height": 21,
+              "right": 376,
+              "bottom": 705
+            }
+          },
+          {
+            "name": "펜 필압으로 크기 조절",
+            "rect": {
+              "x": 146,
+              "y": 710,
+              "width": 162,
+              "height": 20,
+              "right": 308,
+              "bottom": 730
+            }
+          },
+          {
+            "name": "사각 붓",
+            "rect": {
+              "x": 146,
+              "y": 798,
+              "width": 69,
+              "height": 20,
+              "right": 215,
+              "bottom": 818
+            }
+          },
+          {
+            "name": "투명 선택",
+            "rect": {
+              "x": 146,
+              "y": 826,
+              "width": 83,
+              "height": 20,
+              "right": 229,
+              "bottom": 846
+            }
+          },
+          {
+            "name": "문자 배경",
+            "rect": {
+              "x": 146,
+              "y": 854,
+              "width": 83,
+              "height": 20,
+              "right": 229,
+              "bottom": 874
+            }
+          },
+          {
+            "name": "레이어 추가",
+            "rect": {
+              "x": 140,
+              "y": 779,
+              "width": 34,
+              "height": 34,
+              "right": 174,
+              "bottom": 813
+            }
+          }
+        ]
+      },
+      "errors": [],
+      "visiblePaperRunCssPx": 76.0
+    },
+    {
+      "name": "tablet-portrait",
+      "geometry": {
+        "viewport": {
+          "width": 768,
+          "height": 1024,
+          "visualWidth": 768,
+          "visualHeight": 1024,
+          "dpr": 2,
+          "maxTouchPoints": 1
+        },
+        "screen": {
+          "x": 0,
+          "y": 29,
+          "width": 768,
+          "height": 995,
+          "right": 768,
+          "bottom": 1024
+        },
+        "qtWindows": [
+          {
+            "x": 0,
+            "y": 29,
+            "width": 768,
+            "height": 995,
+            "right": 768,
+            "bottom": 1024
+          }
+        ],
+        "canvas": [
+          {
+            "css": {
+              "x": 0,
+              "y": 29,
+              "width": 768,
+              "height": 995,
+              "right": 768,
+              "bottom": 1024
+            },
+            "bufferWidth": 1536,
+            "bufferHeight": 1990
+          }
+        ],
+        "coarse": true,
+        "hover": false,
+        "controls": [
+          {
+            "name": "text",
+            "rect": {
+              "x": 0,
+              "y": 29,
+              "width": 9,
+              "height": 7,
+              "right": 9,
+              "bottom": 36
+            }
+          },
+          {
+            "name": "checkbox",
+            "rect": {
+              "x": 4,
+              "y": 3,
+              "width": 0,
+              "height": 0,
+              "right": 4,
+              "bottom": 3
+            }
+          },
+          {
+            "name": "연필",
+            "rect": {
+              "x": 12,
+              "y": 122,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 154
+            }
+          },
+          {
+            "name": "브러시",
+            "rect": {
+              "x": 12,
+              "y": 156,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 188
+            }
+          },
+          {
+            "name": "스프레이",
+            "rect": {
+              "x": 12,
+              "y": 190,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 222
+            }
+          },
+          {
+            "name": "지우개",
+            "rect": {
+              "x": 12,
+              "y": 224,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 256
+            }
+          },
+          {
+            "name": "색 지우개",
+            "rect": {
+              "x": 12,
+              "y": 258,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 290
+            }
+          },
+          {
+            "name": "채우기",
+            "rect": {
+              "x": 12,
+              "y": 292,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 324
+            }
+          },
+          {
+            "name": "스포이트",
+            "rect": {
+              "x": 12,
+              "y": 326,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 358
+            }
+          },
+          {
+            "name": "직선",
+            "rect": {
+              "x": 12,
+              "y": 360,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 392
+            }
+          },
+          {
+            "name": "곡선",
+            "rect": {
+              "x": 12,
+              "y": 394,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 426
+            }
+          },
+          {
+            "name": "사각형",
+            "rect": {
+              "x": 12,
+              "y": 428,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 460
+            }
+          },
+          {
+            "name": "둥근 사각형",
+            "rect": {
+              "x": 12,
+              "y": 462,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 494
+            }
+          },
+          {
+            "name": "타원",
+            "rect": {
+              "x": 12,
+              "y": 496,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 528
+            }
+          },
+          {
+            "name": "다각형",
+            "rect": {
+              "x": 12,
+              "y": 530,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 562
+            }
+          },
+          {
+            "name": "사각 선택",
+            "rect": {
+              "x": 12,
+              "y": 564,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 596
+            }
+          },
+          {
+            "name": "자유 선택",
+            "rect": {
+              "x": 12,
+              "y": 598,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 630
+            }
+          },
+          {
+            "name": "문자",
+            "rect": {
+              "x": 12,
+              "y": 632,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 664
+            }
+          },
+          {
+            "name": "이동",
+            "rect": {
+              "x": 12,
+              "y": 666,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 698
+            }
+          },
+          {
+            "name": "checkbox",
+            "rect": {
+              "x": 4,
+              "y": 3,
+              "width": 0,
+              "height": 0,
+              "right": 4,
+              "bottom": 3
+            }
+          },
+          {
+            "name": "이미지 내보내기",
+            "rect": {
+              "x": 493,
+              "y": 69,
+              "width": 115,
+              "height": 34,
+              "right": 608,
+              "bottom": 103
+            }
+          },
+          {
+            "name": "프로젝트 다운로드",
+            "rect": {
+              "x": 614,
+              "y": 68,
+              "width": 149,
+              "height": 36,
+              "right": 763,
+              "bottom": 104
+            }
+          },
+          {
+            "name": "text",
+            "rect": {
+              "x": 520,
+              "y": 368,
+              "width": 234,
+              "height": 37,
+              "right": 754,
+              "bottom": 405
+            }
+          },
+          {
+            "name": "선 굵기",
+            "rect": {
+              "x": 520,
+              "y": 467,
+              "width": 234,
+              "height": 40,
+              "right": 754,
+              "bottom": 507
+            }
+          },
+          {
+            "name": "불투명도",
+            "rect": {
+              "x": 520,
+              "y": 532,
+              "width": 234,
+              "height": 21,
+              "right": 754,
+              "bottom": 553
+            }
+          },
+          {
+            "name": "경도",
+            "rect": {
+              "x": 520,
+              "y": 578,
+              "width": 234,
+              "height": 21,
+              "right": 754,
+              "bottom": 599
+            }
+          },
+          {
+            "name": "선 보정",
+            "rect": {
+              "x": 520,
+              "y": 624,
+              "width": 234,
+              "height": 21,
+              "right": 754,
+              "bottom": 645
+            }
+          },
+          {
+            "name": "펜 필압으로 크기 조절",
+            "rect": {
+              "x": 524,
+              "y": 650,
+              "width": 162,
+              "height": 20,
+              "right": 686,
+              "bottom": 670
+            }
+          },
+          {
+            "name": "사각 붓",
+            "rect": {
+              "x": 524,
+              "y": 738,
+              "width": 69,
+              "height": 20,
+              "right": 593,
+              "bottom": 758
+            }
+          },
+          {
+            "name": "투명 선택",
+            "rect": {
+              "x": 524,
+              "y": 766,
+              "width": 83,
+              "height": 20,
+              "right": 607,
+              "bottom": 786
+            }
+          },
+          {
+            "name": "문자 배경",
+            "rect": {
+              "x": 524,
+              "y": 794,
+              "width": 83,
+              "height": 20,
+              "right": 607,
+              "bottom": 814
+            }
+          },
+          {
+            "name": "레이어 추가",
+            "rect": {
+              "x": 518,
+              "y": 959,
+              "width": 34,
+              "height": 34,
+              "right": 552,
+              "bottom": 993
+            }
+          }
+        ]
+      },
+      "errors": [],
+      "visiblePaperRunCssPx": 454.0
+    },
+    {
+      "name": "tablet-landscape",
+      "geometry": {
+        "viewport": {
+          "width": 1024,
+          "height": 768,
+          "visualWidth": 1024,
+          "visualHeight": 768,
+          "dpr": 2,
+          "maxTouchPoints": 1
+        },
+        "screen": {
+          "x": 0,
+          "y": 29,
+          "width": 1024,
+          "height": 739,
+          "right": 1024,
+          "bottom": 768
+        },
+        "qtWindows": [
+          {
+            "x": 0,
+            "y": 29,
+            "width": 1024,
+            "height": 739,
+            "right": 1024,
+            "bottom": 768
+          }
+        ],
+        "canvas": [
+          {
+            "css": {
+              "x": 0,
+              "y": 29,
+              "width": 1024,
+              "height": 739,
+              "right": 1024,
+              "bottom": 768
+            },
+            "bufferWidth": 2048,
+            "bufferHeight": 1478
+          }
+        ],
+        "coarse": true,
+        "hover": false,
+        "controls": [
+          {
+            "name": "text",
+            "rect": {
+              "x": 0,
+              "y": 29,
+              "width": 9,
+              "height": 7,
+              "right": 9,
+              "bottom": 36
+            }
+          },
+          {
+            "name": "checkbox",
+            "rect": {
+              "x": 4,
+              "y": 3,
+              "width": 0,
+              "height": 0,
+              "right": 4,
+              "bottom": 3
+            }
+          },
+          {
+            "name": "연필",
+            "rect": {
+              "x": 12,
+              "y": 122,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 154
+            }
+          },
+          {
+            "name": "브러시",
+            "rect": {
+              "x": 12,
+              "y": 156,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 188
+            }
+          },
+          {
+            "name": "스프레이",
+            "rect": {
+              "x": 12,
+              "y": 190,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 222
+            }
+          },
+          {
+            "name": "지우개",
+            "rect": {
+              "x": 12,
+              "y": 224,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 256
+            }
+          },
+          {
+            "name": "색 지우개",
+            "rect": {
+              "x": 12,
+              "y": 258,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 290
+            }
+          },
+          {
+            "name": "채우기",
+            "rect": {
+              "x": 12,
+              "y": 292,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 324
+            }
+          },
+          {
+            "name": "스포이트",
+            "rect": {
+              "x": 12,
+              "y": 326,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 358
+            }
+          },
+          {
+            "name": "직선",
+            "rect": {
+              "x": 12,
+              "y": 360,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 392
+            }
+          },
+          {
+            "name": "곡선",
+            "rect": {
+              "x": 12,
+              "y": 394,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 426
+            }
+          },
+          {
+            "name": "사각형",
+            "rect": {
+              "x": 12,
+              "y": 428,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 460
+            }
+          },
+          {
+            "name": "둥근 사각형",
+            "rect": {
+              "x": 12,
+              "y": 462,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 494
+            }
+          },
+          {
+            "name": "타원",
+            "rect": {
+              "x": 12,
+              "y": 496,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 528
+            }
+          },
+          {
+            "name": "다각형",
+            "rect": {
+              "x": 12,
+              "y": 530,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 562
+            }
+          },
+          {
+            "name": "사각 선택",
+            "rect": {
+              "x": 12,
+              "y": 564,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 596
+            }
+          },
+          {
+            "name": "자유 선택",
+            "rect": {
+              "x": 12,
+              "y": 598,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 630
+            }
+          },
+          {
+            "name": "문자",
+            "rect": {
+              "x": 12,
+              "y": 632,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 664
+            }
+          },
+          {
+            "name": "이동",
+            "rect": {
+              "x": 12,
+              "y": 666,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 698
+            }
+          },
+          {
+            "name": "checkbox",
+            "rect": {
+              "x": 4,
+              "y": 3,
+              "width": 0,
+              "height": 0,
+              "right": 4,
+              "bottom": 3
+            }
+          },
+          {
+            "name": "이미지 내보내기",
+            "rect": {
+              "x": 749,
+              "y": 69,
+              "width": 115,
+              "height": 34,
+              "right": 864,
+              "bottom": 103
+            }
+          },
+          {
+            "name": "프로젝트 다운로드",
+            "rect": {
+              "x": 870,
+              "y": 68,
+              "width": 149,
+              "height": 36,
+              "right": 1019,
+              "bottom": 104
+            }
+          },
+          {
+            "name": "text",
+            "rect": {
+              "x": 776,
+              "y": 368,
+              "width": 234,
+              "height": 37,
+              "right": 1010,
+              "bottom": 405
+            }
+          },
+          {
+            "name": "선 굵기",
+            "rect": {
+              "x": 776,
+              "y": 467,
+              "width": 234,
+              "height": 40,
+              "right": 1010,
+              "bottom": 507
+            }
+          },
+          {
+            "name": "불투명도",
+            "rect": {
+              "x": 776,
+              "y": 532,
+              "width": 234,
+              "height": 21,
+              "right": 1010,
+              "bottom": 553
+            }
+          },
+          {
+            "name": "경도",
+            "rect": {
+              "x": 776,
+              "y": 578,
+              "width": 234,
+              "height": 21,
+              "right": 1010,
+              "bottom": 599
+            }
+          },
+          {
+            "name": "선 보정",
+            "rect": {
+              "x": 776,
+              "y": 624,
+              "width": 234,
+              "height": 21,
+              "right": 1010,
+              "bottom": 645
+            }
+          },
+          {
+            "name": "펜 필압으로 크기 조절",
+            "rect": {
+              "x": 780,
+              "y": 650,
+              "width": 162,
+              "height": 20,
+              "right": 942,
+              "bottom": 670
+            }
+          },
+          {
+            "name": "사각 붓",
+            "rect": {
+              "x": 780,
+              "y": 738,
+              "width": 69,
+              "height": 20,
+              "right": 849,
+              "bottom": 758
+            }
+          },
+          {
+            "name": "투명 선택",
+            "rect": {
+              "x": 780,
+              "y": 766,
+              "width": 83,
+              "height": 20,
+              "right": 863,
+              "bottom": 786
+            }
+          },
+          {
+            "name": "문자 배경",
+            "rect": {
+              "x": 780,
+              "y": 794,
+              "width": 83,
+              "height": 20,
+              "right": 863,
+              "bottom": 814
+            }
+          },
+          {
+            "name": "레이어 추가",
+            "rect": {
+              "x": 774,
+              "y": 703,
+              "width": 34,
+              "height": 34,
+              "right": 808,
+              "bottom": 737
+            }
+          }
+        ]
+      },
+      "errors": [],
+      "visiblePaperRunCssPx": 710.0
+    },
+    {
+      "name": "desktop",
+      "geometry": {
+        "viewport": {
+          "width": 1366,
+          "height": 900,
+          "visualWidth": 1366,
+          "visualHeight": 900,
+          "dpr": 1,
+          "maxTouchPoints": 0
+        },
+        "screen": {
+          "x": 0,
+          "y": 29,
+          "width": 1366,
+          "height": 871,
+          "right": 1366,
+          "bottom": 900
+        },
+        "qtWindows": [
+          {
+            "x": 0,
+            "y": 29,
+            "width": 1366,
+            "height": 871,
+            "right": 1366,
+            "bottom": 900
+          }
+        ],
+        "canvas": [
+          {
+            "css": {
+              "x": 0,
+              "y": 29,
+              "width": 1366,
+              "height": 871,
+              "right": 1366,
+              "bottom": 900
+            },
+            "bufferWidth": 1366,
+            "bufferHeight": 871
+          }
+        ],
+        "coarse": false,
+        "hover": true,
+        "controls": [
+          {
+            "name": "text",
+            "rect": {
+              "x": 0,
+              "y": 29,
+              "width": 9,
+              "height": 7,
+              "right": 9,
+              "bottom": 36
+            }
+          },
+          {
+            "name": "checkbox",
+            "rect": {
+              "x": 4,
+              "y": 3,
+              "width": 0,
+              "height": 0,
+              "right": 4,
+              "bottom": 3
+            }
+          },
+          {
+            "name": "연필",
+            "rect": {
+              "x": 12,
+              "y": 122,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 154
+            }
+          },
+          {
+            "name": "브러시",
+            "rect": {
+              "x": 12,
+              "y": 156,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 188
+            }
+          },
+          {
+            "name": "스프레이",
+            "rect": {
+              "x": 12,
+              "y": 190,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 222
+            }
+          },
+          {
+            "name": "지우개",
+            "rect": {
+              "x": 12,
+              "y": 224,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 256
+            }
+          },
+          {
+            "name": "색 지우개",
+            "rect": {
+              "x": 12,
+              "y": 258,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 290
+            }
+          },
+          {
+            "name": "채우기",
+            "rect": {
+              "x": 12,
+              "y": 292,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 324
+            }
+          },
+          {
+            "name": "스포이트",
+            "rect": {
+              "x": 12,
+              "y": 326,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 358
+            }
+          },
+          {
+            "name": "직선",
+            "rect": {
+              "x": 12,
+              "y": 360,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 392
+            }
+          },
+          {
+            "name": "곡선",
+            "rect": {
+              "x": 12,
+              "y": 394,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 426
+            }
+          },
+          {
+            "name": "사각형",
+            "rect": {
+              "x": 12,
+              "y": 428,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 460
+            }
+          },
+          {
+            "name": "둥근 사각형",
+            "rect": {
+              "x": 12,
+              "y": 462,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 494
+            }
+          },
+          {
+            "name": "타원",
+            "rect": {
+              "x": 12,
+              "y": 496,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 528
+            }
+          },
+          {
+            "name": "다각형",
+            "rect": {
+              "x": 12,
+              "y": 530,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 562
+            }
+          },
+          {
+            "name": "사각 선택",
+            "rect": {
+              "x": 12,
+              "y": 564,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 596
+            }
+          },
+          {
+            "name": "자유 선택",
+            "rect": {
+              "x": 12,
+              "y": 598,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 630
+            }
+          },
+          {
+            "name": "문자",
+            "rect": {
+              "x": 12,
+              "y": 632,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 664
+            }
+          },
+          {
+            "name": "이동",
+            "rect": {
+              "x": 12,
+              "y": 666,
+              "width": 32,
+              "height": 32,
+              "right": 44,
+              "bottom": 698
+            }
+          },
+          {
+            "name": "checkbox",
+            "rect": {
+              "x": 4,
+              "y": 3,
+              "width": 0,
+              "height": 0,
+              "right": 4,
+              "bottom": 3
+            }
+          },
+          {
+            "name": "이미지 내보내기",
+            "rect": {
+              "x": 1091,
+              "y": 69,
+              "width": 115,
+              "height": 34,
+              "right": 1206,
+              "bottom": 103
+            }
+          },
+          {
+            "name": "프로젝트 다운로드",
+            "rect": {
+              "x": 1212,
+              "y": 68,
+              "width": 149,
+              "height": 36,
+              "right": 1361,
+              "bottom": 104
+            }
+          },
+          {
+            "name": "text",
+            "rect": {
+              "x": 1118,
+              "y": 368,
+              "width": 234,
+              "height": 37,
+              "right": 1352,
+              "bottom": 405
+            }
+          },
+          {
+            "name": "선 굵기",
+            "rect": {
+              "x": 1118,
+              "y": 467,
+              "width": 234,
+              "height": 40,
+              "right": 1352,
+              "bottom": 507
+            }
+          },
+          {
+            "name": "불투명도",
+            "rect": {
+              "x": 1118,
+              "y": 532,
+              "width": 234,
+              "height": 21,
+              "right": 1352,
+              "bottom": 553
+            }
+          },
+          {
+            "name": "경도",
+            "rect": {
+              "x": 1118,
+              "y": 578,
+              "width": 234,
+              "height": 21,
+              "right": 1352,
+              "bottom": 599
+            }
+          },
+          {
+            "name": "선 보정",
+            "rect": {
+              "x": 1118,
+              "y": 624,
+              "width": 234,
+              "height": 21,
+              "right": 1352,
+              "bottom": 645
+            }
+          },
+          {
+            "name": "펜 필압으로 크기 조절",
+            "rect": {
+              "x": 1122,
+              "y": 650,
+              "width": 162,
+              "height": 20,
+              "right": 1284,
+              "bottom": 670
+            }
+          },
+          {
+            "name": "사각 붓",
+            "rect": {
+              "x": 1122,
+              "y": 738,
+              "width": 69,
+              "height": 20,
+              "right": 1191,
+              "bottom": 758
+            }
+          },
+          {
+            "name": "투명 선택",
+            "rect": {
+              "x": 1122,
+              "y": 766,
+              "width": 83,
+              "height": 20,
+              "right": 1205,
+              "bottom": 786
+            }
+          },
+          {
+            "name": "문자 배경",
+            "rect": {
+              "x": 1122,
+              "y": 794,
+              "width": 83,
+              "height": 20,
+              "right": 1205,
+              "bottom": 814
+            }
+          },
+          {
+            "name": "레이어 추가",
+            "rect": {
+              "x": 1116,
+              "y": 835,
+              "width": 34,
+              "height": 34,
+              "right": 1150,
+              "bottom": 869
+            }
+          }
+        ]
+      },
+      "errors": [],
+      "visiblePaperRunCssPx": 800.0
+    }
+  ],
+  "measurementNote": "Longest pure-white horizontal run in blank-paper screenshots; visible paper only, not document dimensions."
+}

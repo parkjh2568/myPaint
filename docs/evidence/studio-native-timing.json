@@ -1,0 +1,223 @@
+{
+  "date": "2026-11-06",
+  "status": "Scoped implementation, actual macOS verification, independent models and actual-source CRC experiment completed; overall goal remains active.",
+  "goalComplete": false,
+  "scope": "Offline Windows/macOS executables and mobile/tablet web only; current host macOS arm64. No Windows/physical mobile/public Pages acceptance claim.",
+  "changedProductionSources": [
+    "web-app/src/platform/native-smoke.ts"
+  ],
+  "acceptedSources": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "809e911ded986d2ec0257d08faf523e14f7bff3a1545b00ac770bfed2efe8a70",
+    "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+    "web-app/src/platform/native-smoke.ts": "4c318c88435b82982addb8876c4169e8e6564c0b6738ed3a6867f2b2e516d2d8",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "payload": {
+    "files": 9,
+    "bytes": 291492,
+    "entry": "assets/index-BKLmkHlU.js",
+    "workerSha256": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+    "sourceInputFiles": 114
+  },
+  "native": {
+    "before": {
+      "path": "build-web-work/task-planning/native-observability/unchanged-native.json",
+      "ok": true,
+      "branches": 4
+    },
+    "after": {
+      "path": "build-web-work/task-planning/native-observability/final-native.json",
+      "ok": true,
+      "branches": 4,
+      "binarySha256": "7309041fbf82fa0737eac4b467450bbcbaa28cc1d49fde2c3a72e51a130533bb"
+    },
+    "firstTimeoutCause": "unknown; previous first failure remains. Current GUI user report and successful retries do not prove a power or background-throttling cause.",
+    "diagnosticLimit": "Stage and elapsed wall time at JavaScript catch, visibility/focus only at failure; no Worker internal stage, startup-ready event, OS-level hang or watchdog attribution."
+  },
+  "models": {
+    "cases": 6,
+    "ok": true,
+    "scope": "Actual runNativeSmoke AST-extracted/transpiled and actual4096² fixture/random/SHA; codec/IPC/recovery/clock/visibility are controlled models. No natural timeout/performance claim."
+  },
+  "crcExperiment": {
+    "status": "completed",
+    "productionAdopted": false,
+    "summary": "build-web-work/task-planning/native-observability/crc-source-experiment/summary.json",
+    "baselineWorkerSha256": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+    "candidateWorkerSha256": "6e80ecb8ffdbbf8b4b422452a09271097218af6ab9835d3bd10d27085cd6cbc0",
+    "productionFormatUnchanged": true,
+    "jobs": 12,
+    "fullEncodedDigestAndLengthChecks": 12,
+    "fullDecodedRgbaMetadataChecks": 4,
+    "timing": {
+      "definition": "Main-thread performance.timeOrigin+performance.now immediately before new Worker constructor through first original Worker message callback entry on main. Includes constructor/load/parse/module initialization, input message scheduling, sync encode, transfer/reply delivery. This is constructor→reply whole API wall duration, NOT ready/post-only or pure CPU.",
+      "secondary": "postReturnToReplyMs recorded separately after postMessage returns until original reply; includes startup if not ready. It is not labeled encode CPU.",
+      "excluded": "Fixture allocation/fill before constructor; SHA256, encoded-size checks, decode, full bytewise RGBA/metadata verification, worker termination and forced main GC after reply are outside timing.",
+      "workerAndCache": "Fresh Worker per job, immediately posted. Same browser context for paired jobs, new context per entropy phase. HTTP/code caches not forcibly cold. No warm-ready handshake, no worker pool, no Worker telemetry/response instrumentation.",
+      "pairing": "3 pairs per entropy case, explicit orders AB,BA,AB (actual job sequence A B B A A B). Contains ABBA prefix; odd n3 is not a fully balanced n3-ABBA-round design. Arrays below are paired by sample index.",
+      "rootCoordination": "Root native/compiler/build and Architect fixture/hash/model work were reported complete before benchmark go; root reported document/read-only work during benchmark. Own Vite and client builds finished before browser started. No other own CPU probe ran. This is not OS load isolation.",
+      "loadBefore": [
+        8.5673828125,
+        15.56298828125,
+        15.779296875
+      ],
+      "loadAfter": [
+        11.29248046875,
+        15.171875,
+        15.619140625
+      ],
+      "browser": "156.0.8078.80",
+      "extraChromeArgs": [],
+      "jobWatchdogMs": 60000,
+      "fullWatchdogMs": 300000
+    },
+    "comparisons": [
+      {
+        "id": "desktop128-low",
+        "operation": "project-write",
+        "pairs": 3,
+        "order": [
+          "AB",
+          "BA",
+          "AB"
+        ],
+        "input": {
+          "width": 4096,
+          "height": 4096,
+          "layers": 2,
+          "rawBytes": 134217728,
+          "entropy": "low"
+        },
+        "encodedBytes": 152969,
+        "baselineWholeMs": [
+          1322,
+          1249.5,
+          1278.300048828125
+        ],
+        "candidateWholeMs": [
+          1255.300048828125,
+          1300.199951171875,
+          1376.800048828125
+        ],
+        "baselineRangeMs": [
+          1249.5,
+          1322
+        ],
+        "candidateRangeMs": [
+          1255.300048828125,
+          1376.800048828125
+        ],
+        "candidateDeltaMs": [
+          -66.699951171875,
+          50.699951171875,
+          98.5
+        ],
+        "candidateDeltaPercent": [
+          -5.045382085618377,
+          4.057619141406565,
+          7.705546134516639
+        ],
+        "allThreeCandidateFaster": false
+      },
+      {
+        "id": "desktop128-high",
+        "operation": "project-write",
+        "pairs": 3,
+        "order": [
+          "AB",
+          "BA",
+          "AB"
+        ],
+        "input": {
+          "width": 4096,
+          "height": 4096,
+          "layers": 2,
+          "rawBytes": 134217728,
+          "entropy": "high"
+        },
+        "encodedBytes": 134253340,
+        "baselineWholeMs": [
+          6707.300048828125,
+          6110.10009765625,
+          5390.099853515625
+        ],
+        "candidateWholeMs": [
+          4486.7001953125,
+          6220,
+          3460.60009765625
+        ],
+        "baselineRangeMs": [
+          5390.099853515625,
+          6707.300048828125
+        ],
+        "candidateRangeMs": [
+          3460.60009765625,
+          6220
+        ],
+        "candidateDeltaMs": [
+          -2220.599853515625,
+          109.89990234375,
+          -1929.499755859375
+        ],
+        "candidateDeltaPercent": [
+          -33.10720912065951,
+          1.798659606017039,
+          -35.79710595900896
+        ],
+        "allThreeCandidateFaster": false
+      }
+    ],
+    "limits": [
+      "n3 paired samples per input on one desktop host, not p95 or statistical non-regression proof.",
+      "No mobile/RSS/native filesystem/actual Tauri IPC/UI/recovery transaction latency measured by this independent Worker experiment.",
+      "Whole API wall includes load/JIT/GC/allocation/scheduling and cannot be called pure Chrome CPU.",
+      "Forced main-context GC occurs outside measured jobs; worker GC/descheduling inside the interval remains included."
+    ],
+    "decision": "NOT ADOPTED: actual-source correctness PASS; mixed low-entropy paired results persist, so no no-regression basis. Production format.ts remains baseline.",
+    "cleanup": {
+      "browserClosed": true,
+      "ownServerPid": 73164,
+      "ownPort": 9053,
+      "ownServerStopped": true,
+      "otherProcessesUntouched": true
+    }
+  },
+  "references": {
+    "build-web-work/task-planning/native-observability/baseline.json": "ba49e4e6f9dd163313ac44172e234a516731f742098f0328491d7c55c682f7a1",
+    "build-web-work/task-planning/native-observability/accepted-source.json": "52740d5588a8ed8192c353e207a411c135e8fcb8024a88ee66e1895c8639b0e3",
+    "build-web-work/task-planning/native-observability/unchanged-native.json": "0de31ef7fb4b0ebb2b2b9564d1bb2f52df35e8a4a0fb21d2136975a7bd4ad721",
+    "build-web-work/task-planning/native-observability/final-native.json": "f54a6c8b8b7264059dc360357a8251129f0b9da46f148056bd1f257b13752450",
+    "build-web-work/task-planning/native-observability/model/results.json": "d4a5feeb2ec1b069cad51ad2e6ae199c8c30c3c885ddf8474b44d546ff8e91b3",
+    "build-web-work/task-planning/native-observability/model/verification-manifest.json": "e6be243c2fbb7a81efb2efb8a0d9d5ebfc6868ff8d403dfbbf46d25a4b811305",
+    "build-web-work/task-planning/native-observability/reviews/architecture-design.json": "e2420b9361514e15cd26163245a79586792cf3e4cfdc22334d1316b4dd7bc3f7",
+    "build-web-work/task-planning/native-observability/reviews/review-design.json": "f83ee74eb5d7a71b3694440463c47189a0c94a4599b094b86f3d194351a86e46",
+    "build-web-work/task-planning/native-observability/reviews/review-candidate.json": "85641f6fc765e2dbe1dfcbdb9b8201bef9d6b7df96eddd92e4c91b1e88dc8b34",
+    "build-web-work/task-planning/native-observability/final-bundle/bundle.json": "89d1ccc568ab90039afba0fc6d18c484e84b17f88746cad0b96c78cf6b9df01d",
+    "build-web-work/task-planning/native-observability/native-build.log": "a91373e0ba0c9200aaeed9f77de8a9a01a334267f98a490175f9b4acd508a024",
+    "build-web-work/task-planning/native-observability/studio-build.log": "0a4018361fd76a989223bc2f859fb1409d79f14e7e6ee5d85bdf9bcfb74d0d3f",
+    "build-web-work/task-planning/codec-reply-contract/native-desktop.json": "9308ec4104665cc3811f07d1b2c5b7288f7249b2c5d931f15023ac9253822c4e",
+    "build-web-work/task-planning/codec-reply-contract/native-desktop-retry.json": "054b31798abff7364cde0d79cacf82ffd29562415131b048e919e56190d4893b",
+    "build-web-work/task-planning/native-observability/git-metadata-before.json": "a31195fc016379a2ca79a11bec67957ed9523a9550222079af499eb3067ac2ff",
+    "build-web-work/task-planning/native-observability/git-metadata-after.json": "a31195fc016379a2ca79a11bec67957ed9523a9550222079af499eb3067ac2ff",
+    "build-web-work/task-planning/native-observability/crc-source-experiment/summary.json": "34e2f92487014ee4ea30f15ea851514b58ab14cd1825352157be49662f70b30b",
+    "build-web-work/task-planning/native-observability/crc-source-experiment/archive-manifest.json": "e97775476154d09794459b9de74811a65f2d397582f8a7db0565b37fd5111f98",
+    "build-web-work/task-planning/native-observability/crc-source-experiment/benchmark-results.json": "40410422d22963a5275a2768873083a5e28886b2093ee590db174a86e77e0e2f",
+    "build-web-work/task-planning/native-observability/crc-source-experiment/build-manifest.json": "e301689e1fb2af1dcedba7962a6a3668534a04404098e99d2cec00ae754a1fae",
+    "build-web-work/task-planning/native-observability/crc-source-experiment/workers/baseline.js": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+    "build-web-work/task-planning/native-observability/crc-source-experiment/workers/candidate.js": "6e80ecb8ffdbbf8b4b422452a09271097218af6ab9835d3bd10d27085cd6cbc0"
+  },
+  "gitMetadataUnchanged": true
+}

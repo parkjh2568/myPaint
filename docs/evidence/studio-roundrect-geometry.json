@@ -1,0 +1,150 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "QF-13 실제 Qt QImage/QPainterPath와 AST 추출 paintShape의 actual Canvas prototype 조사. 제품 기하 변경이나 공개 UI 인수 결과가 아니다.",
+  "status": {
+    "QF-13": "partial",
+    "productChange": false,
+    "overallGoal": "active"
+  },
+  "source": {
+    "src/canvas.cpp": "6782894aea37ccf431cb562a2cfa241500088e7e055dbdcd6bc4ed3dce229870",
+    "web-app/src/main.ts": "3a2bc5a682e6d66066a13f85df1e5f649344d1953d7fe0bb45354b470b0bab4a",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3"
+  },
+  "frozenSource": "build-web-work/task-planning/roundrect-geometry/frozen-source",
+  "authority": {
+    "runtime17": {
+      "path": "build-web-work/task-planning/roundrect-geometry/before-source.json",
+      "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+    },
+    "QtReview": {
+      "path": "build-web-work/task-planning/roundrect-geometry/qt/review.json",
+      "sha256": "98b914dcd2db92f437d941f613147489d7c680ba82a46dbdacf5b3dac5c85acf"
+    },
+    "QtActualOracle": {
+      "path": "build-web-work/task-planning/roundrect-geometry/qt/oracle.json",
+      "sha256": "b22fbaea01b5b5cee06c69d005ca1cde477a285ce4084193cffad1d65ed84b7d"
+    },
+    "QtFormulaComparison": {
+      "path": "build-web-work/task-planning/roundrect-geometry/qt/comparison.json",
+      "sha256": "dfa4caa8f769f542ffe95388a0b0978dea2c7cf88c82fa7229065e33c530ef0c"
+    },
+    "CanvasSummary": {
+      "path": "build-web-work/task-planning/roundrect-geometry/canvas/summary.json",
+      "sha256": "4f7b406ef483bfb4386d1a4b8de80bb91fee8f09d0e22268cced0b3d1f6f750f"
+    },
+    "CanvasRaw": {
+      "path": "build-web-work/task-planning/roundrect-geometry/canvas/results.json",
+      "sha256": "0dae21eda66393434fcbe7a962a468e1aad5e80776dfecd78f92d2441db14d1c"
+    },
+    "CanvasDriver": {
+      "path": "build-web-work/task-planning/roundrect-geometry/canvas/run.mjs",
+      "sha256": "a2bac8900b9a18ae0a58808b4017b14ce70ef76f5197a52cd9ff33295d526569"
+    },
+    "sameGeometryFollowup": {
+      "path": "build-web-work/task-planning/roundrect-geometry/canvas/followup-results.json",
+      "sha256": "41136dca74a1be01176ce35d72eb526cbf2fc40f82f371d8db8837f96e34c80b"
+    },
+    "followupDriver": {
+      "path": "build-web-work/task-planning/roundrect-geometry/canvas/followup.mjs",
+      "sha256": "81115dbd4c6bdfbe5423ac7e0da69a824b45fac77388f757f65e273738f8e532"
+    }
+  },
+  "counts": {
+    "QtInputs": 14,
+    "QtStylesPerInput": 4,
+    "QtActualRasters": 56,
+    "CanvasPrototypeRasters": 224,
+    "CanvasControlledFollowupRasters": 96,
+    "meaning": "diagnostic frames, not 320 public editing correctness cases"
+  },
+  "findings": [
+    {
+      "id": "RND-01",
+      "type": "geometry parity gap",
+      "risk": "Minor",
+      "cost": "M with endpoint/UI regression policy; radius-only edit is small but insufficient",
+      "facts": [
+        "Qt uses floor input and QRect(start,end).normalized, drawRoundedRect(...,12,12), default aliased drawing. Studio retains float min/abs, scalar min(14,w/2,h/2) and Canvas vector AA.",
+        "wide-short uses independently limited Qt x/y radii. Actual Canvas scalar12 remains byte-equal to current14 in this short-height case; axis12 changes 68 pixels, including one opaque255↔zero conflict.",
+        "Qt positive QRect [8,8,65,41] versus reverse [9,9,63,39]; Studio both directions [8,8,64,40]. Qt point/line dimensions and floor rules also differ."
+      ],
+      "interpretation": "Radius, endpoint extent/direction, degenerate geometry, AA/cap/join are distinct decisions. Confirmed parity gaps do not by themselves establish data loss or require copying a legacy direction quirk."
+    },
+    {
+      "id": "RND-02",
+      "type": "measurement confound isolated",
+      "risk": "not a confirmed product bug",
+      "facts": [
+        "Original reused default Canvas produced different raw edge pixels for equivalent large/reverse geometry.",
+        "A separate controlled followup used willReadFrequently:true versus fresh default Canvas, repeated each geometry 3 times with order swap. Within each context condition identical geometry was byte-stable and before/after Canvas state/Studio fields agreed.",
+        "Between fixed readback and fresh default, fill differed101 pixels/maxAlpha89; outline1 differed252/maxAlpha126. Opaque255↔zero conflicts were0. Original first/late outputs matched the corresponding controlled contexts."
+      ],
+      "interpretation": "This supports a context/readback condition association. No internal GPU/backend transition was directly observed; no product tile/preview defect, performance or global willReadFrequently change is inferred."
+    }
+  ],
+  "decision": {
+    "adoptedCandidate": null,
+    "reason": "Bare14→12 does not restore Qt geometry. Axis12 with Studio bounds preserves other Studio tools endpoints but is not full Qt parity; fullQtBounds changes direction/point geometry and still differs in aliased raster. No partial candidate is applied before the endpoint and public UI contracts are fixed.",
+    "options": [
+      {
+        "name": "Studio endpoints + independently clamped max12 radii",
+        "scope": "Only roundrect path changes; float/min/abs and consistent rectangle/ellipse endpoints remain",
+        "remaining": "Explicit corner policy, actual public preview/commit/Undo/cancel/512 seam/DPR validation; does not claim strict Qt endpoints"
+      },
+      {
+        "name": "strict Qt endpoint policy",
+        "scope": "Evaluate rectangle/ellipse/roundrect together, with floor, reverse, point/line, Shift and bbox changes",
+        "remaining": "Risk to current UI consistency, AA/cap/join and raw raster remain separate; cannot silently apply global min/abs+1"
+      }
+    ],
+    "next": [
+      "Use stable context conditions and actual public UI prototypes to compare preview, pending project export and final raster.",
+      "Choose one documented endpoint/corner policy consistent across rectangle/ellipse/roundrect, preserve saved project pixels.",
+      "Before adoption verify point/line/reverse/fractional/negative clip, outline/fill/alpha, one Undo/Redo/cancel, 512 seams and DPR1/2."
+    ]
+  },
+  "limits": [
+    "Qt QPainter aliased versus Canvas vector antialiasing are different raster contracts; raw differences alone do not prove a pixel bug",
+    "No Qt runtime rerun, no app/public UI/native/device test, no performance claims",
+    "Strict opaque/transparent observed conflict is descriptive; geometric full-cell proof is used only where original QtPath annotations provide it",
+    "Canvas cell annotations use existing original geometry evidence; empty annotation lists are not proof that no other geometric differences exist",
+    "Original first two current14 large style samples and later variants did not share a demonstrated fixed raster condition; retain them as default-context observations, not a clean causal scalar14-vs12 A/B.",
+    "Only narrow current14 same-geometry followup controls were rerun; other variants were not all rerun in both fixed modes.",
+    "NewDOMPoint instance construction was not used; the supported radii object is DOMPointInit.",
+    "No color/opacity/IME/gesture pressure or OS display/device acceptance; no Qt actualCanvas UI run here."
+  ],
+  "primarySources": [
+    {
+      "title": "Qt6.12 QRect constructor and normalized",
+      "url": "https://doc.qt.io/qt-6/qrect.html",
+      "relevance": "point-pair constructor는 순방향 inclusive, 역방향은 non-inclusive corners를 normalized로 전환한다. 단순 min/abs+1과 다르다."
+    },
+    {
+      "title": "Qt6.12 QPainter drawRoundedRect",
+      "url": "https://doc.qt.io/qt-6/qpainter.html#drawRoundedRect",
+      "relevance": "기본 AbsoluteSize의 x/y ellipse 반경, stroke 크기는 geometry+pen width."
+    },
+    {
+      "title": "Qt6.12 coordinate/aliased painting",
+      "url": "https://doc.qt.io/qt-6/coordsys.html#aliased-painting",
+      "relevance": "기본 aliased, pen폭 홀짝 배치와 QRect/QRectF 차이."
+    },
+    {
+      "title": "WHATWG Canvas roundRect",
+      "url": "https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-roundrect",
+      "relevance": "DOMPointInit의 x/y는 타원 반경이다. 어느 변의 반경 합이라도 길이를 넘으면 모든 반경에 공통 scale을 적용하므로 독립 clamp가 필요한 후보는 rx/ry를 먼저 정해야 한다."
+    }
+  ],
+  "integrity": {
+    "runtime17Unchanged": true,
+    "QtCanvasUnchanged": true,
+    "noProductOrGitHomepageMutation": true
+  },
+  "cleanup": {
+    "QtConsoleProcessesCompleted": true,
+    "CanvasBrowsersClosed": true,
+    "noServerStarted": true
+  }
+}

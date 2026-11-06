@@ -1,0 +1,246 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "High-minification diagnosis and one rejected work-quantum prototype. Existing production17/dist8 unchanged. Overall goal and historical99ms RCA remain incomplete.",
+  "source": {
+    "before17": {
+      "path": "build-web-work/task-planning/high-minification-rca/before-source.json",
+      "sha256": "e9fa9f1b0230122c9065abb6b30f70caa8559f85a5923ae5569df30f19a1f957"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/high-minification-rca/before-assets.json",
+      "sha256": "d54cc881361fb7392cd7829b534a4f5a4c818715329170dc405acf646ab712e0"
+    },
+    "runtimeUnchanged": true
+  },
+  "observabilityCorrection": {
+    "staticAST": {
+      "path": "build-web-work/task-planning/high-minification-rca/handler-source-evidence.json",
+      "sha256": "3be683b832e729dfeeddd8cb5feb3d1703c2d46cdc9600ec705d83ccf76fea99"
+    },
+    "issue": "Previous global MessagePort handler wall was incorrectly labelled resolver-only. resizeSelection resolves a Promise; render preparation synchronously calls renderFrame and includes tile preparation.",
+    "diagnosticObserved": {
+      "renderInlineCalls": 120,
+      "renderInlineSumMs": 574.0,
+      "renderInlineMaxMs": 43.8,
+      "resizeResolverCalls": 514,
+      "resizeResolverSumMs": 0.4,
+      "resizeResolverMaxMs": 0.2
+    },
+    "interpretation": "Nested spans overlap; never sum message, next, API and RunTask times as independent costs. Resize resolver excludes following microtask, render-inline includes synchronous render.",
+    "historicalRaw": "Preserved immutable. resolverOnlyMessageSum/Max field names and unqualified uiScope wording in older reports require this correction; numerical raw results unchanged."
+  },
+  "freshPrimary": {
+    "result": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/rca/primary-reproduction/results.json",
+      "sha256": "923fe18c874095768f4085044a1e45980378cefd7afad60cf9aad80ed7a4aa07"
+    },
+    "driver": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/rca/primary.mjs",
+      "sha256": "f82cadd740299dceab9d7a31a4b252fcf32126662ee813d678983e6b1f401d81"
+    },
+    "sourceExactHistoricalComparison": {
+      "path": "build-web-work/task-planning/high-minification-rca/primary-comparison.json",
+      "sha256": "e5ff4798a7bf070c54868050f1939d3c084a0adb9834c2964b1394d245a62c51"
+    },
+    "readyMs": 656.7,
+    "pointerMs": 0.6,
+    "longtasks": [],
+    "unclassifiedGlobalPortMaxMs": 46.5,
+    "sentinelMaxGapMs": 54.6,
+    "conclusion": "Historical99ms was not reproduced in this fresh n1. Absence neither disproves the historical observation nor proves resolution/global50ms compliance."
+  },
+  "traceCapability": {
+    "initialSetupFailure": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/rca/tracing-diagnostic/results.json",
+      "sha256": "ecc6d2c83dc41065764869dd2f0be026956e9d647de9b74b997a44b9b2460330"
+    },
+    "capabilityResult": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/rca/capability/results.json",
+      "sha256": "b301f28acaf28041ed0f91ef348eb2d17edad42b395cfe3a16a94d5efe25849f"
+    },
+    "enumReturned": [],
+    "actualTraceWorks": true,
+    "classification": "Initial diagnostic stopped at empty enumeration before Tracing.start/resize (zero performance samples). A separate bounded aboutblank mark/tiny-callback trace returned actual Task/V8/compile events. Local installed Playwright starts tracing without getCategories; empty enumeration does not imply tracing unavailable.",
+    "limits": "Unobserved requested categories are unverified, not evidence of unsupported functionality. Exact reason for empty enumeration not established.",
+    "protocolReference": "https://chromedevtools.github.io/devtools-protocol/tot/Tracing/"
+  },
+  "diagnostic": {
+    "result": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/rca/tracing-diagnostic-v2/results.json",
+      "sha256": "3e4a0b961d383faeedc1b3632abe4fb7ed51038fc0126f2a70ab8b732c3acede"
+    },
+    "trace": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/rca/tracing-diagnostic-v2/resize.trace.json",
+      "sha256": "813365eea320ac82c11f5170cece26820d276ce3b86809da755432f7233233f5"
+    },
+    "driver": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/rca/diagnostic-v2.mjs",
+      "sha256": "db677ccf2d4fa31534fda925239a4e4c98f804a20b5936571aa9e528c82afe5f"
+    },
+    "summary": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/rca/summary.json",
+      "sha256": "c7326cae5aa55035431da6f6cdc4c5f47847719cbafcd951604dc04005ee3f0a"
+    },
+    "readyMs": 665.8,
+    "longtasks": [],
+    "traceBytes": 3221658,
+    "traceEvents": 16571,
+    "dataLoss": false,
+    "tilePrepare": {
+      "calls": 776,
+      "sumMs": 574.2,
+      "maxMs": 42.8
+    },
+    "nearest": {
+      "calls": 514,
+      "sumMs": 49.6,
+      "maxMs": 2.9
+    },
+    "maxNextContext": {
+      "startDOMMs": 6933,
+      "endDOMMs": 6975.8,
+      "kind": "tile-prepare",
+      "iteratorId": 5,
+      "containingMainRunTaskWallMs": 43.831,
+      "containingMainRunTaskThreadCpuMs": 42.005,
+      "observedCanvasOrConstructorOverlap": false,
+      "mainCompileOptimizationDeoptFamilyUnionMs": 1.14,
+      "mainGCOverlapObserved": false,
+      "explanation": "Thread CPU belongs to containing task, not an exact CPU timer for next. Family includes optimization preparation/marking and deopt micro-events with no function attribution. Background compiler concurrency cannot be added to main-thread wall. Historical99ms cause not proven."
+    },
+    "measurement": "External Generator.next hook records WeakMap ID/firstcallerstack/start/end/done without result.value; handler registration source/stack classification; nested Canvas/constructor spans; trace userTiming clock alignment. Extra instrumentation can change JIT/GC/timing. Primary and diagnostic remain distinct n1s.",
+    "cleanupLimitCorrection": "10s timeout applies to tracingComplete wait only. Tracing.end/IO.read rely on overall120s watchdog/browserclose, not an independent10s bound."
+  },
+  "quantumCandidate": {
+    "status": "Rejected; no production promotion or further threshold tuning in this phase.",
+    "source17": {
+      "path": "build-web-work/task-planning/high-minification-rca/quantum32768/source17.json",
+      "sha256": "90e080da5c3803f84b67665c82f63c33579f7269f0a999d723fceb58c6386286"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/high-minification-rca/quantum32768/assets8.json",
+      "sha256": "cf1fcbd06bf0d54d4d14982940a12fe428e68011c3ad0c082803a702797ff55a"
+    },
+    "change": "Only tiles.ts: three work checkpoints65536→32768 and matching doc comment. No algorithm/owner/cache/alpha/plan change.",
+    "actualSummary": {
+      "path": "build-web-work/task-planning/high-minification-rca/archive/quantum32768/summary.json",
+      "sha256": "8c05961797f7b9ded16d5bd36e8d236b3fbe611e1842188d6812692dfbbeaa59"
+    },
+    "primary": {
+      "beforeReadyMs": 656.7,
+      "candidateReadyMs": 755.0,
+      "beforeLongtaskMs": [],
+      "candidateLongtaskMs": [
+        58,
+        56,
+        57
+      ],
+      "beforeGlobalHandlerMaxMs": 46.5,
+      "candidateGlobalHandlerMaxMs": 56.8
+    },
+    "diagnostic": {
+      "beforeReadyMs": 665.8,
+      "candidateReadyMs": 664.1,
+      "prepareCalls": [
+        776,
+        1550
+      ],
+      "prepareSumMs": [
+        574.2,
+        574.6
+      ],
+      "prepareMaxMs": [
+        42.8,
+        42.9
+      ],
+      "firstTwoPayloadResumesMs": {
+        "before": [
+          42.8,
+          15.6
+        ],
+        "candidate": [
+          42.9,
+          14.9
+        ]
+      }
+    },
+    "correctness": "All actual same matrix/5phaseCanvas/fullRGBA/actualPNG/source/cancel/oldRedo exact across current primary/current diagnostic/candidate primary/candidate diagnostic; independent root comparison passed.",
+    "tileRegression": {
+      "result": {
+        "path": "build-web-work/task-planning/high-minification-rca/quantum32768/tiles-final/results.json",
+        "sha256": "c03d4705f7e595bd444142a38538ef670a78c69543c705ce9af132ee291e29d4"
+      },
+      "errors": 0,
+      "singleCellSteps": 9,
+      "retainedCursorRemainingSteps": 8,
+      "testCorrection": {
+        "path": "build-web-work/task-planning/high-minification-rca/quantum32768/test-guard-note.json",
+        "sha256": "e34760ee5bdfe3a4ed0eb444f29e54826596dedade2e9b227a5df3878da900e2"
+      },
+      "initialResult": {
+        "path": "build-web-work/task-planning/high-minification-rca/quantum32768/tiles-initial-old-retain-step/results.json",
+        "sha256": "f28848b4571b66a6afc238d1791d48f3940d621863bca83bac5e798abbb386f7"
+      },
+      "explanation": "Only isolated test guard8→16 and exact retain remaining4→8 were adjusted for halved quantum. Resume8 versus restart9 remains discriminating; raw/source/destination/lease assertions unchanged. Initial failure was old step-count assumption, preserved separately.",
+      "totalRecords": 113,
+      "requiredContractChecksPassed": 109,
+      "informationalComparisons": 4,
+      "classification": "Four existing informational Canvas comparisons are not exact-correctness acceptance. Required109 contract checks passed; total113 records."
+    },
+    "verdict": "Measured step count increased, but maximum did not improve and primary adverse n1 remains. This supports withholding this candidate, not a statistically stable universal regression or proof that all future optimizations fail."
+  },
+  "reviews": {
+    "architect": {
+      "path": "build-web-work/task-planning/high-minification-rca/reviews/architect-rca-final.json",
+      "sha256": "342f468739161119fb865d1bafb04a156471fe3e97057379440e5850c2f76f80"
+    },
+    "reviewer": {
+      "path": "build-web-work/task-planning/high-minification-rca/reviews/reviewer-rca-final.json",
+      "sha256": "4f250f2e9a6614858c3d9aac5b3a620487129f0d96285190b0c47efc286a2854"
+    },
+    "candidateArchitect": {
+      "path": "build-web-work/task-planning/high-minification-rca/reviews/architect-candidate-final.json",
+      "sha256": "fc8a3f194b58f4fdfe60900079f2fa648af3b894d9c13e3075d66b4bafbb606f"
+    },
+    "candidateReviewer": {
+      "path": "build-web-work/task-planning/high-minification-rca/reviews/reviewer-candidate-final.json",
+      "sha256": "e4b701647f5198ddd27494e77490b14084fcf82e3cb2dfce01734309531f26ee"
+    },
+    "integratedReportBeforeCorrection": {
+      "path": "build-web-work/task-planning/high-minification-rca/reviews/integrated-final-report-review.json",
+      "sha256": "4624ca0329630b0010a2c6b83569fd3ab74aaa00c9aba02fa35a8cf2b0a60cb9"
+    },
+    "integratedCorrectionConfirmed": {
+      "path": "build-web-work/task-planning/high-minification-rca/reviews/integrated-correction-confirmation.json",
+      "sha256": "6b37b8239af972f324f088040cce5636e973edf79e5f184c04db68ac3953db67"
+    }
+  },
+  "remaining": [
+    "Historical99ms cause, fixed startup/JIT/deopt function attribution, stable p95/global50ms and actual hardware acceptance remain unproven.",
+    "Next audit every remaining QF completion condition against current source/tests/evidence and prioritize actual unverified contracts; stop unproductive threshold tuning.",
+    "Physical Android browser and Windows/native OS/IME/file-replacement, longer naturalGC/RSS, fixedDPR WK/dirty, remoteCI/signing/staging are separate open gates."
+  ],
+  "policy": {
+    "mobile": "browser only",
+    "packages": [
+      "Windows",
+      "macOS"
+    ],
+    "commitPushPublish": false
+  },
+  "archive": {
+    "path": "build-web-work/task-planning/high-minification-rca/archive-manifest.json",
+    "sha256": "f2e062bc9a257e6b7cd9cfe2213f02a759968055fbd4f411c84c3e0d9b693664"
+  },
+  "cleanup": {
+    "original9037": "SRE confirmed server86223 terminal143 and test browser sessions closed.",
+    "candidate9038": "Root command identity verified; server43591 terminal143.",
+    "finalPortInspection": {
+      "ports9037And9038Closed": true,
+      "traceMetadataObservedProcessesAbsent": true,
+      "traceProcessCount": 24
+    }
+  },
+  "reportCorrection": "Independent report review found total113 included informational4. Corrected current report/docs to required109 passed + informational4; confirmation reports no remaining Blocker/Major/Minor. Earlier review preserved."
+}

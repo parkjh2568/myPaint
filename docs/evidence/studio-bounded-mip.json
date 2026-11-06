@@ -1,0 +1,243 @@
+{
+  "date": "2026-11-05",
+  "status": "Shared cooperative mip preparation promoted after local correctness review. Full migration, performance and release acceptance remain open.",
+  "scope": {
+    "mobileAndTablet": "Web browsers only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "noCommitPushOrDeployment": true,
+    "notVerified": [
+      "Physical Android and Safari web",
+      "Windows execution and OS dialogs/IME/pen",
+      "Remote CI, signing/notarization, homepage staging/rollback"
+    ]
+  },
+  "problem": {
+    "severity": "Major",
+    "cost": "L",
+    "rootCause": "Large cold minified source scans and box averaging ran synchronously in a render callback. Uniform 8K×4K×2 and checker fixtures reproduced long main-thread occupancy. Tool/skin-only redraws also unnecessarily invalidated source pixels."
+  },
+  "implementation": [
+    "PixelTileCache draw and prepare share one generator. Synchronous callers drain it; preparation yields at source-row boundaries with a conservative65536 source-pixel work budget. Maximum validated source width32768 fits this bound.",
+    "UI uses a4ms soft deadline and one owned MessageChannel per pending render. This is not a4ms hardware/task guarantee. Work and scratch are resumed or released through the same cursor.",
+    "Source dirty ownership transfers once. New document, edits, camera, frame/layer count or context changes cancel/re-key work. At most one cut transform is prepared before ordinary rasters within the existing64tile/128MiB logical cache budget.",
+    "Prepare does not paint the destination; a complete frame is published synchronously. New pointer drawing is held while preparing; pan/zoom and commands remain available and can supersede the request. Existing release/cancel continues.",
+    "Failure preserves authority/history and preflight backing; partially painted failures reset Canvas. Context loss remains not-ready until restore. Cancel closes ports, releases scratch and rejects stale callbacks.",
+    "Tool and skin-only updates preserve warm source caches. Actual pending commits already request full pixel invalidation."
+  ],
+  "boundaries": {
+    "engineAndFormatUnchanged": true,
+    "rustUnchanged": true,
+    "runtimeDependenciesAdded": 0,
+    "newAbstractions": "Only shared traversal and render/error/channel resource ownership; sequential UI work remains inline.",
+    "moduleGraph": {
+      "path": "build-web-work/task-planning/bounded-mip/final-module-graph.json",
+      "sha256": "2957ed829ba14d28e6362f590b1510698e4868dc416ed5737fb93d4731a0667c"
+    },
+    "staticReview": {
+      "path": "build-web-work/task-planning/bounded-mip/ui4-static-review/boundary-review.json",
+      "sha256": "5e30af6ebcceecf68bac5e18ed0fe2651267f57f42493cb1886d2a0769571a7a"
+    }
+  },
+  "provenance": {
+    "before": {
+      "path": "build-web-work/task-planning/bounded-mip/before-source.json",
+      "sha256": "c5bc4cb57896e6787a13fc883c63d9ab7de5045c6148560c1454610375c99626"
+    },
+    "finalSource17": {
+      "path": "build-web-work/task-planning/bounded-mip/final-source.json",
+      "sha256": "57a4dd36676fa622d3832ae7415b72b5fdbf5272ec9cf0706ea07faa8925689d"
+    },
+    "finalAssets8": {
+      "path": "build-web-work/task-planning/bounded-mip/final-manifest.json",
+      "sha256": "5aec4c147d1df834db63ca81b7098763a4074f595c4c59e1027166f3b2a908d8"
+    },
+    "promotion": {
+      "path": "build-web-work/task-planning/bounded-mip/promotion.json",
+      "sha256": "963e13cbdf3b7f741b917adc21e91a12d8d31812f541b06b9ecc22e5abd5f8fb"
+    },
+    "normalNativeApp": {
+      "path": "build-web-work/task-planning/bounded-mip/native-probe/ui4-normal-freeze.json",
+      "sha256": "14a05bb233707e67c9c53c1b6564ed1c87b6bade010e9a36a15c2ec90441fe77"
+    },
+    "format": {
+      "path": "build-web-work/task-planning/bounded-mip/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "build": {
+      "path": "build-web-work/task-planning/bounded-mip/final-build.log",
+      "sha256": "fe737c3baa67ed6f6620ae59ceb1265da2facb76b91a770448ce4504610485ff"
+    },
+    "finalBuildMatchesUI4": true
+  },
+  "verification": {
+    "node": {
+      "passed": 176,
+      "log": {
+        "path": "build-web-work/task-planning/bounded-mip/ui4-node-tests.log",
+        "sha256": "87d47637fe97e5f3046d609cdfea6033fa4c3c7fb5cbe141b324e79ea04c076e"
+      },
+      "engineUnchangedAfterRun": true
+    },
+    "tiles": {
+      "requiredPassed": 109,
+      "informational": 4,
+      "report": {
+        "path": "build-web-work/task-planning/bounded-mip/row-cursor-tests/results.json",
+        "sha256": "f15a6b36d131accc5d4b2745921dab7eacb3c003b36e445114dfbd2908882add"
+      },
+      "scope": "Independent raw/box reference, transform/unaligned/odd edge/large factor, bounded continuation, cancellation and allocation/upload/context failures."
+    },
+    "web": {
+      "passed": 48,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/bounded-mip/ui4-browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        },
+        {
+          "path": "build-web-work/task-planning/bounded-mip/ui4-browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        },
+        {
+          "path": "build-web-work/task-planning/bounded-mip/ui4-editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        },
+        {
+          "path": "build-web-work/task-planning/bounded-mip/ui4-storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        },
+        {
+          "path": "build-web-work/task-planning/bounded-mip/ui4-shear/results.json",
+          "sha256": "24bb77e37b11f93abd65e2188579208286c79b5b65248f1b3c48363dc699f2b3"
+        }
+      ]
+    },
+    "publicPreparation": {
+      "passed": 8,
+      "report": {
+        "path": "build-web-work/task-planning/bounded-mip/ui4-public-preparation/results.json",
+        "sha256": "587b43055c3f251af541602c714ee7f5d3d896a0585b825f0843eb7ee067c2eb"
+      },
+      "provenance": {
+        "path": "build-web-work/task-planning/bounded-mip/ui4-public-preparation/provenance.json",
+        "sha256": "ec8ce1557c1fec5d8f3c3ce99c3f8e9e19673ada3b7d18827ecbe0646d713696"
+      },
+      "scope": "Public UI document/Undo/Redo/camera supersession, preserved backing, warm tool/skin, synthetic context loss and injected ImageData failure. Main Canvas readback optionfalse is test-only; not physical GPU loss or performance evidence."
+    },
+    "scene": {
+      "canvasExact": 56,
+      "documentsExact": 12,
+      "manifest": {
+        "path": "build-web-work/task-planning/bounded-mip/ui4-scene-contract/manifest.json",
+        "sha256": "0af11f8960227638b07f06600333050f715729ccef2a41932578f64f84a36154"
+      },
+      "scope": "Same source cache, bypassed final scene capture reference; not an independent mip oracle or timing evidence."
+    },
+    "native": {
+      "phasesPassed": 4,
+      "report": {
+        "path": "build-web-work/task-planning/bounded-mip/ui4-native-desktop.json",
+        "sha256": "2728f37dda614b2969cf0d9e9f211cc4e4a1331c483dbdb5b9ea5bc622cdd7c6"
+      },
+      "activation": {
+        "path": "build-web-work/task-planning/bounded-mip/ui4-native-desktop.json.foreground.json",
+        "sha256": "56965d8df8d67db83c0ca12a1e7ddad5050476bd50eb0fba4714bf9e0a36ebc0"
+      },
+      "scope": "Actual macOS normal UI4 app without benchmark overlay; original assertions/fixtures preserved in temporary foreground adapter. These timing fields are not performance acceptance."
+    }
+  },
+  "performance": {
+    "chrome": {
+      "samplesPerPatternPerSide": 3,
+      "summary": {
+        "path": "build-web-work/task-planning/bounded-mip/ui4-browser-summary/summary.json",
+        "sha256": "037cc324e171142b1676643ad5c92c0d8ef35d2cdf90b07d3fa815881d8b3f0e"
+      },
+      "completeMedianMs": {
+        "uniform": [
+          186.6,
+          219.6
+        ],
+        "checker": [
+          361.8,
+          404.0
+        ]
+      },
+      "pairedExtraCompletionMedianMs": {
+        "uniform": 23.7,
+        "checker": 42.2
+      },
+      "observedCallbackMaximumRangeMs": {
+        "baseline": [
+          173.1,
+          364.2
+        ],
+        "candidate": [
+          5.0,
+          9.6
+        ]
+      },
+      "observedCandidateLongTasks": 0,
+      "allSixPairsSlowerToComplete": true,
+      "fullCanvasProjectGeometryAndUploadsExact": true,
+      "scope": "Fresh desktop Chrome, native resource profile, 256MiB authority; not mobile/physical pen/RSS/p95. Callback observers add overhead. Paired delta median differs from difference of medians."
+    },
+    "nativeUniform": {
+      "samplesPerSide": 1,
+      "summary": {
+        "path": "build-web-work/task-planning/bounded-mip/native-uniform-pair/summary.json",
+        "sha256": "ea43fb5e0f77026ca7fd4d209a4707bceec0263d675f7e6a945ad36543d21559"
+      },
+      "raw": {
+        "path": "build-web-work/task-planning/bounded-mip/native-uniform-pair/results.json",
+        "sha256": "fae0bcc31698bc774e1d85c5bb5dd708a0e489bfa2ef327a40e8bf96fc297ece"
+      },
+      "initialSyncMs": [
+        245,
+        5
+      ],
+      "validFrameMs": [
+        246,
+        312
+      ],
+      "maxTimerGapMs": [
+        246,
+        9
+      ],
+      "longTaskAPI": "Unsupported; null, not zero",
+      "scope": "Actual WK direct fixture; identical geometry/raw/Canvas/request quality. Common v3 overlay adds1s startup stabilization; activation helper finishes before measured work. Not comparable numerically with Chrome open/activation intervals."
+    },
+    "nativeChecker": {
+      "accepted": false,
+      "reason": "DPR2/backing1904×1436/mip4 versus DPR1/backing952×718/mip8; timing/upload/Canvas comparison is invalid. No automatic retry or performance improvement claim.",
+      "report": {
+        "path": "build-web-work/task-planning/bounded-mip/native-checker-rejected/rejected-pair-summary.json",
+        "sha256": "1432bc3e620c4c274e3b8fbb54b90fff474353c029ba197c220d14c6a62f8462"
+      }
+    },
+    "decision": "Accept bounded responsiveness with explicitly slower completion in observed pairs. Initial50ms, tail latency, broad/disjoint dirty, matched-DPR WK checker, long-session/RSS and physical device gates remain open."
+  },
+  "diagnosticsPreserved": {
+    "earlierBrowserPrototypes": "UI1 timer→rAF had1608ms completion against193ms; MessageChannel reduced this to446ms; row checkpoints reduced it to232ms. These n1 snapshots remain separate from final UI4 repetitions.",
+    "fractionalReadback": "Original redo Canvas mismatch also reproduced byte-identically on baseline. Explicit true and false readback-policy controls both matched all stages. Product context options unchanged; no proven Undo defect or measured backend transition.",
+    "nativeStartup": "Initial default-sandbox AppKit registration abort; escalated benchmark and known prior app each timed out. Explicit activation diagnostic completed. A later500ms helper ran before AppKit registration and was rejected. Registered-PID/executable validation then completed the uniform comparison. User reports screen on and app visible; screen lock is not established.",
+    "browserArchive": {
+      "path": "build-web-work/task-planning/bounded-mip/diagnostic-artifacts.tar.gz",
+      "sha256": "08f455cdd364efaf6003f1417cc557e5b7be17cadba445de024f18ed03fb37cb"
+    },
+    "nativeArchive": {
+      "path": "build-web-work/task-planning/bounded-mip/native-diagnostic-artifacts.tar.gz",
+      "sha256": "9d0a70f3a813a1a043ad8aab9342b7bca32c9574caed1271f0fe9ca348bea006"
+    },
+    "startupDiagnosticOverlayApplied": false
+  },
+  "next": [
+    "Match WK checker display/DPR before comparing; retain rejected pair",
+    "Measure broad/disjoint dirty and long-session process memory",
+    "Complete remaining tool/options and F01–F10 acceptance",
+    "Physical Android/Safari web, Windows/macOS OS integration and release gates"
+  ]
+}

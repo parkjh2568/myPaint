@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-05",
+  "status": "Confirmed task setup failure fixed; fill failure ownership regression added. Full migration/acceptance remains open.",
+  "scope": {
+    "mobileTablet": "Web only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "noCommitPushDeployment": true
+  },
+  "issue": {
+    "severity": "Major",
+    "cost": "S",
+    "trigger": "A single injected workspace.append failure while mounting the busy overlay.",
+    "rootCause": "busy/abort/inert/readOnly were changed before entering try/finally, so setup failure left controls locked.",
+    "baseline": {
+      "path": "build-web-work/task-planning/fill-failure/baseline-setup-only/results.json",
+      "sha256": "374c858e7e4497ee6551298dc888b4eac00785b184191e4bc2f6ab003bf7ecf1"
+    },
+    "fix": "Prepare DOM/controller/control snapshots before changing state; include inert/readOnly/append/work within existing try/finally. Cancel and work capture the same local controller. Sequential work stays inside task; no helper added.",
+    "limits": "Injected single DOM exception, not real process OOM. Replayed detached cancel is a synthetic ordering check; no physical input-race baseline was executed."
+  },
+  "verifiedExistingSafety": {
+    "report": {
+      "path": "build-web-work/task-planning/fill-failure/results.json",
+      "sha256": "22f75e490621af6c878e29810ea8eb258a42715a16a9987fdfcc7e1d86c4568b"
+    },
+    "cases": 9,
+    "scope": "Initial unmodified-alpha snapshot already safely handled Worker constructor/postMessage/error event/error response/profile/pixel/coordinate rejection, cancellation and production20s timeout. No codec/engine change was needed."
+  },
+  "regression": {
+    "report": {
+      "path": "build-web-work/task-planning/fill-failure/candidate-two-faults/results.json",
+      "sha256": "54ef57649d9a8fca6c7f255a754a234ecfe6ee8b21bd92d67ad5b032f4472968"
+    },
+    "cases": 10,
+    "faultsPerPage": 2,
+    "totalInjectedFaults": 20,
+    "productionTimeoutMs": 20000,
+    "timeoutSamplesMs": [
+      20001.6,
+      20001.1
+    ],
+    "checks": "Raw two-layer bytes/active/hidden visibility/clean UI/previous Redo preserved; controls and Workers released; late held results ignored; real retry has literal32x32 fill and one Undo/Redo; detached previous cancel leaves next busy task alive.",
+    "test": {
+      "path": "web-app/tests/fill-failure-contract.mjs",
+      "sha256": "bacecb3d97099c5142491c5a425e4b6a6b05d1fe0da4fbbcf217d05f0d8b83c5"
+    },
+    "scope": "Actual public Chromium UI/real codec Worker with fault injection, modeled native file IPC. Not OS Worker crashes or physical device evidence."
+  },
+  "verification": {
+    "web": {
+      "passed": 48,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/fill-failure/browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-failure/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-failure/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-failure/storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        },
+        {
+          "path": "build-web-work/task-planning/fill-failure/shear/results.json",
+          "sha256": "ebc9f498ac1946df7a64363bb166e51c1161a293cf489b95984e73f13702f23f"
+        }
+      ]
+    },
+    "pending": {
+      "passed": 36,
+      "report": {
+        "path": "build-web-work/task-planning/fill-failure/pending/results.json",
+        "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+      }
+    },
+    "native": {
+      "phasesPassed": 4,
+      "report": {
+        "path": "build-web-work/task-planning/fill-failure/native-desktop.json",
+        "sha256": "67341b6b0472c264dd9a949f2dd1386114004895e260872fb6d336ab6802938d"
+      },
+      "activation": {
+        "path": "build-web-work/task-planning/fill-failure/native-desktop.json.foreground.json",
+        "sha256": "05732a53c0167b8b5ba8694a2f8a8cbb0e213fcccb87fe2ad8b4e278b4711eff"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/fill-failure/final-app.json",
+        "sha256": "cb432cd41ae27f404156e6ae189e0ec4b5dcd4e2ccfa19398aa37d96875a2250"
+      },
+      "scope": "Actual standard-built macOS app with original recovery/codec/quit/scene21 assertions and isolated persistence roots. Activation adapter is test-only; no performance claim."
+    },
+    "format": {
+      "path": "build-web-work/task-planning/fill-failure/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "build": {
+      "path": "build-web-work/task-planning/fill-failure/final-build.log",
+      "sha256": "04b9c8aa7cd0ebabb5f94814fa61666fc50cb9416b35a6a3655f9923f09b5a35"
+    },
+    "unchangedCore": "Prior176 core-test evidence remains on identical engine; not a new run."
+  },
+  "architecture": {
+    "sourceMethodsChanged": [
+      "Studio.task"
+    ],
+    "engineCodecFormatRustUnchanged": true,
+    "helpersAdded": 0,
+    "dependenciesAdded": 0,
+    "moduleGraph": {
+      "path": "build-web-work/task-planning/fill-failure/final-module-graph.json",
+      "sha256": "9d2319fb0a8d0eb7ded85eb933a05eaaefdec456483f102b90708f22c74f0bd3"
+    },
+    "review": {
+      "path": "build-web-work/task-planning/fill-failure/static-review/boundary-review.json",
+      "sha256": "efc8c59d76ead73759dff7c99022a35f208e7dbedd06468734e39078fa482e2e"
+    }
+  },
+  "provenance": {
+    "beforeSource17": {
+      "path": "build-web-work/task-planning/fill-failure/source.json",
+      "sha256": "06dac58ec95e618fdb0d7e224525db0bb21a699d3e1e873b1f9cbc3b8014d926"
+    },
+    "finalSource17": {
+      "path": "build-web-work/task-planning/fill-failure/final-source.json",
+      "sha256": "e658d19a49a3ad7f1b6d99aaade6e73b6c215b7b3e15b9dd4f548bb4f6515612"
+    },
+    "assets8": {
+      "path": "build-web-work/task-planning/fill-failure/final-manifest.json",
+      "sha256": "a6411a0502567438427dd196a7bbe6ecb41b00feaeddb6a3b2c50e1d0234d68e"
+    },
+    "standardNativeBuild": {
+      "path": "build-web-work/task-planning/fill-failure/native-build.log",
+      "sha256": "0e47e4549d9c49268936e2db644f2b1fc25fb107075aa0052f61e923e1bb70fc"
+    },
+    "previousStandardAppRetained": "build-web-work/task-planning/fill-failure/ordinary-app-before/myPaint Studio.app"
+  },
+  "remaining": [
+    "Matched-DPR WK checker and broad/disjoint dirty/long-session memory",
+    "Qt premul fill-key and transparent-selection ON cut payload: read-only hypotheses, need independent reproduction",
+    "F06 negative crop/payload policy and mask/keyboard limit contracts",
+    "Alpha visibility UX and opaque-erase NoOp allocation/native GIF memory",
+    "Physical Android/Safari web, Windows/macOS OS integration, remote CI/signing/homepage staging"
+  ]
+}

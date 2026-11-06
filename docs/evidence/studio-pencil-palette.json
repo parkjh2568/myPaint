@@ -1,0 +1,353 @@
+{
+  "date": "2026-11-05",
+  "status": "Classic palette, focused-button Enter and legacy Pencil routing fixed and locally verified. Full migration/release acceptance remains open.",
+  "scope": {
+    "mobileAndTablet": "Browsers only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "executed": [
+      "Chromium public UI; mobile/tablet emulation",
+      "Actual macOS bundled WKWebView native smoke"
+    ],
+    "notExecuted": [
+      "Physical Android/Safari web acceptance",
+      "Windows application",
+      "OS dialogs, physical pen latency, signing/notarization",
+      "Remote CI or public deployment"
+    ]
+  },
+  "priorGoalTurn": "Progress: square implementation was promoted, independently reviewed and validated; this turn confirmed its 17 source hashes before further changes.",
+  "issues": [
+    {
+      "severity": "Major",
+      "cost": "S",
+      "issue": "Classic98 generic button background hid every palette color and replaced pressed colors with navy.",
+      "reproduction": "Both desktop and mobile Classic had 0/16 labeled colors displayed correctly; Studio had16/16. Color selection data itself was intact.",
+      "rootCause": "Higher-specificity root[data-skin=classic] button and :active/[aria-pressed] background rules override .swatches button.",
+      "fix": "Use the existing per-button --swatch with the normal panel/active accent fallback. No additional selector, helper or !important.",
+      "before": {
+        "path": "build-web-work/task-planning/classic-palette/before/results.json",
+        "sha256": "cc1ea781009f92026f6ef99c7587f8517b7c0958456745995ba8c972323ecf66"
+      },
+      "after": {
+        "path": "build-web-work/task-planning/classic-palette/after/results.json",
+        "sha256": "5a8cb21a0587ae917eb61725cbdce81f7ffe2a652592abab87339357bab3310e"
+      },
+      "scope": "Mouse and keyboard active color checked. Emulated touch selected correctly; Chromium reported :active=false at the sampled touchStart, so this is not proof of physical touch pressed-state timing."
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "issue": "Global Enter intercepted native button activation and could settle a pending selection instead of choosing a color.",
+      "reproduction": "In four skin/viewport configurations, Enter on salmon left the previous purple selection. Space and pointer activation worked.",
+      "rootCause": "keyboard() unmodified Enter prevented default and called settle() even when the focused target was a button.",
+      "fix": "Only the existing Enter branch returns for HTMLButtonElement, letting the button run its normal action. Busy/dialog/IME/Escape/Ctrl-Cmd branches retain precedence.",
+      "verification": "Public palette Enter preserves a pending transparent selection; explicit canvas Enter settles it. Undo Enter, Redo Space, palette Enter/Space and existing clipboard/IME editing assertions pass.",
+      "testAdjustment": "Existing document-Enter tests now explicitly focus the canvas after save/menu operations. Expected RGBA and Undo assertions were not changed."
+    },
+    {
+      "severity": "Major",
+      "cost": "M",
+      "issue": "Pencil used nearest-pixel DDA and maximum coverage, disagreeing with the documented legacy one-pixel tool.",
+      "reproduction": "Actual legacy Canvas (8,8)→(15,9) confirmed the six-pixel discrepancy. Qt alpha128 press gives192 and a real same-floor move gives240; old routing gave128. Qt ignores UI opacity for Pencil; old routing at1% gave alpha3.",
+      "rootCause": "UI routed Pencil to the generic pixel stamp mode, which is a different engine contract. Existing generic-mode tests were not authoritative for application Pencil behavior.",
+      "fix": "Route Pencil size1/square=true through the already verified hard-square engine (pixel=false). Existing terminal/chord handling applies; no engine or project-format change.",
+      "ui": "Show1px, disable size/opacity/hardness/stabilization/pressure/square options, explain the fixed behavior, preserve stored round values, ignore size shortcuts while Pencil is selected. Explicit pixel preset still has its existing preset behavior.",
+      "compatibility": "Generic pixel/spray API remains unchanged. Ordinary alpha0 ink keeps the existing hidden-RGB no-op safety policy. Raw storage is straight RGBA; Qt premultiplied RGB rounding is not imposed.",
+      "oracle": {
+        "path": "build-web-work/task-planning/pencil-tools/qt-reference/qt-oracle.json",
+        "sha256": "c8b06e1235ec41a9e792e8aa1ef9f0eddf693923b1ef1593724488da0492a1fe"
+      },
+      "independentReview": {
+        "path": "build-web-work/task-planning/pencil-tools/qt-reference/review.json",
+        "sha256": "e31629ea2c00fe9d53cdb1f0560b278039461da726af0aa27c985d43b4aaca2e"
+      }
+    }
+  ],
+  "productionChanges": [
+    "web-app/src/main.ts",
+    "web-app/src/style.css"
+  ],
+  "architecture": {
+    "newHelperFunctions": 0,
+    "newRuntimeDependencies": 0,
+    "engineChanged": false,
+    "engineSHA256": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "pixelFormatChanged": false,
+    "moduleOwnership": "UI selects the tool contract; existing engine owns pixels/history/cancel. Native packaging remains Windows/macOS only.",
+    "moduleGraph": {
+      "path": "build-web-work/task-planning/pencil-tools/final-module-graph.json",
+      "sha256": "2f0cab678e79c2fed4047447aee4b032d4ba6cba2bbdfdd808ae955bf58320d9"
+    },
+    "sourceGraph": {
+      "path": "build-web-work/task-planning/pencil-tools/final-source-graph.json",
+      "sha256": "62d374dd5510a993819dadfac310df39f464ba2dbb0d27307e3b8c91eb58f7d7"
+    },
+    "staticGraph": {
+      "path": "build-web-work/task-planning/pencil-tools/final-static-graph.json",
+      "sha256": "3c7bd98b3792249bc3d068db140fea23362950cc5369eeb58833ba02310696aa"
+    },
+    "boundaryReview": {
+      "path": "build-web-work/task-planning/pencil-tools/final-boundary-review.json",
+      "sha256": "8ef614b497fba5898a52643c9a83b2e0d85867cb034607e2edcaed5aec724698"
+    }
+  },
+  "provenance": {
+    "squareBaselineSource": {
+      "path": "build-web-work/task-planning/classic-palette/before-source.json",
+      "sha256": "10b3c86e611d9182f85d69430ca651282aaf6823be57f24df248602cd4f3cd7e"
+    },
+    "paletteSource": {
+      "path": "build-web-work/task-planning/classic-palette/final-source.json",
+      "sha256": "6af79cf576294fa4cf0d3797fd94a742692b5a1535c73b8804625aacbd22c0f3"
+    },
+    "paletteAssets": {
+      "path": "build-web-work/task-planning/classic-palette/final-manifest.json",
+      "sha256": "f7f4989498bda2be6a0875eea91f18fb172ca9f3ad7c7d933036153958ccde22"
+    },
+    "paletteFrozenSource": "build-web-work/task-planning/classic-palette/final-src",
+    "paletteFrozenSite": "build-web-work/task-planning/classic-palette/fixed-site/mypaint",
+    "finalSource": {
+      "path": "build-web-work/task-planning/pencil-tools/final-source.json",
+      "sha256": "c5bc4cb57896e6787a13fc883c63d9ab7de5045c6148560c1454610375c99626"
+    },
+    "finalAssets": {
+      "path": "build-web-work/task-planning/pencil-tools/final-manifest.json",
+      "sha256": "27b840161544ca86882306652620dade89a2103546fe1107e54dc62ec234d144"
+    },
+    "finalTestSources": {
+      "path": "build-web-work/task-planning/pencil-tools/test-source.json",
+      "sha256": "ab56963fab9262474ae0814cfbc9883ac13db86ce7758bfae98bc4f009ba9f5e"
+    },
+    "frozenSource": "build-web-work/task-planning/pencil-tools/final-src",
+    "frozenSite": "build-web-work/task-planning/pencil-tools/final-site/mypaint",
+    "sourceFiles": 17,
+    "assetFiles": 8,
+    "nativeBinarySHA256": "392817f6d70e2cd82ab75ced1137811229e0bcf664e88fb2ceb2cb9b9bb0efad",
+    "preservedApp": "build-web-work/task-planning/pencil-tools/final-app/myPaint Studio.app",
+    "previousSquareReport": {
+      "path": "docs/evidence/studio-square-tools.json",
+      "sha256": "5506da17511908f15a66e8f839c75e7e30987cdda3900c12c6b79a1a101aeca2"
+    },
+    "previousSquareGraph": {
+      "path": "build-web-work/task-planning/square-tools/final-module-graph.json",
+      "sha256": "86b37db341a1d4dd2c3f828de62d4b66d44c1c11497b0d80908e2dab18f14b73"
+    }
+  },
+  "verification": {
+    "build": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/pencil-tools/native-build.log",
+        "sha256": "f990fd8dc02f41aa01b9e12a23b99473d42e00129df63cb50eb5ebcf87ae78f9"
+      }
+    },
+    "format": {
+      "passed": true,
+      "log": {
+        "path": "build-web-work/task-planning/pencil-tools/format-check.log",
+        "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+      }
+    },
+    "actualQtPencil": {
+      "cases": 41,
+      "maskMismatchPixels": 0,
+      "alphaMismatchPixels": 0,
+      "opaqueRGBMismatchPixels": 0,
+      "stateMismatches": 0,
+      "report": {
+        "path": "build-web-work/task-planning/pencil-tools/qt-reference/square-route-comparison.json",
+        "sha256": "f585976478bdbb96c8d7cf45aff07493ffa16b2acfc4e96d080cbd502613dded"
+      },
+      "straightRGBDifferencePixels": 47,
+      "straightRGBMaxChannelDifference": 1,
+      "scope": "Independent Qt Canvas versus proposed route in the unchanged engine. The47 translucent RGB differences of at most1 are reported as storage-policy differences, not accepted pixel-test tolerances."
+    },
+    "publicPencilAndExistingTools": {
+      "checks": 41,
+      "newPencilChecks": 10,
+      "existingChecks": 31,
+      "errors": 0,
+      "report": {
+        "path": "build-web-work/task-planning/pencil-tools/ui/pencil-ui.json",
+        "sha256": "bda3557c8d814a723f01f943321735856264c0fd9a093d6f88fc45341c7bfa66"
+      },
+      "test": {
+        "path": "web-app/tests/eraser-picker-contract.mjs",
+        "sha256": "36cf6f66daa981d6c77648d77421405e31b407755a6b91aaffd9db55dd222a29"
+      },
+      "testExpectations": "Source picker RGBA, all-layer hashes, visibility, clean and Redo expectations retained. Only the later Pencil press expectation separately applies two source-over passes. Full literal RGBA and Undo/Redo are checked without tolerance."
+    },
+    "squareRegression": {
+      "checks": 35,
+      "layouts": 3,
+      "report": {
+        "path": "build-web-work/task-planning/pencil-tools/square-regression/ui-results.json",
+        "sha256": "9145745e100bbea2bc826eaabea76a9fb48ac0b65c1c2a9e06238f3102e83235"
+      }
+    },
+    "layouts": {
+      "configurations": 4,
+      "skins": [
+        "Studio",
+        "Classic98"
+      ],
+      "desktopWidth": 1400,
+      "mobileWidth": 390,
+      "report": {
+        "path": "build-web-work/task-planning/pencil-tools/layout/results.json",
+        "sha256": "711ad10921c706eab59561006bccf9272212d9abe670995ddea42c64ebd38c9e"
+      },
+      "physicalDevice": false
+    },
+    "otherPublicUI": [
+      {
+        "name": "final-basic-web",
+        "checks": 13,
+        "report": {
+          "path": "build-web-work/task-planning/pencil-tools/browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        }
+      },
+      {
+        "name": "final-concurrency",
+        "checks": 3,
+        "report": {
+          "path": "build-web-work/task-planning/pencil-tools/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        }
+      },
+      {
+        "name": "final-editing",
+        "checks": 13,
+        "report": {
+          "path": "build-web-work/task-planning/pencil-tools/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        }
+      },
+      {
+        "name": "palette-stage-basic-web",
+        "checks": 12,
+        "report": {
+          "path": "build-web-work/task-planning/classic-palette/browser/results.json",
+          "sha256": "e023269b09a77947b3d1628dab4ac613be420c2b72abd4a586660df7df1d9350"
+        }
+      },
+      {
+        "name": "palette-stage-concurrency",
+        "checks": 3,
+        "report": {
+          "path": "build-web-work/task-planning/classic-palette/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        }
+      },
+      {
+        "name": "palette-stage-editing",
+        "checks": 13,
+        "report": {
+          "path": "build-web-work/task-planning/classic-palette/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        }
+      },
+      {
+        "name": "palette-stage-storage",
+        "checks": 13,
+        "report": {
+          "path": "build-web-work/task-planning/classic-palette/storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        }
+      },
+      {
+        "name": "palette-stage-shear",
+        "checks": 6,
+        "report": {
+          "path": "build-web-work/task-planning/classic-palette/shear/results.json",
+          "sha256": "0d136d2321c361bae752eac660e31aa04cdaf0a75eff75ee0b767c47beb5e47e"
+        }
+      }
+    ],
+    "native": {
+      "report": {
+        "path": "build-web-work/task-planning/pencil-tools/final-native.json",
+        "sha256": "37ff1d4ebcfed6942bc7bdedc369108fd08fc774c7ca1cf5cd53ba1acf14dc6d"
+      },
+      "processStages": 4,
+      "sceneChecks": 21,
+      "gifChecks": [
+        "gif-static-red-8x6",
+        "gif-animation-first-red",
+        "gif-transparent-rgba"
+      ],
+      "legacyFilesUnchanged": true,
+      "scope": "Actual macOS persistence/recovery, codec, quit and render smoke on the final binary. The existing in-app square checks exercise JavaScriptCore, not actual Pencil pointer events. No native physical keyboard/pen/UI acceptance claimed."
+    },
+    "priorCoreSuite": {
+      "tests": 176,
+      "sourceUnchanged": true,
+      "executedAgainThisTurn": false,
+      "report": {
+        "path": "docs/evidence/studio-square-tools.json",
+        "sha256": "5506da17511908f15a66e8f839c75e7e30987cdda3900c12c6b79a1a101aeca2"
+      },
+      "scope": "Previous core evidence remains applicable to identical engine/codec source; it is not represented as a new test execution."
+    },
+    "independentRoles": [
+      "Architect: actual Qt Pencil41, proposed routing and final main diff",
+      "Implementation: root minimal UI/input changes and integration",
+      "Reviewer: frozen palette and Pencil correctness/expectation review",
+      "SRE/Optimizer: independent10 public Pencil cases,41-case execution and bounded-mip plan"
+    ]
+  },
+  "operationalNotes": [
+    "Initial formatter invocation used repository-relative patterns from the wrong working directory and matched no files. The corrected invocation succeeded; no product failure or hidden test retry.",
+    "The complete palette-stage browser script used default storage/shear output locations. Original outputs were copied before either write; current outputs were moved into this stage and the originals restored byte-exact using the saved manifest. No historical result was replaced."
+  ],
+  "performance": {
+    "benchmarksExecutedThisTurn": false,
+    "claim": "No drawing-speed improvement is asserted for CSS, keyboard ownership or Pencil routing. The old DDA and restored Pencil produce different output contracts, so a naive speedup comparison would be invalid.",
+    "nextDesign": {
+      "path": "build-web-work/task-planning/pencil-tools/next-mip-plan/PLAN.md",
+      "sha256": "2634a7b06cc11fe138582c83f0fd865e423d56484e0de19bac9a5d8acc485df4"
+    },
+    "sourceForNextDesign": {
+      "path": "build-web-work/task-planning/pencil-tools/next-mip-plan/source.json",
+      "sha256": "0aebfe5790cad09ad39c1b809bafc36fa4543dc3c953ae50bd44d06630e6ef62"
+    },
+    "nextStep": "Implement bounded source-mip preparation with a shared resumable cursor, preserve synchronous complete-scene publication and the existing factor1 fast path. Include mutation generation, cancellation, dirty ownership and scratch accounting before timing comparisons."
+  },
+  "remaining": [
+    {
+      "priority": 1,
+      "severity": "Major",
+      "cost": "L",
+      "issue": "Cold50ms and maximum-mip continuous main-thread occupancy; implement and measure bounded preparation, broad/disjoint dirty work and process memory/long sessions."
+    },
+    {
+      "priority": 2,
+      "severity": "Major",
+      "cost": "M",
+      "issue": "Complete17-tool/F01–F10 option combinations and safe homepage artifact staging/rollback are still incomplete."
+    },
+    {
+      "priority": 3,
+      "severity": "Major",
+      "cost": "M",
+      "issue": "Physical Android Chrome/Safari web, Windows execution, OS integration, remote CI, signing/notarization and release acceptance remain open."
+    },
+    {
+      "priority": 4,
+      "severity": "Minor",
+      "cost": "M",
+      "issue": "Picked-alpha visibility UX, same-opaque-color eraser temporary allocation and native GIF metadata/RSS remain open."
+    }
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "homepageRepositoryModified": false,
+    "publicDeploymentChanged": false,
+    "goalComplete": false
+  }
+}

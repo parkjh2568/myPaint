@@ -1,0 +1,2089 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "Measured lasso-path preview investigation; no production source/type/API/cache change. Previous phase implementation verifier was revalidated before this investigation. This is not whole-goal/performance/platform acceptance.",
+  "source17Unchanged": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "7cde8e9b224ea37f797ba74c3ec0fdee68da18c127e4cb2c4d9e2082a3f4e46c",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "9243e5903949ad0c9fd79efdea9ecccea1aee1be5667da0266c25ebd89e17ad9",
+    "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+    "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "ac8201c63e4692a88802ed226b9c294fe5da305bb90747cc75624320c9e8b6fc",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "decision": "Defer Path2D cache; prioritize actual maximum nearest resize. Current bounded near-neighbor64k fixture RAF4.3–5.9ms does not demonstrate50ms bottleneck; additional native O(P) path storage and owner/error/Enter complexity require actual benefit before shipping.",
+  "baseline": {
+    "scope": "One fixed baseline captured lasso drag with growing synthetic input batches and actual RAF between stages; no production changes. New64k local serpentine workload, not random32k.",
+    "fixture": {
+      "P": 65536,
+      "pointsSha256": "4e230a885e2738c79753c8691a7986bdfb3017f1fb0035d64c2b7f6dd08659b6",
+      "source": [
+        1024,
+        1024
+      ],
+      "sourceRawSha256": "9b10b5621953aa31f44824392783861ff40aeb7edd232f04d8bcb8dcf5da9936",
+      "encodedSha256": "9049fa66389301d9c450e331048ef064e9b3015de2b46d7219566e5a12bbedac",
+      "finalBbox": [
+        0,
+        0,
+        1023,
+        1008
+      ],
+      "literalPayloadSha256": "f10ad7dc312fb9b490a7157619d7616550bf7ee38b8f0acf99b370cd915c94df"
+    },
+    "geometry": {
+      "viewport": {
+        "width": 1600,
+        "height": 1400
+      },
+      "dpr": 1,
+      "zoom": 1,
+      "canvasBox": {
+        "x": 54,
+        "y": 53,
+        "width": 1272,
+        "height": 1310
+      },
+      "origin": {
+        "x": 178,
+        "y": 196
+      }
+    },
+    "metrics": [
+      {
+        "name": "points-4096",
+        "pointCount": 4096,
+        "batch": {
+          "from": 1,
+          "to": 4096,
+          "events": 4095,
+          "wallMs": 13.100000023841858
+        },
+        "rafMs": [
+          1.100000023841858
+        ],
+        "mainStrokeWallMs": [
+          0.10000002384185791
+        ],
+        "strokeHasPathArgument": [
+          false
+        ],
+        "totalPath2DConstructors": 9,
+        "newReadyLatencyMs": 15.200000047683716,
+        "max10msTimerGapMs": 16,
+        "wholeTaskLongtasks": [],
+        "fullCanvasExact": {
+          "pointCount": 4096,
+          "lineSegmentCount": 4095,
+          "differingBytes": 0,
+          "maxDifference": 0,
+          "first": [],
+          "actualSha256": "0f0e37239d607ff40c3378fa13e79c362ec5d0d7c487174a02362fa319058e30",
+          "referenceSha256": "0f0e37239d607ff40c3378fa13e79c362ec5d0d7c487174a02362fa319058e30",
+          "shift": [
+            0,
+            0
+          ]
+        },
+        "notes": "Input batch shares a task with dispatch overhead; not pure event handler/kernel CPU. Native stroke is nested inRAF, not additive."
+      },
+      {
+        "name": "points-16384",
+        "pointCount": 16384,
+        "batch": {
+          "from": 4096,
+          "to": 16384,
+          "events": 12288,
+          "wallMs": 35.299999952316284
+        },
+        "rafMs": [
+          4.600000023841858
+        ],
+        "mainStrokeWallMs": [
+          0
+        ],
+        "strokeHasPathArgument": [
+          false
+        ],
+        "totalPath2DConstructors": 9,
+        "newReadyLatencyMs": 40.800000071525574,
+        "max10msTimerGapMs": 41.200000047683716,
+        "wholeTaskLongtasks": [],
+        "fullCanvasExact": {
+          "pointCount": 16384,
+          "lineSegmentCount": 16383,
+          "differingBytes": 0,
+          "maxDifference": 0,
+          "first": [],
+          "actualSha256": "2c6ebbb07f30ee4db61233d0daf4d3742818cd1ba88c3edb20bcd9c2e404205f",
+          "referenceSha256": "2c6ebbb07f30ee4db61233d0daf4d3742818cd1ba88c3edb20bcd9c2e404205f",
+          "shift": [
+            0,
+            0
+          ]
+        },
+        "notes": "Input batch shares a task with dispatch overhead; not pure event handler/kernel CPU. Native stroke is nested inRAF, not additive."
+      },
+      {
+        "name": "points-65504",
+        "pointCount": 65504,
+        "batch": {
+          "from": 16384,
+          "to": 65504,
+          "events": 49120,
+          "wallMs": 140.60000002384186
+        },
+        "rafMs": [
+          5.899999976158142
+        ],
+        "mainStrokeWallMs": [
+          0.2999999523162842
+        ],
+        "strokeHasPathArgument": [
+          false
+        ],
+        "totalPath2DConstructors": 9,
+        "newReadyLatencyMs": 148.39999997615814,
+        "max10msTimerGapMs": 149.20000004768372,
+        "wholeTaskLongtasks": [
+          {
+            "start": 2552.3000000715256,
+            "ms": 140
+          }
+        ],
+        "fullCanvasExact": {
+          "pointCount": 65504,
+          "lineSegmentCount": 65503,
+          "differingBytes": 0,
+          "maxDifference": 0,
+          "first": [],
+          "actualSha256": "fad3b65f04ee7e4d8160ae55dac32b9371565e2308fb98ba8575064a398ce590",
+          "referenceSha256": "fad3b65f04ee7e4d8160ae55dac32b9371565e2308fb98ba8575064a398ce590",
+          "shift": [
+            0,
+            0
+          ]
+        },
+        "notes": "Input batch shares a task with dispatch overhead; not pure event handler/kernel CPU. Native stroke is nested inRAF, not additive."
+      },
+      {
+        "name": "points-65536",
+        "pointCount": 65536,
+        "batch": {
+          "from": 65504,
+          "to": 65536,
+          "events": 32,
+          "wallMs": 0.10000002384185791
+        },
+        "rafMs": [
+          4.5
+        ],
+        "mainStrokeWallMs": [
+          0.30000007152557373
+        ],
+        "strokeHasPathArgument": [
+          false
+        ],
+        "totalPath2DConstructors": 9,
+        "newReadyLatencyMs": 6.100000023841858,
+        "max10msTimerGapMs": 6.5,
+        "wholeTaskLongtasks": [],
+        "fullCanvasExact": {
+          "pointCount": 65536,
+          "lineSegmentCount": 65535,
+          "differingBytes": 0,
+          "maxDifference": 0,
+          "first": [],
+          "actualSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+          "referenceSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+          "shift": [
+            0,
+            0
+          ]
+        },
+        "notes": "Input batch shares a task with dispatch overhead; not pure event handler/kernel CPU. Native stroke is nested inRAF, not additive."
+      },
+      {
+        "name": "camera-pan",
+        "pointCount": 65536,
+        "batch": null,
+        "rafMs": [
+          4.600000023841858
+        ],
+        "mainStrokeWallMs": [
+          0.20000004768371582
+        ],
+        "strokeHasPathArgument": [
+          false
+        ],
+        "totalPath2DConstructors": 9,
+        "newReadyLatencyMs": 7.899999976158142,
+        "max10msTimerGapMs": 8.299999952316284,
+        "wholeTaskLongtasks": [],
+        "fullCanvasExact": {
+          "pointCount": 65536,
+          "lineSegmentCount": 65535,
+          "differingBytes": 0,
+          "maxDifference": 0,
+          "first": [],
+          "actualSha256": "0b005795e7d8d7396fd2bfa1d0a139244c9a16b5b2a0db852e1ea08713a9ee91",
+          "referenceSha256": "0b005795e7d8d7396fd2bfa1d0a139244c9a16b5b2a0db852e1ea08713a9ee91",
+          "shift": [
+            -7,
+            -5
+          ]
+        },
+        "notes": "Input batch shares a task with dispatch overhead; not pure event handler/kernel CPU. Native stroke is nested inRAF, not additive."
+      },
+      {
+        "name": "camera-return",
+        "pointCount": 65536,
+        "batch": null,
+        "rafMs": [
+          4.299999952316284
+        ],
+        "mainStrokeWallMs": [
+          0.2999999523162842
+        ],
+        "strokeHasPathArgument": [
+          false
+        ],
+        "totalPath2DConstructors": 9,
+        "newReadyLatencyMs": 7.700000047683716,
+        "max10msTimerGapMs": 8.100000023841858,
+        "wholeTaskLongtasks": [],
+        "fullCanvasExact": {
+          "pointCount": 65536,
+          "lineSegmentCount": 65535,
+          "differingBytes": 0,
+          "maxDifference": 0,
+          "first": [],
+          "actualSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+          "referenceSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+          "shift": [
+            0,
+            0
+          ]
+        },
+        "notes": "Input batch shares a task with dispatch overhead; not pure event handler/kernel CPU. Native stroke is nested inRAF, not additive."
+      },
+      {
+        "name": "noop-redraw",
+        "pointCount": 65536,
+        "batch": null,
+        "rafMs": [
+          4.5
+        ],
+        "mainStrokeWallMs": [
+          0.19999992847442627
+        ],
+        "strokeHasPathArgument": [
+          false
+        ],
+        "totalPath2DConstructors": 9,
+        "newReadyLatencyMs": 16.799999952316284,
+        "max10msTimerGapMs": 13.5,
+        "wholeTaskLongtasks": [],
+        "fullCanvasExact": {
+          "pointCount": 65536,
+          "lineSegmentCount": 65535,
+          "differingBytes": 0,
+          "maxDifference": 0,
+          "first": [],
+          "actualSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+          "referenceSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+          "shift": [
+            0,
+            0
+          ]
+        },
+        "notes": "Input batch shares a task with dispatch overhead; not pure event handler/kernel CPU. Native stroke is nested inRAF, not additive."
+      },
+      {
+        "name": "same-floor-duplicates",
+        "pointCount": 65536,
+        "batch": {
+          "from": 65536,
+          "to": 65536,
+          "events": 5,
+          "wallMs": 0.09999990463256836
+        },
+        "rafMs": [
+          4.699999928474426
+        ],
+        "mainStrokeWallMs": [
+          0.10000002384185791
+        ],
+        "strokeHasPathArgument": [
+          false
+        ],
+        "totalPath2DConstructors": 9,
+        "newReadyLatencyMs": 17.799999952316284,
+        "max10msTimerGapMs": 15.799999952316284,
+        "wholeTaskLongtasks": [],
+        "fullCanvasExact": {
+          "pointCount": 65536,
+          "lineSegmentCount": 65535,
+          "differingBytes": 0,
+          "maxDifference": 0,
+          "first": [],
+          "actualSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+          "referenceSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+          "shift": [
+            0,
+            0
+          ]
+        },
+        "notes": "Input batch shares a task with dispatch overhead; not pure event handler/kernel CPU. Native stroke is nested inRAF, not additive."
+      }
+    ],
+    "geometryCounter": {
+      "commands": 65536,
+      "moveTo": 1,
+      "lineTo": 65535,
+      "allCapturedCommandCoordinatesExact": true,
+      "geometry": {
+        "pointCount": 65536,
+        "lineSegmentCount": 65535,
+        "differingBytes": 0,
+        "maxDifference": 0,
+        "first": [],
+        "actualSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+        "referenceSha256": "b3036316a287ede63502ae69703f2eed108deef74d1d3e11f1920e76a42c75c9",
+        "shift": [
+          0,
+          0
+        ]
+      }
+    },
+    "payload": {
+      "width": 1023,
+      "height": 1008,
+      "rawSha256": "f10ad7dc312fb9b490a7157619d7616550bf7ee38b8f0acf99b370cd915c94df"
+    },
+    "cancel": {
+      "differingBytes": 0,
+      "undo": false,
+      "title": "fixture.rpaint — myPaint"
+    },
+    "sourceAfter": {
+      "width": 1024,
+      "height": 1024,
+      "rawSha256": "9b10b5621953aa31f44824392783861ff40aeb7edd232f04d8bcb8dcf5da9936"
+    },
+    "findings": [
+      "Every rendered prefix and camera/noop/duplicate frame byte-exact to a separate full-point Canvas reference; final65536-command coordinate replay exact (one move+65535 open line segments).",
+      "Growing4096/16384/65504 RAF1.1/4.6/5.9ms; small32append final64k RAF4.5ms. Full64k camera/noop/samefloor redraw4.3–4.7ms, sync Canvas.stroke0.1–0.3ms in thisn1 run.",
+      "Large49120-event synthetic batch takes140.6ms and dominates its149.2ms timer gap; this artificial cadence is not actual physical input evidence. No current50ms path-render bottleneck established.",
+      "Current source replays all65536 commands in the separate noop geometry diagnostic, so the O(P) path-rebuild mechanism is confirmed even though its measured per-frame cost here is small.",
+      "Do not label totalRAF4–6ms as path-only CPU: it includes paper/checker/image draw and cache/API work. Sampler not run because target is currently short/sparse samples may not justify a further inference."
+    ],
+    "resourceScope": "Base source4MiB, retained JS points65536 and native Canvas current-path commands observed by count; no byte estimate for JS/native geometry/cache/RSS. Path2D constructors include renderer clip paths, not necessarily a lasso cache. Verification-only base/reference canvases and fullRGBA scans occur outside timing and are not product resource-budget measurements.",
+    "limitations": [
+      "n1 stages are sequential and correlated; no p95/tail/global50ms/no-regression/physicalpen/native/mobile claim.",
+      "Serpentine deliberately has short nearby edges and collinear points; result does not bound random long-edge dashedstroke or arbitrary path geometry costs. No points were removed.",
+      "No perpoint timing/wrappers in primary stages; separate command-counter replay is not a performance sample.",
+      "Opaque baseCanvas + integer shift + independent fullpolyline reference shares Canvas rasterizer but not app path/cache implementation. It is visual geometry equivalence, not a new independent Qt edge certificate.",
+      "Source17 and frozen8+loadedJS hashes identify code; remaining native/Windows/Android scope is untested.",
+      "Primary observer Path2D construction counts mix renderer clip objects; no extra native geometry memory or retained-cache count claim."
+    ],
+    "nextDecision": "If evaluating a lazy Path2D cache, use this unchanged driver/fixture/sourcegold on frozen candidate; compare growing versus delta/unchanged stages and raw geometry/selection/cancel. Improvement under this small per-frame baseline must not be framed as fixing an observed50ms bottleneck. Preserve arrayidentity ABA and original points; native geometry lifetime requires independent cancellation/resource review."
+  },
+  "apiPrototype": {
+    "scope": "Small read-only actual Chromium Canvas API prototype, current default path vs retained world Path2D. No Studio cache/product change. Same open geometry/current style and transform, exact RGBA required. API/forced readback timings are diagnostic, not frame/presentation benchmarks or native/mobile acceptance.",
+    "browser": "156.0.8078.80",
+    "driverSHA256": "c46b68b50118027817ce7cd23f64afe1df52fa63aec436e7684af1b42401de05",
+    "ok": true,
+    "result": {
+      "cases": 64,
+      "rows": [
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 0.015625,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 8.200000047683716
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0.09999990463256836,
+              "forcedReadbackMs": 1.2000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 0.015625,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 8.699999928474426
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.399999976158142
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 0.125,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 0.125,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 12.799999952316284
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 0.37,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.600000023841858
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 0.37,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.399999976158142
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 0.93,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2999999523162842
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 0.93,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.9000000953674316
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.4000000953674316
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 1,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 10.399999976158142
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8999999761581421
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 1,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 5.800000071525574
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 1.1,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 1.1,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.5
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8999999761581421
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 2,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.7999999523162842
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8000000715255737
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 1,
+          "zoom": 2,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8000000715255737
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.7000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 0.015625,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.3000000715255737
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 0.015625,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.2999999523162842
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8999999761581421
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 0.125,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2999999523162842
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 0.125,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.3000000715255737
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 0.37,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.4000000953674316
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.0999999046325684
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 0.37,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.1999999284744263
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 0.93,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2999999523162842
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 0.93,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 1,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.09999990463256836,
+              "forcedReadbackMs": 1
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 1,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.399999976158142
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 1.1,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 1.1,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 2,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "turns-retrace-open",
+          "points": 10,
+          "dpr": 2,
+          "zoom": 2,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 0.015625,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.20000004768371582,
+              "forcedReadbackMs": 1.399999976158142
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8999999761581421
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 0.015625,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.1999999284744263
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8999999761581421
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 0.125,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.1999999284744263
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 0.125,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8000000715255737
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 0.37,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.3000000715255737
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 0.37,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 0.93,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.3000000715255737
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 0.93,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.2999999523162842
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 1,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.399999976158142
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 1,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.100000023841858
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 1.1,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.399999976158142
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.3000000715255737
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 1.1,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.3000000715255737
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 2,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.5
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.5999999046325684
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 1,
+          "zoom": 2,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.0999999046325684
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 0.015625,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 0.015625,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8999999761581421
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8000000715255737
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 0.125,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.09999990463256836,
+              "forcedReadbackMs": 1.3000000715255737
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 0.8999999761581421
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 0.125,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.4000000953674316
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 0.37,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.100000023841858
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 0.37,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.1999999284744263
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 0.93,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.600000023841858
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.399999976158142
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 0.93,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.2999999523162842
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 1,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.09999990463256836,
+              "forcedReadbackMs": 1.3000000715255737
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.399999976158142
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 1,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.1999999284744263
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.399999976158142
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 1.1,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.2999999523162842
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.399999976158142
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 1.1,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.399999976158142
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.3000000715255737
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 2,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.09999990463256836,
+              "forcedReadbackMs": 1.5
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.3000000715255737
+            }
+          ]
+        },
+        {
+          "shape": "serpentine4096",
+          "points": 4096,
+          "dpr": 2,
+          "zoom": 2,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0.10000002384185791,
+              "forcedReadbackMs": 1.399999976158142
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.399999976158142
+            }
+          ]
+        },
+        {
+          "shape": "far-legal-coordinates",
+          "points": 3,
+          "dpr": 1,
+          "zoom": 0.0009765625,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.5999999046325684
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            }
+          ]
+        },
+        {
+          "shape": "far-legal-coordinates",
+          "points": 3,
+          "dpr": 1,
+          "zoom": 0.0009765625,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.0999999046325684
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.100000023841858
+            }
+          ]
+        },
+        {
+          "shape": "far-legal-coordinates",
+          "points": 3,
+          "dpr": 1,
+          "zoom": 0.015625,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 9
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 7.900000095367432
+            }
+          ]
+        },
+        {
+          "shape": "far-legal-coordinates",
+          "points": 3,
+          "dpr": 1,
+          "zoom": 0.015625,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 7.399999976158142
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 6.5
+            }
+          ]
+        },
+        {
+          "shape": "far-legal-coordinates",
+          "points": 3,
+          "dpr": 2,
+          "zoom": 0.0009765625,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.3000000715255737
+            }
+          ]
+        },
+        {
+          "shape": "far-legal-coordinates",
+          "points": 3,
+          "dpr": 2,
+          "zoom": 0.0009765625,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.2000000476837158
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 1.0999999046325684
+            }
+          ]
+        },
+        {
+          "shape": "far-legal-coordinates",
+          "points": 3,
+          "dpr": 2,
+          "zoom": 0.015625,
+          "offset": [
+            10,
+            11
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 5.100000023841858
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 5.899999976158142
+            }
+          ]
+        },
+        {
+          "shape": "far-legal-coordinates",
+          "points": 3,
+          "dpr": 2,
+          "zoom": 0.015625,
+          "offset": [
+            10.25,
+            11.75
+          ],
+          "changedBytes": 0,
+          "changedPixels": 0,
+          "bounds": null,
+          "timings": [
+            {
+              "kind": "default",
+              "apiMs": 0,
+              "forcedReadbackMs": 5.899999976158142
+            },
+            {
+              "kind": "retained",
+              "apiMs": 0,
+              "forcedReadbackMs": 5.5
+            }
+          ]
+        }
+      ],
+      "allExact": true
+    }
+  },
+  "designCorrection": {
+    "initial": "Drag path alone would be insufficient",
+    "observedInCode": "keyboard Enter→settle→commitPending replaces this.points=[] while the same Drag stays active",
+    "risk": "A naive retained path could reuse previous geometry after the new array reaches an old count; proposal risk, not a current shipped-cache defect.",
+    "refined": "Drag-owned points-array identity + Path2D + successful command count, lazy render append, discard that cache on construction/append/stroke error; preserve full open path and current style/CTM",
+    "mutationAssumption": "Current canonical lasso writers append or replace array. Arbitrary prefix mutation/truncate-and-regrow ABA in same array not generally supported by this proposal.",
+    "status": "Not implemented or publicly exercised as a cache."
+  },
+  "severity": {
+    "confirmedCurrentBlockerMajor": [],
+    "rejectedProposalMajor": "Points-array identity required for Enter ABA; corrected before any code adoption."
+  },
+  "specification": {
+    "url": "https://html.spec.whatwg.org/multipage/canvas.html#drawing-paths-to-the-canvas",
+    "scope": "Path2D uses current transform when drawn; current default path and Path2D transformation timing differ. Mathematical equivalence is not a substitute for actual pixels. The64-case prototype is actual Chromium only."
+  },
+  "limitations": [
+    "64k near-neighbor/mostly-collinear serpentine is not an upper bound for random long-edge dashed strokes or physical input cadence.",
+    "49120 synchronous synthetic input moves around140.6ms are separate automation ingestion, not preview RAF or physical handwriting latency.",
+    "65536 command coordinates mean1moveTo+65535lineTo, not65536line segments.",
+    "Prototype API64 cases tests open-path/DPR1/2/fractional zoom-pan/far coordinates, not cache lifetime, Enter GUI races, native WK, Android or app presentation.",
+    "No sampler run for this4–6ms preview; native full stroke can remainO(P), native append may copy internally, native memory/JS entries allocation/RSS not measured.",
+    "No point decimation, mask change, new package/module/helper, commit/push/public deployment.",
+    "Other shapes/platforms may justify re-prioritization after profiling."
+  ],
+  "references": [
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/before-source.json",
+      "sha256": "2df9339520492cd4e86b65e3c2aab5624d3998e95353faa90268e49abdf5d173"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/before-assets.json",
+      "sha256": "7fbd32490239ce3a6cf1c26d9a8f2e248065af990a3cb75336e11970af1c1b0e"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/before-module-graph.json",
+      "sha256": "daeeb98c204c9d30c2f4a432d9864f470d36ddf781aa13d978d57b6d2fcdd4d9"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/sre/baseline-summary.json",
+      "sha256": "21d5a71bf49184c566be206fb84a3c1ad3425394e65a15b155d51aa0d717191f"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/sre/baseline/results.json",
+      "sha256": "1e269a881f640b72dec5397ead09fddf776a1da368ab038a20bf2a360d8b75de"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/sre/run.mjs",
+      "sha256": "7c7933beb613e9c8dc25b83e736b9832bd94603bd28826c91da509ff2c1cd882"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/sre/protocol.json",
+      "sha256": "630117b14eb661a96411483b2c88d0ed8719ba6ad04109cfd63149c45c6d660c"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/canvas-api-prototype.mjs",
+      "sha256": "c46b68b50118027817ce7cd23f64afe1df52fa63aec436e7684af1b42401de05"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/canvas-api-prototype.json",
+      "sha256": "ad900853e7ac22982e654d843f173897e5e056ee8f8cb2c07bd80be9f163623c"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/architect-initial/review.json",
+      "sha256": "e937601d5002bf21a5ba7c64e20b7288bb7efd23985ee8fe2195ffdd381e87fe"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/architect/review.json",
+      "sha256": "0195ba700b52835b7ff837f4c04ba818ce23351ea5dfde1b049e1355c22b20e0"
+    },
+    {
+      "path": "build-web-work/task-planning/lasso-path-preview/reviewer/review.json",
+      "sha256": "93f3809f4136ff163e932bb5412b75c0051c16eefb0c9b18878ef7b5029cd685"
+    }
+  ]
+}

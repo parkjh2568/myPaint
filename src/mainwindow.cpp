@@ -1,5 +1,7 @@
 #include "mainwindow.h"
+#include "colorpicker.h"
 #include <QActionGroup>
+#include <QApplication>
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QColorDialog>
@@ -29,6 +31,7 @@
 #include <QScopedValueRollback>
 #include <QScrollArea>
 #include <QSignalBlocker>
+#include <QSlider>
 #include <QSpinBox>
 #include <QStandardPaths>
 #include <QStatusBar>
@@ -70,12 +73,10 @@ QAction *MainWindow::action(QMenu *menu, const QString &name, const QKeySequence
 void MainWindow::run(const std::function<void()> &work) {
     if (fileWorkActive)
         return;
-#ifdef Q_OS_WASM
     if (canvas->hasActiveGesture()) {
         statusBar()->showMessage(QStringLiteral("마우스 버튼을 놓고 현재 그리기를 마친 뒤 실행하세요."));
         return;
     }
-#endif
     try {
         work();
         sync();
@@ -99,12 +100,61 @@ void MainWindow::recoverAfterError() {
 }
 MainWindow::MainWindow() {
     setWindowTitle(QStringLiteral("RetroPaint"));
-    resize(1080, 780);
+    resize(1280, 840);
+    QPalette themePalette = QApplication::palette();
+    themePalette.setColor(QPalette::Window, QColor("#252830"));
+    themePalette.setColor(QPalette::Button, QColor("#30343e"));
+    themePalette.setColor(QPalette::Base, QColor("#1c1f26"));
+    themePalette.setColor(QPalette::AlternateBase, QColor("#252932"));
+    themePalette.setColor(QPalette::WindowText, QColor("#e6e9f0"));
+    themePalette.setColor(QPalette::Text, QColor("#e6e9f0"));
+    themePalette.setColor(QPalette::ButtonText, QColor("#e6e9f0"));
+    themePalette.setColor(QPalette::Highlight, QColor("#416fe5"));
+    themePalette.setColor(QPalette::HighlightedText, Qt::white);
+    themePalette.setColor(QPalette::Disabled, QPalette::Text, QColor("#707786"));
+    themePalette.setColor(QPalette::Disabled, QPalette::ButtonText, QColor("#707786"));
+    QApplication::setPalette(themePalette);
+    setStyleSheet(QStringLiteral(R"(
+        QMainWindow { background: #16181d; }
+        QMenuBar, QToolBar, QStatusBar { background: #22252d; border: 0; spacing: 6px; }
+        QMenuBar { padding: 4px 8px; }
+        QMenuBar::item { padding: 5px 9px; border-radius: 4px; }
+        QMenuBar::item:selected, QMenu::item:selected { background: #3a4662; }
+        QMenu { background: #292d37; border: 1px solid #454b59; padding: 5px; }
+        QMenu::item { padding: 7px 28px 7px 12px; }
+        QToolBar { padding: 5px; }
+        QToolButton, QPushButton { border: 1px solid transparent; border-radius: 5px; padding: 5px; }
+        QToolButton:hover, QPushButton:hover { background: #3b414e; }
+        QToolButton:checked { background: #3c5f9f; border-color: #7ba6ff; }
+        QPushButton { background: #333845; min-height: 22px; }
+        QPushButton#primaryAction { background: #416fe5; color: white; padding: 6px 15px; }
+        QDockWidget::title { background: #282c35; padding: 8px; font-weight: bold; }
+        QDockWidget { titlebar-close-icon: none; }
+        QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox { background: #191c23; border: 1px solid #424958; border-radius: 4px; padding: 5px; }
+        QListWidget { border: 0; background: #20242c; outline: 0; }
+        QListWidget::item { padding: 10px 6px; border-bottom: 1px solid #303641; }
+        QListWidget::item:selected { background: #34496f; }
+        QSlider::groove:horizontal { height: 4px; background: #4b5261; border-radius: 2px; }
+        QSlider::handle:horizontal { background: #9ab9ff; width: 12px; margin: -5px 0; border-radius: 6px; }
+        QScrollArea { border: 0; }
+        QScrollBar:vertical { background: #20232b; width: 10px; }
+        QScrollBar:horizontal { background: #20232b; height: 10px; }
+        QScrollBar::handle { background: #505867; border-radius: 4px; min-width: 18px; min-height: 18px; }
+        QScrollBar::add-line, QScrollBar::sub-line { width: 0; height: 0; }
+    )"));
+    menuBar()->setNativeMenuBar(false);
     canvas = new Canvas(doc);
+    canvas->setAccessibleName(QStringLiteral("그리기 캔버스"));
+    canvas->setObjectName(QStringLiteral("drawingCanvas"));
     scroll = new QScrollArea(this);
     scroll->setWidget(canvas);
     setCentralWidget(scroll);
-    scroll->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    scroll->setAlignment(Qt::AlignCenter);
+    scroll->viewport()->setAutoFillBackground(true);
+    QPalette workspace = scroll->viewport()->palette();
+    workspace.setColor(QPalette::Window, QColor("#16181d"));
+    workspace.setColor(QPalette::Base, QColor("#16181d"));
+    scroll->viewport()->setPalette(workspace);
     scroll->setWidgetResizable(false);
     status = new QLabel;
     statusBar()->addPermanentWidget(status, 1);
@@ -117,13 +167,15 @@ MainWindow::MainWindow() {
             canvas->cancel();
         });
     });
-    action(file, QStringLiteral("열기…"), QKeySequence::Open, [this] { chooseFile(false); });
+    auto *openAction =
+        action(file, QStringLiteral("열기…"), QKeySequence::Open, [this] { chooseFile(false); });
     action(file, QStringLiteral("사진 삽입…"), {}, [this] { chooseFile(true); });
-    action(file, QStringLiteral("저장"), QKeySequence::Save, [this] { save(); });
+    auto *saveAction = action(file, QStringLiteral("저장"), QKeySequence::Save, [this] { save(); });
     action(file, QStringLiteral("다른 이름으로 저장…"), QKeySequence::SaveAs, [this] { save(true); });
-    action(file, QStringLiteral("이미지 내보내기…"), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E), [this] {
+    auto *exportAction = action(file, QStringLiteral("이미지 내보내기…"),
+                                QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E), [this] {
 #ifdef Q_OS_WASM
-        downloadBrowser({}, true);
+                                    downloadBrowser({}, true);
 #else
         QGuiApplication::inputMethod()->commit();
         QString selectedFilter = QStringLiteral("PNG (*.png)");
@@ -148,7 +200,7 @@ MainWindow::MainWindow() {
         if (file && !file->commit())
             throw std::runtime_error(file->errorString().toStdString());
 #endif
-    });
+                                });
     file->addSeparator();
 #ifndef Q_OS_WASM
     action(file, QStringLiteral("끝내기"), QKeySequence::Quit, [this] { close(); });
@@ -464,6 +516,8 @@ MainWindow::MainWindow() {
                 break;
             }
             }
+            painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+            painter.fillRect(QRect(0, 0, 24, 24), QColor("#dce1ec"));
             painter.end();
             icon.addPixmap(pixmap);
         }
@@ -475,26 +529,155 @@ MainWindow::MainWindow() {
         auto *button = new QToolButton;
         button->setDefaultAction(toolAction);
         button->setToolButtonStyle(Qt::ToolButtonIconOnly);
-        button->setIconSize(QSize(24, 24));
-        button->setFixedSize(36, 34);
+        button->setIconSize(QSize(22, 22));
+        button->setFixedSize(32, 32);
         button->setToolTip(definition.name);
         button->setAccessibleName(definition.name);
-        toolLayout->addWidget(button, toolIndex / 2, toolIndex % 2);
+        toolLayout->addWidget(button, toolIndex, 0);
         connect(toolAction, &QAction::triggered, this,
                 [this, tool = definition.tool] { run([this, tool] { canvas->setTool(tool); }); });
         ++toolIndex;
     }
     toolBar->addWidget(toolWidget);
     tools.front()->setChecked(true);
-    auto *options = addToolBar(QStringLiteral("도구 옵션"));
-    options->setMovable(false);
-    options->addWidget(new QLabel(QStringLiteral(" 굵기 ")));
-    auto *width = new QSpinBox;
+    auto *commands = addToolBar(QStringLiteral("작업"));
+    commands->setMovable(false);
+    auto *brand = new QLabel(QStringLiteral("myPaint"));
+    brand->setStyleSheet(
+        QStringLiteral("font-size: 18px; font-weight: bold; padding: 0 12px; color: #b6ccff;"));
+    commands->addWidget(brand);
+    for (auto *command : {undoAction, redoAction}) {
+        auto *button = new QToolButton;
+        QPixmap arrow =
+            style()
+                ->standardIcon(command == undoAction ? QStyle::SP_ArrowBack : QStyle::SP_ArrowForward)
+                .pixmap(20, 20);
+        QPainter painter(&arrow);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+        painter.fillRect(arrow.rect(), QColor("#dce1ec"));
+        painter.end();
+        button->setIcon(QIcon(arrow));
+        button->setAccessibleName(command == undoAction ? QStringLiteral("실행 취소")
+                                                        : QStringLiteral("다시 실행"));
+        button->setEnabled(command->isEnabled());
+        connect(command, &QAction::changed, button, [command, button] {
+            button->setEnabled(command->isEnabled());
+            button->setToolTip(command->text());
+        });
+        connect(button, &QToolButton::clicked, command, &QAction::trigger);
+        commands->addWidget(button);
+    }
+    commands->addSeparator();
+    auto *open = new QPushButton(QStringLiteral("열기"));
+    connect(open, &QPushButton::clicked, openAction, &QAction::trigger);
+    commands->addWidget(open);
+    documentTitle = new QLabel(QStringLiteral("제목 없음"));
+    documentTitle->setStyleSheet(QStringLiteral("padding-left: 14px; color: #c6ccd7;"));
+    commands->addWidget(documentTitle);
+    auto *space = new QWidget;
+    space->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    commands->addWidget(space);
+    auto *exportButton = new QPushButton(QStringLiteral("이미지 내보내기"));
+    connect(exportButton, &QPushButton::clicked, exportAction, &QAction::trigger);
+    commands->addWidget(exportButton);
+#ifdef Q_OS_WASM
+    auto *saveButton = new QPushButton(QStringLiteral("프로젝트 다운로드"));
+#else
+    auto *saveButton = new QPushButton(QStringLiteral("프로젝트 저장"));
+#endif
+    saveButton->setObjectName(QStringLiteral("primaryAction"));
+    connect(saveButton, &QPushButton::clicked, saveAction, &QAction::trigger);
+    commands->addWidget(saveButton);
+    auto *propertiesDock = new QDockWidget(QStringLiteral("색상 · 브러시"), this);
+    propertiesDock->setObjectName(QStringLiteral("brushProperties"));
+    propertiesDock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    auto *propertiesScroll = new QScrollArea;
+    propertiesScroll->setWidgetResizable(true);
+    propertiesScroll->setMinimumWidth(260);
+    auto *properties = new QWidget;
+    auto *options = new QVBoxLayout(properties);
+    options->setContentsMargins(12, 8, 12, 12);
+    options->setSpacing(8);
+    colorPicker = new ColorPicker;
+    options->addWidget(colorPicker);
+    hexColor = new QLineEdit(canvas->foreground.name());
+    hexColor->setObjectName(QStringLiteral("hexColor"));
+    hexColor->setAccessibleName(QStringLiteral("HEX 색상"));
+    hexColor->setMaxLength(7);
+    options->addWidget(hexColor);
+    connect(colorPicker, &ColorPicker::colorChanged, this, [this](QColor color) {
+        canvas->foreground = color;
+        hexColor->setText(color.name());
+        canvas->updateTextStyle();
+        sync();
+    });
+    connect(hexColor, &QLineEdit::editingFinished, this, [this] {
+        const QColor color(hexColor->text());
+        if (!color.isValid() || hexColor->text().size() != 7 || !hexColor->text().startsWith(QChar('#'))) {
+            hexColor->setText(canvas->foreground.name());
+            statusBar()->showMessage(QStringLiteral("HEX 색상은 #1679ea처럼 입력하세요."));
+            return;
+        }
+        canvas->foreground = color;
+        colorPicker->setColor(color);
+        canvas->updateTextStyle();
+        sync();
+    });
+    auto *preset = new QComboBox;
+    preset->setAccessibleName(QStringLiteral("브러시 프리셋"));
+    preset->addItems({QStringLiteral("잉크"), QStringLiteral("부드러운 붓"), QStringLiteral("픽셀 연필")});
+    options->addWidget(preset);
+    options->addWidget(new QLabel(QStringLiteral("크기 (px)")));
+    brushSize = new QSpinBox;
+    auto *width = brushSize;
     width->setRange(1, 100);
-    width->setValue(3);
+    width->setValue(12);
+    canvas->thickness = 12;
     width->setAccessibleName(QStringLiteral("선 굵기"));
     options->addWidget(width);
     connect(width, &QSpinBox::valueChanged, this, [this](int value) { canvas->thickness = value; });
+    QVector<QSlider *> brushControls;
+    for (int i = 0; i < 3; ++i) {
+        const QString label = i == 0   ? QStringLiteral("불투명도")
+                              : i == 1 ? QStringLiteral("경도")
+                                       : QStringLiteral("선 보정");
+        auto *row = new QHBoxLayout;
+        row->addWidget(new QLabel(label));
+        auto *value = new QLabel;
+        value->setFixedWidth(32);
+        row->addStretch();
+        row->addWidget(value);
+        options->addLayout(row);
+        auto *slider = new QSlider(Qt::Horizontal);
+        slider->setAccessibleName(label);
+        slider->setRange(i == 0 ? 1 : 0, i == 2 ? 75 : 100);
+        slider->setValue(i == 2 ? canvas->brushStabilization : 100);
+        value->setNum(slider->value());
+        connect(slider, &QSlider::valueChanged, this, [this, i, value](int number) {
+            value->setNum(number);
+            if (i == 0)
+                canvas->brushOpacity = number;
+            else if (i == 1)
+                canvas->brushHardness = number;
+            else
+                canvas->brushStabilization = number;
+        });
+        options->addWidget(slider);
+        brushControls.push_back(slider);
+    }
+    auto *pressure = new QCheckBox(QStringLiteral("펜 필압으로 크기 조절"));
+    pressure->setChecked(true);
+    options->addWidget(pressure);
+    connect(pressure, &QCheckBox::toggled, this, [this](bool value) { canvas->pressureEnabled = value; });
+    connect(preset, &QComboBox::currentIndexChanged, this, [this, brushControls](int index) {
+        run([this, brushControls, index] {
+            canvas->setTool(index == 2 ? Tool::Pencil : Tool::Brush);
+            brushControls[0]->setValue(100);
+            brushControls[1]->setValue(index == 1 ? 25 : 100);
+            brushControls[2]->setValue(index == 2 ? 0 : 25);
+        });
+    });
+    options->addWidget(new QLabel(QStringLiteral("도형 · 선택 · 문자")));
     auto *shape = new QComboBox;
     shape->setAccessibleName(QStringLiteral("도형 그리기 방식"));
     shape->addItems({QStringLiteral("윤곽선"), QStringLiteral("윤곽선+채우기"), QStringLiteral("채우기")});
@@ -515,10 +698,12 @@ MainWindow::MainWindow() {
         canvas->transparentText = !value;
         canvas->updateTextStyle();
     });
-    auto *palette = new QToolBar(QStringLiteral("팔레트"), this);
-    palette->setMovable(false);
-    addToolBar(Qt::BottomToolBarArea, palette);
-    palette->addWidget(new QLabel(QStringLiteral(" 전경/배경: 왼쪽/오른쪽 클릭 ")));
+    options->addWidget(new QLabel(QStringLiteral("색상 모음 · 우클릭: 배경색")));
+    auto *palette = new QGridLayout;
+    palette->setHorizontalSpacing(4);
+    palette->setVerticalSpacing(4);
+    options->addLayout(palette);
+    int swatchIndex = 0;
     const QStringList swatches = {"#000000", "#808080", "#800000", "#808000", "#008000", "#008080",
                                   "#000080", "#800080", "#ffffff", "#c0c0c0", "#ff0000", "#ffff00",
                                   "#00ff00", "#00ffff", "#0000ff", "#ff00ff"};
@@ -530,7 +715,8 @@ MainWindow::MainWindow() {
         button->setAccessibleName(QStringLiteral("색상 %1").arg(hex));
         button->setAccessibleDescription(
             QStringLiteral("왼쪽 클릭으로 전경색, 오른쪽 클릭으로 배경색을 선택합니다."));
-        palette->addWidget(button);
+        palette->addWidget(button, swatchIndex / 8, swatchIndex % 8);
+        ++swatchIndex;
         connect(button, &QPushButton::clicked, this, [this, hex] {
             canvas->foreground = QColor(hex);
             canvas->updateTextStyle();
@@ -546,17 +732,22 @@ MainWindow::MainWindow() {
             });
         });
     }
+    options->addStretch();
+    propertiesScroll->setWidget(properties);
+    propertiesDock->setWidget(propertiesScroll);
+    addDockWidget(Qt::RightDockWidgetArea, propertiesDock);
     layerDock = new QDockWidget(QStringLiteral("레이어 (아래 → 위)"), this);
     layerDock->setObjectName(QStringLiteral("layers"));
     auto *layerWidget = new QWidget;
     auto *layerLayout = new QVBoxLayout(layerWidget);
     layerList = new QListWidget;
+    layerList->setIconSize(QSize(44, 36));
     layerLayout->addWidget(layerList);
     auto *row = new QHBoxLayout;
     layerLayout->addLayout(row);
     for (int i = 0; i < 6; ++i) {
-        const QStringList labels = {QStringLiteral("+"), QStringLiteral("−"),    QStringLiteral("↑"),
-                                    QStringLiteral("↓"), QStringLiteral("병합"), QStringLiteral("이름")};
+        const QStringList labels = {QStringLiteral("+"), QStringLiteral("−"),  QStringLiteral("↑"),
+                                    QStringLiteral("↓"), QStringLiteral("합"), QStringLiteral("Aa")};
         auto *button = new QPushButton(labels[i]);
         const QStringList descriptions = {
             QStringLiteral("레이어 추가"),        QStringLiteral("레이어 삭제"),
@@ -564,6 +755,7 @@ MainWindow::MainWindow() {
             QStringLiteral("아래 레이어와 병합"), QStringLiteral("레이어 이름 변경")};
         button->setAccessibleName(descriptions[i]);
         button->setToolTip(descriptions[i]);
+        button->setFixedWidth(34);
         row->addWidget(button);
         layerButtons.push_back(button);
         connect(button, &QPushButton::clicked, this, [this, i] {
@@ -622,7 +814,9 @@ MainWindow::MainWindow() {
     }
     layerDock->setWidget(layerWidget);
     addDockWidget(Qt::RightDockWidgetArea, layerDock);
-    layerDock->hide();
+    layerDock->setFeatures(QDockWidget::DockWidgetClosable);
+    splitDockWidget(propertiesDock, layerDock, Qt::Vertical);
+    resizeDocks({propertiesDock, layerDock}, {520, 220}, Qt::Vertical);
     view->addAction(layerDock->toggleViewAction());
     connect(layerList, &QListWidget::currentRowChanged, this, [this](int index) {
         if (index < 0)
@@ -719,11 +913,21 @@ MainWindow::MainWindow() {
     recoveryPoll->start();
     recovery->start();
 #endif
+    canvas->setTool(Tool::Brush);
     sync();
 }
 void MainWindow::sync() noexcept try {
     canvas->background = doc.state().background;
     const bool pending = canvas->hasPendingEdit();
+    const QString name = (doc.path.isEmpty() ? QStringLiteral("제목 없음") : QFileInfo(doc.path).fileName()) +
+                         (doc.dirty() || pending ? QStringLiteral("  •") : QString());
+    documentTitle->setText(documentTitle->fontMetrics().elidedText(name, Qt::ElideMiddle, 260));
+    documentTitle->setToolTip(name);
+    colorPicker->setColor(canvas->foreground);
+    if (!hexColor->hasFocus())
+        hexColor->setText(canvas->foreground.name());
+    if (brushSize->value() != canvas->thickness)
+        brushSize->setValue(canvas->thickness);
 #ifdef Q_OS_WASM
     if (browser)
         browser->setDirty(doc.dirty() || pending);
@@ -750,8 +954,12 @@ void MainWindow::sync() noexcept try {
     for (int i = 0; i < layerList->count(); ++i) {
         const auto &layer = doc.state().layers[i];
         layerList->item(i)->setText(layer.name);
+        if (layerPreviewRevision != doc.revision())
+            layerList->item(i)->setIcon(QPixmap::fromImage(
+                layer.image.scaled(QSize(44, 36), Qt::KeepAspectRatio, Qt::FastTransformation)));
         layerList->item(i)->setCheckState(layer.visible ? Qt::Checked : Qt::Unchecked);
     }
+    layerPreviewRevision = doc.revision();
     layerList->setCurrentRow(doc.state().active);
     const auto &state = doc.state();
     layerButtons[0]->setEnabled(

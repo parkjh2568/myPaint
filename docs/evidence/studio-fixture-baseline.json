@@ -1,0 +1,336 @@
+{
+  "date": "2026-11-06",
+  "status": "QF-02 independent reference inventory complete; whole migration remains active",
+  "goalComplete": false,
+  "scope": "Independent legacy reference inputs/expected behavior and bounded policies; not all tool options, platform, performance or release acceptance.",
+  "sources": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "b7b9d26c48cb8f8f0634ffd178702613c60455bbc256907adb1f9241e21c5288",
+    "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+    "web-app/src/platform/native-smoke.ts": "4c318c88435b82982addb8876c4169e8e6564c0b6738ed3a6867f2b2e516d2d8",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "4d46f4cbf2d02db6add183af5d4cd6232fac9417fadff627ce3dba85dd0992fd"
+  },
+  "changedProductionSources": [],
+  "canonicalInventory": {
+    "path": "web-app/tests/fixtures/legacy-contracts.json",
+    "sha256": "fa9ba93e184962aa12b1deb310db2065d39dc5d9dfad77a2fea5334df1cc54fa",
+    "fixes": 10,
+    "tools": 17,
+    "domains": 6,
+    "dataReferences": 16,
+    "policies": [
+      "stored-rgba",
+      "qt-premultiplied",
+      "raster-local",
+      "text-local",
+      "state-exact"
+    ],
+    "provenance": "Recorded Qt, derived Qt, authored literals/mixed Qt, independent wire and product-seed mutations distinguished. Inventory test verifies index/provenance, not editing behavior."
+  },
+  "verification": {
+    "node": {
+      "passed": 324,
+      "failed": 0,
+      "includesInventory": 1
+    },
+    "finalInventory": {
+      "passed": 1,
+      "scope": "after independent review metadata corrections"
+    },
+    "ctest": {
+      "passed": 6,
+      "failed": 0,
+      "groups": [
+        "web_stage",
+        "studio_build",
+        "core",
+        "allocation_failure",
+        "smoke",
+        "ui"
+      ],
+      "scope": "Includes staging/build and offscreen Qt; not six OS GUI tests"
+    },
+    "spray": {
+      "passed": 2,
+      "scope": "Public Chromium with actual drawing and codec worker; deterministic RNG/virtual clock and modeled native transport; not physical timing or random-distribution equivalence",
+      "instrumentationAttemptExcludedFromAcceptance": true
+    },
+    "format": "pass",
+    "typescript": "pass",
+    "localBuild": "pass",
+    "qtProducer": {
+      "actualQtVersion": "6.12.0",
+      "projectBytes": 4173,
+      "projectSha256": "f3641a0851b0273c6438c4697a926d3feb2af7b370140498fdc5a74d236057e3",
+      "projectWireExact": true,
+      "qtRgbaPlanesExact": [
+        3072,
+        3072
+      ],
+      "parsedJsonExact": true,
+      "jsonTextExact": false,
+      "expectedFixtureReplaced": false,
+      "readmeDirectRecipeParsedFixtureExact": true
+    }
+  },
+  "nativeGui": {
+    "platform": "macOS arm64 / WKWebView",
+    "binary": "web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+    "binarySha256": "9f01dfc2822f45e1693a87e2188dc2daecd6cf128246677130d00ebcdc494275",
+    "binaryRebuiltThisPhase": false,
+    "latestFunctionalRuns": {
+      "persistence": true,
+      "codec": true,
+      "quitOwnership": true,
+      "sceneRendering": true
+    },
+    "launchMode": "foreground",
+    "launcherExitCodes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "waitCompleted": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "appExitCodes": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "appExitObserved": false,
+    "activationObservation": {
+      "mypaint": [
+        {
+          "pid": 85896,
+          "active": true,
+          "hidden": false,
+          "terminated": false
+        }
+      ]
+    },
+    "earlierFailuresPreserved": [
+      "direct outer120s without marker",
+      "first foreground full outer120s without marker",
+      "previous-phase project-read-large20s"
+    ],
+    "singleForegroundControlMs": 7602,
+    "timeoutsUnchanged": {
+      "codecMs": 20000,
+      "processMs": 120000
+    },
+    "notAccepted": [
+      "OS file picker dialogs",
+      "manual visual acceptance",
+      "Windows",
+      "physical Android",
+      "release signing/notarization"
+    ],
+    "incompleteSmokeRootCause": "unproven; no success marker within outer120s. Failing stage is unobserved; unlocked/foreground observations do not establish startup or scheduling causality.",
+    "earlierObservedFailure": {
+      "evidence": "docs/evidence/studio-native-ownership.json",
+      "stage": "project-read-large",
+      "stageElapsedMs": 20109,
+      "visibilityAtFailure": "hidden",
+      "focusAtFailure": false,
+      "cause": "unproven; preserved prior snapshot, not a current rerun"
+    }
+  },
+  "nativeHarness": {
+    "path": "web-app/tests/native-desktop.mjs",
+    "sha256": "10e9924dbf5011a394513c8baafcb2f421783e0a0c0f0ae063b7e5241e903bdd",
+    "scope": "Development-only process/log/watchdog owner shared by four existing workloads; no runtime command execution added",
+    "invalidModeRejectedBeforeBinaryRead": true,
+    "invalidForegroundBundleRejectedBeforeBinaryRead": true,
+    "timeoutCleanupExercised": true,
+    "retainedFailureRoot": "/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/mypaint-native-desktop-UbsDeU",
+    "limitations": [
+      "LaunchServices exit is not application OS exit",
+      "100ms log monitor is not an OS disk quota",
+      "ps snapshot and PID signal are not an atomic process handle"
+    ]
+  },
+  "payload": {
+    "files": 9,
+    "bytes": 291639,
+    "entry": "assets/index-DLvOR2As.js",
+    "fileHashes": {
+      "LICENSE": "56a608c8e81aeec574eb9e3380fb3a0e0869156385b2d036f7887e4d9123bb80",
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/buffer-DU0qbHNf.js": "5c113f74252e7c942876d5076dd71ed24775ffdf9cd133500a5a2f1803d9cca3",
+      "assets/codec.worker-DjqGsUQn.js": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+      "assets/encoder-Bl-BehpH.js": "dee06d7074f91f718964ad9ac8edfc439229b9ddb1f226ba8e2c3b804b3dd448",
+      "assets/index-BiPiFrZI.css": "4c481eccc0d58fadad8a52621eb206fe0d15896ac4afbc000e5688669797b154",
+      "assets/index-DLvOR2As.js": "2ff83e4aaac2065374d3bb3720288e6c5298bdcdecfa36efe2ee10c8c57c6aab",
+      "assets/native-smoke-CWfV0l-T.js": "28e664c1f11237aa9d17005306355cd81c612da4fa38fb3c8be14801cf44889f",
+      "index.html": "52dc59f0f406e837a44d59971273f29a9a84107ef3077e73b3fe7928e57d4518"
+    },
+    "sourceInputCount": 121,
+    "allSourceInputsMatchManifest": true,
+    "runtime17Unchanged": true,
+    "payloadUnchanged": true
+  },
+  "audit": {
+    "QF02OwnCriteria": "passed after Architect/Reviewer/SRE independent corrections and approval",
+    "ownCriteriaProved": 7,
+    "partial": 25,
+    "missing": 2,
+    "dependenciesClosed": [
+      "QF-01",
+      "QF-02"
+    ],
+    "QF04": "requires latest condition-by-condition audit; no automatic completion"
+  },
+  "gitIndexConfigUnchanged": {
+    "/Users/jhpark/code/myService/myPaint/.git/index": "97ba1bdcc5be543453783454ae6e9b93525f5bf142662da739b4fb013832dca6",
+    "/Users/jhpark/code/myService/myPaint/.git/config": "f13edd5ed90f3f8d6113e97fb498997117dcce4fe134d4902676a618f1504f00",
+    "/Users/jhpark/code/myService/parkjh2568.github.io/.git/index": "4b864409423a5070e55f3e8613b2595ccd670b7a3726d509c071903a5beecaff",
+    "/Users/jhpark/code/myService/parkjh2568.github.io/.git/config": "8b4bacdd76435d49e0eb4004a54681c89f67edd17bcc0bc2a74c5a07905ba19d"
+  },
+  "homepageWritten": false,
+  "committedOrPushed": false,
+  "historicalEvidencePreserved": true,
+  "references": {
+    "build-web-work/task-planning/legacy-fixture-inventory/source-before.json": {
+      "sha256": "96a9d8cb02d5bf535dbb1d49fcf468397800fa8edef0699499ca3dbd7442df2a",
+      "bytes": 1754
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/accepted-source.json": {
+      "sha256": "96a9d8cb02d5bf535dbb1d49fcf468397800fa8edef0699499ca3dbd7442df2a",
+      "bytes": 1754
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/final-bundle/bundle.json": {
+      "sha256": "2d18fd84b21e6130b3cfcd3d60d9c2a2a59efe7b07a969c755261790c92427a7",
+      "bytes": 14667
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/unit.log": {
+      "sha256": "f9af24536527bbc5ec9263681a8d83a0c85dc1810fde7de6a417dbbb7cf1e7da",
+      "bytes": 27870
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/ctest.log": {
+      "sha256": "dc6f111e755d1adbffdb74580ece43dc609c0001514d82811ce86fee3189c5db",
+      "bytes": 686
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/inventory-final.log": {
+      "sha256": "db9a6c1217ff09ab54db37798306c2174f992675bd61ea287c103eb7fb08b82b",
+      "bytes": 312
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/format-complete.log": {
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae",
+      "bytes": 159
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/typecheck-complete.log": {
+      "sha256": "86fd21d3a4c331af9cda136fdaa8bc8807301aedba733d35beae2083e7cce6d8",
+      "bytes": 43
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/studio-build-final.log": {
+      "sha256": "efbc11040c260c36dcbc216abb9af15b68a9a3b1d8e0b38fb7a17978b3faf6d8",
+      "bytes": 1089
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/spray/manifest.json": {
+      "sha256": "ebb720cd6ef6edd94d10e78b593752ae83ceb797cc6845d43e1d711f877d2fc0",
+      "bytes": 850
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/spray/results.json": {
+      "sha256": "0438b02ab2b89f9cbf509fddadf17f38bc2bca432a3ff5d3919f15374080685a",
+      "bytes": 8295
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/spray/instrumentation-attempt.json": {
+      "sha256": "c0c88763ec8c77077fc9297dcd664fdb7cbf41601a540c0b4c93b292f10d0928",
+      "bytes": 7142
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/qt-producer/producer-comparison.json": {
+      "sha256": "1aa69b0f7367797fa1189f1d85b57b74c0dd17c3443694ed5e96e3622d12b3b8",
+      "bytes": 5767
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/sre-fixture-inventory.json": {
+      "sha256": "67f44e0cba56f4aa2e1b51c4223de78438fcdddb6a4aed345223d580c92d5957",
+      "bytes": 27477
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/readme-producer-command.json": {
+      "sha256": "c96e5c00b5a3bc6fab4d378fa451729e74278b6195c64fd5c9fd371a31c98864",
+      "bytes": 1123
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-unlocked.json": {
+      "sha256": "f6ece377f1d68ddacc77951c43f4b86ebd08928113e6301a6cd2884ad8405e76",
+      "bytes": 1330
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-unlocked-environment.json": {
+      "sha256": "e2e58dc6527ef92fbb864a2f5ce84a8d955d9f5bb1cff7eb6553cf59e507555e",
+      "bytes": 271
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-foreground.json": {
+      "sha256": "0fb7f4c5b9a4f53913f8e19f78815edfa7b1cccfb6a455876df99416bb600dd2",
+      "bytes": 1526
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-foreground-full.json": {
+      "sha256": "08a347ee4b59c27bf65862e7566ea00af3be83c35622bb8ed7c45a158998b3d3",
+      "bytes": 2207
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-foreground-full-environment.json": {
+      "sha256": "cc199809be534997ad7cb7fe4911b60bce6a9aec2a994db8c41a0d7e65adb63f",
+      "bytes": 176
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-observed-foreground.json": {
+      "sha256": "70cdcc1ea0ed1f3f43ffbcde7938fd2476c2a66b399465d43f791d55126d3205",
+      "bytes": 33542
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-app-observation.json": {
+      "sha256": "4d6e41e50991666f0e84fe9e4927d02c64171276c7e958f71d9d34927f9997b5",
+      "bytes": 76
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-invalid-mode.json": {
+      "sha256": "ab59c195b0b9373de32fb9784bd31af6bab05e7560df1f38de2c97b0670ec38d",
+      "bytes": 660
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/native-invalid-bundle.json": {
+      "sha256": "99314bb34e1c16e9257da4d8adfd13a99289ddc743e4ca641e30f84bd7d59202",
+      "bytes": 568
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/reviews/architect-final.json": {
+      "sha256": "4ff84b7ff74104050c7d51a56fa2851fa1f89bad3952a5a4935d6b8940838d05",
+      "bytes": 2711
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/reviews/reviewer-qf02.json": {
+      "sha256": "3e7568f93399c13dfd5ef091b73b0bc527b5a2528c02789f1123fca5630898e1",
+      "bytes": 4037
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/reviews/sre-canonical-final-audit.json": {
+      "sha256": "f492549815c1199c44560773c17329ebc3918a16366ddfcb1e06acaaf7212602",
+      "bytes": 4707
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/reviews/sre-native-launch-harness-review.json": {
+      "sha256": "ae4cb40e8059bf0429bf157f482ad058d633425547cac624cb5ded29b4cb2eea",
+      "bytes": 4762
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/git-metadata.json": {
+      "sha256": "a31195fc016379a2ca79a11bec67957ed9523a9550222079af499eb3067ac2ff",
+      "bytes": 515
+    },
+    "docs/evidence/studio-native-ownership.json": {
+      "sha256": "2f1a0d7e945bafc2914ada8d6d8ee52dbb21d500860570c3bf3271364754e4c2",
+      "bytes": 16789
+    },
+    "build-web-work/task-planning/legacy-fixture-inventory/cleanup.json": {
+      "sha256": "28a1727f4ca8336a0ebb01e1928357061f3e8b057dc97001fa2d924e2a0452e2",
+      "bytes": 491
+    }
+  }
+}

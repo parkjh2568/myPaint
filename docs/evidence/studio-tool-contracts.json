@@ -1,0 +1,2777 @@
+{
+  "recordedAt": "2026-11-04T18:38:27.722437+00:00",
+  "status": "Verified P0 tool, raw-RGBA and decoder-boundary corrections. Remaining tool/input, performance, physical-device and release gates are open.",
+  "platformScope": "Mobile/tablet web only; Windows/macOS native packages only.",
+  "sourceSha256": {
+    "web-app/src/engine/document.ts": "2917f4e47d16c9d842fb39147f5dcaad2b097e4103dd36b9b3f55348233a3936",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "daf049dbbae44bd6be8a45f4c72e3eb1eb9a2332f463a192549c8d0a0aad1307",
+    "web-app/src/platform/codec.ts": "c4083e2d19745bd0d69032489a06af253f9d6c9f8d6dd466a248e19300748fb4",
+    "web-app/src/platform/native-smoke.ts": "e77a2aae8cda17ffabbefa081958daa4fc338e4fdf232e73f9b79c27b93c9948",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "26bbc7fdde53233026ec05d2a7dfafa6b43c545b1868eacf6250fc0ec9a1fa63",
+    "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "webBundle": {
+    "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+    "assets/buffer-DyZedAtx.js": "eb04a57dbb4dfe75682a503da2659932e135648d527e26c4e00ddc21a4f4ad79",
+    "assets/codec.worker-Bo-_aV3G.js": "f4195f84d994821913c5f5f8a3e580f32585a5631f7bae9a5126454ff38c5ec9",
+    "assets/encoder-Ygiwl0RX.js": "16950585094af9d3e4a2bb026da7559d0808b92847178029e0b9b031fc0d838f",
+    "assets/index-CjZe1mLw.js": "c0ddd6aed46bbe85321d1594144716f7dda615a967d8f958db636d94147d9a44",
+    "assets/index-aClAeViE.css": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601",
+    "assets/native-smoke-BdfmgnV5.js": "9714ff0f47a6558076eeec809200833d852ea8215b15b4965539591b0ddbbda4",
+    "index.html": "e0b8870d649ebecc28f77987c321c27ffca30445c988fd8e5ddf3f1bbef8bc26"
+  },
+  "correctedFindings": [
+    {
+      "severity": "Blocker",
+      "cost": "M",
+      "problem": "Color eraser changed all matching pixels of the active layer instead of the drag capsule.",
+      "fix": "Captured foreground key and secondary target in the existing owned stroke; hard integer capsule, premultiplied key equality, exact target raw RGBA, bounded row candidates, tile history and rollback. Removed unused global replace Worker; fill input is8bytes."
+    },
+    {
+      "severity": "Major",
+      "cost": "M",
+      "problem": "Shape rendering ignored right-button color reversal and discarded picked alpha through RGB-only hex styles.",
+      "fix": "Recent accepted drawing-button state is shared by preview/commit/pending rendering. Cancel, touch takeover and owned-pointer exceptions restore the previous state. Canvas rgba styles preserve alpha; polygon preview reuses the closed shape painter."
+    },
+    {
+      "severity": "Blocker",
+      "cost": "S",
+      "problem": "Transparent source-over and transparent normal brush inputs normalized untouched destination hidden RGB and created false edits.",
+      "fix": "Source alpha0 copies prior RGBA; normal no-ink strokes skip painting/tiles. In-document attempts may expose a hidden layer using zero-byte metadata history; completely outside no-coverage input retains the existing no-op/Redo safety contract."
+    },
+    {
+      "severity": "Blocker",
+      "cost": "S",
+      "problem": "A project layer PNG could allocate based on mismatched IHDR dimensions before outer dimension validation.",
+      "fix": "Record length and first-IHDR dimensions are compared before decodePng; original CRC/format/output checks remain. readArtwork captures and validates descriptor size, actual bytes and cancellation before decoder entry."
+    }
+  ],
+  "beforeEvidence": {
+    "globalColorReplacement": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/color-eraser-before.json",
+      "sha256": "e09344051465b8ad9b00b6ff67944faeaefbe0622c0b288dc3d0c104c5996999"
+    },
+    "shapeButtonAndAlpha": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/shape-color-before.json",
+      "sha256": "15040a0abdfae880a359e9af30c52fcc197b82df70b2b891611c73ce237080d7"
+    },
+    "transparentOverlay": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/transparent-overlay-before.json",
+      "sha256": "c2db3da8418ef303e06c02b75caa55b14850cc1e7dbc64d888e803478f737cf7"
+    },
+    "transparentBrushUI": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/transparent-brush-ui-before.json",
+      "sha256": "8a371c3674bad1880734d1d4e1021960217cc75aefe7fbb6332ad285f3c7abf9"
+    },
+    "outsideVisibilityRegressionCaught": {
+      "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/node-alpha-final.log",
+      "sha256": "9be29160fceaf466b771af2e70d8d9e1420af99566f77fe84bf62494763bb0eb"
+    }
+  },
+  "intentionalPolicies": [
+    "Modified color-eraser pixels retain the exact requested straight target RGBA; compare Qt premultiplied output rather than normalizing all raw pixels through Qt pixelColor.",
+    "Middle/touch navigation preserves pending shape colors. Real Qt middle-pan changes its global rightButton incidentally; that side effect is not copied.",
+    "Fully outside no-coverage input preserves hidden visibility and Redo, including extreme finite coordinates. Real Qt outside-hidden no-coverage records visibility; the existing web safety contract is retained and tested separately.",
+    "PNG composite exports normalize fully transparent RGB; project layer raw RGBA remains authoritative and unchanged outside an edit."
+  ],
+  "verification": {
+    "node": {
+      "tests": 155,
+      "passed": 155,
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/node-decoder-final.log",
+        "sha256": "169b2647edecd86af0d482073b92eec849e86103d1659928e0d0f7e3272d352a"
+      },
+      "includes": "18 actual Qt color-eraser captures, generator identity check, raw-overlay/transparent-brush boundaries, decoder allocation/Worker/file-size/cancellation and prior engine suites."
+    },
+    "uiTools": {
+      "shapeChecks": 23,
+      "colorEraserChecks": 9,
+      "shape": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/shape-color-alpha-final.json",
+        "sha256": "c206a374c9241f6c2d62ef2561da978dd16a45eeaf9f5b128bf949fcced63836"
+      },
+      "colorEraser": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/color-eraser-alpha-final.json",
+        "sha256": "b9fc077063acd59d2f10e3f84e2898e913885a99e24972000afcdac6aed3e5e5"
+      },
+      "provenance": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/alpha-final-reviewer-provenance.json",
+        "sha256": "27ba1cdae559f4ea7f1ab328d452265807bace845ff292206a841b391bdcc415"
+      },
+      "source": {
+        "web-app/src/engine/document.ts": "2917f4e47d16c9d842fb39147f5dcaad2b097e4103dd36b9b3f55348233a3936",
+        "web-app/src/engine/format.ts": "a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2",
+        "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+        "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+        "web-app/src/main.ts": "daf049dbbae44bd6be8a45f4c72e3eb1eb9a2332f463a192549c8d0a0aad1307",
+        "web-app/src/platform/codec.ts": "afd7a3a42b88f6dfa528889c7a5af99ef664cbbbe666132f657f3b4484d5284e",
+        "web-app/src/platform/native-smoke.ts": "e77a2aae8cda17ffabbefa081958daa4fc338e4fdf232e73f9b79c27b93c9948",
+        "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+        "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+        "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+        "web-app/src/platform/tiles.ts": "26bbc7fdde53233026ec05d2a7dfafa6b43c545b1868eacf6250fc0ec9a1fa63",
+        "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+        "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+        "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+        "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+        "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+        "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+      },
+      "scope": "Actual Chromium UI/pointer and PNG/RPaint pixels with modeled native file IPC. These32 checks precede only the final decoder/file-size guards; UI/engine sources are byte-identical to final."
+    },
+    "previousShapeRegression": {
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/shape-regression/summary.json",
+        "sha256": "05bacab56dbcf1e56e28a026f778b627a0aa3aceaa2f8bb412664b250ab53103"
+      },
+      "result": {
+        "url": "http://127.0.0.1:8985/mypaint/",
+        "counts": {
+          "browser": 45,
+          "pending": 36,
+          "clipboard": 4,
+          "pointer": 9,
+          "color": 9
+        },
+        "total": 103,
+        "errors": 0,
+        "failures": 0,
+        "loadedMain": {
+          "url": "http://127.0.0.1:8985/mypaint/assets/index-gJOTiJC5.js",
+          "sha256": "8430f30a1b1235aa9c42d45835deb6097b1bad4a6b0b7f1389ac0b45fc6465b9"
+        },
+        "reports": {
+          "browser/results.json": {
+            "checks": 10,
+            "sha256": "30347c0d5d39dc49c95231e7c07d6875d4e10162279e19fbefeba49a8e87c360"
+          },
+          "browser/concurrency.json": {
+            "checks": 3,
+            "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+          },
+          "editing.json": {
+            "checks": 13,
+            "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+          },
+          "storage/results.json": {
+            "checks": 13,
+            "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+          },
+          "shear/results.json": {
+            "checks": 6,
+            "sha256": "45688c385e595751a16f31fe5ff8b2b2ab13c74e2d04c43f58745fa04d63ac2d"
+          },
+          "pending.json": {
+            "checks": 36,
+            "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+          },
+          "clipboard.json": {
+            "checks": 4,
+            "sha256": "b50f8b3a053b482f36c5e52335bd8278d6ef524bcee0e80a87b36ae4afd1efd8"
+          },
+          "pointer.json": {
+            "checks": 9,
+            "sha256": "efafcec0dd6df4921cd89ec6741442c3563129180a8a829d8ad8e3c052434a0a"
+          },
+          "color.json": {
+            "checks": 9,
+            "sha256": "8dbe3765300527d06833b673d44dc3aab2f351c4750310523f641508c4e9e7e2"
+          }
+        },
+        "scope": "Existing regression suites run sequentially without test/product source edits. Browser/native IPC/clipboard modeling limits are documented by the individual reports; this is not a new OS hardware or filesystem claim."
+      },
+      "source": {
+        "web-app/src/engine/document.ts": "78f15831a4174c319dd3d71227db69ea37a274bd8c97273933e7858f010cbaa5",
+        "web-app/src/engine/format.ts": "a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2",
+        "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+        "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+        "web-app/src/main.ts": "daf049dbbae44bd6be8a45f4c72e3eb1eb9a2332f463a192549c8d0a0aad1307",
+        "web-app/src/platform/codec.ts": "afd7a3a42b88f6dfa528889c7a5af99ef664cbbbe666132f657f3b4484d5284e",
+        "web-app/src/platform/native-smoke.ts": "e77a2aae8cda17ffabbefa081958daa4fc338e4fdf232e73f9b79c27b93c9948",
+        "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+        "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+        "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+        "web-app/src/platform/tiles.ts": "26bbc7fdde53233026ec05d2a7dfafa6b43c545b1868eacf6250fc0ec9a1fa63",
+        "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+        "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+        "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+        "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+        "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+        "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+      },
+      "scope": "103 checks on the shape snapshot, before transparent-brush/decoder guards; preserved as its own snapshot."
+    },
+    "alphaFinalEditing": {
+      "bulk": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/bulk-final.json",
+        "sha256": "b9826b444ed9efb2ee2f97130c9b523e3ffb46a6d5e7531f9ce774144df25378"
+      },
+      "bulkChecks": 16,
+      "pointer": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/pointer-final-alpha.json",
+        "sha256": "0d4194b9109b825b5e548b24eeba55e8213a7e768a5943d152c0284750fb580f"
+      },
+      "pointerChecks": 9,
+      "source": {
+        "web-app/src/engine/document.ts": "2917f4e47d16c9d842fb39147f5dcaad2b097e4103dd36b9b3f55348233a3936",
+        "web-app/src/engine/format.ts": "a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2",
+        "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+        "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+        "web-app/src/main.ts": "daf049dbbae44bd6be8a45f4c72e3eb1eb9a2332f463a192549c8d0a0aad1307",
+        "web-app/src/platform/codec.ts": "afd7a3a42b88f6dfa528889c7a5af99ef664cbbbe666132f657f3b4484d5284e",
+        "web-app/src/platform/native-smoke.ts": "e77a2aae8cda17ffabbefa081958daa4fc338e4fdf232e73f9b79c27b93c9948",
+        "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+        "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+        "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+        "web-app/src/platform/tiles.ts": "26bbc7fdde53233026ec05d2a7dfafa6b43c545b1868eacf6250fc0ec9a1fa63",
+        "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+        "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+        "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+        "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+        "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+        "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+      },
+      "scope": "Final UI/engine sources, before decoder-only guards."
+    },
+    "finalBrowser": {
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/decoder-browser/results.json",
+        "sha256": "30347c0d5d39dc49c95231e7c07d6875d4e10162279e19fbefeba49a8e87c360"
+      },
+      "checks": 10,
+      "errors": 0,
+      "scope": "Final served decoder bundle; web file roundtrip, editing and mobile-layout/basic interaction regressions."
+    },
+    "actualMacOS": {
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/decoder-desktop.json",
+        "sha256": "e8f14df4eef994ec99c14837fc73ae19deec8b82b409bc786712436c5ff6bced"
+      },
+      "platform": "darwin",
+      "architecture": "arm64",
+      "binary": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/decoder-final-native/myPaint Studio.app/Contents/MacOS/mypaint-desktop",
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform.",
+      "timeoutMs": 120000,
+      "fixtures": [
+        {
+          "name": "recovery.rpaint",
+          "before": {
+            "bytes": 114,
+            "sha256": "b6078f9fbcd62202af6b3d43b5ce329ebcb6d4891142e6d6549b0dca164f20e6",
+            "mtimeNs": "1793816082442878082",
+            "inode": "186443005",
+            "device": "16777229",
+            "mode": 33188
+          },
+          "after": {
+            "bytes": 114,
+            "sha256": "b6078f9fbcd62202af6b3d43b5ce329ebcb6d4891142e6d6549b0dca164f20e6",
+            "mtimeNs": "1793816082442878082",
+            "inode": "186443005",
+            "device": "16777229",
+            "mode": 33188
+          },
+          "unchanged": true
+        },
+        {
+          "name": "session.lock",
+          "before": {
+            "bytes": 69,
+            "sha256": "06d5ee5d685539af109023c956e086b58b6c0f69576cee850e7f9da22d7b4927",
+            "mtimeNs": "1793816082443186540",
+            "inode": "186443006",
+            "device": "16777229",
+            "mode": 33188
+          },
+          "after": {
+            "bytes": 69,
+            "sha256": "06d5ee5d685539af109023c956e086b58b6c0f69576cee850e7f9da22d7b4927",
+            "mtimeNs": "1793816082443186540",
+            "inode": "186443006",
+            "device": "16777229",
+            "mode": 33188
+          },
+          "unchanged": true
+        }
+      ],
+      "ok": true,
+      "binarySha256": "57205d9db71807e18404cbdbd7d8f2abe2f301205e205eaf273be81138199823",
+      "elapsedMs": 5581,
+      "exitCode": 0,
+      "checks": {
+        "encodedBytes": 67126671,
+        "elapsedMs": 3592,
+        "pixelRoundtrip": true,
+        "staleRead": true,
+        "staleClear": true,
+        "legacyClear": true,
+        "oldGeneration": true
+      },
+      "codecRun": {
+        "arguments": [
+          "--smoke",
+          "--codec-smoke",
+          "--persistence-root",
+          "/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/mypaint-native-desktop-MpbcTy/codec-run"
+        ],
+        "ok": true,
+        "elapsedMs": 2110,
+        "exitCode": 0,
+        "successRecord": "myPaint native smoke: ok=true "
+      },
+      "quitRun": {
+        "arguments": [
+          "--smoke",
+          "--quit-smoke",
+          "--persistence-root",
+          "/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/mypaint-native-desktop-MpbcTy/quit-run"
+        ],
+        "ok": true,
+        "elapsedMs": 732,
+        "exitCode": 0,
+        "checks": {
+          "busyPreserved": true,
+          "modes": [
+            "runtime",
+            "native"
+          ],
+          "pendingCancel": true,
+          "readyForApprovedClose": true,
+          "repeatedQuitPreserved": true,
+          "unsavedCancel": true
+        },
+        "finalApprovedClose": true,
+        "successRecord": "myPaint native quit smoke: ok=true {\"busyPreserved\":true,\"modes\":[\"runtime\",\"native\"],\"pendingCancel\":true,\"readyForApprovedClose\":true,\"repeatedQuitPreserved\":true,\"unsavedCancel\":true}"
+      },
+      "sceneRun": {
+        "arguments": [
+          "--smoke",
+          "--render-smoke",
+          "--persistence-root",
+          "/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/mypaint-native-desktop-MpbcTy/render-run"
+        ],
+        "ok": true,
+        "elapsedMs": 4499,
+        "exitCode": 0,
+        "checks": {
+          "scene": true,
+          "checks": [
+            "cold",
+            "unchanged",
+            "rename",
+            "dirty-boundary",
+            "rollback",
+            "selection",
+            "selection-move",
+            "selection-cancel",
+            "hide",
+            "unhide",
+            "fractional-paper-edge",
+            "minified-fallback",
+            "restore-camera",
+            "restored-unchanged",
+            "authoritative-rgba-preserved",
+            "color-eraser-capsule",
+            "color-eraser-cancel-redo",
+            "color-eraser-low-alpha"
+          ],
+          "maxTiles": 64,
+          "maxBytes": 111436096,
+          "unchangedUploads": 0
+        },
+        "successRecord": "myPaint native smoke: ok=true {\"scene\":true,\"checks\":[\"cold\",\"unchanged\",\"rename\",\"dirty-boundary\",\"rollback\",\"selection\",\"selection-move\",\"selection-cancel\",\"hide\",\"unhide\",\"fractional-paper-edge\",\"minified-fallback\",\"restore-camera\",\"restored-unchanged\",\"authoritative-rgba-preserved\",\"color-eraser-capsule\",\"color-eraser-cancel-redo\",\"color-eraser-low-alpha\"],\"maxTiles\":64,\"maxBytes\":111436096,\"unchangedUploads\":0}"
+      },
+      "scopeNote": "Four real bundled WKWebView/IPC runs. Scene14+authority hash plus3 isolated JavaScriptCore color-eraser engine checks; public pointer-button behavior is separate Chromium evidence.",
+      "binaryAtExecution": "/Users/jhpark/code/myService/myPaint/web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop"
+    },
+    "qtBaseline": {
+      "artifact": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/qt-ctest.log",
+        "sha256": "2929ec91f2a26522680370845d011e3cd6c3dc9b1082543efae9f2654b51a8fd"
+      },
+      "ctestPrograms": 5,
+      "passed": 5
+    },
+    "qtColorEraser": {
+      "artifact": {
+        "path": "/private/tmp/mypaint-color-qt-wkrr4uy3/permanent-review.json",
+        "sha256": "b7d482dc8d04e294d2935f83afd7041543155cec3f6f20643fa498e34af9dabd"
+      },
+      "result": {
+        "review": "No blocking issue found in the current matchColor stroke branch, UI routing, or 8-byte fill worker input. No product files edited by this audit.",
+        "verified": {
+          "qtCapturedCases": 18,
+          "permanentNewTests": 19,
+          "allNodeTests": 138,
+          "allNodePass": 138,
+          "typecheck": "pass",
+          "format": "pass"
+        },
+        "scopeNotes": [
+          "Core fixtures do not exercise right-button UI routing; separate public UI suite covers it.",
+          "Qt target premultiplied bytes match. The new engine preserves exact requested target raw RGBA, avoiding Qt straight-RGB normalization.",
+          "All unchanged raw RGB bytes, hidden visibility, cancel/Redo and single Undo/Redo are checked.",
+          "The generator instantiates Canvas/Document only and never MainWindow, recovery paths or user files."
+        ],
+        "logs": {
+          "qt": "/private/tmp/mypaint-color-qt-wkrr4uy3/qt-oracle.json",
+          "qtManifest": "/private/tmp/mypaint-color-qt-wkrr4uy3/manifest.json",
+          "newTests": "/private/tmp/mypaint-color-qt-wkrr4uy3/permanent-test.log",
+          "allTests": "/private/tmp/mypaint-color-qt-wkrr4uy3/permanent-all-tests.log",
+          "typecheck": "/private/tmp/mypaint-color-qt-wkrr4uy3/permanent-typecheck.log",
+          "format": "/private/tmp/mypaint-color-qt-wkrr4uy3/permanent-format.log"
+        },
+        "files": {
+          "web-app/src/engine/document.ts": {
+            "sha256": "de9df5b48eb8926c07c62b8bf787383a51e6ad54878ba3286ef12b4bcc22b8c3",
+            "bytes": 36030
+          },
+          "web-app/src/main.ts": {
+            "sha256": "609c2561d7cbfc6f5f094eda1b824841269b3da5e52a0e67d245314fe3d866b8",
+            "bytes": 131416
+          },
+          "web-app/src/workers/codec.worker.ts": {
+            "sha256": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+            "bytes": 9661
+          },
+          "web-app/tests/color-eraser-qt.test.ts": {
+            "sha256": "23397ee07fac68d5ebc426a49e68e7dc307f988642b68994c3cf20a77ad52e6a",
+            "bytes": 6624
+          },
+          "web-app/tests/fixtures/color-eraser-qt.json": {
+            "sha256": "a09ff6b0af2143853fb860900ff0fe04c0216fbfca69e7f664ae6e2936d3e2dc",
+            "bytes": 23738
+          },
+          "web-app/tests/fixtures/color-eraser-qt-oracle.cpp": {
+            "sha256": "81c7544efd0fd153b66f2a94d339ce7d3249f7fea82e0a43256615884d2e4a44",
+            "bytes": 7294
+          }
+        }
+      },
+      "compactFixture": "../../web-app/tests/fixtures/color-eraser-qt.json"
+    },
+    "qtShapeAndPicker": {
+      "artifact": {
+        "path": "/private/tmp/mypaint-shape-qt-buoy4u4u/assertions.json",
+        "sha256": "39806202b7fde025b4a039419eeb2047870802d369340cb5d3e9f52190c72860"
+      },
+      "result": {
+        "ok": true,
+        "qt": "6.12.0",
+        "shapeCases": 17,
+        "pickerInputs": 6,
+        "assertions": [
+          "17 shape and 6 picker captures; Qt errors empty",
+          "Every candidate read is revision-neutral and project bytes decode exactly; every modified shape is one clean Undo and exact Redo",
+          "Line left/right alpha and opacity17/100 equality; outline-off still draws",
+          "Rectangle fill precedes stroke; left inside border blends over blue, outside border retains alpha128; right swaps colors",
+          "Fill-only swaps; neither flag is a clean no-op",
+          "Curve latest accepted drawing press controls pending and final pen; second control commits exactly once",
+          "Polygon pending is already closed/filled; settle retains candidate exactly; legacy middle pan incidentally flips right to left",
+          "Pending curve/polygon cancel preserves original transparent document and clean history",
+          "Picker left/right equality, transparent base, visible composite excluding hidden active, exact Qt premultiplied normalization"
+        ],
+        "scope": "Actual legacy Canvas/Document executed in offscreen Qt; no MainWindow, personal files, filesystem saves or UI IPC. pendingState project byte roundtrips exercise in-memory codecs. No project source edits. Geometry raster masks differ from browser AA; compare unambiguous full-coverage points and semantic color ownership."
+      },
+      "manifest": {
+        "path": "/private/tmp/mypaint-shape-qt-buoy4u4u/manifest.json",
+        "sha256": "33b6be0485f879458f936fdc51d3ca307bf1f045cd3d255f5a1fd9d203e0f017"
+      }
+    },
+    "qtNoInkVisibility": {
+      "artifact": {
+        "path": "/private/tmp/mypaint-brush-alpha-qt-architect/qt-oracle.json",
+        "sha256": "6f8e30fb79082ddf19abd2c97ab76d77705e8c3733f3f35e5da7f9a742e2d564"
+      },
+      "result": {
+        "cases": [
+          {
+            "canRedo": true,
+            "canUndo": false,
+            "cancel": false,
+            "dirty": false,
+            "hidden": false,
+            "name": "alpha0-visible-redo",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": true
+          },
+          {
+            "canRedo": false,
+            "canUndo": true,
+            "cancel": false,
+            "dirty": true,
+            "hidden": true,
+            "name": "alpha0-hidden",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": true
+          },
+          {
+            "canRedo": true,
+            "canUndo": false,
+            "cancel": false,
+            "dirty": false,
+            "hidden": false,
+            "name": "opacity0-visible-redo",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": true
+          },
+          {
+            "canRedo": false,
+            "canUndo": true,
+            "cancel": false,
+            "dirty": true,
+            "hidden": true,
+            "name": "opacity0-hidden",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": true
+          },
+          {
+            "canRedo": true,
+            "canUndo": false,
+            "cancel": false,
+            "dirty": false,
+            "hidden": false,
+            "name": "outside-visible-redo",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": true
+          },
+          {
+            "canRedo": false,
+            "canUndo": true,
+            "cancel": false,
+            "dirty": true,
+            "hidden": true,
+            "name": "outside-hidden",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": true
+          },
+          {
+            "canRedo": true,
+            "canUndo": false,
+            "cancel": true,
+            "dirty": false,
+            "hidden": true,
+            "name": "alpha0-hidden-cancel",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": false
+          },
+          {
+            "canRedo": true,
+            "canUndo": false,
+            "cancel": false,
+            "dirty": false,
+            "hidden": false,
+            "name": "alpha0-square-visible-redo",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": true
+          },
+          {
+            "canRedo": false,
+            "canUndo": true,
+            "cancel": false,
+            "dirty": true,
+            "hidden": true,
+            "name": "alpha0-square-hidden",
+            "oldRedoExact": true,
+            "pendingVisible": true,
+            "pixelsSame": true,
+            "redoExact": true,
+            "revisionUnchangedDuring": true,
+            "singleUndoExact": true,
+            "visible": true
+          }
+        ],
+        "errors": [],
+        "qt": "6.12.0",
+        "scope": "Actual legacy Canvas/Document only; no MainWindow, recovery paths, user files or product edits. Alpha-zero Qt images use canonical premultiplied zero; hidden straight RGB preservation is a separate new-engine raw RGBA contract."
+      },
+      "scopeNote": "Qt9 captures establish no-ink metadata behavior. Outside-hidden differs intentionally; Qt canonical premultiplied alpha0 does not prove new raw hidden RGB preservation."
+    },
+    "buildAndStyle": {
+      "desktopBuild": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/decoder-desktop-build.log",
+        "sha256": "0ea44cddee76e222746ab12fba0793c1ea702e0a5602a6baa19c82c1c7d59fad"
+      },
+      "format": {
+        "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/continuation-contracts/decoder-format.log",
+        "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+      },
+      "passed": true
+    },
+    "ci": {
+      "packageSha256": "1378ecbcff1287c23340703323a2d61be90f8550cc2d49f593e300bac5e7f5ef",
+      "workflowSha256": "9dfb38a4754ae2590e7b126acd3c0bec5fa8b8077265db76f2bf33f6fef3122d",
+      "newCommands": [
+        "npm run test:color-eraser-contract",
+        "npm run test:shape-color-contract"
+      ],
+      "remoteExecution": "not run"
+    }
+  },
+  "resourceReview": {
+    "artifact": {
+      "path": "/private/tmp/mypaint-color-eraser-geometry-sre-d1ylc46x/results.json",
+      "sha256": "72b851492aafcf866155aa5f8f672eae771966a8106f84cdcc478f6da9135120"
+    },
+    "sourceSHA256": "de9df5b48eb8926c07c62b8bf787383a51e6ad54878ba3286ef12b4bcc22b8c3",
+    "instrumentedSourceSHA256": "1c6a7906a50ca4c54fbc88e07e34d1691ef90a8bbd05940db8a74d96133cf95f",
+    "scope": "Independent frozen-source/count/allocation supplement to Architect2048-case full-image geometry oracle. Removing the two counters is byte-identical to product source. No timing certification; concurrent functional UI tests. Buffer allocations and alias views are counted, not RSS or GPU memory.",
+    "cases": [
+      {
+        "name": "4096 positive diagonal cancel",
+        "width": 4096,
+        "height": 4096,
+        "start": [
+          0.9,
+          0.9
+        ],
+        "end": [
+          4095.9,
+          4095.9
+        ],
+        "size": 12,
+        "cancel": true,
+        "hidden": true,
+        "authorityBytes": 67108864,
+        "wholeBBoxCandidatePixels": 16777216,
+        "rowBoundCandidatePixels": 102244,
+        "candidateFraction": 0.006094217300415039,
+        "strokeStorage": {
+          "tiles": 94,
+          "beforeBytes": 6160384,
+          "coverageBytes": 1540096,
+          "maxTileAxis": 128
+        },
+        "historyBytes": 0,
+        "noWholeBufferAllocation": true,
+        "wholeRGBAHashRestorationPassed": true
+      },
+      {
+        "name": "4096 negative diagonal commit Undo Redo",
+        "width": 4096,
+        "height": 4096,
+        "start": [
+          4095.9,
+          0.9
+        ],
+        "end": [
+          0.9,
+          4095.9
+        ],
+        "size": 12,
+        "authorityBytes": 67108864,
+        "wholeBBoxCandidatePixels": 16777216,
+        "rowBoundCandidatePixels": 102244,
+        "candidateFraction": 0.006094217300415039,
+        "strokeStorage": {
+          "tiles": 94,
+          "beforeBytes": 6160384,
+          "coverageBytes": 1540096,
+          "maxTileAxis": 128
+        },
+        "historyBytes": 12320768,
+        "noWholeBufferAllocation": true,
+        "wholeRGBAHashRestorationPassed": true
+      },
+      {
+        "name": "2048 outside-endpoint diagonal size100",
+        "width": 2048,
+        "height": 2048,
+        "start": [
+          -2048.9,
+          -2048.1
+        ],
+        "end": [
+          4096.9,
+          4096.1
+        ],
+        "size": 100,
+        "cancel": true,
+        "authorityBytes": 16777216,
+        "wholeBBoxCandidatePixels": 4194304,
+        "rowBoundCandidatePixels": 401874,
+        "candidateFraction": 0.09581422805786133,
+        "strokeStorage": {
+          "tiles": 46,
+          "beforeBytes": 3014656,
+          "coverageBytes": 753664,
+          "maxTileAxis": 128
+        },
+        "historyBytes": 0,
+        "noWholeBufferAllocation": true,
+        "wholeRGBAHashRestorationPassed": true
+      },
+      {
+        "name": "32768x128 shallow size1 tile-granularity exception",
+        "width": 32768,
+        "height": 128,
+        "start": [
+          0.9,
+          0.9
+        ],
+        "end": [
+          32767.9,
+          127.9
+        ],
+        "size": 1,
+        "authorityBytes": 16777216,
+        "wholeBBoxCandidatePixels": 4194304,
+        "rowBoundCandidatePixels": 33148,
+        "candidateFraction": 0.007903099060058594,
+        "strokeStorage": {
+          "tiles": 256,
+          "beforeBytes": 16777216,
+          "coverageBytes": 4194304,
+          "maxTileAxis": 128
+        },
+        "historyBytes": 33554432,
+        "noWholeBufferAllocation": true,
+        "wholeRGBAHashRestorationPassed": true,
+        "note": "Every128x128tile is touched by the shallow path, so before patches collectively equal one full authority buffer. This is tile granularity, not a single full-document clone or full-pixel candidate scan."
+      }
+    ],
+    "limits": "Observed constructor requests and128px patch granularity, not RSS/GPU peaks. A shallow32768x128 gesture can still touch every history tile; it is not a whole-buffer clone but totals16MiB before/32MiB history."
+  },
+  "decoderAllocationReview": {
+    "artifact": {
+      "path": "/private/tmp/mypaint-decoder-allocation-sre-0hs4ax1g/summary.json",
+      "sha256": "9cf45a7c2a67f41e190bea77de321f6c903166adbae22c80f1a2eb1dda8aace2"
+    },
+    "result": {
+      "ok": true,
+      "checks": 13,
+      "source": {
+        "engine/format-before.ts": "a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2",
+        "engine/format-after.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+        "engine/document.ts": "2917f4e47d16c9d842fb39147f5dcaad2b097e4103dd36b9b3f55348233a3936",
+        "platform/codec.ts": "c4083e2d19745bd0d69032489a06af253f9d6c9f8d6dd466a248e19300748fb4",
+        "platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3"
+      },
+      "probeSHA256": "7bc7101ecbfac12ab86fe17e12b1865a78d7487028369b5038561aeb9c53b8d8",
+      "rawSHA256": "13fb108f082d6d9d259eeb5029bf53ca9797c0fe734caeb4eb6c901eadb25ad9",
+      "baselineRestoration": "Only the new outer/IHDR guard including its comment removed from frozen after-source; resulting before bytes hash exactly equal prior known format SHA a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2. Other copied source unchanged.",
+      "cases": [
+        {
+          "side": "before",
+          "fixture": "valid-first-valid-last",
+          "requestedNumericBytes": 133288,
+          "badInflateRawRequests": 0,
+          "badOutputRequests": 0,
+          "goodOutputRequests": 2
+        },
+        {
+          "side": "before",
+          "fixture": "valid-first-mismatched-last",
+          "error": "레이어 크기 불일치",
+          "requestedNumericBytes": 137983,
+          "badInflateRawRequests": 1,
+          "badOutputRequests": 1,
+          "goodOutputRequests": 1
+        },
+        {
+          "side": "before",
+          "fixture": "mismatched-first-valid-last",
+          "error": "레이어 크기 불일치",
+          "requestedNumericBytes": 71339,
+          "badInflateRawRequests": 1,
+          "badOutputRequests": 1,
+          "goodOutputRequests": 0
+        },
+        {
+          "side": "after",
+          "fixture": "valid-first-valid-last",
+          "requestedNumericBytes": 133288,
+          "badInflateRawRequests": 0,
+          "badOutputRequests": 0,
+          "goodOutputRequests": 2
+        },
+        {
+          "side": "after",
+          "fixture": "valid-first-mismatched-last",
+          "error": "레이어 크기 불일치",
+          "requestedNumericBytes": 66644,
+          "badInflateRawRequests": 0,
+          "badOutputRequests": 0,
+          "goodOutputRequests": 1
+        },
+        {
+          "side": "after",
+          "fixture": "mismatched-first-valid-last",
+          "error": "레이어 크기 불일치",
+          "requestedNumericBytes": 0,
+          "badInflateRawRequests": 0,
+          "badOutputRequests": 0,
+          "goodOutputRequests": 0
+        }
+      ],
+      "fileBoundary": [
+        {
+          "name": "invalid-NaN",
+          "size": "NaN",
+          "actualBytes": 8,
+          "getterReads": 1,
+          "arrayBufferReads": 0,
+          "workerConstructions": 0,
+          "error": "파일 크기 정보가 올바르지 않습니다."
+        },
+        {
+          "name": "invalid-negative",
+          "size": -1,
+          "actualBytes": 8,
+          "getterReads": 1,
+          "arrayBufferReads": 0,
+          "workerConstructions": 0,
+          "error": "파일 크기 정보가 올바르지 않습니다."
+        },
+        {
+          "name": "invalid-unsafe-integer",
+          "size": 9007199254740992,
+          "actualBytes": 8,
+          "getterReads": 1,
+          "arrayBufferReads": 0,
+          "workerConstructions": 0,
+          "error": "파일 크기 정보가 올바르지 않습니다."
+        },
+        {
+          "name": "declared-size-over-limit",
+          "size": 41943041,
+          "actualBytes": 8,
+          "getterReads": 1,
+          "arrayBufferReads": 0,
+          "workerConstructions": 0,
+          "error": "파일은 40 MiB 이내여야 합니다."
+        },
+        {
+          "name": "shorter-than-declared",
+          "size": 9,
+          "actualBytes": 8,
+          "getterReads": 1,
+          "arrayBufferReads": 1,
+          "workerConstructions": 0,
+          "error": "읽은 파일의 크기가 파일 정보와 일치하지 않습니다."
+        },
+        {
+          "name": "longer-than-declared",
+          "size": 8,
+          "actualBytes": 9,
+          "getterReads": 1,
+          "arrayBufferReads": 1,
+          "workerConstructions": 0,
+          "error": "읽은 파일의 크기가 파일 정보와 일치하지 않습니다."
+        },
+        {
+          "name": "captured-size-read-once",
+          "size": 8,
+          "actualBytes": 8,
+          "getterReads": 1,
+          "arrayBufferReads": 1,
+          "workerConstructions": 1,
+          "error": "worker-boundary-sentinel"
+        }
+      ],
+      "limits": [
+        "Numeric constructor requests, not memory usage or retained state. Explicit calls counted; ArrayBuffer views labeled separately. Implicit slice-species/native allocations not comprehensively tracked.",
+        "Maximum PNG is37x19 pixels; no large pixel bomb generated. pako requests its usual65536-byte chunk for each decoded layer.",
+        "codec tests use synthetic8/9-byte buffers and Worker-construction sentinel. The actual>40MiB read-result branch is reviewed but not materialized in this small probe.",
+        "No UI/native filesystem/large-file timing claim. Product sources were copied before execution and not edited. Existing Metal evidence untouched."
+      ]
+    }
+  },
+  "metalExperiment": {
+    "artifact": {
+      "path": "/private/tmp/mypaint-metal-ui-sre-yoywjp5x/summary.json",
+      "sha256": "14d3d617910e5e7a0db34e2837ed5b9b1753a94347441ce06ec17b15b52a6335"
+    },
+    "raw": {
+      "path": "/private/tmp/mypaint-metal-ui-sre-yoywjp5x/results.json",
+      "sha256": "c42b9c9473aae47e319c290aded773925a9de73ead22c77d10298e12bb8cab5b"
+    },
+    "provenance": {
+      "path": "/private/tmp/mypaint-metal-ui-sre-yoywjp5x/provenance.json",
+      "sha256": "8e6e7635212328d8742b581c8b7bc169e3f0855188115075a90bf6c576c9d4ae"
+    },
+    "runtime": {
+      "node": "v24.22.1",
+      "os": "27.0.0",
+      "cpu": "Apple M1 Pro"
+    },
+    "fixture": {
+      "encodedBytes": 2937427,
+      "sha256": "5ceb481a6921aea3cafead82edbde0a0a3b09ce8fb574cc2abda9650eb1c327b",
+      "authorityBytes": 268435456
+    },
+    "scope": "Phase1 versus final phase2 rendering plus P0 input/engine fixes. Actual production public UI; test-only Canvas/rAF/PerformanceObserver wrappers and in-memory native IPC, no source transformation/product hooks. Default headless Chrome args=[], GPU/CDP pre/post identifies selected Metal backend; global GPU does not prove every Canvas draw accelerated. Desktop modeled native 256MiB document, not mobile 24MiB target or actual WKWebView. Cold means camera-invalidated warm document repaint, not decode/startup. Callback elapsed/queue/LongTask/RAF/API counts separated. No forcedGC. One cold and nine unchanged descriptive samples per version/DPR; no stable tail or hardware threshold claim",
+    "source": {
+      "reference": {
+        "web-app/src/engine/document.ts": "8b6885a0632ed2d544db95d02a7276052b7e5d9812ea09d83806e04ac4d2ea6b",
+        "web-app/src/engine/format.ts": "a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2",
+        "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+        "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+        "web-app/src/main.ts": "ba0ddd01cb38e8ba66de859e00f95f90bdc970dfb86e468d920f0ac569b6279b",
+        "web-app/src/platform/codec.ts": "afd7a3a42b88f6dfa528889c7a5af99ef664cbbbe666132f657f3b4484d5284e",
+        "web-app/src/platform/native-smoke.ts": "f948b1f385ab8e244f65c0b57dee010766e80dad106a0643e08616afcc3aa682",
+        "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+        "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+        "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+        "web-app/src/platform/tiles.ts": "74a6a49f815b14f4faec3f225721fd1c08525d9bc25d766fd67f171f27e99640",
+        "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+        "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+        "web-app/src/workers/codec.worker.ts": "190956b1d91f5b7c6d5b9519094f184bfd9380bb75b9d9050542f0451855bddf",
+        "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+        "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+        "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+      },
+      "candidate": {
+        "web-app/src/engine/document.ts": "de9df5b48eb8926c07c62b8bf787383a51e6ad54878ba3286ef12b4bcc22b8c3",
+        "web-app/src/engine/format.ts": "a5eea424d9c1bd2a701115b2a231a72b4503bf7c90c7d664a698ffba557d36c2",
+        "web-app/src/engine/operations.ts": "587492a825be38de89774199cb69f0a4909043547f06cfd7ac91289a9bc9b18d",
+        "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+        "web-app/src/main.ts": "609c2561d7cbfc6f5f094eda1b824841269b3da5e52a0e67d245314fe3d866b8",
+        "web-app/src/platform/codec.ts": "afd7a3a42b88f6dfa528889c7a5af99ef664cbbbe666132f657f3b4484d5284e",
+        "web-app/src/platform/native-smoke.ts": "e77a2aae8cda17ffabbefa081958daa4fc338e4fdf232e73f9b79c27b93c9948",
+        "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+        "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+        "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+        "web-app/src/platform/tiles.ts": "26bbc7fdde53233026ec05d2a7dfafa6b43c545b1868eacf6250fc0ec9a1fa63",
+        "web-app/src/style.css": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5",
+        "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+        "web-app/src/workers/codec.worker.ts": "42d72a815194dfb4fa74b061e418fad7e2b2196c9e406eac7e41dde9d88edc81",
+        "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+        "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+        "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+      }
+    },
+    "limits": [
+      "No product hooks, application instance inspection or modified assets.",
+      "One cold camera-invalidated frame per side/DPR,9 unchanged samples. Dirty/cancel operations are single trials.",
+      "Public main-Canvas fillRect detects production render callbacks; this excludes pure nonrender rAF callbacks. All putImageData/capture calls in the main page are counted; worker Canvas/CPU not observed.",
+      "Wrappers add per-Canvas-call counters, one paper getTransform, rAF bookkeeping, a continuous rAF pulse and10ms timer. Absolute durations include this overhead; no calibration subtraction.",
+      "WeakRef-only OffscreenCanvas tracking and ImageData byteLength metadata add constructor/upload overhead without retaining buffers. Default browserGC and runtime Worker scheduling may contribute; source-fixture generation and decode are outside measured windows. Four browser processes run sequentially with balanced order.",
+      "Logical API upload bytes/capture pixel area are not measured GPU transfers or memory. No physical input/RAF presentation/native/Android latency claim.",
+      "Full Canvas readback occurs after all timed phases; exact comparison is between reference and candidate using the same Metal-selected Chrome backend per DPR. Old forced-software hash is diagnostic only; canonical project is original-byte exact.",
+      "Global pre/post GPU selection is Metal; this does not prove each individual Canvas remained accelerated. Headless default args=[] uses installed Chrome runtime defaults, actual commandLine is retained."
+    ],
+    "runs": [
+      {
+        "side": "reference",
+        "dpr": 1,
+        "assets": [
+          {
+            "url": "http://127.0.0.1:8984/mypaint/assets/index-Hqf0mSZj.js",
+            "sha256": "5898732a7e59839e78a6f51aedb0c22fbe7e0eca3612d5c39b7e2b437ce05f82"
+          },
+          {
+            "url": "http://127.0.0.1:8984/mypaint/assets/codec.worker-DVetkR7m.js",
+            "sha256": "0e59d27aa99149daa81d1e02b0c01055922e10f5b41abe10f49ce9110e3e3cbe"
+          },
+          {
+            "url": "http://127.0.0.1:8984/mypaint/assets/codec.worker-DVetkR7m.js",
+            "sha256": "0e59d27aa99149daa81d1e02b0c01055922e10f5b41abe10f49ce9110e3e3cbe"
+          }
+        ],
+        "final": {
+          "sha256": "4191b4efc1b4a2219444fa36affff9a6a0596850bc40bb4b9f67d8965c4e8e4d",
+          "width": 1072,
+          "height": 910
+        },
+        "savedAuthority": {
+          "bytes": 2937427,
+          "sha256": "5ceb481a6921aea3cafead82edbde0a0a3b09ce8fb574cc2abda9650eb1c327b"
+        },
+        "oldSoftwareCanvasMatch": true,
+        "metalCanvasMatchesOtherVersion": true,
+        "contextAttributes": {
+          "alpha": true,
+          "colorSpace": "srgb",
+          "colorType": "unorm8",
+          "desynchronized": false,
+          "toneMapping": {
+            "mode": "standard"
+          },
+          "willReadFrequently": false
+        },
+        "resourcePeak": {
+          "surfaces": 64,
+          "estimatedBytes": 125459072,
+          "largestAxis": 512
+        },
+        "unchanged": {
+          "callbackMs": {
+            "n": 9,
+            "min": 0.8999999761581421,
+            "median": 1.1999999284744263,
+            "max": 1.399999976158142,
+            "samples": [
+              0.8999999761581421,
+              0.8999999761581421,
+              1.0999999046325684,
+              1,
+              1.399999976158142,
+              1.2000000476837158,
+              1.1999999284744263,
+              1.2999999523162842,
+              1.3000000715255737
+            ],
+            "p95NearestRank": 1.399999976158142,
+            "p99NearestRank": 1.399999976158142,
+            "tailScope": "Only9 descriptive samples; nearest-rank tails are not stable tail estimates."
+          },
+          "queueDelayMs": {
+            "n": 9,
+            "min": 4.5,
+            "median": 7.199999928474426,
+            "max": 11.799999952316284,
+            "samples": [
+              11.700000047683716,
+              11.799999952316284,
+              9.800000071525574,
+              9,
+              6.899999976158142,
+              7.199999928474426,
+              5.700000047683716,
+              4.5,
+              5
+            ],
+            "p95NearestRank": 11.799999952316284,
+            "p99NearestRank": 11.799999952316284,
+            "tailScope": "Only9 descriptive samples; nearest-rank tails are not stable tail estimates."
+          },
+          "phaseUploadCalls": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "phaseRequestedUploadBytes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "phaseCaptures": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "maxRafGapMs": 16.799999999999272,
+          "phaseLongTasks": []
+        },
+        "gpuPre": {
+          "devices": [
+            {
+              "vendorId": 4203,
+              "deviceId": 0,
+              "vendorString": "Google Inc. (Apple)",
+              "deviceString": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Version 27.0 (Build 26A428))",
+              "driverVendor": "Apple",
+              "driverVersion": "27.0"
+            }
+          ],
+          "displayType": "ANGLE_METAL",
+          "skiaBackendType": "GraphiteDawnMetal",
+          "featureStatus": {
+            "2d_canvas": "enabled",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "enabled",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "enabled_on",
+            "rasterization": "enabled",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "enabled_on",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "enabled",
+            "video_encode": "enabled",
+            "webgl": "enabled",
+            "webgpu": "enabled",
+            "webnn": "disabled_off"
+          },
+          "commandLine": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/playwright_chromiumdev_profile-vXTC9o --remote-debugging-pipe --no-startup-window --noerrdialogs --flag-switches-begin --flag-switches-end --enable-unsafe-swiftshader"
+        },
+        "gpuPost": {
+          "devices": [
+            {
+              "vendorId": 4203,
+              "deviceId": 0,
+              "vendorString": "Google Inc. (Apple)",
+              "deviceString": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Version 27.0 (Build 26A428))",
+              "driverVendor": "Apple",
+              "driverVersion": "27.0"
+            }
+          ],
+          "displayType": "ANGLE_METAL",
+          "skiaBackendType": "GraphiteDawnMetal",
+          "featureStatus": {
+            "2d_canvas": "enabled",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "enabled",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "enabled_on",
+            "rasterization": "enabled",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "enabled_on",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "enabled",
+            "video_encode": "enabled",
+            "webgl": "enabled",
+            "webgpu": "enabled",
+            "webnn": "disabled_off"
+          },
+          "commandLine": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/playwright_chromiumdev_profile-vXTC9o --remote-debugging-pipe --no-startup-window --noerrdialogs --flag-switches-begin --flag-switches-end --enable-unsafe-swiftshader"
+        },
+        "phases": [
+          {
+            "name": "cold-camera-invalidation",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 96,
+            "phaseRequestedUploadBytes": 100597760,
+            "phaseCaptures": 6,
+            "phaseLogicalCapturePixels": 975520,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 96,
+            "maxRafGapMs": 33.29999999999927,
+            "callbackSamplesMs": [
+              32.700000047683716
+            ],
+            "queueSamplesMs": [
+              13.600000023841858
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-press",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 64,
+            "phaseRequestedUploadBytes": 67043328,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 69,
+            "maxRafGapMs": 50,
+            "callbackSamplesMs": [
+              44.5
+            ],
+            "queueSamplesMs": [
+              2.5
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-small-move",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 64,
+            "phaseRequestedUploadBytes": 67043328,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 69,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              22.800000071525574
+            ],
+            "queueSamplesMs": [
+              0
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-commit",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 64,
+            "phaseRequestedUploadBytes": 67043328,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 69,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              22.5
+            ],
+            "queueSamplesMs": [
+              14.700000047683716
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-undo",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 64,
+            "phaseRequestedUploadBytes": 67043328,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 69,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              23.40000009536743
+            ],
+            "queueSamplesMs": [
+              14.699999928474426
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "cancel-provisional",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 2,
+            "phaseUploads": 128,
+            "phaseRequestedUploadBytes": 134086656,
+            "phaseCaptures": 2,
+            "phaseLogicalCapturePixels": 524288,
+            "renderMainFillCalls": 6934,
+            "renderMainImageCalls": 138,
+            "maxRafGapMs": 16.799999999999272,
+            "callbackSamplesMs": [
+              23.799999952316284,
+              22.100000023841858
+            ],
+            "queueSamplesMs": [
+              12.700000047683716,
+              0
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "cancel-rollback",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 64,
+            "phaseRequestedUploadBytes": 67043328,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 69,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              24.699999928474426
+            ],
+            "queueSamplesMs": [
+              16.800000071525574
+            ],
+            "longTasksMs": []
+          }
+        ]
+      },
+      {
+        "side": "candidate",
+        "dpr": 1,
+        "assets": [
+          {
+            "url": "http://127.0.0.1:8983/mypaint/assets/index-CXqP5zUS.js",
+            "sha256": "70092ff5a4c0aa608deac8937a0dbd6ef8bc91048c5ed32f89df885a417929a7"
+          },
+          {
+            "url": "http://127.0.0.1:8983/mypaint/assets/codec.worker-B6TF5tve.js",
+            "sha256": "aa45f9b4cb90a7e298650ffce89fb606b13df7b5b174fb6728656295225e240a"
+          },
+          {
+            "url": "http://127.0.0.1:8983/mypaint/assets/codec.worker-B6TF5tve.js",
+            "sha256": "aa45f9b4cb90a7e298650ffce89fb606b13df7b5b174fb6728656295225e240a"
+          }
+        ],
+        "final": {
+          "sha256": "4191b4efc1b4a2219444fa36affff9a6a0596850bc40bb4b9f67d8965c4e8e4d",
+          "width": 1072,
+          "height": 910
+        },
+        "savedAuthority": {
+          "bytes": 2937427,
+          "sha256": "5ceb481a6921aea3cafead82edbde0a0a3b09ce8fb574cc2abda9650eb1c327b"
+        },
+        "oldSoftwareCanvasMatch": true,
+        "metalCanvasMatchesOtherVersion": true,
+        "contextAttributes": {
+          "alpha": true,
+          "colorSpace": "srgb",
+          "colorType": "unorm8",
+          "desynchronized": false,
+          "toneMapping": {
+            "mode": "standard"
+          },
+          "willReadFrequently": false
+        },
+        "resourcePeak": {
+          "surfaces": 64,
+          "estimatedBytes": 121293440,
+          "largestAxis": 512
+        },
+        "unchanged": {
+          "callbackMs": {
+            "n": 9,
+            "min": 0.10000002384185791,
+            "median": 0.20000004768371582,
+            "max": 0.30000007152557373,
+            "samples": [
+              0.20000004768371582,
+              0.10000002384185791,
+              0.20000004768371582,
+              0.19999992847442627,
+              0.30000007152557373,
+              0.30000007152557373,
+              0.2999999523162842,
+              0.2999999523162842,
+              0.10000002384185791
+            ],
+            "p95NearestRank": 0.30000007152557373,
+            "p99NearestRank": 0.30000007152557373,
+            "tailScope": "Only9 descriptive samples; nearest-rank tails are not stable tail estimates."
+          },
+          "queueDelayMs": {
+            "n": 9,
+            "min": 2.799999952316284,
+            "median": 8,
+            "max": 12.100000023841858,
+            "samples": [
+              12.100000023841858,
+              11.799999952316284,
+              8.5,
+              8.399999976158142,
+              8,
+              2.799999952316284,
+              5.600000023841858,
+              5.399999976158142,
+              4
+            ],
+            "p95NearestRank": 12.100000023841858,
+            "p99NearestRank": 12.100000023841858,
+            "tailScope": "Only9 descriptive samples; nearest-rank tails are not stable tail estimates."
+          },
+          "phaseUploadCalls": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "phaseRequestedUploadBytes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "phaseCaptures": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "maxRafGapMs": 16.80000000000109,
+          "phaseLongTasks": []
+        },
+        "gpuPre": {
+          "devices": [
+            {
+              "vendorId": 4203,
+              "deviceId": 0,
+              "vendorString": "Google Inc. (Apple)",
+              "deviceString": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Version 27.0 (Build 26A428))",
+              "driverVendor": "Apple",
+              "driverVersion": "27.0"
+            }
+          ],
+          "displayType": "ANGLE_METAL",
+          "skiaBackendType": "GraphiteDawnMetal",
+          "featureStatus": {
+            "2d_canvas": "enabled",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "enabled",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "enabled_on",
+            "rasterization": "enabled",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "enabled_on",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "enabled",
+            "video_encode": "enabled",
+            "webgl": "enabled",
+            "webgpu": "enabled",
+            "webnn": "disabled_off"
+          },
+          "commandLine": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/playwright_chromiumdev_profile-79vX4u --remote-debugging-pipe --no-startup-window --noerrdialogs --flag-switches-begin --flag-switches-end --enable-unsafe-swiftshader"
+        },
+        "gpuPost": {
+          "devices": [
+            {
+              "vendorId": 4203,
+              "deviceId": 0,
+              "vendorString": "Google Inc. (Apple)",
+              "deviceString": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Version 27.0 (Build 26A428))",
+              "driverVendor": "Apple",
+              "driverVersion": "27.0"
+            }
+          ],
+          "displayType": "ANGLE_METAL",
+          "skiaBackendType": "GraphiteDawnMetal",
+          "featureStatus": {
+            "2d_canvas": "enabled",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "enabled",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "enabled_on",
+            "rasterization": "enabled",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "enabled_on",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "enabled",
+            "video_encode": "enabled",
+            "webgl": "enabled",
+            "webgpu": "enabled",
+            "webnn": "disabled_off"
+          },
+          "commandLine": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/playwright_chromiumdev_profile-79vX4u --remote-debugging-pipe --no-startup-window --noerrdialogs --flag-switches-begin --flag-switches-end --enable-unsafe-swiftshader"
+        },
+        "phases": [
+          {
+            "name": "cold-camera-invalidation",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 96,
+            "phaseRequestedUploadBytes": 100597760,
+            "phaseCaptures": 8,
+            "phaseLogicalCapturePixels": 975520,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 96,
+            "maxRafGapMs": 33.29999999999927,
+            "callbackSamplesMs": [
+              32.39999997615814
+            ],
+            "queueSamplesMs": [
+              15.299999952316284
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-press",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 22,
+            "phaseRequestedUploadBytes": 21038080,
+            "phaseCaptures": 2,
+            "phaseLogicalCapturePixels": 465920,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 38,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              11.299999952316284
+            ],
+            "queueSamplesMs": [
+              1.7999999523162842
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-small-move",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 2,
+            "phaseLogicalCapturePixels": 465920,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 38,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              1
+            ],
+            "queueSamplesMs": [
+              0
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-commit",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 2,
+            "phaseLogicalCapturePixels": 465920,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 38,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              1.2000000476837158
+            ],
+            "queueSamplesMs": [
+              16.09999990463257
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-undo",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 2,
+            "phaseLogicalCapturePixels": 465920,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 38,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              1.399999976158142
+            ],
+            "queueSamplesMs": [
+              14.600000023841858
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "cancel-provisional",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 2,
+            "phaseUploads": 4,
+            "phaseRequestedUploadBytes": 133120,
+            "phaseCaptures": 4,
+            "phaseLogicalCapturePixels": 931840,
+            "renderMainFillCalls": 6934,
+            "renderMainImageCalls": 76,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              2.100000023841858,
+              1.5999999046325684
+            ],
+            "queueSamplesMs": [
+              12.399999976158142,
+              0.10000002384185791
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "cancel-rollback",
+            "geometry": {
+              "backing": [
+                1072,
+                910
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 1.0466575622558594,
+                "d": 1.0466575622558594,
+                "e": -295.77734375,
+                "f": -616.77734375
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 2,
+            "phaseLogicalCapturePixels": 465920,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 38,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              2.299999952316284
+            ],
+            "queueSamplesMs": [
+              18.200000047683716
+            ],
+            "longTasksMs": []
+          }
+        ]
+      },
+      {
+        "side": "candidate",
+        "dpr": 2,
+        "assets": [
+          {
+            "url": "http://127.0.0.1:8983/mypaint/assets/index-CXqP5zUS.js",
+            "sha256": "70092ff5a4c0aa608deac8937a0dbd6ef8bc91048c5ed32f89df885a417929a7"
+          },
+          {
+            "url": "http://127.0.0.1:8983/mypaint/assets/codec.worker-B6TF5tve.js",
+            "sha256": "aa45f9b4cb90a7e298650ffce89fb606b13df7b5b174fb6728656295225e240a"
+          },
+          {
+            "url": "http://127.0.0.1:8983/mypaint/assets/codec.worker-B6TF5tve.js",
+            "sha256": "aa45f9b4cb90a7e298650ffce89fb606b13df7b5b174fb6728656295225e240a"
+          }
+        ],
+        "final": {
+          "sha256": "bfd6337a07e3caad9f814ad914183e115d0e216436ccb81f14438728e8e125a1",
+          "width": 2144,
+          "height": 1820
+        },
+        "savedAuthority": {
+          "bytes": 2937427,
+          "sha256": "5ceb481a6921aea3cafead82edbde0a0a3b09ce8fb574cc2abda9650eb1c327b"
+        },
+        "oldSoftwareCanvasMatch": true,
+        "metalCanvasMatchesOtherVersion": true,
+        "contextAttributes": {
+          "alpha": true,
+          "colorSpace": "srgb",
+          "colorType": "unorm8",
+          "desynchronized": false,
+          "toneMapping": {
+            "mode": "standard"
+          },
+          "willReadFrequently": false
+        },
+        "resourcePeak": {
+          "surfaces": 64,
+          "estimatedBytes": 99478016,
+          "largestAxis": 512
+        },
+        "unchanged": {
+          "callbackMs": {
+            "n": 9,
+            "min": 0.09999990463256836,
+            "median": 0.30000007152557373,
+            "max": 0.3999999761581421,
+            "samples": [
+              0.30000007152557373,
+              0.09999990463256836,
+              0.30000007152557373,
+              0.2999999523162842,
+              0.3999999761581421,
+              0.2999999523162842,
+              0.30000007152557373,
+              0.3999999761581421,
+              0.2999999523162842
+            ],
+            "p95NearestRank": 0.3999999761581421,
+            "p99NearestRank": 0.3999999761581421,
+            "tailScope": "Only9 descriptive samples; nearest-rank tails are not stable tail estimates."
+          },
+          "queueDelayMs": {
+            "n": 9,
+            "min": 0.6999999284744263,
+            "median": 8.399999976158142,
+            "max": 13.100000023841858,
+            "samples": [
+              13.100000023841858,
+              12,
+              10.899999976158142,
+              6.600000023841858,
+              0.6999999284744263,
+              4,
+              3.1999999284744263,
+              8.399999976158142,
+              10.600000023841858
+            ],
+            "p95NearestRank": 13.100000023841858,
+            "p99NearestRank": 13.100000023841858,
+            "tailScope": "Only9 descriptive samples; nearest-rank tails are not stable tail estimates."
+          },
+          "phaseUploadCalls": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "phaseRequestedUploadBytes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "phaseCaptures": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "maxRafGapMs": 16.799999999999272,
+          "phaseLongTasks": []
+        },
+        "gpuPre": {
+          "devices": [
+            {
+              "vendorId": 4203,
+              "deviceId": 0,
+              "vendorString": "Google Inc. (Apple)",
+              "deviceString": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Version 27.0 (Build 26A428))",
+              "driverVendor": "Apple",
+              "driverVersion": "27.0"
+            }
+          ],
+          "displayType": "ANGLE_METAL",
+          "skiaBackendType": "GraphiteDawnMetal",
+          "featureStatus": {
+            "2d_canvas": "enabled",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "enabled",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "enabled_on",
+            "rasterization": "enabled",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "enabled_on",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "enabled",
+            "video_encode": "enabled",
+            "webgl": "enabled",
+            "webgpu": "enabled",
+            "webnn": "disabled_off"
+          },
+          "commandLine": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/playwright_chromiumdev_profile-qZcJ01 --remote-debugging-pipe --no-startup-window --noerrdialogs --flag-switches-begin --flag-switches-end --enable-unsafe-swiftshader"
+        },
+        "gpuPost": {
+          "devices": [
+            {
+              "vendorId": 4203,
+              "deviceId": 0,
+              "vendorString": "Google Inc. (Apple)",
+              "deviceString": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Version 27.0 (Build 26A428))",
+              "driverVendor": "Apple",
+              "driverVersion": "27.0"
+            }
+          ],
+          "displayType": "ANGLE_METAL",
+          "skiaBackendType": "GraphiteDawnMetal",
+          "featureStatus": {
+            "2d_canvas": "enabled",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "enabled",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "enabled_on",
+            "rasterization": "enabled",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "enabled_on",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "enabled",
+            "video_encode": "enabled",
+            "webgl": "enabled",
+            "webgpu": "enabled",
+            "webnn": "disabled_off"
+          },
+          "commandLine": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/playwright_chromiumdev_profile-qZcJ01 --remote-debugging-pipe --no-startup-window --noerrdialogs --flag-switches-begin --flag-switches-end --enable-unsafe-swiftshader"
+        },
+        "phases": [
+          {
+            "name": "cold-camera-invalidation",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 96,
+            "phaseRequestedUploadBytes": 100597760,
+            "phaseCaptures": 24,
+            "phaseLogicalCapturePixels": 3902080,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 96,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              32.10000002384186
+            ],
+            "queueSamplesMs": [
+              14.399999976158142
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-press",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 30,
+            "phaseRequestedUploadBytes": 29426688,
+            "phaseCaptures": 4,
+            "phaseLogicalCapturePixels": 923648,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 52,
+            "maxRafGapMs": 16.799999999999272,
+            "callbackSamplesMs": [
+              19.299999952316284
+            ],
+            "queueSamplesMs": [
+              2.700000047683716
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-small-move",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 4,
+            "phaseLogicalCapturePixels": 923648,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 52,
+            "maxRafGapMs": 16.799999999999272,
+            "callbackSamplesMs": [
+              1.899999976158142
+            ],
+            "queueSamplesMs": [
+              0.10000002384185791
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-commit",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 4,
+            "phaseLogicalCapturePixels": 923648,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 52,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              2
+            ],
+            "queueSamplesMs": [
+              13.699999928474426
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-undo",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 4,
+            "phaseLogicalCapturePixels": 923648,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 52,
+            "maxRafGapMs": 16.80000000000109,
+            "callbackSamplesMs": [
+              1.6999999284744263
+            ],
+            "queueSamplesMs": [
+              14
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "cancel-provisional",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 2,
+            "phaseUploads": 4,
+            "phaseRequestedUploadBytes": 133120,
+            "phaseCaptures": 8,
+            "phaseLogicalCapturePixels": 1847296,
+            "renderMainFillCalls": 6934,
+            "renderMainImageCalls": 104,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              2.299999952316284,
+              2.200000047683716
+            ],
+            "queueSamplesMs": [
+              11.800000071525574,
+              0.10000002384185791
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "cancel-rollback",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 4,
+            "phaseLogicalCapturePixels": 923648,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 52,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              3
+            ],
+            "queueSamplesMs": [
+              15.199999928474426
+            ],
+            "longTasksMs": []
+          }
+        ]
+      },
+      {
+        "side": "reference",
+        "dpr": 2,
+        "assets": [
+          {
+            "url": "http://127.0.0.1:8984/mypaint/assets/index-Hqf0mSZj.js",
+            "sha256": "5898732a7e59839e78a6f51aedb0c22fbe7e0eca3612d5c39b7e2b437ce05f82"
+          },
+          {
+            "url": "http://127.0.0.1:8984/mypaint/assets/codec.worker-DVetkR7m.js",
+            "sha256": "0e59d27aa99149daa81d1e02b0c01055922e10f5b41abe10f49ce9110e3e3cbe"
+          },
+          {
+            "url": "http://127.0.0.1:8984/mypaint/assets/codec.worker-DVetkR7m.js",
+            "sha256": "0e59d27aa99149daa81d1e02b0c01055922e10f5b41abe10f49ce9110e3e3cbe"
+          }
+        ],
+        "final": {
+          "sha256": "bfd6337a07e3caad9f814ad914183e115d0e216436ccb81f14438728e8e125a1",
+          "width": 2144,
+          "height": 1820
+        },
+        "savedAuthority": {
+          "bytes": 2937427,
+          "sha256": "5ceb481a6921aea3cafead82edbde0a0a3b09ce8fb574cc2abda9650eb1c327b"
+        },
+        "oldSoftwareCanvasMatch": true,
+        "metalCanvasMatchesOtherVersion": true,
+        "contextAttributes": {
+          "alpha": true,
+          "colorSpace": "srgb",
+          "colorType": "unorm8",
+          "desynchronized": false,
+          "toneMapping": {
+            "mode": "standard"
+          },
+          "willReadFrequently": false
+        },
+        "resourcePeak": {
+          "surfaces": 64,
+          "estimatedBytes": 107858432,
+          "largestAxis": 512
+        },
+        "unchanged": {
+          "callbackMs": {
+            "n": 9,
+            "min": 0.5,
+            "median": 1,
+            "max": 1.3000000715255737,
+            "samples": [
+              1,
+              0.8999999761581421,
+              1,
+              1.3000000715255737,
+              1.2000000476837158,
+              1.2999999523162842,
+              0.5,
+              0.6000000238418579,
+              0.7999999523162842
+            ],
+            "p95NearestRank": 1.3000000715255737,
+            "p99NearestRank": 1.3000000715255737,
+            "tailScope": "Only9 descriptive samples; nearest-rank tails are not stable tail estimates."
+          },
+          "queueDelayMs": {
+            "n": 9,
+            "min": 4.300000071525574,
+            "median": 9.5,
+            "max": 13,
+            "samples": [
+              12.199999928474426,
+              12.200000047683716,
+              9.5,
+              7.899999976158142,
+              8.699999928474426,
+              4.300000071525574,
+              6.5,
+              12,
+              13
+            ],
+            "p95NearestRank": 13,
+            "p99NearestRank": 13,
+            "tailScope": "Only9 descriptive samples; nearest-rank tails are not stable tail estimates."
+          },
+          "phaseUploadCalls": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "phaseRequestedUploadBytes": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "phaseCaptures": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "maxRafGapMs": 16.799999999999272,
+          "phaseLongTasks": []
+        },
+        "gpuPre": {
+          "devices": [
+            {
+              "vendorId": 4203,
+              "deviceId": 0,
+              "vendorString": "Google Inc. (Apple)",
+              "deviceString": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Version 27.0 (Build 26A428))",
+              "driverVendor": "Apple",
+              "driverVersion": "27.0"
+            }
+          ],
+          "displayType": "ANGLE_METAL",
+          "skiaBackendType": "GraphiteDawnMetal",
+          "featureStatus": {
+            "2d_canvas": "enabled",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "enabled",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "enabled_on",
+            "rasterization": "enabled",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "enabled_on",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "enabled",
+            "video_encode": "enabled",
+            "webgl": "enabled",
+            "webgpu": "enabled",
+            "webnn": "disabled_off"
+          },
+          "commandLine": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/playwright_chromiumdev_profile-qfUr3j --remote-debugging-pipe --no-startup-window --noerrdialogs --flag-switches-begin --flag-switches-end --enable-unsafe-swiftshader"
+        },
+        "gpuPost": {
+          "devices": [
+            {
+              "vendorId": 4203,
+              "deviceId": 0,
+              "vendorString": "Google Inc. (Apple)",
+              "deviceString": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Version 27.0 (Build 26A428))",
+              "driverVendor": "Apple",
+              "driverVersion": "27.0"
+            }
+          ],
+          "displayType": "ANGLE_METAL",
+          "skiaBackendType": "GraphiteDawnMetal",
+          "featureStatus": {
+            "2d_canvas": "enabled",
+            "direct_rendering_display_compositor": "disabled_off_ok",
+            "gpu_compositing": "enabled",
+            "multiple_raster_threads": "enabled_on",
+            "opengl": "enabled_on",
+            "rasterization": "enabled",
+            "raw_draw": "disabled_off_ok",
+            "skia_graphite": "enabled_on",
+            "trees_in_viz": "disabled_off",
+            "video_decode": "enabled",
+            "video_encode": "enabled",
+            "webgl": "enabled",
+            "webgpu": "enabled",
+            "webnn": "disabled_off"
+          },
+          "commandLine": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-edgeupdater --disable-extensions --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --user-data-dir=/var/folders/jr/c60fbm2n0tn9kk6lj9wt9y9w0000gn/T/playwright_chromiumdev_profile-qfUr3j --remote-debugging-pipe --no-startup-window --noerrdialogs --flag-switches-begin --flag-switches-end --enable-unsafe-swiftshader"
+        },
+        "phases": [
+          {
+            "name": "cold-camera-invalidation",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 96,
+            "phaseRequestedUploadBytes": 100597760,
+            "phaseCaptures": 20,
+            "phaseLogicalCapturePixels": 3902080,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 96,
+            "maxRafGapMs": 16.80000000000109,
+            "callbackSamplesMs": [
+              31.5
+            ],
+            "queueSamplesMs": [
+              11.800000071525574
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-press",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 28,
+            "phaseRequestedUploadBytes": 27329536,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 51,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              11.799999952316284
+            ],
+            "queueSamplesMs": [
+              8.300000071525574
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-small-move",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 51,
+            "maxRafGapMs": 16.799999999999272,
+            "callbackSamplesMs": [
+              1.5
+            ],
+            "queueSamplesMs": [
+              0
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-commit",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 51,
+            "maxRafGapMs": 16.799999999999272,
+            "callbackSamplesMs": [
+              2
+            ],
+            "queueSamplesMs": [
+              13.199999928474426
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "brush-undo",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 51,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              1.899999976158142
+            ],
+            "queueSamplesMs": [
+              13
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "cancel-provisional",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 2,
+            "phaseUploads": 4,
+            "phaseRequestedUploadBytes": 133120,
+            "phaseCaptures": 2,
+            "phaseLogicalCapturePixels": 524288,
+            "renderMainFillCalls": 6934,
+            "renderMainImageCalls": 102,
+            "maxRafGapMs": 16.700000000000728,
+            "callbackSamplesMs": [
+              2.0999999046325684,
+              1.600000023841858
+            ],
+            "queueSamplesMs": [
+              11.600000023841858,
+              0.10000002384185791
+            ],
+            "longTasksMs": []
+          },
+          {
+            "name": "cancel-rollback",
+            "geometry": {
+              "backing": [
+                2144,
+                1820
+              ],
+              "css": [
+                1072,
+                910
+              ],
+              "zoom": "105%",
+              "paperMatrix": {
+                "a": 2.0933151245117188,
+                "d": 2.0933151245117188,
+                "e": -591.5546875,
+                "f": -1233.5546875
+              }
+            },
+            "renders": 1,
+            "phaseUploads": 2,
+            "phaseRequestedUploadBytes": 66560,
+            "phaseCaptures": 1,
+            "phaseLogicalCapturePixels": 262144,
+            "renderMainFillCalls": 3467,
+            "renderMainImageCalls": 51,
+            "maxRafGapMs": 16.799999999999272,
+            "callbackSamplesMs": [
+              2
+            ],
+            "queueSamplesMs": [
+              16.799999952316284
+            ],
+            "longTasksMs": []
+          }
+        ]
+      }
+    ],
+    "interpretation": "Four fresh default-argument Chrome runs selected Metal pre/post. One cold sample per side/DPR and9 unchanged samples. No claim of actual WK/mobile latency, stable cold tails, input-to-photon or per-context acceleration persistence. This timed snapshot precedes shape/transparent-ink/decoder corrections."
+  },
+  "remaining": [
+    {
+      "priority": "P1",
+      "cost": "S",
+      "issue": "Mouse side buttons3/4 can enter the drawing path. Source route is confirmed; real-browser rejection and pointer-owner cleanup need a separate fix/regression."
+    },
+    {
+      "priority": "P1",
+      "cost": "M",
+      "issue": "GIF native decoder intermediate allocations/frame handling are not proven bounded by logical-screen validation. JPEG/BMP/GIF final bitmap and app buffers are validated; SVG/WEBP/arbitrary fallback is absent."
+    },
+    {
+      "priority": "P1",
+      "cost": "M/L",
+      "issue": "Actual WKWebView cold/mip latency, long gestures, source-corner/disjoint dirty workload and physical device memory/input acceptance remain."
+    },
+    {
+      "priority": "Release gate",
+      "issue": "Physical Android/Safari web, Windows execution, actual OS dialogs/clipboard/IME, signing/notarization, staging/rollback and remote CI remain separate."
+    },
+    {
+      "priority": "P1",
+      "issue": "Remaining tool options and low-alpha picker numeric-policy acceptance are tracked in STUDIO_ACCEPTANCE_MATRIX.md."
+    }
+  ],
+  "release": {
+    "committed": false,
+    "pushed": false,
+    "published": false,
+    "goalComplete": false
+  },
+  "followUpEvidence": {
+    "path": "docs/evidence/studio-pointer-buttons.json",
+    "scope": "Subsequent mouse-button admission fix; the remaining list above records the decoder snapshot state."
+  },
+  "gifFollowUpEvidence": {
+    "path": "docs/evidence/studio-gif-input.json",
+    "scope": "Subsequent first-frame size and prefix cancellation validation; historical snapshot records remain unchanged."
+  }
+}

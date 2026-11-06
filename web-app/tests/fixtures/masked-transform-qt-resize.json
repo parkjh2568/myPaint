@@ -1,0 +1,36 @@
+{
+    "scope": "Small literal excerpt from actual Qt6.12 two distinct handle gestures; not same-gesture Qt observation and not a copy of rasterizer code. Label indices identify original3x2 source pixels; TS RGB fixture may differ.",
+    "qt": "6.12.0",
+    "originalOracleSha256": "76a1d0d9d108de626dcb2d3d783738af26552152a90c387efdb07c421c3ceb8a",
+    "case": {
+        "name": "opaque-rect-two-distinct-resize-gestures-3x2-2x3-3x2",
+        "sourceRect": [8, 8, 3, 2],
+        "stages": [
+            {
+                "sourceIndexRows": [
+                    [0, 2],
+                    [0, 2],
+                    [3, 5]
+                ],
+                "width": 2,
+                "height": 3,
+                "sourceUnchanged": true
+            },
+            {
+                "sourceIndexRows": [
+                    [0, 1, 2],
+                    [3, 4, 5]
+                ],
+                "width": 3,
+                "height": 2,
+                "sourceUnchanged": true
+            }
+        ],
+        "history": {
+            "oldRedoAvailable": true,
+            "oldRedoExact": true,
+            "stateUnchanged": true,
+            "undoOldRedoExact": true
+        }
+    }
+}

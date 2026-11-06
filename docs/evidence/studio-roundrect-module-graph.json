@@ -1,0 +1,777 @@
+{
+  "ok": true,
+  "date": "2026-11-06",
+  "scope": "accepted source17/payload9 SHA·TS AST·JS AST 읽기 검증. 제품/문서/canonical graph/Git/홈페이지 수정 및 앱/브라우저/테스트/빌드/네트워크 실행 없음.",
+  "sourceManifest": {
+    "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/roundrect-contract/accepted-source.json",
+    "sha256": "b10e8c514cd87b8380a5ad55ffcc936695672d1726ba553381c4234cfd283c51",
+    "bytes": 1754
+  },
+  "beforeSourceManifest": {
+    "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/roundrect-contract/candidate-source.json",
+    "sha256": "41c0596935c2a54ff007528b9340472c23162330c833f9f591fd9a6e23472550",
+    "bytes": 1754
+  },
+  "assetManifest": {
+    "path": "build-web-work/task-planning/roundrect-contract/static-accepted/candidate-assets.json",
+    "sha256": "972a8c936eb600ae4d4b34b91d1b14f7c7c8e44cbcef75c163dcf77acb106637",
+    "bytes": 871
+  },
+  "bundleManifest": {
+    "path": "/Users/jhpark/code/myService/myPaint/build-web-work/task-planning/roundrect-contract/accepted-bundle/bundle.json",
+    "sha256": "90964d384f9c6bf4c2ce1e3de77a84e4c8364fd303f003a786baa55bc87193d0",
+    "bytes": 12915,
+    "target": "studio",
+    "payloadFiles": 9,
+    "payloadBytes": 276616,
+    "packagingNote": "runtime8+LICENSE1 payload9. JavaScript chunks5, 신규 runtime 모듈0.",
+    "builderSourceFrontend14MatchesAccepted": true
+  },
+  "sourceCount": 17,
+  "frontendFiles": 14,
+  "rustFiles": 3,
+  "sourceChanges": [
+    "web-app/src/main.ts"
+  ],
+  "newRuntimeModules": 0,
+  "newClassMembers": 0,
+  "newHelpers": 0,
+  "dependencyMapsUnchanged": true,
+  "importRelationsUnchanged": true,
+  "counts": {
+    "nodes": 13,
+    "declarations": 35,
+    "relations": 34,
+    "byKind": {
+      "runtime-static": 24,
+      "type-only": 5,
+      "asset-css": 1,
+      "runtime-dynamic": 3,
+      "worker-asset": 1
+    },
+    "localRuntimeEdges": 24,
+    "localTypeEdges": 4,
+    "sourceRuntimeCycles": 0,
+    "pureTypeCycles": 0,
+    "typeInclusiveSCCs": [
+      [
+        "web-app/src/platform/codec.ts",
+        "web-app/src/workers/codec.worker.ts"
+      ],
+      [
+        "web-app/src/main.ts",
+        "web-app/src/platform/native-smoke.ts"
+      ]
+    ],
+    "emittedNodes": 5,
+    "emittedEdges": 6,
+    "emittedStaticCycles": 0,
+    "emittedDynamicSCCs": [
+      [
+        "assets/buffer-DU0qbHNf.js",
+        "assets/codec.worker-DjqGsUQn.js",
+        "assets/encoder-Bl-BehpH.js"
+      ],
+      [
+        "assets/index-BL54aMU4.js",
+        "assets/native-smoke-BZl9k31V.js"
+      ]
+    ]
+  },
+  "nodes": [
+    {
+      "path": "web-app/src/engine/document.ts",
+      "sha256": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650"
+    },
+    {
+      "path": "web-app/src/engine/format.ts",
+      "sha256": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38"
+    },
+    {
+      "path": "web-app/src/engine/operations.ts",
+      "sha256": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334"
+    },
+    {
+      "path": "web-app/src/env.d.ts",
+      "sha256": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2"
+    },
+    {
+      "path": "web-app/src/main.ts",
+      "sha256": "669287132713d6a96e4ee992f27267d59b7bda1eb314fd51cffc4f90c795d8c7"
+    },
+    {
+      "path": "web-app/src/platform/codec.ts",
+      "sha256": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79"
+    },
+    {
+      "path": "web-app/src/platform/native-smoke.ts",
+      "sha256": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7"
+    },
+    {
+      "path": "web-app/src/platform/native.ts",
+      "sha256": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704"
+    },
+    {
+      "path": "web-app/src/platform/storage.ts",
+      "sha256": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f"
+    },
+    {
+      "path": "web-app/src/platform/surface.ts",
+      "sha256": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3"
+    },
+    {
+      "path": "web-app/src/platform/tiles.ts",
+      "sha256": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400"
+    },
+    {
+      "path": "web-app/src/ui/icons.ts",
+      "sha256": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a"
+    },
+    {
+      "path": "web-app/src/workers/codec.worker.ts",
+      "sha256": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b"
+    }
+  ],
+  "edges": [
+    {
+      "from": "web-app/src/engine/format.ts",
+      "to": "fflate",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": false,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/engine/format.ts",
+      "to": "pako",
+      "kind": "runtime-static",
+      "line": 2,
+      "local": false,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/engine/format.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 3,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "State",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 3,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/engine/operations.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "State",
+        "Color",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/env.d.ts",
+      "to": "jpeg-js",
+      "kind": "type-only",
+      "line": 15,
+      "local": false,
+      "syntax": "import type query",
+      "declarations": [
+        {
+          "line": 15,
+          "syntax": "import type query"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/native.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/style.css",
+      "kind": "asset-css",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/surface.ts",
+      "kind": "runtime-static",
+      "line": 3,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 3,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/tiles.ts",
+      "kind": "runtime-static",
+      "line": 4,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "PixelRect",
+        "SceneRaster"
+      ],
+      "declarations": [
+        {
+          "line": 4,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 5,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "State",
+        "Color"
+      ],
+      "declarations": [
+        {
+          "line": 5,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/engine/operations.ts",
+      "kind": "runtime-static",
+      "line": 17,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 17,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/codec.ts",
+      "kind": "runtime-static",
+      "line": 18,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "Raster"
+      ],
+      "declarations": [
+        {
+          "line": 18,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/storage.ts",
+      "kind": "runtime-static",
+      "line": 19,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "RecoveryEntry"
+      ],
+      "declarations": [
+        {
+          "line": 19,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/ui/icons.ts",
+      "kind": "runtime-static",
+      "line": 20,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "Tool"
+      ],
+      "declarations": [
+        {
+          "line": 20,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/main.ts",
+      "to": "web-app/src/platform/native-smoke.ts",
+      "kind": "runtime-dynamic",
+      "line": 3718,
+      "local": true,
+      "syntax": "import()",
+      "declarations": [
+        {
+          "line": 3718,
+          "syntax": "import()"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/codec.ts",
+      "to": "web-app/src/platform/surface.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/codec.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "State",
+        "Color",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/codec.ts",
+      "to": "web-app/src/engine/operations.ts",
+      "kind": "type-only",
+      "line": 12,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "*"
+      ],
+      "declarations": [
+        {
+          "line": 12,
+          "syntax": "import"
+        },
+        {
+          "line": 13,
+          "syntax": "re-export"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/codec.ts",
+      "to": "web-app/src/workers/codec.worker.ts",
+      "kind": "worker-asset",
+      "line": 47,
+      "local": true,
+      "syntax": "new Worker(new URL(...))",
+      "declarations": [
+        {
+          "line": 47,
+          "syntax": "new Worker(new URL(...))"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "BrushSettings",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/main.ts",
+      "kind": "type-only",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "*"
+      ],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/platform/codec.ts",
+      "kind": "runtime-static",
+      "line": 3,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 3,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/platform/native.ts",
+      "kind": "runtime-static",
+      "line": 4,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 4,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/platform/storage.ts",
+      "kind": "type-only",
+      "line": 5,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "*"
+      ],
+      "declarations": [
+        {
+          "line": 5,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/native-smoke.ts",
+      "to": "web-app/src/platform/tiles.ts",
+      "kind": "runtime-static",
+      "line": 6,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 6,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/storage.ts",
+      "to": "web-app/src/platform/native.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/storage.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/platform/tiles.ts",
+      "to": "web-app/src/platform/surface.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "Context2D",
+        "Surface"
+      ],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "web-app/src/engine/format.ts",
+      "kind": "runtime-static",
+      "line": 1,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [],
+      "declarations": [
+        {
+          "line": 1,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "web-app/src/engine/operations.ts",
+      "kind": "runtime-static",
+      "line": 2,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "GeometryChange"
+      ],
+      "declarations": [
+        {
+          "line": 2,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "web-app/src/engine/document.ts",
+      "kind": "runtime-static",
+      "line": 11,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "Color",
+        "State",
+        "ResourceProfile"
+      ],
+      "declarations": [
+        {
+          "line": 11,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "web-app/src/platform/codec.ts",
+      "kind": "type-only",
+      "line": 19,
+      "local": true,
+      "syntax": "import",
+      "erasedTypeBindings": [
+        "*"
+      ],
+      "declarations": [
+        {
+          "line": 19,
+          "syntax": "import"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "buffer/index.js",
+      "kind": "runtime-dynamic",
+      "line": 88,
+      "local": false,
+      "syntax": "import()",
+      "declarations": [
+        {
+          "line": 88,
+          "syntax": "import()"
+        }
+      ]
+    },
+    {
+      "from": "web-app/src/workers/codec.worker.ts",
+      "to": "jpeg-js/lib/encoder.js",
+      "kind": "runtime-dynamic",
+      "line": 89,
+      "local": false,
+      "syntax": "import()",
+      "declarations": [
+        {
+          "line": 89,
+          "syntax": "import()"
+        }
+      ]
+    }
+  ],
+  "sourceGraph": {
+    "path": "build-web-work/task-planning/roundrect-contract/static-accepted/source-graph.json",
+    "sha256": "76a3270b1ccd1ec3f99ca79e2b516c9e88afa9332f428136a175a5a8670d92c8",
+    "bytes": 15190
+  },
+  "emittedGraph": {
+    "path": "build-web-work/task-planning/roundrect-contract/static-accepted/static-graph.json",
+    "sha256": "411386b9496309d0214277ef054218611adeb0b93a25a6d2f57fabd7a1fad51c",
+    "bytes": 5444
+  },
+  "deltaReview": {
+    "path": "build-web-work/task-planning/roundrect-contract/static-accepted/delta-review.json",
+    "sha256": "0a7f7d79615bd7c500a9d9c755d6cbce4627c89c22bad07ab6f514181712bf95",
+    "bytes": 1701
+  },
+  "previousGraph": {
+    "originalPath": "/Users/jhpark/code/myService/myPaint/docs/evidence/studio-module-graph.json",
+    "sha256": "c418e86e73eb46f0b6516c2fe496f9a920db6f6f16aaa315744eb5ce252cfd0d",
+    "preservedPath": "/private/tmp/mypaint-roundrect-contract-static-architect-2rs5yfao/previous-module-graph.json",
+    "scope": "이전 bounded-selection-resize snapshot. 이 검토에서 canonical graph는 변경하지 않았다."
+  },
+  "engineBoundary": {
+    "hostIdentifiers": [],
+    "importPolicy": "engine은 기존 engine/순수 codec 패키지만 참조한다. DOM/IPC/Worker runtime 의존 추가 없음. Worker→codec DTO type edge는 emit에서 소거된다."
+  },
+  "lazyBoundary": {
+    "sourceRuntimeCycles": 0,
+    "typeInclusiveSCCs": 2,
+    "emittedStaticCycles": 0,
+    "dynamicLoadSCCs": 2,
+    "topLevelAwait": 0,
+    "smokeMainTypeImportErased": true,
+    "htmlPreloadsSmoke": false,
+    "initialization": "기존 entry/Studio 평가 뒤 async runtime_ready 성공 시 smoke dynamic import. Worker handler 설치 뒤 JPEG lazy import. 이 순서와 기존 execution realm은 바뀌지 않았다. 소스 타입 SCC와 emitted 동적 SCC는 다른 범위다.",
+    "networkScope": "이번 검토는 네트워크 미실행. 기존 실행 증거를 새 실행으로 세지 않는다."
+  },
+  "limits": [
+    "AST/하위 그래프 검증은 실제 픽셀·AA·입력·취소·성능 인수를 대신하지 않는다.",
+    "first-candidate654 main은 archived 원래 shapeRaster를 accepted main에 복원한 파생본이며 실제 SHA654로 검증했다. 원본 보존 파일이라고 주장하지 않는다.",
+    "부모의 실제 UI8 hint 미채택 결정은 이 정적 코드 리뷰 이후의 별도 제품 판단이다."
+  ],
+  "frozen": true,
+  "finalReview": {
+    "path": "build-web-work/task-planning/roundrect-contract/static-accepted/final-review.json",
+    "sha256": "b7611455486a42b93fb2fbb8bd32f2e179134b50940dd949ef43985cd00380b3",
+    "bytes": 4815
+  },
+  "acceptedPolicy": {
+    "accepted": "현재 Studio min/abs float endpoint를 유지하고 roundrect 양축별 최대12, 폭 또는 높이0일 때 기존 scalar0을 쓴다. shapeRaster context 획득을 owner try 안으로 옮겨 생성 null/throw에도 기존 backing zeroing을 보장한다.",
+    "rejected": "willReadFrequently 로컬·전역 hint 및 surface optional settings는 제품 미채택. 현재 surface.ts는 원본 SHA43e4와 byte-exact 일치한다.",
+    "decisionProvenance": "부모 root가 실제 UI8의 preview→commit 경계 변화(DPR1 최대 RGB1→124 등)를 근거로 hint를 미채택했다는 후속 통보. 이 정적 검토는 그 UI8을 새로 실행/독립 재측정하지 않았다. 이전 조건부 지지는 결정 전 검토로 그대로 보존한다.",
+    "rejectedStaticGraph": {
+      "path": "build-web-work/task-planning/roundrect-contract/static-accepted/rejected-hint-graph.json",
+      "sha256": "7b2d77a85c29d70554b0b22e4d71744d3bdd66bd0fc7e32507ee585bbeb0f604",
+      "bytes": 20335
+    },
+    "previousConditionalRecommendation": {
+      "path": "/private/tmp/mypaint-shape-readback-policy-architect-7rokod94/decision.json",
+      "sha256": "4dd7eba2b71120c2c2e1bba88e0627a7d0ac1d8fc53c2a89c06dbc7124cbcfc1",
+      "bytes": 14277
+    }
+  },
+  "previousFirstCandidateGraph": {
+    "path": "build-web-work/task-planning/roundrect-contract/static-accepted/previous-first-candidate-graph.json",
+    "sha256": "72d3a884ea7df2d29739ca8ffad641101e2f48d656e36e7fcd9933a6ff2acbaa",
+    "bytes": 18710,
+    "originalPath": "/private/tmp/mypaint-roundrect-contract-static-architect-2rs5yfao/module-graph-candidate.json",
+    "scope": "첫 radius 후보654 원문, 이전 정적 산출물 불변."
+  },
+  "previousInstalledRoundrectGraph": {
+    "path": "build-web-work/task-planning/roundrect-contract/static-accepted/previous-installed-roundrect-graph.json",
+    "sha256": "7171cc8ba5b240ce195c5c17b758e70f536b645d90a5ee2322a1a3aa942ed0ff",
+    "bytes": 19092,
+    "originalPath": "/Users/jhpark/code/myService/myPaint/docs/evidence/studio-roundrect-module-graph.json",
+    "scope": "검토 시작 시 설치 graph를 바이트 그대로 별도 보존했다. canonical 변경은 root 소유."
+  },
+  "assetDelta": {
+    "path": "build-web-work/task-planning/roundrect-contract/static-accepted/asset-delta.json",
+    "sha256": "a5857d35af63c4662e60939ca1b5fcf717fb284bb895b455aaa010f97ea509ac",
+    "bytes": 723
+  },
+  "canonicalInstallation": {
+    "current": "docs/evidence/studio-roundrect-module-graph.json",
+    "historical": "docs/evidence/studio-module-graph.json",
+    "scope": "Accepted main669287; no hint/settings API; earlier graphs retained at frozen phase paths for their historical hashes"
+  }
+}

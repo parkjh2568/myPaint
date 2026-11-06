@@ -1,5 +1,7 @@
 # 웹 버전 구현·검증 결과
 
+> 아래는 2026-11-03 구현 시점 기록이다. 2026-11-04 배포 용량·소스 제공 방식 변경은 [용량 정리 결과](WEB_SIZE_CLEANUP.md)를 따른다.
+
 2026-11-03. 기존 네이티브 개선분을 보존하면서 Qt Widgets 웹 버전, 안전한 브라우저 입출력·복구, 형제 홈페이지 산출물 반영을 구현했다. 최종 산출물은 `/Users/jhpark/code/myService/parkjh2568.github.io/mypaint/`에 있다. 홈페이지의 기존 파일 18개와 Git index 해시는 그대로이며 commit·push·pull·인증·리모트 변경은 수행하지 않았다. 실제 공개 Pages 인수는 사용자의 별도 게시 이후 단계다.
 
 초기 게시용 최종 release는 `2c6e8b800f0b183a3fadc1c8`, 관리 파일 56개, 전체 89,321,748바이트(약 85.2 MiB)다. 작업 중 생성한 미게시 시험 버전은 홈페이지 밖 `build-web-work`의 unpublished/pre-gesture/pre-atomic-recovery preview 폴더에 보관했다. 평소 재빌드는 게시된 이전 release를 자동 삭제하지 않는다.

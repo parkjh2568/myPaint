@@ -1,0 +1,538 @@
+{
+  "date": "2026-11-06",
+  "goalComplete": false,
+  "QF03Complete": false,
+  "status": "Partial: measurement validity and workload/metadata/correctness ownership improved; target budgets, matched Qt workloads, stable tails and physical Android remain open",
+  "previousGoalTurn": "progress: verified QF04 closure and reproduced/fixed stale recovery-list error ownership",
+  "productionSources": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "48695bee1d888f7ffef931109fbb5a4a0dfac259524a6c6bd1240f1b3089c74b",
+    "web-app/src/platform/codec.ts": "01499abbdac7ff263f3aade2aa0ee16e824d7eaa2e43a83a03b9208af7309d13",
+    "web-app/src/platform/native-smoke.ts": "4c318c88435b82982addb8876c4169e8e6564c0b6738ed3a6867f2b2e516d2d8",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "6e3da32de5fe6870f27c5452cede339152a9600d29455e6a0a9418e58c9d9e6d",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "8aa4c242aa25da45981ab0a2e1ef074e8bd30ff0765d586fb5f569a33a2162bb",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "4d46f4cbf2d02db6add183af5d4cd6232fac9417fadff627ce3dba85dd0992fd"
+  },
+  "changedRuntimeFiles": [],
+  "changedDevelopmentDriver": {
+    "path": "web-app/tests/performance.mjs",
+    "beforeSha256": "5648d4cc3af14eb68709ea5575af28aabfd9513bbccfbde0dfc038df2e6bccb1",
+    "initialV2Sha256": "bc25c9a762482d18e9b428c7193a348ef777a12b8be7f68453a6bfb616582557",
+    "acceptedSha256": "788392e080e161d48e256c0b8186f909ee5e0d1f647e6a5353b5ad8ead262e06",
+    "schemaVersion": 2,
+    "sharedHelperPolicy": "Only shared installMetrics semantics across the control page and application contexts; resource ownership stays in the driver."
+  },
+  "resolvedFindings": [
+    "State-return output bytes now count layer planes",
+    "Actual operand and source State fixture fingerprints, preservation and bytes separated",
+    "Input token consumed once at first accepted workspace Canvas command; idle/repeat/direct-draw control",
+    "Synchronous handler/endStroke/rAF/Canvas-command/Worker boundaries named explicitly",
+    "Out-of-timing public ink/transparent corner/full UndoRedo/pageerror controls",
+    "Integer options and work selection rejected before output mkdir",
+    "Fixed external-load claim replaced with unknown-or-supplied note and observed host/driver endpoints",
+    "Soft CPU deadline and best-effort owned browser/context cancellation; nested cleanup",
+    "LongTask time-window/drain and raw HTML versus dynamic DOM distinction",
+    "Node/UI120point endpoint and settings alignment; size selection and separate run identities"
+  ],
+  "environment": {
+    "recordedAt": "2026-11-06T05:07:53.385768+00:00",
+    "scope": "Host metadata only, no performance workload yet; no serial/hostname collected",
+    "host": {
+      "macOS": "27.0",
+      "osBuild": "26A428",
+      "cpu": "Apple M1 Pro",
+      "model": "MacBookPro18,1",
+      "memoryBytes": "17179869184",
+      "physicalCpu": "10",
+      "logicalCpu": "10",
+      "loadAverage": "{ 14.65 17.83 13.95 }",
+      "thermal": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded"
+    },
+    "commands": {
+      "macOS": {
+        "argv": [
+          "/usr/bin/sw_vers",
+          "-productVersion"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      },
+      "osBuild": {
+        "argv": [
+          "/usr/bin/sw_vers",
+          "-buildVersion"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      },
+      "cpu": {
+        "argv": [
+          "/usr/sbin/sysctl",
+          "-n",
+          "machdep.cpu.brand_string"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      },
+      "model": {
+        "argv": [
+          "/usr/sbin/sysctl",
+          "-n",
+          "hw.model"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      },
+      "memoryBytes": {
+        "argv": [
+          "/usr/sbin/sysctl",
+          "-n",
+          "hw.memsize"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      },
+      "physicalCpu": {
+        "argv": [
+          "/usr/sbin/sysctl",
+          "-n",
+          "hw.physicalcpu"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      },
+      "logicalCpu": {
+        "argv": [
+          "/usr/sbin/sysctl",
+          "-n",
+          "hw.logicalcpu"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      },
+      "loadAverage": {
+        "argv": [
+          "/usr/sbin/sysctl",
+          "-n",
+          "vm.loadavg"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      },
+      "thermal": {
+        "argv": [
+          "/usr/bin/pmset",
+          "-g",
+          "therm"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      }
+    },
+    "compilerProcessObservation": {
+      "method": "basename of ps comm only at one instant; not isolation proof",
+      "matches": []
+    },
+    "android": {
+      "model": "pending-user-answer",
+      "osVersion": "pending-user-answer",
+      "chromeVersion": "pending-user-answer",
+      "adbPath": null,
+      "availableKnownPaths": {
+        "/opt/homebrew/bin/adb": false,
+        "/Users/jhpark/Library/Android/sdk/platform-tools/adb": false
+      },
+      "physicalAcceptance": false
+    }
+  },
+  "runs": {
+    "incompleteInitialPilot": {
+      "driverSha256": "bc25c9a762482d18e9b428c7193a348ef777a12b8be7f68453a6bfb616582557",
+      "exitCode": 1,
+      "elapsedMs": 90191.165792,
+      "corePhaseEndedAtMs": 14932.792292,
+      "budgetMs": 90000,
+      "deadlineExceeded": true,
+      "status": "FAILED full run; only completed12px/control reused;100px andWorker incomplete",
+      "originalOperandMetadata": "Initial source-fixture SHA fields were ambiguous for fill/decode; do not use these initial core input fields as actual operand proof."
+    },
+    "finalCore": {
+      "driverSha256": "788392e080e161d48e256c0b8186f909ee5e0d1f647e6a5353b5ad8ead262e06",
+      "exitCode": 0,
+      "elapsedMs": 26069.82775,
+      "rows": 36,
+      "categories": {
+        "brush": 4,
+        "structuralMemory": 2,
+        "algorithms": 30
+      },
+      "warmups": 1,
+      "measuredRepetitions": 3,
+      "scope": "Wall operations, input preservation, output shape/bytes/NoOp and explicit operand metadata. Full output correctness is in separate suites. Endpoint/reachable memory is not peak RSS."
+    },
+    "separateBrowser100": {
+      "driverSha256": "788392e080e161d48e256c0b8186f909ee5e0d1f647e6a5353b5ad8ead262e06",
+      "exitCode": 0,
+      "elapsedMs": 57565.43375,
+      "budgetMs": 90000,
+      "scope": "Separate fresh process/context, not remainder within a single successful90s full run or controlled same-load cohort."
+    },
+    "browserCohorts": [
+      {
+        "cohort": "completed-12-from-incomplete-pilot",
+        "size": 12,
+        "strokes": 3,
+        "moves": 360,
+        "down": 3,
+        "up": 3,
+        "firstCanvasCommandP95Ms": 0.30000007152557373,
+        "unmatchedInputs": 0,
+        "uniqueMatchedInputs": 366,
+        "inkPixels": 37836,
+        "longTasksObserved": 0,
+        "pointerMoveSyncPrefixP95Ms": 0.20000004768371582,
+        "pointerDownSyncPrefixP95Ms": 0.6000000238418579,
+        "pointerUpSyncPrefixP95Ms": 7.399999976158142
+      },
+      {
+        "cohort": "separate-browser-100",
+        "size": 100,
+        "strokes": 3,
+        "moves": 360,
+        "down": 3,
+        "up": 3,
+        "firstCanvasCommandP95Ms": 1.100000023841858,
+        "unmatchedInputs": 0,
+        "uniqueMatchedInputs": 366,
+        "inkPixels": 139733,
+        "longTasksObserved": 0,
+        "pointerMoveSyncPrefixP95Ms": 0.8999999761581421,
+        "pointerDownSyncPrefixP95Ms": 4.600000023841858,
+        "pointerUpSyncPrefixP95Ms": 8.100000023841858
+      }
+    ],
+    "worker": {
+      "cohort": "separate-browser-100",
+      "repetitionsPerOperation": 1,
+      "jobs": [
+        {
+          "operation": "project-write",
+          "width": 2048,
+          "height": 2048,
+          "elapsedMs": 161.79999995231628,
+          "rafGapsMs": {
+            "count": 10,
+            "p50": 16.69999999999709,
+            "p95": 16.799999999995634,
+            "p99": 16.799999999995634,
+            "max": 16.799999999995634,
+            "samples": [
+              16.536000000000058,
+              16.700000000004366,
+              16.799999999995634,
+              16.599999999998545,
+              16.60000000000582,
+              16.69999999999709,
+              16.69999999999709,
+              16.700000000004366,
+              16.599999999998545,
+              16.69999999999709
+            ],
+            "nearestRankP95": 10,
+            "nearestRankP99": 10
+          },
+          "window": [
+            36629.90000009537,
+            36791.700000047684
+          ],
+          "longTasks": [],
+          "note": "Shipped Worker startup/transfer/operation included; setup pixels excluded. Uses production protocol directly, not the runCodec queue wrapper."
+        },
+        {
+          "operation": "project-read",
+          "width": 2048,
+          "height": 2048,
+          "elapsedMs": 301.60000002384186,
+          "rafGapsMs": {
+            "count": 18,
+            "p50": 16.69999999999709,
+            "p95": 16.80000000000291,
+            "p99": 16.80000000000291,
+            "max": 16.80000000000291,
+            "samples": [
+              16.700000000004366,
+              16.599999999998545,
+              16.69999999999709,
+              16.60000000000582,
+              16.69999999999709,
+              16.599999999998545,
+              16.80000000000291,
+              16.599999999998545,
+              16.69999999999709,
+              16.700000000004366,
+              16.599999999998545,
+              16.69999999999709,
+              16.60000000000582,
+              16.69999999999709,
+              16.599999999998545,
+              16.700000000004366,
+              16.69999999999709,
+              16.69999999999709
+            ],
+            "nearestRankP95": 18,
+            "nearestRankP99": 18
+          },
+          "window": [
+            36830.700000047684,
+            37132.300000071526
+          ],
+          "longTasks": [],
+          "note": "Shipped Worker startup/transfer/operation included; setup pixels excluded. Uses production protocol directly, not the runCodec queue wrapper."
+        },
+        {
+          "operation": "fill",
+          "width": 2048,
+          "height": 2048,
+          "elapsedMs": 105.69999992847443,
+          "rafGapsMs": {
+            "count": 6,
+            "p50": 16.69999999999709,
+            "p95": 16.700000000004366,
+            "p99": 16.700000000004366,
+            "max": 16.700000000004366,
+            "samples": [
+              16.700000000004366,
+              16.69999999999709,
+              16.69999999999709,
+              16.700000000004366,
+              16.599999999998545,
+              16.599999999998545
+            ],
+            "nearestRankP95": 6,
+            "nearestRankP99": 6
+          },
+          "window": [
+            37181.40000009537,
+            37287.10000002384
+          ],
+          "longTasks": [],
+          "note": "Shipped Worker startup/transfer/operation included; setup pixels excluded. Uses production protocol directly, not the runCodec queue wrapper."
+        }
+      ],
+      "scope": "Actual shipped module Worker constructor/transfer/operation→reply direct protocol; setup excluded, no runCodec queue/snapshot/storage/end-to-end save claim. Output checks are sentinels, not exhaustive."
+    },
+    "negativeOptions": [
+      {
+        "name": "fractional-samples",
+        "options": {
+          "PAINT_BENCH_SAMPLES": "7.5"
+        },
+        "exitCode": 1,
+        "outputDirectoryCreated": false,
+        "log": "negative-fractional-samples.log"
+      },
+      {
+        "name": "invalid-brush",
+        "options": {
+          "PAINT_BENCH_BRUSH_SIZE": "13"
+        },
+        "exitCode": 1,
+        "outputDirectoryCreated": false,
+        "log": "negative-invalid-brush.log"
+      },
+      {
+        "name": "empty-phases",
+        "options": {
+          "PAINT_BENCH_BROWSER_ONLY": "1",
+          "PAINT_BENCH_SKIP_BROWSER": "1"
+        },
+        "exitCode": 1,
+        "outputDirectoryCreated": false,
+        "log": "negative-empty-phases.log"
+      }
+    ],
+    "checks": {
+      "format": "pass",
+      "typescript": "pass",
+      "localBuild": "pass"
+    }
+  },
+  "statistics": {
+    "quantile": "Nearest rank; raw samples and stroke clusters preserved",
+    "n3Tail": "p95/p99=max, not stable tail certification",
+    "moves": "360 events cluster into3strokes/session, not360 independent users/device samples",
+    "methodChanged": "V2 options/trace/context/wrappers differ from historicalV1; do not compute direct speedup",
+    "firstCanvasCommand": "First accepted workspace API after input by temporal association, not verified new content/frame completion/compositor/photon or causal proof"
+  },
+  "budgetDisposition": {
+    "status": "Original2MiB/3s/8ms/33ms/50ms/resource/long-session candidates retained; not accepted or lowered for these proxies",
+    "notMeasured": [
+      "Matched Qt/Studio operation/input-file cohort",
+      "WAN12Mbps/RTT150ms cold startup and required actual transfer",
+      "Whole async edit/commit and first valid presentation latency",
+      "Physical pen/touch/Android/refresh/DPR acceptance",
+      "End-to-end native file I/O and IndexedDB transaction/recovery split",
+      "Complete process/GPU peak and long-session leak/tail",
+      "Windows/WebView2 or current guarded macOS native performance"
+    ]
+  },
+  "payload": {
+    "entry": "assets/index-DIgO41Ne.js",
+    "files": 9,
+    "bytes": 291664,
+    "sourceInputs": 121,
+    "hashes": {
+      "LICENSE": "56a608c8e81aeec574eb9e3380fb3a0e0869156385b2d036f7887e4d9123bb80",
+      "THIRD_PARTY_NOTICES.txt": "bd662e4f139f423509e3707bf83f4f70b9a1f6dbc3d30ca1ade1da8f39d45e6b",
+      "assets/buffer-DU0qbHNf.js": "5c113f74252e7c942876d5076dd71ed24775ffdf9cd133500a5a2f1803d9cca3",
+      "assets/codec.worker-DjqGsUQn.js": "2cefd7596758ab7266bb5d42c1f4517383e910a0cfcea1cd627e8fa74c872739",
+      "assets/encoder-Bl-BehpH.js": "dee06d7074f91f718964ad9ac8edfc439229b9ddb1f226ba8e2c3b804b3dd448",
+      "assets/index-BiPiFrZI.css": "4c481eccc0d58fadad8a52621eb206fe0d15896ac4afbc000e5688669797b154",
+      "assets/index-DIgO41Ne.js": "ba6f5feeb60149f9f676af7f9a1411ec7ffa4317f78994dec056a8278131c53e",
+      "assets/native-smoke-CaoeFRl8.js": "eac0a56d42de27c8de5ffc23bf5ab642d7889c357fcaa1ab9c709f823e8dfeb8",
+      "index.html": "b103748340390bd086872fb900a153d39e383bd8b0ee97887160eeefcb48d1ff"
+    },
+    "unchangedFromQF04": true
+  },
+  "taskAudit": {
+    "ownCriteriaProved": 7,
+    "partial": 25,
+    "missing": 2,
+    "dependenciesClosed": [
+      "QF-01",
+      "QF-02",
+      "QF-04"
+    ],
+    "QF03": "partial",
+    "QF05QF06": "not auto-closed"
+  },
+  "android": "Only availability confirmed; model/OS/Chrome pending asynchronous answer, adb absent in PATH and checked standard locations; no physical execution",
+  "gitIndexConfigUnchanged": {
+    "/Users/jhpark/code/myService/myPaint/.git/index": "97ba1bdcc5be543453783454ae6e9b93525f5bf142662da739b4fb013832dca6",
+    "/Users/jhpark/code/myService/myPaint/.git/config": "f13edd5ed90f3f8d6113e97fb498997117dcce4fe134d4902676a618f1504f00",
+    "/Users/jhpark/code/myService/parkjh2568.github.io/.git/index": "4b864409423a5070e55f3e8613b2595ccd670b7a3726d509c071903a5beecaff",
+    "/Users/jhpark/code/myService/parkjh2568.github.io/.git/config": "8b4bacdd76435d49e0eb4004a54681c89f67edd17bcc0bc2a74c5a07905ba19d"
+  },
+  "homepageWritten": false,
+  "committedOrPushed": false,
+  "references": {
+    "build-web-work/task-planning/qf03-measurement-design/source-before.json": {
+      "sha256": "8bccb649e90250b2a1c3561ec06c0bbf85a1091389d22b52f459d61afc141df6",
+      "bytes": 1754
+    },
+    "build-web-work/task-planning/qf03-measurement-design/accepted-source.json": {
+      "sha256": "8bccb649e90250b2a1c3561ec06c0bbf85a1091389d22b52f459d61afc141df6",
+      "bytes": 1754
+    },
+    "build-web-work/task-planning/qf03-measurement-design/host-before.json": {
+      "sha256": "9397461cbd54b49ed9505d0c9ca667e6d6696949b3fcc2d10d2540632a1bce62",
+      "bytes": 2417
+    },
+    "build-web-work/task-planning/qf03-measurement-design/driver.mjs": {
+      "sha256": "bc25c9a762482d18e9b428c7193a348ef777a12b8be7f68453a6bfb616582557",
+      "bytes": 45811
+    },
+    "build-web-work/task-planning/qf03-measurement-design/driver-final.mjs": {
+      "sha256": "788392e080e161d48e256c0b8186f909ee5e0d1f647e6a5353b5ad8ead262e06",
+      "bytes": 49050
+    },
+    "build-web-work/task-planning/qf03-measurement-design/measurement-bundle/bundle.json": {
+      "sha256": "7e03fc0fe7fce00e484c5639d6aefe725cbe0033b2621f53c9a049bfbba15a52",
+      "bytes": 14667
+    },
+    "build-web-work/task-planning/qf03-measurement-design/pilot/bundle-at-run.json": {
+      "sha256": "08974d1183fcec9abf20c299fbd9f650c6d4010c04023f8a72191a3899c77a5f",
+      "bytes": 14667
+    },
+    "build-web-work/task-planning/qf03-measurement-design/pilot/results.json": {
+      "sha256": "134306c5f59e19ca20d2154cac6e93f178a72fb6dc86ebf21baba2aae724414d",
+      "bytes": 381636
+    },
+    "build-web-work/task-planning/qf03-measurement-design/pilot.log": {
+      "sha256": "f13bba2437df5070b25462c9c4b1f56999dac45bb3d7a1ea3304f466f738c605",
+      "bytes": 5719
+    },
+    "build-web-work/task-planning/qf03-measurement-design/core-final/results.json": {
+      "sha256": "c83aa5a53e53cb2d950936fc5fd7b67cf0cdf46f8c3d00dc15dc9abbb5b8bdc3",
+      "bytes": 81443
+    },
+    "build-web-work/task-planning/qf03-measurement-design/browser-100/results.json": {
+      "sha256": "5e51d9f42769b8ce4583101e25ee9b28612af51291d6712cda10161d09c176dd",
+      "bytes": 311266
+    },
+    "build-web-work/task-planning/qf03-measurement-design/browser-owner-equivalence.json": {
+      "sha256": "b230f1902f3873196e451c7cb062a7cbc9593b3e2fc76aa28ee0aab8b69cb357",
+      "bytes": 461
+    },
+    "build-web-work/task-planning/qf03-measurement-design/negative-config.json": {
+      "sha256": "a7af8b125669ea919b6285fc5429099711e7ddf61102aac5a5437ec1b45c3438",
+      "bytes": 634
+    },
+    "build-web-work/task-planning/qf03-measurement-design/format-all.log": {
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae",
+      "bytes": 159
+    },
+    "build-web-work/task-planning/qf03-measurement-design/typecheck.log": {
+      "sha256": "86fd21d3a4c331af9cda136fdaa8bc8807301aedba733d35beae2083e7cce6d8",
+      "bytes": 43
+    },
+    "build-web-work/task-planning/qf03-measurement-design/studio-build-accepted.log": {
+      "sha256": "f00413683eb89c24913db9dec99e0cb2358571708fac2c913fd0e7cfea1cb5fd",
+      "bytes": 1089
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/architect-design.json": {
+      "sha256": "f586ba1f852bfd8b1a44d4edbd2e64e35bf372d768f9805c1806b6df6187d248",
+      "bytes": 23832
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/architect-candidate.json": {
+      "sha256": "cbf4726ea3c72fc1c4d809845315f7de3010732673abc4a11029ec1a3df6903b",
+      "bytes": 8783
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/reviewer-harness-audit.json": {
+      "sha256": "f0301e07f9e67e6f24b331dd4118ac8047d35698935e0f6d1df4517be6423a09",
+      "bytes": 13361
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/reviewer-candidate.json": {
+      "sha256": "29e4c83cbafe3dea3ef29d99207ba2b4536cf99cb8ec979f69e8d3a556d0d362",
+      "bytes": 7151
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/reviewer-fixed-candidate.json": {
+      "sha256": "85d6d40ce75bfceba7ec480ef90d4babf6fbfd695cb18cd1ae00a04ef727e120",
+      "bytes": 4840
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/reviewer-final-candidate.json": {
+      "sha256": "e064f0f78fda00e6e81e4798ffa50ffdf873a3d01e94b9c8cf2b448063442b99",
+      "bytes": 6186
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/sre-baseline-audit.json": {
+      "sha256": "1893f75b8063f6589969865eba7a17ba00deb87a1f4431edb9d56b70a1312e60",
+      "bytes": 24834
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/sre-candidate.json": {
+      "sha256": "12def30c44f1fb009441f5fd55100740f921522551193863bc541957651bbc88",
+      "bytes": 9372
+    },
+    "build-web-work/task-planning/qf03-measurement-design/reviews/sre-fixed-candidate.json": {
+      "sha256": "7e3a713872628627df0a47dc23d65ca61b3a2350c96caeb583e8ba57191148a4",
+      "bytes": 6675
+    },
+    "build-web-work/task-planning/qf03-measurement-design/cleanup.json": {
+      "sha256": "9168e1f1fbd68c7d534458dc012c874db1e2da77cb98e78a733fff8892ae9eaf",
+      "bytes": 495
+    },
+    "build-web-work/task-planning/qf03-measurement-design/host-after.json": {
+      "sha256": "dcdfe4bdf2416ec0fec2a0d3e4b36a688cc233e28a40e9967b6c04d1bdbd3225",
+      "bytes": 219
+    }
+  }
+}

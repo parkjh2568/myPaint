@@ -1,0 +1,272 @@
+{
+  "date": "2026-11-06",
+  "ok": true,
+  "scope": "QF17 bounded pending-aware output preview and Classic98 primary contrast; progress in the active overall goal, not whole-project or release completion.",
+  "platformPolicy": {
+    "mobileTablet": "browser only",
+    "executables": [
+      "Windows",
+      "macOS"
+    ]
+  },
+  "source": {
+    "web-app/src/engine/document.ts": "9933d8309c73cc5a644745ed17d1541fd5c98692e0be18e88caabb75e0c46650",
+    "web-app/src/engine/format.ts": "6a3b7320c489afbc846103d47b0f4de34976c6c53b485ffee1e74235dab9be38",
+    "web-app/src/engine/operations.ts": "5e000df0f836a81beda33382e0fcf573d51546facf3ad587c70f9bc89a821334",
+    "web-app/src/env.d.ts": "8df4317e57cede4048d2ceb16d05f3a054d1d3bf13384bb83899f3f33879aac2",
+    "web-app/src/main.ts": "d98cb263bcfcd7ac90e88b68f5b2570dd8430a98920a0a2aac207e144f7e4149",
+    "web-app/src/platform/codec.ts": "a08e470fb3eb7292f0eee9159df37e51ceb781323085f2c48d8183c328fdff79",
+    "web-app/src/platform/native-smoke.ts": "029dbb8ee3be0d5e428c374703aa51442bc486e7c6dab8b95e0933e9a5fff2a7",
+    "web-app/src/platform/native.ts": "56e90cc2b538ca76c64c894114126dfba728715010b62e244dbd0101199ff704",
+    "web-app/src/platform/storage.ts": "984435d29401c8b2c2212a2fba9b5c644868662cbbd52eed0bbd68eabe8d9a8f",
+    "web-app/src/platform/surface.ts": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3",
+    "web-app/src/platform/tiles.ts": "66634545bf4650fbdef7b9cc1e6db52da248f4d8d1adf519af9d529dce446400",
+    "web-app/src/style.css": "3c44bcd6012fa9920df8f43a5d09b6a7185bc8d865377ce2f7a709d374461e40",
+    "web-app/src/ui/icons.ts": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a",
+    "web-app/src/workers/codec.worker.ts": "c08f76f8c1c0c82a33a80888838ed5e1d3c178f63608f5bb3c0666c69766157b",
+    "web-app/src-tauri/src/lifecycle.rs": "80187f08f339d9d595e7acce56ee8d1eebd21ed629920dc6bece2d0a2c770c1b",
+    "web-app/src-tauri/src/main.rs": "2031ebe5853c191c48e1fe32dd9b73a6dd2f171c5a0ac92817ab39bc8bdc8a70",
+    "web-app/src-tauri/src/persistence.rs": "575ec6eec3d23f9a7af9be845c52c476837b61bed2c2762755f2434e8a5d590f"
+  },
+  "changedRuntime": [
+    "web-app/src/main.ts",
+    "web-app/src/style.css"
+  ],
+  "entry": "assets/index-erHtBTHW.js",
+  "bundle": {
+    "files": 9,
+    "bytes": 283019,
+    "manifest": {
+      "path": "build-web-work/task-planning/export-preview/final-bundle/bundle.json",
+      "sha256": "3e7d1b582e701bf1b8d22dcc3675b6f24db31ba31563d6d94b603f9ab0a73d4a"
+    }
+  },
+  "implementation": {
+    "previewBackingMax": 192,
+    "nearest": "clamp(ceil((dst + 0.5) * sourceSize / previewSize) - 1)",
+    "order": [
+      "source clear in old document",
+      "selection payload and expansion layer0 background",
+      "text then shape inside active layer",
+      "visible layers in engine order with per-layer integer rounding",
+      "opaque matte after flatten"
+    ],
+    "previewFullClone": false,
+    "previewCodecWorker": false,
+    "textSharedSemantics": [
+      "codepoint iteration",
+      "original font/width wrapping",
+      "scrollTop and line height",
+      "RGBA foreground/background",
+      "512 tiling and failure cleanup"
+    ],
+    "cache": "Flatten once; format/matte repaint only the bounded cached RGBA. PNG keeps alpha and disables matte without losing its value.",
+    "cancellation": "Owned MessageChannel, font waiter, generator and surfaces; state/revision/active/epoch/pending guards before publication and actual export.",
+    "newSharedMethods": [
+      "MethodDeclaration:textLayoutSteps",
+      "MethodDeclaration:paintText"
+    ],
+    "newRuntimeModules": 0,
+    "dependenciesChanged": false
+  },
+  "validation": {
+    "publicPreview": {
+      "checks": 12,
+      "failures": 0,
+      "errors": 0,
+      "raw": {
+        "path": "build-web-work/task-planning/export-preview/reviews/final-sre-results.json",
+        "sha256": "ab5573d710b00c37bc20d5bf478166893b9d4a2eb2396e813f1e4acc867aa023"
+      },
+      "scope": "Public Chromium export dialog, actual production codec Workers, modeled native IPC. Exact preview putImageData inputs and independent PNG/BMP readers; Canvas low-alpha RGB readback is a separate observation. No private Studio hooks, modified Worker responses, OS picker/filesystem, physical input, native WebKit or performance acceptance."
+    },
+    "pending": {
+      "checks": 36,
+      "failures": 0,
+      "scope": "Current main; before the final Classic primary color-only CSS fix. Each capture compares full raw preview upload with actual PNG for paste/selection/text/curve0/curve1/polygon, then checks cancellation/failure/Redo boundaries."
+    },
+    "unit": {
+      "passed": 229,
+      "scope": "Current unchanged engine/worker, current main; before the final Classic primary color-only CSS fix. Final CSS separately covered by publicPreview and final native bundle."
+    },
+    "basicBrowser": {
+      "checks": 13,
+      "errors": 0,
+      "scope": "Current main before final primary CSS color fix; actual web responsive/touch UI, not a physical device."
+    },
+    "sharedTextOracle": {
+      "rawExact": 28,
+      "faultKinds": 5,
+      "scope": "Source-extracted real Chrome Canvas, both Surface implementations, same host. AST equality with final shared methods proved; no native/UI/IME/performance acceptance."
+    },
+    "native": {
+      "runs": 4,
+      "ok": true,
+      "binarySha256": "60db80be93d0cb98bfb9b5980f6b6f06cae96957d1e87e55d581e980fe24042f",
+      "scope": "Actual bundled native UI, IPC and isolated filesystem recovery, plus isolated 4096²/32768×1 codec, native quit-ownership and final-scene rendering runs; macOS runs WKWebView. Does not exercise OS file picker dialogs, manual visual acceptance, physical Android or another host platform."
+    },
+    "formatTypeBuild": "passed; final-format.log and final-studio-build.log",
+    "classicReadyContrast": 10.458486,
+    "allocation": {
+      "fixture": "4096x4096 two-layer desktop-profile document",
+      "previewObservedPlanes": [
+        147456,
+        147456
+      ],
+      "previewCodecJobs": 0,
+      "existingRendererAllocations": 15,
+      "scope": "Distinct observed Uint8/Uint8Clamped/Uint32 constructors/slices and ImageData backings in preview wall interval. Existing tile renderer is separately attributed only with walkTiles+renderFrame stack and non-preview Offscreen receiver; every unclassified allocation remains192px capped. Full source planes absent in observed constructors; JS/Canvas internals, unobserved types and RSS excluded. No timing claim.",
+      "analyticNumericPlaneBound": 442368,
+      "boundExcludes": "Canvas/browser backing stores, glyph/path/layout metadata, source planes, JS strings and RSS; text O(chars) and paths O(points) remain."
+    }
+  },
+  "review": {
+    "roles": [
+      "Architect",
+      "Implementation Engineer",
+      "Reviewer",
+      "SRE/Optimizer"
+    ],
+    "remainingInScopedFinalCode": {
+      "Blocker": 0,
+      "Major": 0,
+      "Minor": 0
+    },
+    "fixedDuringReview": [
+      "Repeated full point serialization at checkpoints",
+      "Setup cleanup coverage",
+      "Cancellation while waiting for fonts",
+      "Repaint failure clears cached preview and reports error",
+      "Tiny-image CSS presentation",
+      "Classic98 primary foreground/background collision"
+    ],
+    "failureHistory": "First expanded run kept 9 passes / 2 failures. Independent diagnosis proved polygon used default secondary white in both preview and PNG; large allocation cap mixed existing renderer ImageData with preview. Tests now set the intended secondary color and retain separate stack/receiver-attributed allocation ledgers, without raising the preview cap."
+  },
+  "remaining": [
+    "Physical Android browser and real Windows package/OS file picker/IME acceptance",
+    "Full pending-aware preview validation in actual native WebKit and Safari",
+    "32768x1 and maximum aggregate/16-layer preview stress and long-run RSS/tail latency",
+    "48px hit targets, virtual keyboard/rotation, broader contrast and assistive technology acceptance",
+    "Existing roundrect WK edge AA Minor and other QF gates",
+    "Public CI, signing/notarization and approved Pages publication"
+  ],
+  "overallAudit": {
+    "proved": 6,
+    "partial": 26,
+    "missing": 2,
+    "dependencyClosure": [
+      "QF-01"
+    ],
+    "goalComplete": false
+  },
+  "references": {
+    "before-source.json": {
+      "path": "build-web-work/task-planning/export-preview/before-source.json",
+      "sha256": "b10e8c514cd87b8380a5ad55ffcc936695672d1726ba553381c4234cfd283c51"
+    },
+    "contrast-source.json": {
+      "path": "build-web-work/task-planning/export-preview/contrast-source.json",
+      "sha256": "d26c6c20e13e282f42c9be938336b87f78c9c96b616f9b8efe7498be3d5f4a2e"
+    },
+    "contrast-assets.json": {
+      "path": "build-web-work/task-planning/export-preview/contrast-assets.json",
+      "sha256": "865341010b974c7e215a5b5cd6121015a24f1f41077a5f6ea25d64dd4fce196f"
+    },
+    "final-bundle/bundle.json": {
+      "path": "build-web-work/task-planning/export-preview/final-bundle/bundle.json",
+      "sha256": "3e7d1b582e701bf1b8d22dcc3675b6f24db31ba31563d6d94b603f9ab0a73d4a"
+    },
+    "accepted-pending.json": {
+      "path": "build-web-work/task-planning/export-preview/accepted-pending.json",
+      "sha256": "16c33ee0a1537cbfb5f4405c6a8e993eafb79a85dfb80bf87047d50b7e3257e7"
+    },
+    "accepted-pending.log": {
+      "path": "build-web-work/task-planning/export-preview/accepted-pending.log",
+      "sha256": "b119f0c3db356f3475d71bbeb9128d9afe37e8568c842a9badd8843c15884418"
+    },
+    "accepted-unit.log": {
+      "path": "build-web-work/task-planning/export-preview/accepted-unit.log",
+      "sha256": "d73c6b1969c56bc1ead7193c16924aa409eb13a3154a6646a333f6e149d8159d"
+    },
+    "accepted-browser.log": {
+      "path": "build-web-work/task-planning/export-preview/accepted-browser.log",
+      "sha256": "e9340ec91a986404090b8b7476ec70e85ffc9219f4c67c03e3d8f6da385097b3"
+    },
+    "final-format.log": {
+      "path": "build-web-work/task-planning/export-preview/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "final-studio-build.log": {
+      "path": "build-web-work/task-planning/export-preview/final-studio-build.log",
+      "sha256": "a4f9d86f901bd6b61c560fdbf1dfba213d0552b3467a5dc9b6c200a3dbdc535c"
+    },
+    "contrast-native-build.log": {
+      "path": "build-web-work/task-planning/export-preview/contrast-native-build.log",
+      "sha256": "f00145e9c16a360ae538c82084d22435913d5c9399632915aca406651e1aa2f4"
+    },
+    "final-native.json": {
+      "path": "build-web-work/task-planning/export-preview/final-native.json",
+      "sha256": "3e0787319443c16bc77dbab7c4f35bacae7b2b0718ed4819c752177f48467dce"
+    },
+    "ast-delta.json": {
+      "path": "build-web-work/task-planning/export-preview/ast-delta.json",
+      "sha256": "e5d393c924f90ca95929e83d8c33c6fe92b812b0078c0449004209133267522b"
+    },
+    "architect-design.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/architect-design.json",
+      "sha256": "cccec3aac9c12a250b4df5ef9d94673ee6e75752677cc637b9a1aabbe8ffd422"
+    },
+    "architect-text-results.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/architect-text-results.json",
+      "sha256": "59f2d8e9e274b37b53022ce6204471f2c3c30317a148216de592d3a5ea21e687"
+    },
+    "architect-text-review.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/architect-text-review.json",
+      "sha256": "a58b4a6760c545b7a43cfa6a82c15a174a437f256b2f5c5bdb544a1985eee581"
+    },
+    "architect-addendum.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/architect-addendum.json",
+      "sha256": "f0b7ed7b21849b2372de3427939fa36cab0c9d3ad5f9a2e2f389b5371dce19af"
+    },
+    "reviewer.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/reviewer.json",
+      "sha256": "daaf1d830c74d8a1cffbb5305b0ed07754b62b0f75bfa942d18b867fbaa7f46b"
+    },
+    "reviewer-contrast.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/reviewer-contrast.json",
+      "sha256": "0fee8792edc9a574154f4f51f9fa747d4bca262d29c9c2391bd5176cbc30e80d"
+    },
+    "final-sre-results.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/final-sre-results.json",
+      "sha256": "ab5573d710b00c37bc20d5bf478166893b9d4a2eb2396e813f1e4acc867aa023"
+    },
+    "final-sre-screenshot.png": {
+      "path": "build-web-work/task-planning/export-preview/reviews/final-sre-screenshot.png",
+      "sha256": "445398901a48251adb6acd9e67d1b4b899dd5e04757523ff76542f92a60f9338"
+    },
+    "sre-summary.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/sre-summary.json",
+      "sha256": "cec0e77f3af0ae1d0f3e5fc90df9349cebda6427445812df38904a682325b262"
+    },
+    "sre-manifest.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/sre-manifest.json",
+      "sha256": "1fba5a0457bb5bc4a684de5089b475fba059c22496d89155fc1692b6f627c93f"
+    },
+    "sre-first-expanded.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/sre-first-expanded.json",
+      "sha256": "1162f06b66cbed4c49eedc9880226d051e2905865a76b5803871e1f67ff8c208"
+    },
+    "sre-diagnostic.json": {
+      "path": "build-web-work/task-planning/export-preview/reviews/sre-diagnostic.json",
+      "sha256": "75a65df938389a922bf7133f304785e99e789d05be98e06171dec31113e7b5fd"
+    }
+  },
+  "graph": {
+    "path": "docs/evidence/studio-output-preview-module-graph.json",
+    "sha256": "8aa99f48acf62d529103650e32816bc7b74d65f1b403dffb2ba0fb2e5dc54df4"
+  },
+  "integrity": {
+    "path": "build-web-work/task-planning/export-preview/final-integrity.json",
+    "sha256": "ee2aa5b34be686623dacb89692fd9ca8cc8a3e217ccc4e6c2f5f332ff27fa612"
+  }
+}

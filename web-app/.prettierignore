@@ -1,0 +1,12 @@
+node_modules
+dist
+src-tauri/target
+src-tauri/gen
+package-lock.json
+Cargo.lock
+
+# Generated Qt row-span fixtures keep their compact serialization.
+tests/fixtures/square-qt.json
+tests/fixtures/square-wide-qt.json
+tests/fixtures/square-thin-qt.json
+tests/fixtures/square-ui-qt.json

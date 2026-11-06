@@ -1,0 +1,347 @@
+{
+  "date": "2026-11-04",
+  "status": "development; independent RCA fixes and performance batch verified; full migration gates remain open",
+  "scope": {
+    "mobile": "HTTPS browser web only; no Android/iOS native projects",
+    "native": [
+      "Windows",
+      "macOS"
+    ],
+    "deviceValidation": "Android web physical device not run; iPhone/iPad Safari web not run; Windows execution not run"
+  },
+  "host": {
+    "os": "Darwin",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "sourceSha256": "bfe179c9dc0af792b302f1746adc937a95ea301b24d8b2e01d2ef4f59d5355b5",
+  "staticBuild": {
+    "base": "./",
+    "testedPath": "http://127.0.0.1:8936/mypaint/",
+    "files": [
+      {
+        "path": "THIRD_PARTY_NOTICES.txt",
+        "bytes": 1111,
+        "sha256": "f25abfb5e64eb98557892f1b5ddb6890dcc1e4c3c131142eb38bad5bb56a9ca4"
+      },
+      {
+        "path": "assets/codec.worker-B2uBySDy.js",
+        "bytes": 17867,
+        "sha256": "42a3c985d5515336b22c43d9f93b541079626a3debbfd87d1ce4de5ac37de428"
+      },
+      {
+        "path": "assets/index-Cyjm8nMy.js",
+        "bytes": 84147,
+        "sha256": "180294a56569ab24fdaed92d8008b5dd78650776588a2ba94b6ad5af13102d31"
+      },
+      {
+        "path": "assets/index-aClAeViE.css",
+        "bytes": 9073,
+        "sha256": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601"
+      },
+      {
+        "path": "assets/native-KUQg59mK.js",
+        "bytes": 486,
+        "sha256": "92a40da2bc015d34f3e2f2f954a863899d3f51d76a018d8bd57c8289e67f2009"
+      },
+      {
+        "path": "index.html",
+        "bytes": 543,
+        "sha256": "d5c4a3162277b725c5e9589be7d71094ae7af1675f0684df348a56a9f7530de3"
+      }
+    ],
+    "uncompressedBytes": 113227,
+    "containsQtOrWasm": false,
+    "timing": "No transfer-time or hardware brush-latency claim"
+  },
+  "verification": {
+    "typeCheck": "pass; strict + unused checks",
+    "prettier": "pass",
+    "nodeTests": {
+      "passed": 26,
+      "failed": 0
+    },
+    "rustTests": {
+      "passed": 3,
+      "failed": 0
+    },
+    "rustfmt": "pass",
+    "clippyWarningsAsErrors": "pass",
+    "productionBrowser": {
+      "checks": [
+        "Actual stroke and rpaint exported pixels",
+        "Downloads preserve Undo/Redo",
+        "Skin changes preserve exact pixels",
+        "Malformed file preserves current document",
+        "New transparent document exports real alpha",
+        "Resized pending selection survives denied clipboard cut",
+        "IME pending text blocks save and export preserves text until commit",
+        "390px mobile workspace and touch panels accessible",
+        "Mobile browser two-finger navigation cancels provisional finger stroke",
+        "Tablet web layout uses touch density without a native runtime"
+      ],
+      "errors": [],
+      "browser": "156.0.8078.80"
+    },
+    "macOSBundleSmoke": {
+      "exitCode": 0,
+      "output": "myPaint native smoke: ok=true",
+      "binary": "web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app/Contents/MacOS/mypaint-desktop"
+    },
+    "nativeBuildEntry": "mobile commands/targets rejected",
+    "githubActions": "workflow configured; remote execution not run",
+    "productionBrowserGroups": {
+      "basic": {
+        "checks": [
+          "Actual stroke and rpaint exported pixels",
+          "Downloads preserve Undo/Redo",
+          "Skin changes preserve exact pixels",
+          "Malformed file preserves current document",
+          "New transparent document exports real alpha",
+          "Resized pending selection survives denied clipboard cut",
+          "IME pending text blocks save and export preserves text until commit",
+          "390px mobile workspace and touch panels accessible",
+          "Mobile browser two-finger navigation cancels provisional finger stroke",
+          "Tablet web layout uses touch density without a native runtime"
+        ],
+        "errors": [],
+        "browser": "156.0.8078.80"
+      },
+      "concurrency": {
+        "checks": [
+          "busy fill keeps its original layer",
+          "busy save keeps pending text and revision",
+          "rejected shortcut preserves the active stroke"
+        ],
+        "failures": [],
+        "errors": [],
+        "browser": "156.0.8078.80"
+      },
+      "editing": {
+        "checks": [
+          "Pending polygon resizes exactly once and one Undo restores the original document",
+          "Background change commits a pending polygon once without repainting existing pixels",
+          "Rejected image dimensions preserve the pending curve and document",
+          "Partially controlled pending curve resizes once with a single atomic Undo",
+          "Failed second curve control readback preserves pending shape and permits a committed retry",
+          "Text paste replaces a selected maximum-length value using the resulting length",
+          "Late text clipboard resolution cannot mutate a replacement editor",
+          "Two-finger navigation restores a provisional selection move",
+          "Two-finger navigation restores a provisional selection resize",
+          "Two-finger takeover cannot commit a pending second curve control",
+          "Pixel preset settles a pending polygon before switching tools and preserves one Undo",
+          "Lasso movement has a discrete alpha mask and a return to origin is an exact pixel and history no-op",
+          "Text overlay preserves hidden RGB bytes in unpainted transparent pixels through commit and Undo"
+        ],
+        "errors": [],
+        "browser": "156.0.8078.80"
+      },
+      "storage": {
+        "checks": [
+          "Stale recovery deletion preserves the newer generation in both stores",
+          "The preserved newer backup reopens through the actual UI with exact pixels",
+          "An unchanged selected backup deletes its matching head and blob together",
+          "A changed byte length also invalidates a pending delete",
+          "A recovery value cannot alias another primary key or delete its valid snapshot",
+          "Malformed null metadata rejects safely without callbacks throwing or removing backups",
+          "Actual autosave admits a 32nd head and replaces its own key at the 32-head boundary",
+          "A new autosave at 32 foreign heads fails without changing any existing head or blob",
+          "Actual autosave succeeds at exactly the 64 MiB aggregate soft quota",
+          "At 64 MiB, replacing the owned backup excludes its old bytes from the quota",
+          "Exceeding the 64 MiB soft quota by one byte preserves all backups and current UI pixels",
+          "An actual IndexedDB transaction abort after a snapshot put rolls back head and blob together",
+          "Malformed existing owned metadata prevents autosave replacement and preserves the prior blob"
+        ],
+        "errors": [],
+        "browser": "156.0.8078.80",
+        "quotaScope": "Application 32-head/64 MiB soft quota and transaction rollback only; physical browser storage exhaustion was not exercised"
+      },
+      "shear": {
+        "checks": [
+          "Positive whole-document shear expands bounds without clipping; one Undo/Redo restores exact layers",
+          "Negative whole-document shear includes the translated left bounds",
+          "Selection shear changes only the selected raster and preserves document bounds, outside pixels and other layers",
+          "Zero-degree selection shear preserves the unmodified selection and creates no edit history",
+          "Oversized whole-document shear rejects before commit and preserves pixels and history",
+          "Oversized pending selection shear preserves the selection and supports cancellation without an edit"
+        ],
+        "errors": [],
+        "browser": "156.0.8078.80",
+        "url": "http://127.0.0.1:8936/mypaint/",
+        "assets": [
+          {
+            "url": "http://127.0.0.1:8936/mypaint/assets/index-aClAeViE.css",
+            "sha256": "4cde06e0026ca6a6236601fdd4e46b9472f7b44f2ed0cfd51c90eb2edf805601"
+          },
+          {
+            "url": "http://127.0.0.1:8936/mypaint/assets/index-Cyjm8nMy.js",
+            "sha256": "180294a56569ab24fdaed92d8008b5dd78650776588a2ba94b6ad5af13102d31"
+          },
+          {
+            "url": "http://127.0.0.1:8936/mypaint/assets/codec.worker-B2uBySDy.js",
+            "sha256": "42a3c985d5515336b22c43d9f93b541079626a3debbfd87d1ce4de5ac37de428"
+          },
+          {
+            "url": "http://127.0.0.1:8936/mypaint/assets/native-KUQg59mK.js",
+            "sha256": "92a40da2bc015d34f3e2f2f954a863899d3f51d76a018d8bd57c8289e67f2009"
+          }
+        ]
+      }
+    },
+    "productionBrowserTotal": 45,
+    "independentReviewer": {
+      "snapshot": "/private/tmp/mypaint-reviewer-m8-i5qb9zrk",
+      "sourceFiles": [
+        {
+          "path": ".prettierignore",
+          "sha256": "1a7a9029e68f4910a2b3a05dfd6205af6d2709f8a0174de2f770520ef19a5c8a"
+        },
+        {
+          "path": ".prettierrc.json",
+          "sha256": "67352097de9e3dd32771c2244babe242f63e666c3e83bd5b71944e8edd321d30"
+        },
+        {
+          "path": "index.html",
+          "sha256": "d631b86f119fea5f39d42717f36c0032d22ba5ee7b328f5b97e4773b262ebcaf"
+        },
+        {
+          "path": "package-lock.json",
+          "sha256": "1d1269458a9a071657f5bcd76659dc51b3be9e113166863aef16c32e0002a3eb"
+        },
+        {
+          "path": "package.json",
+          "sha256": "e2e432e8fa98ff30fac6f3e7f8ea3a0035b49bfed72981bd80ff0cff4579d9bc"
+        },
+        {
+          "path": "public/THIRD_PARTY_NOTICES.txt",
+          "sha256": "f25abfb5e64eb98557892f1b5ddb6890dcc1e4c3c131142eb38bad5bb56a9ca4"
+        },
+        {
+          "path": "src/engine/document.ts",
+          "sha256": "a852bba1df795c2d47f2159ba964678e64cb4fdf15c40c1f96417b93ba3dafd7"
+        },
+        {
+          "path": "src/engine/format.ts",
+          "sha256": "5f137d7a2b107939c54bd7b4ecfe5d26528da21bee8b050f1321225287382c92"
+        },
+        {
+          "path": "src/engine/operations.ts",
+          "sha256": "3422ac0fe40117ecbc601c0ca5df75de3fca2a9ca75e3893a2939cd49b9030fd"
+        },
+        {
+          "path": "src/env.d.ts",
+          "sha256": "0265db48338c859915a92bfefdb1988787cc06b0cbe2cd4625295552a62287a8"
+        },
+        {
+          "path": "src/main.ts",
+          "sha256": "f613f3f46c5b4115314a6136bf134af22b877125b687546cd6c2454b1a5a7f5d"
+        },
+        {
+          "path": "src/platform/codec.ts",
+          "sha256": "e44d84d799b289ce8a3ceeff55c45d10de08d0f94fa5d114b60887e6f3c03b96"
+        },
+        {
+          "path": "src/platform/native.ts",
+          "sha256": "bafc036544744562aa7fd75ad723bfd602f472cba3627f79ea6b4182ee4e98ee"
+        },
+        {
+          "path": "src/platform/storage.ts",
+          "sha256": "9b8ec02afb2a9aea571cff858d94fe270f5ba8c35e3b7034e640db030ff72cc5"
+        },
+        {
+          "path": "src/platform/surface.ts",
+          "sha256": "43e4eee28c921d774385a91b6893ae4f02ec45d919e6da7543610354b3be78c3"
+        },
+        {
+          "path": "src/style.css",
+          "sha256": "18a41f8b1792af420c9b6fbffa687cf6c826c784fb547ec0a285e749ab2df0d5"
+        },
+        {
+          "path": "src/ui/icons.ts",
+          "sha256": "5dc9830a0109672ca6afd32f679524b297ca885fd458b9e89fd0a2998ea6039a"
+        },
+        {
+          "path": "src/workers/codec.worker.ts",
+          "sha256": "c78c63bbda89098af70c2f9ab9ec19ff5e1885ba65f2b6c14f85db95ee38a3b4"
+        },
+        {
+          "path": "tests/browser.mjs",
+          "sha256": "e4d6a1ef132fb096611d54d49b522b8969c50a1e49d1e5aa535b0be3d41bccbe"
+        },
+        {
+          "path": "tests/concurrency.mjs",
+          "sha256": "51e9a37c6f94715231fd6ff9fb2d795988fa5b091ccda90283d8d896a3511775"
+        },
+        {
+          "path": "tests/core.test.ts",
+          "sha256": "8ef1cd8f3e757494ec87081f7908f172f7911981e2edd9f16497842518fc1537"
+        },
+        {
+          "path": "tests/editing.mjs",
+          "sha256": "e6531ab45f24f08ea5236bb5ca91913830d282a35297aa9ff814866613ea9c89"
+        },
+        {
+          "path": "tests/fixtures/qt-project.json",
+          "sha256": "529e69a04a8173302deb7f508d4eb98c712a74a913944345af54d4e13defd189"
+        },
+        {
+          "path": "tests/native.test.ts",
+          "sha256": "075a426722ed92380ceb6831ac75e23d8370e3dcc1d0a58dd28ea7bad9bea98f"
+        },
+        {
+          "path": "tests/performance.mjs",
+          "sha256": "c96650975341f41f710cc23c4a585a470acbed6d36d7a70a33f1c3961607d695"
+        },
+        {
+          "path": "tests/pixel.test.ts",
+          "sha256": "6c149c2378007012caacff6880b462a686106b308cb5c7929752e1561e0154ef"
+        },
+        {
+          "path": "tests/platforms.test.ts",
+          "sha256": "30f187330275085a8da00805073d1f0f08c7e6f65309407d91d2f31774b0cffe"
+        },
+        {
+          "path": "tests/shear.mjs",
+          "sha256": "30ee313884c93ca0cdac5ad17f62ae563af20185cc7e3d681d7f2e23889c5b05"
+        },
+        {
+          "path": "tests/shear.test.ts",
+          "sha256": "5f13ab3d31aae540793c070a207d9981d39068fc9687d00b03973d97707dced5"
+        },
+        {
+          "path": "tests/storage.mjs",
+          "sha256": "ef67d570150c0c31e2677ec05163501b61a8c9ce6ddce93209827367e8679d14"
+        },
+        {
+          "path": "tools/desktop.mjs",
+          "sha256": "aa36833479d146419ca202c9ca34dda79f4334b67b1ffe4ca7bce09f2563b529"
+        },
+        {
+          "path": "tsconfig.json",
+          "sha256": "815389e4dae03037b8d6bc50c65d31ad76674bbfab87bbb42258656526fa6e82"
+        },
+        {
+          "path": "vite.config.ts",
+          "sha256": "cc0265ff6ce17a71e4265787127638806697d25b580aa23cd99daf950c19bd1c"
+        }
+      ],
+      "sourceHash": "8e50bee540a3e412b59044060647ed5321eea9dcb31f370d1bd3a9f22965810a"
+    },
+    "performanceEvidence": "docs/evidence/studio-performance.json",
+    "npmAudit": "0 vulnerabilities reported by pinned Playwright install",
+    "moduleGraph": "docs/evidence/studio-module-graph.json"
+  },
+  "macOSBundle": {
+    "path": "web-app/src-tauri/target/release/bundle/macos/myPaint Studio.app",
+    "bytes": 8928237,
+    "signedRelease": false
+  },
+  "remainingGates": [
+    "Full legacy F01-F10/format/error matrix",
+    "Native large-document limits and Qt recovery-location handover",
+    "Comparable input/display/long-job/memory performance measurements",
+    "Android physical web and Safari web acceptance",
+    "Windows execution, clean OS packaging, signing/notices",
+    "New static manifest staging and release rollback before replacing existing app"
+  ]
+}

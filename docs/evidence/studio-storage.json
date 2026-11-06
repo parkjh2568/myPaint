@@ -1,0 +1,15 @@
+{
+  "browser": "156.0.8078.80",
+  "checks": [
+    "Independent tab keys preserve both committed snapshots",
+    "Selected backup generation revalidated; head and Blob read in one transaction",
+    "Quota/transaction failure preserves previous head and bytes",
+    "Late old-document store rejected; reset retains another tab backup",
+    "Clipboard rejection and oversized text return explicit failure",
+    "Download replacement/close revoke only superseded URLs",
+    "Corrupt Blob/head mismatch fails without deleting backup",
+    "Explicit clear transaction removes app snapshots across tabs",
+    "Storage access denied is reported without hanging"
+  ],
+  "errors": []
+}

@@ -1,0 +1,250 @@
+{
+  "date": "2026-11-05",
+  "status": "Two confirmed alpha contract defects fixed, independently reviewed and promoted. Overall migration, F06/17-tool combinations and release gates remain open.",
+  "scope": {
+    "mobileTablet": "Web only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "noCommitPushDeployment": true
+  },
+  "issues": [
+    {
+      "severity": "Major",
+      "cost": "S",
+      "name": "Transparent-selection key ignores alpha",
+      "trigger": "Opaque white key over white128/white255, white128 key over white255, or low-alpha premultiplied-equivalent RGB.",
+      "rootCause": "makeSelection compared only straight RGB with a per-pixel slice/every; different alpha matched, while equivalent legacy premultiplied colors did not.",
+      "before": {
+        "failedContracts": 3,
+        "total": 4,
+        "report": {
+          "path": "build-web-work/task-planning/selection-text-alpha/selection-oracle-review/baseline/results.json",
+          "sha256": "befd30ea6e7998cba1bc652dae2139383c66011df0abaae069b59add0ced7b15"
+        }
+      },
+      "fix": "Compare alpha first and premultiplied RGB with three key components calculated once in the owning function. Clear only lifted alpha; retain straight stored RGB. No helper or global color conversion added.",
+      "storagePolicy": "Qt key decision is preserved. Qt unpremultiplied RGB quantization is not imposed on stored source. Hidden RGB in the lifted copy is observed at the public Worker message boundary; flattened PNG normalizes alpha0 RGB to0.",
+      "oracle": {
+        "path": "build-web-work/task-planning/selection-text-alpha/selection-oracle-review/qt-results.json",
+        "sha256": "af7ce6844363c56768e467a05c47bee93d4a558673150575c504dfbf382ccaef"
+      },
+      "oracleProvenance": {
+        "path": "build-web-work/task-planning/selection-text-alpha/selection-oracle-review/baseline-provenance.json",
+        "sha256": "3671032ddb166e806fcdeab128cee0cdb13eca99e9d1dc1501678eecf0c5c5ba"
+      },
+      "after": {
+        "passed": 4,
+        "report": {
+          "path": "build-web-work/task-planning/selection-text-alpha/selection-oracle-review/candidate/results.json",
+          "sha256": "a94ea43633ffd41ea350c29cf41bb7b85cecbc4dd6e4d82f9afbe6caad2c38c8"
+        },
+        "provenance": {
+          "path": "build-web-work/task-planning/selection-text-alpha/selection-oracle-review/candidate-provenance.json",
+          "sha256": "4f0d2f824210ad60d4915ba5ce40f72adb0e3a9f32b624748cd9de78750ee116"
+        }
+      },
+      "verified": "Full independent-decoded PNG, observed lifted RGBA, source/clean/Redo, SaveAs cancellation, Escape, retry and prior Redo/Undo."
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "name": "Text preview and raster discard selected alpha",
+      "trigger": "Sample transparent or translucent ink, enter text, then export or save; secondary alpha also disappears when text background is enabled.",
+      "rootCause": "placeEditor and textRaster used the RGB-only hex formatter at four color sites, yielding opaque ink/background.",
+      "before": {
+        "failedContracts": 7,
+        "total": 8,
+        "report": {
+          "path": "build-web-work/task-planning/selection-text-alpha/text-before/results.json",
+          "sha256": "779128c3be85ca5435f88e5aae1c611abade030266c93ce59ba8a14d0d69b166"
+        },
+        "originalTest": {
+          "path": "build-web-work/task-planning/selection-text-alpha/text-before/test.mjs",
+          "sha256": "703c974091bf8aadb00201dd4cdc8fdbc2e52d61742c7e6e688c02cf90700213"
+        }
+      },
+      "fix": "Use inline rgba for editor color/background and Canvas fill styles. Keep current foreground/secondary ownership, six-digit HEX/type=color contracts and brush opacity independent.",
+      "oracle": {
+        "path": "build-web-work/task-planning/selection-text-alpha/text-qt-oracle/summary.json",
+        "sha256": "8c828cc14c44c945ff1373dead8fd0bb9ee4cadcfa37eae44d5d065b74b5668f"
+      },
+      "after": {
+        "passed": 8,
+        "report": {
+          "path": "build-web-work/task-planning/selection-text-alpha/text-after/results.json",
+          "sha256": "9ca375c54f7ff1e9ebd2f74da9e33ffb1a8b0cb4649b23cde919ea3c9af4d11a"
+        }
+      },
+      "verified": "Picked alpha0/1/128/255, background alpha0/128, source-over exactly once(max192 for128 over128), actual PNG, pending export, Escape/source/Redo, save, one Undo/Redo. Visible alpha0 text stays a pixel/history NoOp; hidden layer visibility remains the existing metadata edit."
+    }
+  ],
+  "architecture": {
+    "runtimeModulesChanged": [
+      "web-app/src/main.ts"
+    ],
+    "methodsChanged": [
+      "makeSelection",
+      "placeEditor",
+      "textRaster"
+    ],
+    "helpersAdded": 0,
+    "runtimeDependenciesAdded": 0,
+    "engineFormatTilesRustNativeSmokeUnchanged": true,
+    "moduleGraph": {
+      "path": "build-web-work/task-planning/selection-text-alpha/final-module-graph.json",
+      "sha256": "160714231a0e1377504350c783f10d30654515600a7db14fffbf29a70d3ed500"
+    },
+    "boundaryReview": {
+      "path": "build-web-work/task-planning/selection-text-alpha/static-review/boundary-review.json",
+      "sha256": "1666a01372852f7a28ad610f85cef8b45dccc63bd749abef8cc5f15f2602a0af"
+    },
+    "mainDiff": {
+      "path": "build-web-work/task-planning/selection-text-alpha/static-review/main-vs-ui4.diff",
+      "sha256": "da8837267aeb334e8854f9925442c8c35f7bff46a936d2aa7822c7c8d8efc58d"
+    }
+  },
+  "provenance": {
+    "beforeSource17": {
+      "path": "build-web-work/task-planning/selection-text-alpha/before-source.json",
+      "sha256": "57a4dd36676fa622d3832ae7415b72b5fdbf5272ec9cf0706ea07faa8925689d"
+    },
+    "finalSource17": {
+      "path": "build-web-work/task-planning/selection-text-alpha/final-source.json",
+      "sha256": "06dac58ec95e618fdb0d7e224525db0bb21a699d3e1e873b1f9cbc3b8014d926"
+    },
+    "finalAssets8": {
+      "path": "build-web-work/task-planning/selection-text-alpha/final-manifest.json",
+      "sha256": "230d70cef6dfc932a98b1ef53517d6aadae2604f95728d977153ed3a9dbc68a2"
+    },
+    "canonicalBuildByteEqualToTestedCandidate": true,
+    "promotion": {
+      "path": "build-web-work/task-planning/selection-text-alpha/promotion.json",
+      "sha256": "c8a227a965e0ba10ae97be38af2333890131d1ccfd6fbc8fce2fcfdd1fd92b5d"
+    },
+    "format": {
+      "path": "build-web-work/task-planning/selection-text-alpha/final-format.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "build": {
+      "path": "build-web-work/task-planning/selection-text-alpha/final-build.log",
+      "sha256": "026a4ab73583336777934e2c22e0816521b45ac9e32163e336574ccfa5d6a11a"
+    },
+    "diagnosticArchive": {
+      "path": "build-web-work/task-planning/selection-text-alpha/diagnostic-reproduction.tar.gz",
+      "sha256": "4a9e29847293bfbba9ee5ad52904d8223361997a698c26823488080bbaa9ad3c"
+    }
+  },
+  "verification": {
+    "publicAlpha": {
+      "selection": 4,
+      "text": 8,
+      "scope": "Public Chromium UI and actual codec Workers. Native file dialogs/IPC are modeled; PNG is independently decoded. No private Studio access. Not OS permissions/IME/physical-device evidence."
+    },
+    "webRegression": {
+      "passed": 48,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/selection-text-alpha/browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-text-alpha/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-text-alpha/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-text-alpha/storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-text-alpha/shear/results.json",
+          "sha256": "0a791a8bd41fa9a80ecca58df022bd6210b9b2534e03752130571e57ac02ebb8"
+        }
+      ]
+    },
+    "pending": {
+      "passed": 36,
+      "report": {
+        "path": "build-web-work/task-planning/selection-text-alpha/pending/results.json",
+        "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+      }
+    },
+    "clipboard": {
+      "passed": 4,
+      "report": {
+        "path": "build-web-work/task-planning/selection-text-alpha/clipboard/results.json",
+        "sha256": "552e695bc08aa076e05197dd0169708324d908faa53c39bf44b0235f1425849a"
+      }
+    },
+    "qtText": {
+      "cases": 6,
+      "explicitChecks": 84,
+      "sameFontCoveragePixels": 3680,
+      "report": {
+        "path": "build-web-work/task-planning/selection-text-alpha/text-qt-oracle/summary.json",
+        "sha256": "8c828cc14c44c945ff1373dead8fd0bb9ee4cadcfa37eae44d5d065b74b5668f"
+      },
+      "scope": "Fresh actual legacy Canvas/Document build, same-Qt-font alpha/coverage and history checks. Not cross-browser glyph geometry or Qt editor preview correctness."
+    },
+    "nativeAlpha": {
+      "cases": 10,
+      "text": 6,
+      "selection": 4,
+      "report": {
+        "path": "build-web-work/task-planning/selection-text-alpha/native-alpha-result/summary.json",
+        "sha256": "7833f4ab1b21d4dc391c57d05c58d31c6d307dbdc6885f44135d9c145b2225d1"
+      },
+      "raw": {
+        "path": "build-web-work/task-planning/selection-text-alpha/native-alpha-result/results.json",
+        "sha256": "0d23d5ad61b83dfbb977e03cb1159d351a7cd8c03a01b61e60b1f48fdb19ec68"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/selection-text-alpha/native-alpha-freeze.json",
+        "sha256": "92a18dad61f5947cf351fad9682c0ff13402df86be27746b4054ee4255e5c72e"
+      },
+      "scope": "Actual WK DOM/computed CSS/Canvas and source/history/Escape contracts through a temporary smoke overlay. Not OS input/IME, performance, file export or ordinary package smoke. Overlay excluded from product."
+    },
+    "nativeNormal": {
+      "phasesPassed": 4,
+      "report": {
+        "path": "build-web-work/task-planning/selection-text-alpha/native-desktop.json",
+        "sha256": "f123149ee06b01594aef46ccaedf02acf6fc589e90dbf09c0234efb5762da2bd"
+      },
+      "foregroundAdapter": {
+        "path": "build-web-work/task-planning/selection-text-alpha/native-desktop.json.foreground.json",
+        "sha256": "5ecc9051dfff1c13e2828f20750179109ebc894b68df4098353a72ab7da81c9b"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/selection-text-alpha/native-normal-freeze.json",
+        "sha256": "9525f4427c7c23da1b2e5b36ed77d09d9d714fd7e79db55cb4e84ee0e7fc1020"
+      },
+      "scope": "Actual macOS ordinary candidate without the temporary alpha overlay: recovery/filesystem, codecs, quit ownership and scene21. Original assertions/fixtures unchanged; process activation adapter only. Not Windows or OS picker/IME acceptance."
+    },
+    "priorCore": "Engine is byte-identical to the prior176-test snapshot; those tests were not rerun or counted as new executions in this alpha stage.",
+    "priorPerformance": "Renderer/tiles are unchanged; UI4 timing results remain historical snapshot evidence. No new speedup, hard4ms,50ms,p95 or full-performance claim."
+  },
+  "diagnostics": {
+    "candidateFormatSetup": "First isolated format check lacked the existing .prettierignore and warned on4 unchanged generated Qt fixtures. Copied the canonical ignore file; fixture bytes/expectations unchanged; final format passes.",
+    "beforeFailuresPreserved": true,
+    "noAutomaticFailureRetry": true
+  },
+  "remaining": [
+    "Match display/DPR/camera for WK checker; prepared plan only, no new performance execution",
+    "Broad/disjoint dirty and long-session/RSS",
+    "Remaining F06 geometry/masks and fill Worker failure/timeout/retry contracts",
+    "Sampled-color alpha visibility UX, opaque-erase NoOp allocation, native GIF metadata/RSS",
+    "Physical Android/Safari web, Windows/macOS OS integration, remote CI, signing and safe homepage staging/rollback"
+  ],
+  "fixedDisplayPlan": {
+    "preparedOnly": true,
+    "plan": {
+      "path": "build-web-work/task-planning/selection-text-alpha/wk-fixed-display-plan/PLAN.md",
+      "sha256": "1b9e71419475f2453bd40888c0e521fb68dba663707b8922dc2d12fb192af52a"
+    }
+  }
+}

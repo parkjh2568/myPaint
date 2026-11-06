@@ -3,11 +3,13 @@ import argparse
 import hashlib
 import json
 import os
+from html.parser import HTMLParser
 from pathlib import Path, PurePosixPath
 import shutil
 import subprocess
 import tempfile
 import uuid
+from urllib.parse import unquote, urlsplit
 
 MAX_FILE = 100 * 1024 * 1024 - 1
 MAX_SITE = 900 * 1024 * 1024
@@ -52,7 +54,75 @@ def readManifest(folder, filename, owner):
     return manifest
 
 
-def stageBundle(source, homepage, check=False):
+class BundleHtml(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.resources = []
+        self.moduleScripts = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = {}
+        for name, value in attrs:
+            if name in attributes and name in {"src", "href", "rel", "type"}:
+                raise RuntimeError("Duplicate resource attribute in bundle HTML")
+            attributes[name] = value
+        if tag == "script" and attributes.get("src"):
+            self.resources.append(attributes["src"])
+            if attributes.get("type") == "module":
+                self.moduleScripts.append(attributes["src"])
+        elif tag == "link" and set((attributes.get("rel") or "").lower().split()) & {"stylesheet", "modulepreload", "preload", "icon"}:
+            if attributes.get("href"):
+                # The shell's empty favicon prevents an implicit /favicon.ico request.
+                if set((attributes.get("rel") or "").lower().split()) == {"icon"} and attributes["href"] == "data:,":
+                    return
+                self.resources.append(attributes["href"])
+
+
+def readBundle(folder):
+    bundle = readManifest(folder, "bundle.json", "myPaint-web-bundle")
+    target = bundle.get("target", "qt")
+    if target not in ("qt", "studio"):
+        raise RuntimeError("Unknown web bundle target")
+    files = bundle["files"]
+    if any(any(part.startswith(".") for part in PurePosixPath(rel).parts) for rel in files):
+        raise RuntimeError("Hidden bundle paths are not supported")
+    if target == "qt":
+        allowed = {"index.html", "retropaint.js", "retropaint.wasm", "qtloader.js", "licenses.html", "BUILDING.txt"}
+        if any(rel not in allowed and not rel.startswith("shared/") for rel in files):
+            raise RuntimeError("Unknown web bundle layout")
+        if not {"index.html", "retropaint.js", "retropaint.wasm", "qtloader.js", "licenses.html"}.issubset(files):
+            raise RuntimeError("Incomplete web bundle")
+        if (folder / "retropaint.wasm").read_bytes()[:8] != b"\0asm\x01\0\0\0":
+            raise RuntimeError("Invalid WebAssembly module")
+    else:
+        allowed = {"index.html", "LICENSE", "THIRD_PARTY_NOTICES.txt"}
+        extensions = {".js", ".css", ".png", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".wasm"}
+        if any(rel not in allowed and not (rel.startswith("assets/") and PurePosixPath(rel).suffix in extensions) for rel in files):
+            raise RuntimeError("Unknown Studio bundle layout")
+        if not allowed.issubset(files) or not any(rel.startswith("assets/") and rel.endswith(".js") for rel in files):
+            raise RuntimeError("Incomplete Studio bundle")
+        for rel in files:
+            if rel.endswith(".wasm") and (folder / rel).read_bytes()[:8] != b"\0asm\x01\0\0\0":
+                raise RuntimeError("Invalid WebAssembly module")
+    html = (folder / "index.html").read_text(encoding="utf-8")
+    if html.count("<head>") != 1 or "<base" in html.lower():
+        raise RuntimeError("The application shell must have one head and no base element")
+    if target == "studio":
+        document = BundleHtml()
+        document.feed(html)
+        if not document.moduleScripts:
+            raise RuntimeError("Studio requires a bundled module entry")
+        for resource in document.resources:
+            url = urlsplit(resource)
+            name = unquote(url.path)
+            if name.startswith("./"):
+                name = name[2:]
+            if url.scheme or url.netloc or "\\" in name or not name.startswith("assets/") or name not in files:
+                raise RuntimeError("Studio assets must be present and relative to the release: " + resource)
+    return bundle
+
+
+def stageBundle(source, homepage, check=False, prune=False):
     source, homepage = Path(source).absolute(), Path(homepage).absolute()
     if homepage.is_symlink() or not homepage.is_dir():
         raise RuntimeError("Homepage directory is missing or symbolic")
@@ -68,21 +138,19 @@ def stageBundle(source, homepage, check=False):
     staged = subprocess.run(["git", "diff", "--cached", "--quiet", "--", "mypaint"], cwd=homepage, env=env)
     if staged.returncode:
         raise RuntimeError("Commit or review staged mypaint changes before rebuilding")
-    bundle = readManifest(source, "bundle.json", "myPaint-web-bundle")
-    allowed = {"index.html", "retropaint.js", "retropaint.wasm", "qtloader.js", "licenses.html", "BUILDING.txt"}
-    if any(rel not in allowed and not rel.startswith("shared/") for rel in bundle["files"]):
-        raise RuntimeError("Unknown web bundle layout")
-    if any(any(part.startswith(".") for part in PurePosixPath(rel).parts) for rel in bundle["files"]):
-        raise RuntimeError("Hidden bundle paths are not supported")
-    if not {"index.html", "retropaint.js", "retropaint.wasm", "qtloader.js", "licenses.html"}.issubset(bundle["files"]):
-        raise RuntimeError("Incomplete web bundle")
-    if (source / "retropaint.wasm").read_bytes()[:8] != b"\0asm\x01\0\0\0":
-        raise RuntimeError("Invalid WebAssembly module")
+    bundle = readBundle(source)
+    bundleTarget = bundle.get("target", "qt")
     original = readManifest(target, "manifest.json", "myPaint-web-output") if target.exists() else None
     if original and any(rel != "index.html" and not rel.startswith(("shared/", "releases/")) for rel in original["files"]):
         raise RuntimeError("Unknown previous output layout")
-    release = hashlib.sha256(json.dumps(bundle, sort_keys=True).encode()).hexdigest()[:24]
-    files = dict(original["files"]) if original else {}
+    # Git commit/dirty metadata must not create another copy of identical runtime files.
+    release = hashlib.sha256(json.dumps(bundle["files"], sort_keys=True).encode()).hexdigest()[:24]
+    if original and bundleTarget == "qt":
+        active = original.get("release", "")
+        runtime = ("index.html", "retropaint.js", "retropaint.wasm", "qtloader.js")
+        if active and all(original["files"].get(f"releases/{active}/{name}") == bundle["files"][name] for name in runtime):
+            release = active
+    files = dict(original["files"]) if original and not prune else {}
     payload = {}
     for rel in bundle["files"]:
         destination = rel if rel.startswith("shared/") else f"releases/{release}/{rel}"
@@ -93,12 +161,15 @@ def stageBundle(source, homepage, check=False):
         raise RuntimeError("The application shell must have one head and no base element")
     index = html.replace("<head>", f'<head>\n<base href="./releases/{release}/">', 1).encode()
     files["index.html"] = hashlib.sha256(index).hexdigest()
-    licensePath = f"releases/{release}/licenses.html"
-    licenseHtml = (source / "licenses.html").read_text(encoding="utf-8")
-    if licenseHtml.count("<head>") != 1 or "<base" in licenseHtml.lower():
-        raise RuntimeError("Invalid license page")
-    licenseBytes = licenseHtml.replace("<head>", '<head>\n<base href="../../">', 1).encode()
-    files[licensePath] = hashlib.sha256(licenseBytes).hexdigest()
+    licensePath = None
+    licenseBytes = None
+    if bundleTarget == "qt":
+        licensePath = f"releases/{release}/licenses.html"
+        licenseHtml = (source / "licenses.html").read_text(encoding="utf-8")
+        if licenseHtml.count("<head>") != 1 or "<base" in licenseHtml.lower():
+            raise RuntimeError("Invalid license page")
+        licenseBytes = licenseHtml.replace("<head>", '<head>\n<base href="../../">', 1).encode()
+        files[licensePath] = hashlib.sha256(licenseBytes).hexdigest()
     total = len(index)
     for rel in files:
         if rel == "index.html":
@@ -106,11 +177,14 @@ def stageBundle(source, homepage, check=False):
         total += len(licenseBytes) if rel == licensePath else (payload.get(rel) or target / rel).stat().st_size
     if total > MAX_SITE or len(files) > 8192:
         raise RuntimeError("Retained releases exceed the local site budget; review old releases manually")
-    manifest = {"schema": 1, "owner": "myPaint-web-output", "release": release,
+    manifest = {"schema": 1, "owner": "myPaint-web-output", "release": release, "target": bundleTarget,
                 "source": bundle.get("source", {}), "files": files}
     metadata = (json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2) + "\n").encode()
+    removed = set(original["files"]) - set(files) if original else set()
+    removedBytes = sum((target / rel).stat().st_size for rel in removed)
     if check:
-        return {"release": release, "bytes": total, "changed": original != manifest}
+        return {"release": release, "bytes": total, "changed": original != manifest,
+                "removedFiles": len(removed), "removedBytes": removedBytes}
     if original == manifest:
         return {"release": release, "bytes": total, "changed": False}
     lock = homepage / ".mypaint-build-lock"
@@ -135,20 +209,27 @@ def stageBundle(source, homepage, check=False):
                 raise RuntimeError("Destination changed during preparation")
         elif target.exists():
             raise RuntimeError("Destination appeared during preparation")
+        staged = subprocess.run(["git", "diff", "--cached", "--quiet", "--", "mypaint"], cwd=homepage, env=env)
+        if staged.returncode:
+            raise RuntimeError("Staged mypaint changes appeared during preparation")
         if target.exists():
             os.replace(target, backup)
         try:
             os.replace(staging, target)
         except BaseException:
             if backup.exists():
-                os.replace(backup, target)
+                try:
+                    os.replace(backup, target)
+                except OSError as error:
+                    raise RuntimeError("Install failed; previous output is preserved at " + str(backup)) from error
             raise
         if backup.exists():
             try:
                 shutil.rmtree(backup)
             except OSError:
                 print("Output updated; retained backup requires review:", backup)
-        return {"release": release, "bytes": total, "changed": True}
+        return {"release": release, "bytes": total, "changed": True,
+                "removedFiles": len(removed), "removedBytes": removedBytes}
     finally:
         if staging and staging.exists():
             shutil.rmtree(staging)
@@ -160,9 +241,10 @@ def main():
     parser.add_argument("source", type=Path)
     parser.add_argument("homepage", type=Path)
     parser.add_argument("--check", action="store_true")
+    parser.add_argument("--prune", action="store_true", help="Keep only this bundle; remove validated older releases and unused shared files")
     args = parser.parse_args()
     try:
-        print(json.dumps(stageBundle(args.source, args.homepage, args.check), indent=2))
+        print(json.dumps(stageBundle(args.source, args.homepage, args.check, args.prune), indent=2))
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         parser.exit(1, str(error) + "\n")
 

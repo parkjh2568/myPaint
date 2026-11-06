@@ -1,0 +1,431 @@
+{
+    "schema": 1,
+    "source": {
+        "method": "Handcrafted GIF. Four-entry RGB palette, LZW minimum code size2; clear code4 before each literal index keeps all codes3bits (LSB-first), followed by end code5. Interlaced rows follow passes0/8,4/8,2/4,1/2. No production GIF parser/decoder generates expected pixels.",
+        "spec": "https://www.w3.org/Graphics/GIF/spec-gif89a.txt",
+        "generatorSha256": "fe79786c51fb39a59cfbcc47a18670fde819f1a2b3c0e8b1d2838db473ddbd09",
+        "expectedPolicy": "Literal RGBA run lists for Chromium Blob first-frame output. Small out-of-logical first/later rectangles preserve browser-compatible behavior. Native WebKit/ImageIO may crop to logical size; this fixture does not claim its output policy."
+    },
+    "cases": [
+        {
+            "name": "87a-global-palette",
+            "base64": "R0lGODdhBAADAIEAAAAAAP8AAAD/AAAA/ywAAAAABAADAAACCgzDMAzDMAzDMAUAOw==",
+            "bytes": 49,
+            "sha256": "38be2c7ae0cb5aea73138ad837fdb5bf9fb6b392292dec6ac90282abe6302fe9",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3,
+                        "gce": false
+                    }
+                ],
+                "options": {
+                    "version": "87a"
+                }
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [[12, 255, 0, 0, 255]]
+            }
+        },
+        {
+            "name": "89a-global-palette",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAAEAAMAAAIKDMMwDMMwDMMwBQA7",
+            "bytes": 57,
+            "sha256": "5d899f40be43a31362625cef6cdbbfbfbf8e288e50dc3eb12c88cfae2e643727",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3
+                    }
+                ],
+                "options": {}
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [[12, 255, 0, 0, 255]]
+            }
+        },
+        {
+            "name": "comment-subblocks-before-image",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH+A2FiYwJkZQAh+QQEAgAAACwAAAAABAADAAACCgzDMAzDMAzDMAUAOw==",
+            "bytes": 67,
+            "sha256": "dbc65ec15c3eb4b99cdadcab31a03abb02cf3c32689289d5bcf2a69951cc4db5",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3
+                    }
+                ],
+                "options": {
+                    "comment": true
+                }
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [[12, 255, 0, 0, 255]]
+            }
+        },
+        {
+            "name": "transparent-indices",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAUCAAAALAAAAAAEAAMAAAIKDEERBENQFMEQBQA7",
+            "bytes": 57,
+            "sha256": "e27fe6c9b3f0f651107652cf88501e9d25a4edbaebc8da643381f6eade66289a",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3,
+                        "transparentIndex": 0,
+                        "indices": [1, 0, 2, 0, 0, 1, 0, 2, 2, 0, 1, 0]
+                    }
+                ],
+                "options": {}
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [
+                    [1, 255, 0, 0, 255],
+                    [1, 0, 0, 0, 0],
+                    [1, 0, 255, 0, 255],
+                    [2, 0, 0, 0, 0],
+                    [1, 255, 0, 0, 255],
+                    [1, 0, 0, 0, 0],
+                    [2, 0, 255, 0, 255],
+                    [1, 0, 0, 0, 0],
+                    [1, 255, 0, 0, 255],
+                    [1, 0, 0, 0, 0]
+                ]
+            }
+        },
+        {
+            "name": "local-palette-only",
+            "base64": "R0lGODdhBAADAAAAACwAAAAABAADAIEAAAAAAP//AAAA/wACCgzDMAzDMAzDMAUAOw==",
+            "bytes": 49,
+            "sha256": "8ec53f100bbbe19cc80df892d3e2a9d6b9fb79287646cdb0875ad9ff538c979f",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3,
+                        "localPalette": [
+                            [0, 0, 0],
+                            [0, 0, 255],
+                            [255, 0, 0],
+                            [0, 255, 0]
+                        ],
+                        "gce": false
+                    }
+                ],
+                "options": {
+                    "version": "87a",
+                    "noGlobalPalette": true
+                }
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [[12, 0, 0, 255, 255]]
+            }
+        },
+        {
+            "name": "interlaced-distinct-rows",
+            "base64": "R0lGODlhBAAIAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAAEAAgAQAIZDMMwFEVRHMdxDMMwFEVRDMMwHMdxFEVRBQA7",
+            "bytes": 72,
+            "sha256": "4abdd5c60b142417b0c8cbf552fee42a6570bd93cf3e2f0e20000e65eca4ded7",
+            "source": {
+                "logical": [4, 8],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 8,
+                        "interlaced": true,
+                        "indices": [
+                            1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 1, 1, 1,
+                            1, 2, 2, 2, 2
+                        ]
+                    }
+                ],
+                "options": {}
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 8,
+                "rgbaRuns": [
+                    [4, 255, 0, 0, 255],
+                    [4, 0, 255, 0, 255],
+                    [4, 0, 0, 255, 255],
+                    [4, 255, 0, 0, 255],
+                    [4, 0, 255, 0, 255],
+                    [4, 0, 0, 255, 255],
+                    [4, 255, 0, 0, 255],
+                    [4, 0, 255, 0, 255]
+                ]
+            }
+        },
+        {
+            "name": "first-frame-expands-size",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAAIAAYAAAIlDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwBQA7",
+            "bytes": 84,
+            "sha256": "dd68b4d7e412e411df01cbe9ee0f174a45f971d0389e374b3f978e5c1d035a25",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 8,
+                        "height": 6
+                    }
+                ],
+                "options": {}
+            },
+            "chromiumExpected": {
+                "width": 8,
+                "height": 6,
+                "rgbaRuns": [[48, 255, 0, 0, 255]]
+            }
+        },
+        {
+            "name": "first-frame-expands-offset",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAMAAgADAAIAAAIFDMMwDFMAOw==",
+            "bytes": 52,
+            "sha256": "6203fdd708734842e8de95bf52394bda55dbfa102280ee9062a6535a0089fb7f",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "left": 3,
+                        "top": 2,
+                        "width": 3,
+                        "height": 2
+                    }
+                ],
+                "options": {}
+            },
+            "chromiumExpected": {
+                "width": 6,
+                "height": 4,
+                "rgbaRuns": [
+                    [15, 0, 0, 0, 0],
+                    [3, 255, 0, 0, 255],
+                    [3, 0, 0, 0, 0],
+                    [3, 255, 0, 0, 255]
+                ]
+            }
+        },
+        {
+            "name": "animation-first-red-later-green",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH/C05FVFNDQVBFMi4wAwEAAAAh+QQEAgAAACwAAAAABAADAAACCgzDMAzDMAzDMAUAIfkEBAIAAAAsAAAAAAQAAwAAAgoURVEURVEURVEFADs=",
+            "bytes": 107,
+            "sha256": "ed3014c145b22474d6bd206be78732e78c37d3278119a543ddc8dfafc775de62",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3,
+                        "color": 1
+                    },
+                    {
+                        "width": 4,
+                        "height": 3,
+                        "color": 2
+                    }
+                ],
+                "options": {
+                    "loop": true
+                }
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [[12, 255, 0, 0, 255]]
+            }
+        },
+        {
+            "name": "animation-later-larger",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAAEAAMAAAIKDMMwDMMwDMMwBQAh+QQEAgAAACwAAAAAEAAMAAACkRRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFURRFUQUAOw==",
+            "bytes": 223,
+            "sha256": "13ec460ac1c73efcf50f5b8c7ba8be26b52edf5de62d3c06b7f1eab64985b09d",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3,
+                        "color": 1
+                    },
+                    {
+                        "width": 16,
+                        "height": 12,
+                        "color": 2
+                    }
+                ],
+                "options": {}
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [[12, 255, 0, 0, 255]]
+            }
+        },
+        {
+            "name": "animation-later-offset",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAAEAAMAAAIKDMMwDMMwDMMwBQAh+QQEAgAAACwYABQABAADAAACChRFURRFURRFUQUAOw==",
+            "bytes": 88,
+            "sha256": "7bc4bf5f6fe3106180154c1b27327303eaab651a557dd716f43945dff3891da8",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3,
+                        "color": 1
+                    },
+                    {
+                        "left": 24,
+                        "top": 20,
+                        "width": 4,
+                        "height": 3,
+                        "color": 2
+                    }
+                ],
+                "options": {}
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [[12, 255, 0, 0, 255]]
+            }
+        },
+        {
+            "name": "first-complete-later-truncated",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAAEAAMAAAIKDMMwDMMwDMMwBQAsAAAAAAQ=",
+            "bytes": 62,
+            "sha256": "a19c96f4e577a368c00e48907ddffb40061032af40860e794d75185782447cd7",
+            "source": {
+                "logical": [4, 3],
+                "frames": [
+                    {
+                        "width": 4,
+                        "height": 3
+                    }
+                ],
+                "options": {},
+                "compatibility": "Complete first frame, truncated later descriptor; Chromium first-frame fallback compatibility, not a spec-valid complete stream."
+            },
+            "chromiumExpected": {
+                "width": 4,
+                "height": 3,
+                "rgbaRuns": [[12, 255, 0, 0, 255]]
+            }
+        },
+        {
+            "name": "truncated-logical-header",
+            "base64": "R0lGODlhBAADAIEA",
+            "bytes": 12,
+            "sha256": "c5ff59597c5833ad93732ff60b7683916b29201cbc0a2ea6d4311e88096d64ec",
+            "reject": true,
+            "beforeBitmap": true,
+            "metadataOnly": false,
+            "source": {
+                "description": "Header has no complete seven-byte logical screen descriptor."
+            }
+        },
+        {
+            "name": "truncated-global-palette",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8A",
+            "bytes": 18,
+            "sha256": "5420a6ac099642235b2e131255bbf398dd31c126f6ffaa5416879dca83eed8fa",
+            "reject": true,
+            "beforeBitmap": true,
+            "metadataOnly": false,
+            "source": {
+                "description": "Global palette declares twelve bytes but only five follow the descriptor."
+            }
+        },
+        {
+            "name": "truncated-extension-subblock",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH+BAE=",
+            "bytes": 29,
+            "sha256": "494082010914017ef1f284a40bd862da483187cd1e3e240d6482b49a6569fefa",
+            "reject": true,
+            "beforeBitmap": true,
+            "metadataOnly": false,
+            "source": {
+                "description": "Comment sub-block claims four bytes but contains one."
+            }
+        },
+        {
+            "name": "truncated-first-descriptor",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/ywAAAAABA==",
+            "bytes": 31,
+            "sha256": "4d6d88ad1909d5ef0557b0e69fc3bf58719c4ac1db08c0f3c54e9391294eb051",
+            "reject": true,
+            "beforeBitmap": true,
+            "metadataOnly": false,
+            "source": {
+                "description": "First image descriptor is truncated before height/flags."
+            }
+        },
+        {
+            "name": "truncated-first-lzw-data",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAAEAAMAAAIKDA==",
+            "bytes": 46,
+            "sha256": "ca903c8f932dcfe692ea136784ea7b9a529f057a464d68f1cd1e3ebba32e4ec8",
+            "reject": true,
+            "beforeBitmap": false,
+            "metadataOnly": false,
+            "source": {
+                "description": "Valid small first descriptor; sub-block declares more LZW bytes than present. Real decode is safe and expected to reject."
+            }
+        },
+        {
+            "name": "oversized-first-width",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAD//wEAAAICTAEAOw==",
+            "bytes": 49,
+            "sha256": "fb29ac99d0f7b50141ba9bf1d9abf40170d1b7a051fc7055a5e51ef2e8575c1f",
+            "reject": true,
+            "beforeBitmap": true,
+            "metadataOnly": true,
+            "source": {
+                "description": "Metadata-only first descriptor width=65535; never call a real decoder. LZW contains only the original1pixel."
+            }
+        },
+        {
+            "name": "oversized-first-offset",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALP//AAABAAEAAAICTAEAOw==",
+            "bytes": 49,
+            "sha256": "6a9bb9bd91ec8e90a8077968ba09b039e791412204f56e141e2f4de14b526b64",
+            "reject": true,
+            "beforeBitmap": true,
+            "metadataOnly": true,
+            "source": {
+                "description": "Metadata-only first descriptor left=65535; never call a real decoder. LZW contains only the original1pixel."
+            }
+        },
+        {
+            "name": "oversized-first-height",
+            "base64": "R0lGODlhBAADAIEAAAAAAP8AAAD/AAAA/yH5BAQCAAAALAAAAAABAP//AAICTAEAOw==",
+            "bytes": 49,
+            "sha256": "511ceb9341cee40237cc0a7f0427671bcc040b049bcbd15c0c9d9424ecea9c43",
+            "reject": true,
+            "beforeBitmap": true,
+            "metadataOnly": true,
+            "source": {
+                "description": "Metadata-only first descriptor height=65535; never call a real decoder. LZW contains only the original1pixel."
+            }
+        }
+    ]
+}

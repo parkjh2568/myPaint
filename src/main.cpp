@@ -58,16 +58,8 @@ int main(int argc, char **argv) {
                                  QStringLiteral("이미 실행 중이거나 작업 폴더에 접근할 수 없습니다."));
         return 1;
     }
-    app.setStyle(QStyleFactory::create(QStringLiteral("Windows")));
-    QPalette palette;
-    palette.setColor(QPalette::Window, QColor(192, 192, 192));
-    palette.setColor(QPalette::Button, QColor(192, 192, 192));
-    palette.setColor(QPalette::Base, Qt::white);
-    palette.setColor(QPalette::WindowText, Qt::black);
-    palette.setColor(QPalette::Text, Qt::black);
-    palette.setColor(QPalette::Highlight, QColor(0, 0, 128));
-    palette.setColor(QPalette::HighlightedText, Qt::white);
-    app.setPalette(palette);
+    app.setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
+
     try {
         paint::MainWindow window;
         app.recover = [&window] { window.recoverAfterError(); };

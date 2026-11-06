@@ -1,0 +1,754 @@
+{
+  "date": "2026-11-05",
+  "status": "Three measured selection-performance costs addressed for explicit fixtures; overall production/migration gates remain open",
+  "scope": {
+    "mobileTablet": "Web only",
+    "nativePackages": [
+      "Windows",
+      "macOS"
+    ],
+    "noCommitPushDeployment": true
+  },
+  "issues": [
+    {
+      "severity": "Major",
+      "cost": "S",
+      "name": "Nearest per-output-pixel view/set churn and repeated axis arithmetic",
+      "evidence": "Frozen Node resize output0.75Mi/3Mi/12Mi before medians37.798/125.375/563.148ms. Public ordinary-web3Mi callback first142.2ms; one trace only.",
+      "fix": "Inside resizeState, one bounded Int32 X table per nearest operation, per-row Y index, raw aligned Uint32 copy with explicit source byteOffset and length, four-channel unaligned fallback. Smooth/padding bodies and mapping policy retained.",
+      "contracts": "Same ceil(center)-1 Qt map; all4 raw channels including alpha0 hiddenRGB, independent output and metadata; validation before allocation."
+    },
+    {
+      "severity": "Major",
+      "cost": "S",
+      "name": "Same rounded pointer size and release repeatedly allocate identical output",
+      "evidence": "One public512x384→2048x1536 trace: first move,3subpixel same-rounded moves and release each construct12,582,912B output. Five requests62,914,560B cumulative; repeated callback costs127–141ms before.",
+      "fix": "Inside pointerMove, skip only resample/assignment when width and height already match current. Keep both size validations, drag.last, source/base/modified restore rules and draw/Up/cancel flow.",
+      "regression": "Same final test on frozen word-only app records[1,1,1,1,1] and fails the allocation assertion; final records[1,0,0,0,0], changed-target return and cleanNoOp/oldRedo preserved."
+    },
+    {
+      "severity": "Major performance risk",
+      "cost": "M",
+      "name": "Dense even-odd mask rows repeatedly sort active intersections",
+      "evidence": "Repeated frozen Node1Mi mask kernel dense2048 baseline110.064ms. Paired protocol before98.997→final23.775ms; not a measured physical lasso-up latency.",
+      "fix": "Inside polygonMask, rows with even active count>=64 and>=width/2 XOR identical floored/clamped column endpoints in a lazy width+1 byte bucket, then fill half-open runs. Sparse/odd rows keep original sort/pair path.",
+      "contracts": "Preclip,26.6/16.16 quantization, edge activation/advance/retire, original points and complete mask remain identical. No point decimation or viewport splitting."
+    }
+  ],
+  "architecture": {
+    "sourceFilesChanged": [
+      "web-app/src/engine/operations.ts",
+      "web-app/src/main.ts"
+    ],
+    "functionsChanged": [
+      "polygonMask",
+      "resizeState",
+      "Studio.pointerMove"
+    ],
+    "helpersAdded": 0,
+    "dependenciesAdded": 0,
+    "APIFormatRustChanged": false,
+    "audit": {
+      "path": "build-web-work/task-planning/selection-performance/static-review/method-review.json",
+      "sha256": "fa193fb30262118696b1b8d49cef951ee0cfc4d75b2f13211545c87dd312b9de"
+    },
+    "graph": {
+      "path": "build-web-work/task-planning/selection-performance/static-review/module-graph.json",
+      "sha256": "203fcb1d0a99a93206fcc573839a522ae626492b4d7feac933668b6b48235edc"
+    },
+    "architectInitial": {
+      "path": "build-web-work/task-planning/selection-performance/architect-initial/review.json",
+      "sha256": "9484dc75df8e58d2d8c351a3cb9779c1853115d5993961a5e0b2d1904c199b52"
+    },
+    "architectFinal": {
+      "path": "build-web-work/task-planning/selection-performance/architect-final/review.json",
+      "sha256": "75211ada369817705f3eb15ceb9250e8b083f378da82f43c933bf2587013aadd"
+    },
+    "reviewerFinal": {
+      "path": "build-web-work/task-planning/selection-performance/reviewer/final-candidate-review.json",
+      "sha256": "7dcf11bd233eb8923fd81258986f7c4a3d95cadbef03ceec38675a13f115d100"
+    },
+    "repeatTestReview": {
+      "path": "build-web-work/task-planning/selection-performance/reviewer/repeat-target-test-review.json",
+      "sha256": "2874da9b4b4012912920fb2e1c396307a1c03c42836b4b5682bf3b5cf9277ab1"
+    }
+  },
+  "correctness": {
+    "oldQtMasks": {
+      "cases": 871,
+      "scope": "Old sparse-path preservation; all existing fixtures have fewer than64vertices and do not exercise new dense branch."
+    },
+    "denseQt": {
+      "cases": 12,
+      "denseBranchCases": 11,
+      "denseRows": 110,
+      "fallbackRows": 30,
+      "raw": {
+        "path": "build-web-work/task-planning/selection-performance/architect-parity/qt-masks.json",
+        "sha256": "5ca29af8a51ca066a1dabd607c7bad5d68559b3857a8230bab2f9f39572ccca6"
+      },
+      "comparison": {
+        "path": "build-web-work/task-planning/selection-performance/architect-parity/results.json",
+        "sha256": "d6df40183b6ff9ce32b2cad6ac76967ea566e652754acf4b500ccdb2dac8ecb3"
+      },
+      "rowProof": {
+        "path": "build-web-work/task-planning/selection-performance/architect-parity/row-proof-results.json",
+        "sha256": "d1c100897b2db822d7a222507a289c50031f072050a060f9978105d5b969e5c3"
+      },
+      "review": {
+        "path": "build-web-work/task-planning/selection-performance/architect-parity/review.json",
+        "sha256": "eb8bdf83d2b689ecc81a9f69844bcf08e2e1d5fe8b0d9e9fa097943aae45e7e8"
+      },
+      "manifest": {
+        "path": "build-web-work/task-planning/selection-performance/architect-parity/manifest.json",
+        "sha256": "284b6c7ae11395bbfea168280475facd806b9d548dc66f266b9d8e999f2d082c"
+      },
+      "evenRowModels": 62076,
+      "oddGuardCounterexamples": 1,
+      "limits": "62076even row models include32768-wide endpoint properties; one separate odd65 defensive counterexample proves fallback necessity. These are not62076 actualQt/UI cases. Odd fallback preserves dangling-edge behavior. One far-XY fixture is sparse after clipping."
+    },
+    "prototype": {
+      "report": {
+        "path": "build-web-work/task-planning/selection-performance/parity-prototype/results.json",
+        "sha256": "ced6b9592e25170f1853c46e60e61fe2203bc0e3cd5d4078bfa7f96069663ab8"
+      },
+      "scope": "Root exploratory871 oldQt+120frozen-reference differential cases and in-process timings; not independent denseQt or formal paired performance evidence."
+    },
+    "newUnitBoundaries": "Qt2D axis maps across3layers and offsets0/1/2/3/4/8 with odd tail canaries; source/metadata independent output; desktop32768 lower tie/profile rejection; single Int32 map failure; denseQt12; actual max-width16384-edge retracing with one32769-byte bucket; workspace failure preserves input and first retry."
+  },
+  "verification": {
+    "core": {
+      "passed": 198,
+      "log": {
+        "path": "build-web-work/task-planning/selection-performance/node-final.log",
+        "sha256": "5d5900aab91340b6955a40c18b0e4e1917bed21486c37d45e8bcda342a2eda88"
+      }
+    },
+    "beforeSemanticNearest": {
+      "passed": 3,
+      "log": {
+        "path": "build-web-work/task-planning/selection-performance/baseline-nearest.log",
+        "sha256": "630e7705d0f791dbe126b7aca4f5695597f6eac8d3063befe252c36b72950696"
+      },
+      "scope": "New raw/offset/axis semantic tests against frozen pre-change implementation; allocation-failure test applies only to newly introduced workspace."
+    },
+    "publicMasked": {
+      "cases": 10,
+      "stages": 68,
+      "report": {
+        "path": "build-web-work/task-planning/selection-performance/masked-final/results.json",
+        "sha256": "ba6eedcaa8f533e7bac2cb6b7298b5447cae436937c19ef04e3a09f4183f0440"
+      },
+      "test": {
+        "path": "web-app/tests/masked-transform-contract.mjs",
+        "sha256": "946db712bf90ed7fda4cff64f7ac7892106109ff679eef0cec589b2c4b9ea7b5"
+      },
+      "negativeWordOnly": {
+        "path": "build-web-work/task-planning/selection-performance/repeat-baseline/results.json",
+        "sha256": "aafe07a8dd25719ac5782e0a7ed64ce5d6ecf663161776b8b90246d5cc927337"
+      },
+      "limits": "Synthetic public-event allocation case uses trusted down then synchronous dispatched move/up with constructor tracking disabled before rAF/Worker work. No timing/RSS claim. In baseline the failed allocation assertion skips payloadExact in that same stage; final raw/PNG exact is verified. Later baseline restore/NoOp/Redo stages still pass."
+    },
+    "existingSelection": {
+      "mask": 8,
+      "crop": 10,
+      "failures": 6,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/selection-performance/selection/results.json",
+          "sha256": "41451c07554559120995508a563cfebde90fe53dcc2b672a75363f412bc70ceb"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/crop/results.json",
+          "sha256": "68e6716a274947827f9a82c040f7a44f070dfe2dae46a3766fde613ce7b453d7"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/failure/results.json",
+          "sha256": "024f5a27df18ced54be9efec246eb5c02dd3a8095ed3cc5bb5126d006f1b6c3b"
+        }
+      ]
+    },
+    "existingSourcePaste": {
+      "source": 7,
+      "paste": 4,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/selection-performance/source/results.json",
+          "sha256": "8717267fcfdbd6ae4404f48517df8584fd9bd11c507040dc4f67bf16de8e3e2a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/paste/results.json",
+          "sha256": "a310e775a4c07262ea8b92d10495a427cde9aa00d30f1e77e43b180d8f3609c6"
+        }
+      ]
+    },
+    "existingWeb": {
+      "browserAndEditingStorageShear": 48,
+      "pending": 36,
+      "clipboard": 4,
+      "reports": [
+        {
+          "path": "build-web-work/task-planning/selection-performance/browser/results.json",
+          "sha256": "b7e3f3e8d42043c1320817c5dc672a8c32dad894fe3d6e41ae3ca75037887a19"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/browser/concurrency.json",
+          "sha256": "e6401e0d4891f6669276cd67534b245fbfca5c76d2246d217a24553c5fb995d5"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/editing.json",
+          "sha256": "71e3aee9b4591348afdbef58a245be86c1202f90d8ebbb7756a7e989d0de188a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/storage/results.json",
+          "sha256": "5eb2d6467b3401fc2fc520f7df6fe968ee8b5c4c7d65f02a1aedeb108baef34a"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/shear/results.json",
+          "sha256": "9fa0d5fd217f99dab4d3e9eb3135d09b9e2b92b2443914d8ce8ec342c6e5bfed"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/pending/results.json",
+          "sha256": "a1d9566a9da9162c2f2a5d88c31f779a01ef1dc06b2f5974b825e9cdf089c65b"
+        },
+        {
+          "path": "build-web-work/task-planning/selection-performance/clipboard/results.json",
+          "sha256": "8e5ced206f79e36f3276021f35a1c17d7a6b4f00144abbfda17368dff2432dc0"
+        }
+      ]
+    },
+    "legacyCTest": {
+      "tests": 5,
+      "log": {
+        "path": "build-web-work/task-planning/selection-performance/ctest.log",
+        "sha256": "9604d7afac86049a1b741217c5499d3c9ba04956b692df549f46d095a446c3df"
+      },
+      "scope": "Existing relocated native build, unchanged C++ this phase: web_stage/core/allocation_failure/offscreen smoke/ui. Not a rebuild claim or TypeScript substitute."
+    },
+    "WKDiagnostic": {
+      "cases": 4,
+      "denseQtSubcases": 12,
+      "report": {
+        "path": "build-web-work/task-planning/selection-performance/native-probe/results.json",
+        "sha256": "996a83bc487674b862be17f45ba0a3e8643125f5b59d268876a94f6d101bb2c5"
+      },
+      "overlay": {
+        "path": "build-web-work/task-planning/selection-performance/native-probe/overlay.json",
+        "sha256": "3742e8de970e64cd5114210068c754a4d7a3c5f5169a82371b516e43c9c07579"
+      },
+      "sources": {
+        "path": "build-web-work/task-planning/selection-performance/native-probe/source.json",
+        "sha256": "672e44e3969cf0583357337e76581260abfe4060669c7e6737d3954b4d58d49f"
+      },
+      "assets": {
+        "path": "build-web-work/task-planning/selection-performance/native-probe/assets.json",
+        "sha256": "35f5ba400247854a02d9a2edd366d7ff3ba02bf8874fc49d52280b172f95518c"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/selection-performance/native-probe/app.json",
+        "sha256": "af0cdbf38207ce17689d661ae841df356e372933fde42e5a7f5dee50e18e9647"
+      },
+      "scope": "Root temporary actual WK engine denseQt12/max-width/6 raw offset cases×3layers/direct Studio pointer identity and history. Synthetic owned-state correctness; not public native gestures, OS/physical/performance/RSS acceptance. Ordinary smoke suffix byte-exact."
+    },
+    "macOSOrdinary": {
+      "phasesPassed": 4,
+      "sceneChecks": 21,
+      "binarySHA256": "ec67b3227f103f6e2192a82443845ec041471dce3804539d1944e3eabfbbcd22",
+      "report": {
+        "path": "build-web-work/task-planning/selection-performance/native-desktop.json",
+        "sha256": "afdbdc65e0a64f0da64e5e05ae945b908bdfd0197cd4f85ec41a3100dc76c7d1"
+      },
+      "foreground": {
+        "path": "build-web-work/task-planning/selection-performance/native-desktop.json.foreground.json",
+        "sha256": "02b80dc17d0626bd5ff66ecfff40bc715551aab7db0e24bf4784a79e6093c429"
+      },
+      "app": {
+        "path": "build-web-work/task-planning/selection-performance/final-app.json",
+        "sha256": "0b07a4cc2936b816c844c54c8944ccee6631af1ac1a70bb6131abc580e73c2c5"
+      },
+      "scope": "Standard final app without overlay, isolated recovery/codec/quit/scene with original assertions/activation adapter. OS chooser/clipboard, physical input and signing remain separate."
+    },
+    "format": {
+      "path": "build-web-work/task-planning/selection-performance/format-check.log",
+      "sha256": "2f73ccc5f6167175b82811684efaded2ef7a76b16cc07e3c3dfac72a63701fae"
+    },
+    "webBuild": {
+      "path": "build-web-work/task-planning/selection-performance/build-final.log",
+      "sha256": "ad736809474d65a223644e680f286ee8d6a9deee754595fa3ba4454b1feb8e6c"
+    },
+    "desktopBuild": {
+      "path": "build-web-work/task-planning/selection-performance/desktop-build.log",
+      "sha256": "791d62efdb333fa263bd20a05631d0eda635417345855c3de0bc320a906532eb"
+    },
+    "standardRestore": {
+      "path": "build-web-work/task-planning/selection-performance/desktop-restore.log",
+      "sha256": "6adb7375a4288d71b52ca3734c737db98abd449a56dc73635e4d892f8990ebc2"
+    }
+  },
+  "performance": {
+    "independentSummary": {
+      "path": "build-web-work/task-planning/selection-performance/sre/final-summary.json",
+      "sha256": "c730f271ba2687762e8284d6d97eeab9e8d39a63b2ef5bed0bb3616d239817f2"
+    },
+    "preflight": {
+      "path": "build-web-work/task-planning/selection-performance/sre/preflight/summary.json",
+      "sha256": "4cc0f00e7edebefad681a8d7ef67541c9770ad6cd654d62a56c73ee9f289a7ed"
+    },
+    "beforeNode": {
+      "path": "build-web-work/task-planning/selection-performance/sre/baseline/summary.json",
+      "sha256": "518b443a134774aa2fdcdb0cafbb744fac76de343785a4ca2e5ccfc9ef0b789d"
+    },
+    "wordNode": {
+      "path": "build-web-work/task-planning/selection-performance/sre/word-results/summary.json",
+      "sha256": "b22128d4021d2d2a31ff0c964f8ba77f5a80fab355706f0ed898c53bc30fc7a7"
+    },
+    "pairedMask": {
+      "path": "build-web-work/task-planning/selection-performance/sre/mask-paired/summary.json",
+      "sha256": "3b5932f568dea70c75a2e089fa637d7f3535f4f52b6e4d0a0e0b1c164c5b71eb"
+    },
+    "ordinaryWebUI": {
+      "tracesPerVersion": 1,
+      "driverSHA256": "8a797998d05e15d456c712a6aa847751d546712721af646c26d541e76a60d933",
+      "trace": "Whole512x384 source selected, one move to2048x1536 plus3subpixel moves rounding to same dimensions, thenpointerup; DPR1/profileweb.",
+      "rows": {
+        "before": {
+          "syncCallbackWallSumMs": 675.2000000476837,
+          "rafWallSumMs": 100.60000002384186,
+          "largeOutputRequests": 5,
+          "largeOutputBytesCumulative": 62914560,
+          "putImageDataCalls": 30,
+          "completionAfterTraceStartMs": 827,
+          "max10msSentinelGap": 180.10000002384186
+        },
+        "word": {
+          "syncCallbackWallSumMs": 49.90000009536743,
+          "rafWallSumMs": 102.19999992847443,
+          "largeOutputRequests": 5,
+          "largeOutputBytesCumulative": 62914560,
+          "putImageDataCalls": 30,
+          "completionAfterTraceStartMs": 187.10000002384186,
+          "max10msSentinelGap": 50.5
+        },
+        "final": {
+          "syncCallbackWallSumMs": 20.200000166893005,
+          "rafWallSumMs": 29.299999952316284,
+          "largeOutputRequests": 1,
+          "largeOutputBytesCumulative": 12582912,
+          "putImageDataCalls": 6,
+          "completionAfterTraceStartMs": 112.70000004768372,
+          "max10msSentinelGap": 59.799999952316284
+        }
+      },
+      "before": {
+        "path": "build-web-work/task-planning/selection-performance/sre/ui-before-fixed/results.json",
+        "sha256": "7ed0291ab3b324afca9fe88db69388a41b6b6b0df0cebd6048e23ea8f4af72ba"
+      },
+      "word": {
+        "path": "build-web-work/task-planning/selection-performance/sre/ui-word/results.json",
+        "sha256": "43482fe042fd4de8e68a5f137c9f701e5e60c76b6ae7578b3497a13b76b2c81e"
+      },
+      "final": {
+        "path": "build-web-work/task-planning/selection-performance/sre/ui-final/results.json",
+        "sha256": "99aff25c739a11ef673eaebf7b25a716bee4073fb5bf52557a7543f3b4a0a065"
+      },
+      "allAuthorityCopiedRawFramesFixtureGeometryEqual": true,
+      "environment": "Chrome/CDP reports AppleM1Pro ANGLE Metal and enabled2DCanvas/GPU compositing/rasterization; each Canvas hardware persistence/physical display is not proved by capability flags.",
+      "limits": "n1/variant fixed DPR1/profileweb, rawframe1072x910 and3Mi selection; API wall includes instrumentation, nested putImageData cost is already inside rAF and must not be added. Final max10ms sentinel59.8ms is worse than word50.5ms. No global50ms/p95/physical/WK/Safari/Android/RSS acceptance."
+    },
+    "nearestNode": {
+      "beforeMediansMs": [
+        37.798,
+        125.375,
+        563.148
+      ],
+      "wordMediansMs": [
+        26.919,
+        17.011,
+        24.112
+      ],
+      "outputPixelsMi": [
+        0.75,
+        3,
+        12
+      ],
+      "samplesPerSide": 4,
+      "warmups": 2,
+      "smallAPI1x1MedianMs": {
+        "before": 0.0278,
+        "word": 0.0378
+      },
+      "unaligned3MiWordMedianMs": 29.117,
+      "limits": "Actual frozen functions; full golden/source exact, hashes/GC/setup outside timed call, output and X table allocation inside.0.75Mi word range2.444–34.194ms has large variation; small API control regresses. Max32Mi desktop output is unmeasured. Final nearest body is byte-exact to measured word variant, with integrated finalUI measured separately."
+    },
+    "maskPaired": {
+      "samples": 40,
+      "samplesPerSide": 4,
+      "warmups": 2,
+      "rows": [
+        {
+          "name": "degenerate-P2048-N1Mi",
+          "class": "ordinary",
+          "N": 1048576,
+          "P": 2048,
+          "stats": {
+            "before": {
+              "minMs": 0.034458000000000766,
+              "medianMs": 0.03624999999999545,
+              "maxMs": 0.7553340000000048
+            },
+            "after": {
+              "minMs": 0.035499999999984766,
+              "medianMs": 0.4006454999999818,
+              "maxMs": 0.8027919999999824
+            }
+          },
+          "allMs": {
+            "before": [
+              0.7553340000000048,
+              0.034458000000000766,
+              0.036457999999981894,
+              0.03604200000000901
+            ],
+            "after": [
+              0.7621659999999792,
+              0.8027919999999824,
+              0.03912499999998431,
+              0.035499999999984766
+            ]
+          },
+          "goldenSha256": "30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58",
+          "sourcePointsSha256": "042ecf719db724ddd94d96423ad8435ae91afad2c39c236a320bd6b4e94eb155",
+          "allocation": [
+            {
+              "side": "before",
+              "constructors": {
+                "Uint8Array": 1
+              },
+              "bufferByteLengths": [
+                1048576
+              ],
+              "newTypedBackingBytes": 1048576,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            },
+            {
+              "side": "after",
+              "constructors": {
+                "Uint8Array": 1
+              },
+              "bufferByteLengths": [
+                1048576
+              ],
+              "newTypedBackingBytes": 1048576,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            }
+          ],
+          "rawPath": "/private/tmp/mypaint-selection-performance-sre-20261105/mask-paired/degenerate-P2048-N1Mi/results.json",
+          "rawSha256": "4a81fdaee8759b5f74a8d71cb94c8837733d41be17e4526514c4596bb5342266"
+        },
+        {
+          "name": "monotone-P4-N1Mi",
+          "class": "ordinary",
+          "N": 1048576,
+          "P": 4,
+          "stats": {
+            "before": {
+              "minMs": 0.22891599999999812,
+              "medianMs": 0.25843749999999943,
+              "maxMs": 0.2942079999999976
+            },
+            "after": {
+              "minMs": 0.5287499999999739,
+              "medianMs": 0.5747499999999945,
+              "maxMs": 0.6616659999999968
+            }
+          },
+          "allMs": {
+            "before": [
+              0.2942079999999976,
+              0.23312500000000114,
+              0.2837499999999977,
+              0.22891599999999812
+            ],
+            "after": [
+              0.6616659999999968,
+              0.616250000000008,
+              0.5332499999999811,
+              0.5287499999999739
+            ]
+          },
+          "goldenSha256": "8f3b613fdc075c41b02c799b22fdf452a5762dde7199b3013a5aa2dd8abbdd77",
+          "sourcePointsSha256": "bfb02893fd06c2fe6e6c3cc8d751eb74969e034c921415ec066f210423286274",
+          "allocation": [
+            {
+              "side": "before",
+              "constructors": {
+                "Uint8Array": 1
+              },
+              "bufferByteLengths": [
+                1048576
+              ],
+              "newTypedBackingBytes": 1048576,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            },
+            {
+              "side": "after",
+              "constructors": {
+                "Uint8Array": 1
+              },
+              "bufferByteLengths": [
+                1048576
+              ],
+              "newTypedBackingBytes": 1048576,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            }
+          ],
+          "rawPath": "/private/tmp/mypaint-selection-performance-sre-20261105/mask-paired/monotone-P4-N1Mi/results.json",
+          "rawSha256": "e02c3068daecb06815e4956dbfb2acab08ab029b8f5c6694c1f6b1fa2be80136"
+        },
+        {
+          "name": "active-dense-P128-N1Mi",
+          "class": "dense",
+          "N": 1048576,
+          "P": 128,
+          "stats": {
+            "before": {
+              "minMs": 7.33937499999999,
+              "medianMs": 7.432562500000003,
+              "maxMs": 7.530375000000021
+            },
+            "after": {
+              "minMs": 7.439750000000004,
+              "medianMs": 7.631937499999992,
+              "maxMs": 7.973917
+            }
+          },
+          "allMs": {
+            "before": [
+              7.530375000000021,
+              7.510999999999996,
+              7.33937499999999,
+              7.3541250000000105
+            ],
+            "after": [
+              7.707249999999988,
+              7.973917,
+              7.439750000000004,
+              7.556624999999997
+            ]
+          },
+          "goldenSha256": "3350b205f1f471db04cc544dbdfee9420903bde0cd5c09ecd49058f63e828f62",
+          "sourcePointsSha256": "4a43f1cbc119c0b16aa3af259ad30911cc1c2e908456a100ff5ac3b26022ecbd",
+          "allocation": [
+            {
+              "side": "before",
+              "constructors": {
+                "Uint8Array": 1
+              },
+              "bufferByteLengths": [
+                1048576
+              ],
+              "newTypedBackingBytes": 1048576,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            },
+            {
+              "side": "after",
+              "constructors": {
+                "Uint8Array": 1
+              },
+              "bufferByteLengths": [
+                1048576
+              ],
+              "newTypedBackingBytes": 1048576,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            }
+          ],
+          "rawPath": "/private/tmp/mypaint-selection-performance-sre-20261105/mask-paired/active-dense-P128-N1Mi/results.json",
+          "rawSha256": "e3a7933131c40433e293a9c87e06a5c4cbe27683132ca07def696cc815bc2986"
+        },
+        {
+          "name": "active-dense-P512-N1Mi",
+          "class": "dense",
+          "N": 1048576,
+          "P": 512,
+          "stats": {
+            "before": {
+              "minMs": 24.47275000000002,
+              "medianMs": 24.523124499999966,
+              "maxMs": 24.639707999999985
+            },
+            "after": {
+              "minMs": 14.411207999999988,
+              "medianMs": 14.584999999999994,
+              "maxMs": 14.792000000000002
+            }
+          },
+          "allMs": {
+            "before": [
+              24.559082999999987,
+              24.47275000000002,
+              24.487165999999945,
+              24.639707999999985
+            ],
+            "after": [
+              14.792000000000002,
+              14.7055,
+              14.411207999999988,
+              14.464499999999987
+            ]
+          },
+          "goldenSha256": "f0aa2d43855add5e69b86cf3dc8a0c7fdad1caf6fd0536b91a246428fb3a4a82",
+          "sourcePointsSha256": "75a4cb4b1d2f6e58b394f4a7bb29b03cad86cefdf47072645049342a9c16a6a6",
+          "allocation": [
+            {
+              "side": "before",
+              "constructors": {
+                "Uint8Array": 1
+              },
+              "bufferByteLengths": [
+                1048576
+              ],
+              "newTypedBackingBytes": 1048576,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            },
+            {
+              "side": "after",
+              "constructors": {
+                "Uint8Array": 2
+              },
+              "bufferByteLengths": [
+                1048576,
+                1025
+              ],
+              "newTypedBackingBytes": 1049601,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            }
+          ],
+          "rawPath": "/private/tmp/mypaint-selection-performance-sre-20261105/mask-paired/active-dense-P512-N1Mi/results.json",
+          "rawSha256": "e248f3b45503dcf3b1895c423adee0878ff1612145aa88012636f3e8ad6a52c0"
+        },
+        {
+          "name": "active-dense-P2048-N1Mi",
+          "class": "dense",
+          "N": 1048576,
+          "P": 2048,
+          "stats": {
+            "before": {
+              "minMs": 90.91020800000001,
+              "medianMs": 98.99712499999998,
+              "maxMs": 108.80379200000004
+            },
+            "after": {
+              "minMs": 23.314333999999917,
+              "medianMs": 23.775041499999986,
+              "maxMs": 34.489417
+            }
+          },
+          "allMs": {
+            "before": [
+              103.91116699999998,
+              108.80379200000004,
+              90.91020800000001,
+              94.08308299999999
+            ],
+            "after": [
+              34.489417,
+              23.744625000000042,
+              23.80545799999993,
+              23.314333999999917
+            ]
+          },
+          "goldenSha256": "d573cc505e5f7746d22ed7416bfca2ad4e4a3defa5f115de315f772fbe305d4f",
+          "sourcePointsSha256": "3b01c8f3bbb15bc34a778b0fefd6536578676885fc2dddbf210adc9c26cc0235",
+          "allocation": [
+            {
+              "side": "before",
+              "constructors": {
+                "Uint8Array": 1
+              },
+              "bufferByteLengths": [
+                1048576
+              ],
+              "newTypedBackingBytes": 1048576,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            },
+            {
+              "side": "after",
+              "constructors": {
+                "Uint8Array": 2
+              },
+              "bufferByteLengths": [
+                1048576,
+                1025
+              ],
+              "newTypedBackingBytes": 1049601,
+              "scope": "Untimed explicit observed typed constructors/backing only; excludes plainJS edge/active arrays andsort internals/GC/RSS. Golden reference1MiB held equally for both sides is verification-only."
+            }
+          ],
+          "rawPath": "/private/tmp/mypaint-selection-performance-sre-20261105/mask-paired/active-dense-P2048-N1Mi/results.json",
+          "rawSha256": "c6a93a1910683f6deb20c09486f26294e72fc7ef127bfaff83fde2979e377919"
+        }
+      ],
+      "protocol": "Separatechild10s watchdog perfixture, same immutablepoints/golden, warm2/side and4AB/BA samples/side, explicitGC/check/hash outsidecall.1MiB verificationgold held equally forboth; not productmemory.",
+      "limits": "Separate10s child perfixture, AB/BA, one verification golden1Mi held equally outside product. Ordinary degenerate median.036→.401ms, monotone.258→.575ms andactive1287.433→7.632ms regress/are variable; dense51224.523→14.585ms and204898.997→23.775ms improve. No universal no-regression/stable ratio/UI/RSS claim."
+    }
+  },
+  "memory": {
+    "accounting": {
+      "path": "build-web-work/task-planning/selection-performance/sre/allocation.json",
+      "sha256": "4c1d2fbab55dd323484b4a0a9e5a85b6523f4aa0572c72afc0940e0991f9d5bb"
+    },
+    "nearest": "Output4*R remains; one X table4*W <=128KiB desktop/16KiB web is added. Aligned2Uint32views/layer share source/output backing. Untimed64x48→256x192 observes49,152subarray/set calls before and0 after. These were source-sharing JS view objects, not49,152independent4-byte backing stores. Object sizes/GC/RSS unmeasured.",
+    "mask": "Original maskS plus lazy dense-row width+1 workspace <=32769desktop/4097web bytes; sparse calls allocate no column table. Edge/active JS arrays, sort internals and all caller/Canvas/cache memory are separate.",
+    "UI": "LargeRGBA constructor requests62,914,560→12,582,912B across the fixed trace are cumulative, not peak/live/RSS or all application allocations. ImageData/Canvas/GPU copies and old references may coexist. Backing/current/original selection alias rules stay unchanged."
+  },
+  "snapshots": {
+    "beforeSource17": {
+      "path": "build-web-work/task-planning/selection-performance/before-source.json",
+      "sha256": "716a477c6da7f35d644c88337d15033272ce2d95c036256213b04e0fe3757572"
+    },
+    "wordSource17": {
+      "path": "build-web-work/task-planning/selection-performance/word-source.json",
+      "sha256": "eff488b7317db03d470b9bb08f8da9beaea84d1de2939ae0871baabc5ed69ccf"
+    },
+    "finalSource17": {
+      "path": "build-web-work/task-planning/selection-performance/final-source.json",
+      "sha256": "8fb905fffbb2838ea552575a7b743f1374d65a699d8c7d10ef5bbce3af720202"
+    },
+    "beforeAssets8": {
+      "path": "build-web-work/task-planning/selection-performance/before-assets.json",
+      "sha256": "d82ff5a59c07a02b9da2dd1c09ca241bfbd53eadaa3bbe8a67149eb0de1ebded"
+    },
+    "wordAssets8": {
+      "path": "build-web-work/task-planning/selection-performance/word-assets.json",
+      "sha256": "1af88b25c394ab305f1123dd0048fc2515e3edddc920e96775e95f042a37ef1a"
+    },
+    "finalAssets8": {
+      "path": "build-web-work/task-planning/selection-performance/candidate-assets.json",
+      "sha256": "7570041daddb87eaa6dea92b9a8e6d8c6e69a7c1b0f16a5a48f53ce9c73ae34b"
+    },
+    "testsAndCI9": {
+      "path": "build-web-work/task-planning/selection-performance/final-tests.json",
+      "sha256": "9f9057db5d322da72921589103ff8c71f91b6d992b4c6d0683a38b1ec6f90304"
+    },
+    "frontend": 14,
+    "rust": 3
+  },
+  "diagnosticNotes": [
+    "Initial UI filechooser Uint8Array-as-buffer serialization failed before measurement:0validsamples, terminated Chrome. Actual fixture path fixed in separate before-fixed output; not a product regression.",
+    "Prototype driver initially lacked ESM package scope for frozen before-src; static import failed before tests/timing. Phase type:module corrected after terminal exit1; raw error preserved.",
+    "Prototype dense timings are exploratory and not substituted for independent paired40samples. Old871 fixtures do not cover new dense branch.",
+    "Cumulative constructors/typed views/explicit backings are not process peak/RSS/physical-latency metrics."
+  ],
+  "cleanup": {
+    "path": "build-web-work/task-planning/selection-performance/cleanup.json",
+    "sha256": "31e526986578026c0f993ab03e45e724452a8bcd6f9c6de00118ade1e9eb7ca1"
+  },
+  "openGates": [
+    "Large new handle dimensions still compute synchronously; nondegenerate very large paths/preview full-path replay and task cancellation responsiveness require bounded/Worker investigation. Do not split mask into independently clipped viewports: prior actualQt8viewport counterexamples remain.",
+    "Maximum32Mi output, worst paths, long-session/peak/live/RSS and global50ms/p95/physical input remain unaccepted.",
+    "Matched-DPR WK checker/camera/mip, broad/disjoint dirty and remaining explicitF01–F10/17tool mixed-alpha/key/device permutations.",
+    "Actual Android web/Safari/Windows executable, OS clipboard/picker/IME and disk/atomic-replacement failures.",
+    "Remote CI/signing/notarization and safe homepage staging/rollback/public release; no mobile native projects.",
+    "Repeated independent PNG test readers remain a shared-semantics cleanup candidate; production decoders must stay independent of pixel oracles."
+  ]
+}
