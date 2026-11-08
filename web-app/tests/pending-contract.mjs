@@ -101,15 +101,11 @@ async function capture(page) {
     );
     const value = await page.evaluate(async () => {
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        const canvas = document.querySelector('.workspace canvas');
-        const rendered = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
-        const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', rendered));
         const editor = document.querySelector('.text-editor');
         return {
             state: window.pendingTrace,
             preview: window.pendingPreview,
             bytes: Array.from(window.__myPaintPersistenceTest.writes.at(-1).bytes),
-            frame: Array.from(digest),
             title: document.title,
             pendingTitle: document.querySelector('.title').textContent,
             active: document.querySelector('.layer-row.selected .name').textContent,
@@ -126,6 +122,14 @@ async function capture(page) {
                 : null,
         };
     });
+    // Observe the presented canvas area, including DOM editing overlays, without
+    // getImageData readbacks that can switch Chromium from GPU to CPU rendering.
+    // Compare decoded pixels, not PNG encoding, and hide only the blinking caret.
+    const canvas = page.locator('.workspace canvas');
+    const bounds = await canvas.boundingBox();
+    const frame = decodePng(await canvas.screenshot({ caret: 'hide' }), desktopLimits);
+    assert.deepEqual(await canvas.boundingBox(), bounds, 'Frame capture must not move the viewport');
+    value.frame = { width: frame.width, height: frame.height, sha256: hash(frame.pixels) };
     assert(value.state, 'The export must produce a fresh Worker input observation');
     const decoded = decodePng(Uint8Array.from(value.bytes), desktopLimits);
     assert.equal(decoded.width, value.state.width);

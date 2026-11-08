@@ -54,3 +54,7 @@ node --import tsx tools/benchmark-composite.ts > /tmp/composite.json
 - PNG에서는 바탕색 입력이 비활성이라는 계약을 테스트에 반영한다. 한 픽셀 높이 문서는 400% 이상 확대하고 실제 문서 내부 좌표·canvas hit target을 검증하여 경계 hit-test 반올림에 의존하지 않는다.
 - Shift 직선은 정확한 8방향으로 길이를 보존해 snap한다. 대각선의 두 성분은 동일 값을 사용하고 축 방향의 다른 성분은 0이다. 브라우저 회귀는 antialias 경계 bounding box의 대칭 대신 독립된 정확한 45도 Canvas 경로의 전체 픽셀을 비교한다. 사각형·타원의 정사각형 bounds 검증은 유지한다.
 - GitHub가 `macos-14-arm64-us-default`를 지원하지 않아 실행 전에 취소한 두 workflow를 `macos-15`로 갱신했다. 실제 Qt 세 플랫폼과 Studio macOS 빌드 성공을 확인했지만 이후 커밋의 검증 상태는 PR의 해당 SHA checks를 따르며 과거 성공을 재사용하지 않는다.
+- 브라우저 34개 suite는 독립 그룹에서 모두 실행하고 하나라도 실패하면 CI를 실패시킨다. 앞선 실패가 뒤의 계약 검증을 숨기지 않으며 긴 pending/scene 회귀를 다른 선택 테스트와 분리한다.
+- 입력 fixture는 backing-store X/Y 반올림 비율 대신 실제 CSS 문서 bounds와 canvas hit target을 사용한다. 실제 페이지 pinch/pan은 CDP touchStart/move/end로 수행하며 VisualViewport offset과 footer 입력·PNG 결과를 검증한다.
+- 반복 `getImageData` 관측은 Chromium의 GPU→CPU 전환을 유발할 수 있다. pending의 화면 유지 검증은 사용자에게 표시된 canvas 영역(겹친 DOM 편집기 포함)을 screenshot으로 관찰하고, caret만 숨긴 뒤 decoded RGBA와 크기를 엄격 비교한다. raw 문서·PNG·이력·취소 계약은 별도로 유지한다.
+- 타일의 byte-exact oracle은 CPU readback context로 고정한다. 제품 GPU 경로는 그대로이며, 독립 GPU full/split clip 진단은 브라우저 rasterization 차이를 별도 보고한다. 실제 mip 업로드 bytes는 독립 box 평균과 전수 비교한다. 이 검증은 GPU/CPU 또는 서로 다른 clip 분할의 antialias 픽셀이 항상 같다는 보장이 아니다.

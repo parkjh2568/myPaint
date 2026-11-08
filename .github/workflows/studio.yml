@@ -18,7 +18,11 @@ jobs:
           - group: viewport
             suites: test:touch-viewport test:camera-viewport test:recovery-contract test:codec-reply test:alpha-contract
           - group: selection
-            suites: test:selection-preparation test:selection-resize test:selection-contract test:selection-source test:masked-transform test:fill-key test:cut-key test:eraser-picker-contract test:square-contract test:pending-contract test:clipboard-contract test:tiles test:scene-contract
+            suites: test:selection-preparation test:selection-resize test:selection-contract test:selection-source test:masked-transform test:fill-key test:cut-key test:eraser-picker-contract test:square-contract test:clipboard-contract
+          - group: pending
+            suites: test:pending-contract
+          - group: raster
+            suites: test:tiles test:scene-contract
     name: web (${{ matrix.group }})
     runs-on: ubuntu-24.04
     timeout-minutes: 25

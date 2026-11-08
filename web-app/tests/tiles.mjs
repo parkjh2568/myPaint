@@ -37,7 +37,14 @@ const server = await createServer({
     server: { host: '127.0.0.1', port: 8941, strictPort: true, fs: { allow: [snapshot, root] } },
     logLevel: 'warn',
 });
-const report = { sources, snapshot, checks: [], pageErrors: [] };
+const report = {
+    sources,
+    snapshot,
+    pixelOracleBackend: 'CPU Canvas2D (willReadFrequently:true); byte-exact comparisons',
+    gpuProbeScope: 'Independent browser rasterization diagnostics only; not GPU byte identity guarantees',
+    checks: [],
+    pageErrors: [],
+};
 let browser, watchdog;
 try {
     await server.listen();
@@ -102,8 +109,12 @@ try {
             });
         }
         function surface(width, height) {
+            // Byte-exact pixel oracles require a deterministic raster backend.
+            // Chromium GPU coverage can round an identical fractional outer edge
+            // differently when a draw/clip span is split (see independent probes).
+            // Keep production surfaces unchanged; GPU probes below opt in explicitly.
             const canvas = new OriginalCanvas(width, height),
-                context = canvas.getContext('2d');
+                context = canvas.getContext('2d', { willReadFrequently: true });
             if (!context) throw Error('No reference 2D context');
             return { canvas, context };
         }
@@ -240,13 +251,49 @@ try {
                 'Browser clip diagnostic full source, split clip CPU=' + readFrequently,
                 render(true, false),
                 reference,
-                { informational: true },
+                { informational: !readFrequently },
             );
             await compare(
                 'Browser clip diagnostic tiled source, split clip CPU=' + readFrequently,
                 render(true, true),
                 reference,
-                { informational: true },
+                { informational: !readFrequently },
+            );
+            // Independent fractional nearest-neighbor outer-edge probe, without
+            // PixelTileCache, mip generation, or the production tile implementation.
+            const rgba = pattern(1024, 560),
+                full = surface(1024, 560),
+                renderRgba = (tiled) => {
+                    const canvas = new OriginalCanvas(1200, 760),
+                        context = canvas.getContext('2d', { willReadFrequently: readFrequently });
+                    context.imageSmoothingEnabled = false;
+                    if (!tiled) context.drawImage(full.canvas, 3.25, 5.125);
+                    else
+                        for (let y = 0; y < 560; y += 510)
+                            for (let x = 0; x < 1024; x += 510) {
+                                const ox = Math.max(0, x - 1),
+                                    oy = Math.max(0, y - 1),
+                                    tile = surface(Math.min(1024, x + 511) - ox, Math.min(560, y + 511) - oy),
+                                    left = x ? Math.round(3.25 + x) : 3,
+                                    top = y ? Math.round(5.125 + y) : 5,
+                                    right = x + 510 >= 1024 ? 1028 : Math.round(3.25 + x + 510),
+                                    bottom = y + 510 >= 560 ? 566 : Math.round(5.125 + y + 510);
+                                tile.context.putImageData(new OriginalImage(rgba, 1024, 560), -ox, -oy);
+                                context.save();
+                                context.beginPath();
+                                context.rect(left, top, right - left, bottom - top);
+                                context.clip();
+                                context.drawImage(tile.canvas, 3.25 + ox, 5.125 + oy);
+                                context.restore();
+                            }
+                    return { canvas, context };
+                };
+            full.context.putImageData(new OriginalImage(rgba, 1024, 560), 0, 0);
+            await compare(
+                'Browser fractional RGBA diagnostic CPU=' + readFrequently,
+                renderRgba(true),
+                renderRgba(false),
+                { informational: !readFrequently },
             );
         }
         const width = 1024,
