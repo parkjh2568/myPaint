@@ -182,6 +182,28 @@ async function open(page, state, name, generation) {
         generation,
     );
 }
+// Use a stable interior point in the one-pixel row, preserving all fixture bytes.
+async function clickPixel(page, x) {
+    for (let step = 0; step < 16; step++) {
+        if (Number.parseInt(await page.locator('#zoom').textContent(), 10) >= 400) break;
+        await page.getByRole('button', { name: '확대', exact: true }).click();
+    }
+    await page.waitForFunction(
+        () => document.querySelector('.canvas-bounds').getBoundingClientRect().height >= 4,
+    );
+    const bounds = await page.locator('.canvas-bounds').boundingBox();
+    assert(bounds && bounds.width >= 32 && bounds.height >= 4);
+    const point = { x: bounds.x + ((x + 0.5) * bounds.width) / 8, y: bounds.y + bounds.height / 2 };
+    assert.equal(
+        await page.evaluate(
+            ({ x, y }) => document.elementFromPoint(x, y) === document.querySelector('.workspace canvas'),
+            point,
+        ),
+        true,
+        `Pixel ${x} must hit the canvas, not a resize handle or overlay`,
+    );
+    await page.mouse.click(point.x, point.y);
+}
 async function menu(page, name) {
     await page.getByRole('button', { name: '파일 및 편집 메뉴', exact: true }).click();
     await page.getByRole('dialog').getByRole('button', { name, exact: true }).click();
@@ -294,20 +316,15 @@ try {
                 window.__myPaintPersistenceTest?.generation === 1 && !document.querySelector('dialog[open]'),
         );
         await open(page, keyFixture, 'key.rpaint', 2);
-        let box = await page.locator('.workspace canvas').boundingBox(),
-            left = box.x + box.width / 2 - 4,
-            top = box.y + box.height / 2 - 0.5;
         await page.getByRole('button', { name: '스포이트', exact: true }).click();
-        await page.mouse.click(left + spec.pick + 0.5, top + 0.5);
+        await clickPixel(page, spec.pick);
         await page.getByRole('button', { name: '전경색 보조색 바꾸기', exact: true }).click();
         await open(page, fixture, 'layered.rpaint', 3);
         await page.getByLabel('HEX 색상', { exact: true }).fill('#1679ea');
         await page.getByLabel('HEX 색상', { exact: true }).press('Tab');
         await page.getByRole('button', { name: '연필', exact: true }).click();
-        box = await page.locator('.workspace canvas').boundingBox();
-        left = box.x + box.width / 2 - 4;
-        top = box.y + box.height / 2 - 0.5;
-        await page.mouse.click(left + 7.5, top + 0.5);
+        await clickPixel(page, 7);
+        assert.equal(await page.getByRole('button', { name: '실행 취소', exact: true }).isEnabled(), true);
         await page.getByRole('button', { name: '실행 취소', exact: true }).click();
         assert.deepEqual(await controls(page), { dirty: false, undo: false, redo: true });
         await page.locator('#transparent-selection').setChecked(spec.on);

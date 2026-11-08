@@ -231,17 +231,25 @@ try {
             await page.waitForFunction(
                 () => window.resizeTest.matrix && document.querySelector('canvas').dataset.ready === 'true',
             );
-            const geometry = await page.evaluate(() => {
-                const c = document.querySelector('.workspace canvas'),
-                    r = c.getBoundingClientRect(),
-                    m = window.resizeTest.matrix;
-                return {
-                    x: r.x + m[12] / (c.width / r.width),
-                    y: r.y + m[13] / (c.height / r.height),
-                    zoom: m[0] / (c.width / r.width),
-                };
-            });
-            await page.mouse.move(geometry.x + 63.5 * geometry.zoom, geometry.y + 63.5 * geometry.zoom);
+            // Input uses CSS camera coordinates, not independently rounded backing-store axes.
+            const bounds = await page.locator('.canvas-bounds').boundingBox();
+            assert(bounds && bounds.width > 0 && bounds.height > 0);
+            const geometry = { x: bounds.x, y: bounds.y, zoom: bounds.width / 64 };
+            assert(Math.abs(bounds.width - bounds.height) < 0.01);
+            const corner = {
+                x: geometry.x + 62 * geometry.zoom,
+                y: geometry.y + 62 * geometry.zoom,
+            };
+            assert.equal(
+                await page.evaluate(
+                    ({ x, y }) =>
+                        document.elementFromPoint(x, y) === document.querySelector('.workspace canvas'),
+                    corner,
+                ),
+                true,
+                'Selection resize must start inside the canvas, not on a document resize handle',
+            );
+            await page.mouse.move(corner.x, corner.y);
             await page.mouse.down();
             assert(await page.locator('.workspace canvas').evaluate((c) => c.hasPointerCapture(1)));
             await page.evaluate(

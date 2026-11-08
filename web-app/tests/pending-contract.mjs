@@ -404,6 +404,27 @@ try {
                     ].join('\n'),
                 });
                 console.error('FAIL', name, lines[0]);
+                if (error.actual && error.expected) {
+                    const changed = Object.keys(error.expected).filter(
+                        (key) => JSON.stringify(error.actual[key]) !== JSON.stringify(error.expected[key]),
+                    );
+                    console.error(
+                        'Pending snapshot differences',
+                        JSON.stringify(
+                            changed.map((key) => ({
+                                key,
+                                actual:
+                                    key === 'state'
+                                        ? hash(Buffer.from(JSON.stringify(error.actual[key])))
+                                        : error.actual[key],
+                                expected:
+                                    key === 'state'
+                                        ? hash(Buffer.from(JSON.stringify(error.expected[key])))
+                                        : error.expected[key],
+                            })),
+                        ),
+                    );
+                }
             } finally {
                 await context?.close();
             }
@@ -468,6 +489,27 @@ try {
                     ].join('\n'),
                 });
                 console.error('FAIL', name, lines[0]);
+                if (error.actual && error.expected) {
+                    const changed = Object.keys(error.expected).filter(
+                        (key) => JSON.stringify(error.actual[key]) !== JSON.stringify(error.expected[key]),
+                    );
+                    console.error(
+                        'Pending snapshot differences',
+                        JSON.stringify(
+                            changed.map((key) => ({
+                                key,
+                                actual:
+                                    key === 'state'
+                                        ? hash(Buffer.from(JSON.stringify(error.actual[key])))
+                                        : error.actual[key],
+                                expected:
+                                    key === 'state'
+                                        ? hash(Buffer.from(JSON.stringify(error.expected[key])))
+                                        : error.expected[key],
+                            })),
+                        ),
+                    );
+                }
             } finally {
                 await context?.close();
             }
