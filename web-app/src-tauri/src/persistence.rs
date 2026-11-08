@@ -1557,10 +1557,7 @@ mod tests {
             let path = root.path().join("drawing.rpaint");
             fs::write(&path, b"RPAINT01original").unwrap();
             let opened = s.register_open(&path).unwrap();
-            assert_eq!(
-                s.read_selected(&opened.token).unwrap(),
-                b"RPAINT01original"
-            );
+            assert_eq!(s.read_selected(&opened.token).unwrap(), b"RPAINT01original");
             if before_activation {
                 fs::write(&path, b"RPAINT01external").unwrap();
                 s.session
@@ -1573,8 +1570,7 @@ mod tests {
                     .stamp = stamp(&path).unwrap();
                 assert!(s.activate(2, "opened".into(), Some(opened.token)).is_err());
             } else {
-                s.activate(2, "opened".into(), Some(opened.token))
-                    .unwrap();
+                s.activate(2, "opened".into(), Some(opened.token)).unwrap();
                 fs::write(&path, b"RPAINT01external").unwrap();
                 s.session.lock().unwrap().binding.as_mut().unwrap().stamp = stamp(&path).unwrap();
                 let next = s.existing_save(2, true, false).unwrap().unwrap();
@@ -1595,7 +1591,13 @@ mod tests {
         .unwrap();
         let expected: [u8; 32] = Sha256::digest(b"RPAINT01original").into();
         assert_eq!(
-            s.session.lock().unwrap().binding.as_ref().unwrap().content_digest,
+            s.session
+                .lock()
+                .unwrap()
+                .binding
+                .as_ref()
+                .unwrap()
+                .content_digest,
             Some(expected)
         );
         fs::write(&path, b"RPAINT01external").unwrap();

@@ -42,8 +42,15 @@ node --import tsx tools/benchmark-composite.ts > /tmp/composite.json
 
 ## 로컬 검증
 
-- Node 단위/계약 테스트 329/329, 실패·skip 없음 (`node --import tsx --test tests/*.test.ts`).
+- Node 단위/계약 테스트 332/332, 실패·skip 없음 (`node --import tsx --test tests/*.test.ts`).
 - Python staging 27/27, Studio build 17/17.
 - Prettier, TypeScript, Vite 프로덕션 빌드 통과.
 - 위 합성 벤치마크의 네 workload 출력 비교 통과.
 - Rust toolchain이 없어 rustfmt·Clippy·native 테스트는 로컬 미실행. 실제 Windows/macOS, Qt CTest와 브라우저 통합 테스트도 로컬 미검증이다. 원격 CI와 플랫폼 인수 결과는 이 로컬 성공과 구분한다.
+
+## CI에서 발견해 추가한 보강
+
+- Windows의 같은 길이·같은 메타데이터 외부 덮어쓰기를 놓치지 않도록 수동 저장/열기 바인딩에 bounded SHA-256을 전파한다. 64KiB 버퍼, 기존 파일 300MiB 상한이며 recovery scan에 전수 해싱을 붙이지 않는다. 게시 핸들의 identity와 실제 쓴 bytes의 지문을 함께 유지한다. 마지막 검증과 OS 교체 사이의 비협조적 외부 writer까지 CAS로 막는 보장은 아니다.
+- PNG에서는 바탕색 입력이 비활성이라는 계약을 테스트에 반영한다. 한 픽셀 높이 문서는 400% 이상 확대하고 실제 문서 내부 좌표·canvas hit target을 검증하여 경계 hit-test 반올림에 의존하지 않는다.
+- Shift 직선은 정확한 8방향으로 길이를 보존해 snap한다. 대각선의 두 성분은 동일 값을 사용하고 축 방향의 다른 성분은 0이다. 브라우저 회귀는 antialias 경계 bounding box의 대칭 대신 독립된 정확한 45도 Canvas 경로의 전체 픽셀을 비교한다. 사각형·타원의 정사각형 bounds 검증은 유지한다.
+- GitHub가 `macos-14-arm64-us-default`를 지원하지 않아 실행 전에 취소한 두 workflow를 `macos-15`로 갱신했다. 실제 Qt 세 플랫폼과 Studio macOS 빌드 성공을 확인했지만 이후 커밋의 검증 상태는 PR의 해당 SHA checks를 따르며 과거 성공을 재사용하지 않는다.
