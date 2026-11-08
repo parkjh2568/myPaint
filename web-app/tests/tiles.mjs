@@ -40,7 +40,8 @@ const server = await createServer({
 const report = {
     sources,
     snapshot,
-    pixelOracleBackend: 'CPU Canvas2D (willReadFrequently:true); byte-exact comparisons',
+    pixelOracleBackend:
+        'CPU Canvas2D for every source, cache tile, and target (willReadFrequently:true); byte-exact comparisons',
     gpuProbeScope: 'Independent browser rasterization diagnostics only; not GPU byte identity guarantees',
     checks: [],
     pageErrors: [],
@@ -69,6 +70,35 @@ try {
             OriginalImage = ImageData,
             surfaces = [],
             checks = [];
+        const originalOffscreenGetContext = OriginalCanvas.prototype.getContext,
+            originalHtmlGetContext = HTMLCanvasElement.prototype.getContext;
+        let cpuContextRequests = 0;
+        // Fix the backend for the entire strict pipeline, not only the final
+        // readback target: CPU/GPU source uploads can quantize low alpha differently.
+        // This shim is test-local; production context2D and surfaces stay unchanged.
+        for (const [prototype, getContext] of [
+            [OriginalCanvas.prototype, originalOffscreenGetContext],
+            [HTMLCanvasElement.prototype, originalHtmlGetContext],
+        ]) {
+            prototype.getContext = function (type, options) {
+                if (type !== '2d') return getContext.call(this, type, options);
+                const context = getContext.call(this, type, { ...options, willReadFrequently: true });
+                if (context) {
+                    if (!context.getContextAttributes().willReadFrequently)
+                        throw Error('Strict pixel fixture created a non-CPU context');
+                    cpuContextRequests++;
+                }
+                return context;
+            };
+        }
+        function probeSurface(width, height, readFrequently) {
+            const canvas = new OriginalCanvas(width, height),
+                context = originalOffscreenGetContext.call(canvas, '2d', {
+                    willReadFrequently: readFrequently,
+                });
+            if (!context) throw Error('No independent probe 2D context');
+            return { canvas, context };
+        }
         let guarding = false,
             largestCreated = 0,
             imageDataLargest = 0;
@@ -221,18 +251,17 @@ try {
         for (const readFrequently of [false, true]) {
             const w = 513,
                 h = 257,
-                src = surface(w, h),
+                src = probeSurface(w, h, readFrequently),
                 image = pattern(w, h);
             src.context.putImageData(new OriginalImage(image, w, h), 0, 0);
             const render = (split, tiled) => {
-                const canvas = new OriginalCanvas(530, 280),
-                    context = canvas.getContext('2d', { willReadFrequently: readFrequently });
+                const { canvas, context } = probeSurface(530, 280, readFrequently);
                 for (let x = 0; x < w; x += 510) {
                     let input = src.canvas,
                         offset = 0;
                     if (tiled) {
                         offset = Math.max(0, x - 1);
-                        const tile = surface(Math.min(w, x + 511) - offset, h);
+                        const tile = probeSurface(Math.min(w, x + 511) - offset, h, readFrequently);
                         tile.context.putImageData(new OriginalImage(image, w, h), -offset, 0);
                         input = tile.canvas;
                     }
@@ -262,10 +291,9 @@ try {
             // Independent fractional nearest-neighbor outer-edge probe, without
             // PixelTileCache, mip generation, or the production tile implementation.
             const rgba = pattern(1024, 560),
-                full = surface(1024, 560),
+                full = probeSurface(1024, 560, readFrequently),
                 renderRgba = (tiled) => {
-                    const canvas = new OriginalCanvas(1200, 760),
-                        context = canvas.getContext('2d', { willReadFrequently: readFrequently });
+                    const { canvas, context } = probeSurface(1200, 760, readFrequently);
                     context.imageSmoothingEnabled = false;
                     if (!tiled) context.drawImage(full.canvas, 3.25, 5.125);
                     else
@@ -273,7 +301,11 @@ try {
                             for (let x = 0; x < 1024; x += 510) {
                                 const ox = Math.max(0, x - 1),
                                     oy = Math.max(0, y - 1),
-                                    tile = surface(Math.min(1024, x + 511) - ox, Math.min(560, y + 511) - oy),
+                                    tile = probeSurface(
+                                        Math.min(1024, x + 511) - ox,
+                                        Math.min(560, y + 511) - oy,
+                                        readFrequently,
+                                    ),
                                     left = x ? Math.round(3.25 + x) : 3,
                                     top = y ? Math.round(5.125 + y) : 5,
                                     right = x + 510 >= 1024 ? 1028 : Math.round(3.25 + x + 510),
@@ -2386,6 +2418,7 @@ try {
         if (surfaces.some((s) => s.width && s.height)) throw Error('Test left retained tile surfaces');
         checks.push({
             name: 'Independent allocation guards',
+            cpuContextRequests,
             largestCreated,
             imageDataLargest,
             retainedSurfaceCount: 0,
