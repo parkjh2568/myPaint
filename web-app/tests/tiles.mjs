@@ -672,13 +672,36 @@ try {
                 }
             const c = surface(8, 8),
                 d = surface(8, 8),
-                blue = new Uint8ClampedArray(8 * 8 * 4);
+                mip = boxReference(image, w, h, 512),
+                mipSource = surface(mip.width, mip.height),
+                originalPut = OffscreenCanvasRenderingContext2D.prototype.putImageData;
+            let rawUploads = 0;
             c.context.setTransform(1 / 1024, 0, 0, 1 / 1024, 0, 0);
             c.context.globalAlpha = 0.5;
-            draw(cache, c.context, {}, image, w, h, { x: 0, y: 0, width: 8192, height: 8192 });
-            for (let y = 0; y < 4; y++)
-                for (let x = 0; x < 4; x++) blue.set([0, 0, 255, 64], (y * 8 + x) * 4);
-            d.context.putImageData(new OriginalImage(blue, 8, 8), 0, 0);
+            OffscreenCanvasRenderingContext2D.prototype.putImageData = function (data, ...args) {
+                rawUploads++;
+                if (
+                    data.width !== mip.width ||
+                    data.height !== mip.height ||
+                    data.data.some((v, i) => v !== mip.pixels[i])
+                )
+                    throw Error('Minimum zoom raw mip differs from independent boxReference');
+                return originalPut.call(this, data, ...args);
+            };
+            try {
+                draw(cache, c.context, {}, image, w, h, { x: 0, y: 0, width: 8192, height: 8192 });
+            } finally {
+                OffscreenCanvasRenderingContext2D.prototype.putImageData = originalPut;
+            }
+            if (cache.stats.mipFactor !== 512 || rawUploads !== 1)
+                throw Error('Minimum zoom fixture must upload one factor512 mip');
+            // Independently generated mip bytes stay exact. Let the same Canvas
+            // backend perform bilinear sampling and opacity quantization instead
+            // of collapsing both operations into a hardcoded final alpha byte.
+            mipSource.context.putImageData(new OriginalImage(mip.pixels, mip.width, mip.height), 0, 0);
+            d.context.setTransform(0.5, 0, 0, 0.5, 0, 0);
+            d.context.globalAlpha = 0.5;
+            d.context.drawImage(mipSource.canvas, 0, 0);
             await compare('Minimum zoom alpha-aware samples and global opacity', c, d, {
                 stats: cache.stats,
             });
