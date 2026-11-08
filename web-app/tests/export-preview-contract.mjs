@@ -568,6 +568,34 @@ async function command(page, name) {
         await page.getByRole('dialog').getByRole('button', { name, exact: true }).click();
     }
 }
+// Map document coordinates to real hit-tested input without changing fixture pixels.
+async function documentInput(page, width, height) {
+    assert.equal(await page.locator('#zoom').textContent(), '100%');
+    if (height === 1) {
+        for (let step = 0; step < 16; step++) {
+            if (Number.parseInt(await page.locator('#zoom').textContent(), 10) >= 400) break;
+            await page.getByRole('button', { name: '확대', exact: true }).click();
+        }
+        await page.waitForFunction(
+            () => document.querySelector('.canvas-bounds').getBoundingClientRect().height >= 4,
+        );
+    }
+    const bounds = await page.locator('.canvas-bounds').boundingBox();
+    assert(bounds && bounds.width > 0 && bounds.height > 0, 'Document bounds must be visible');
+    const scaleX = bounds.width / width,
+        scaleY = bounds.height / height;
+    assert(scaleX >= (height === 1 ? 4 : 1) && scaleY >= (height === 1 ? 4 : 1));
+    return async (x, y) => {
+        const screenX = bounds.x + x * scaleX,
+            screenY = bounds.y + y * scaleY;
+        const hit = await page.evaluate(
+            ({ x, y }) => document.elementFromPoint(x, y) === document.querySelector('.workspace canvas'),
+            { x: screenX, y: screenY },
+        );
+        assert(hit, `Document point (${x}, ${y}) must hit the canvas, not a resize handle or overlay`);
+        return [screenX, screenY];
+    };
+}
 async function preview(page, expected, after = 0) {
     await page.waitForFunction((n) => {
         const content = document.querySelector('dialog[open] .export-preview');
@@ -783,12 +811,9 @@ try {
                     !document.querySelector('.busy') &&
                     document.querySelector('.workspace canvas').dataset.ready === 'true',
             );
-            assert.equal(await page.locator('#zoom').textContent(), '100%');
-            const box = await page.locator('.workspace canvas').boundingBox(),
-                left = box.x + box.width / 2 - state.width / 2,
-                top = box.y + box.height / 2 - state.height / 2;
+            const point = await documentInput(page, state.width, state.height);
             await page.getByRole('button', { name: '연필', exact: true }).click();
-            await page.mouse.click(left + 0.5, top + 0.5);
+            await page.mouse.click(...(await point(0.5, 0.5)));
             await command(page, '실행 취소');
             assert(await page.getByRole('button', { name: '다시 실행', exact: true }).isEnabled());
             assert(!(await page.title()).startsWith('* '));
@@ -796,11 +821,10 @@ try {
                 const source = fixture.pending.source;
                 await page.getByRole('button', { name: '사각 선택', exact: true }).click();
                 await page.locator('#transparent-selection').uncheck();
-                await page.mouse.move(left + source.x + 0.1, top + source.y + 0.1);
+                await page.mouse.move(...(await point(source.x + 0.1, source.y + 0.1)));
                 await page.mouse.down();
                 await page.mouse.move(
-                    left + source.x + source.width - 0.1,
-                    top + source.y + source.height - 0.1,
+                    ...(await point(source.x + source.width - 0.1, source.y + source.height - 0.1)),
                 );
                 await page.mouse.up();
                 for (let x = source.x; x > fixture.pending.x; x--) await page.keyboard.press('ArrowLeft');
@@ -1107,19 +1131,16 @@ try {
                     document.querySelector('.workspace canvas').dataset.ready === 'true',
             );
             if (!large) {
-                assert.equal(await page.locator('#zoom').textContent(), '100%');
-                const box = await page.locator('.workspace canvas').boundingBox(),
-                    left = box.x + (box.width - width) / 2,
-                    top = box.y + (box.height - height) / 2;
+                const point = await documentInput(page, width, height);
                 await page.getByRole('button', { name: '연필', exact: true }).click();
-                await page.mouse.click(left + 0.5, top + 0.5);
+                await page.mouse.click(...(await point(0.5, 0.5)));
                 await command(page, '실행 취소');
                 assert(await page.getByRole('button', { name: '다시 실행', exact: true }).isEnabled());
                 if (text) {
                     await page.getByRole('button', { name: '스포이트', exact: true }).click();
-                    await page.mouse.click(left + 0.5, top + 0.5);
+                    await page.mouse.click(...(await point(0.5, 0.5)));
                     await page.getByRole('button', { name: '전경색 보조색 바꾸기', exact: true }).click();
-                    await page.mouse.click(left + 1.5, top + 0.5);
+                    await page.mouse.click(...(await point(1.5, 0.5)));
                     await command(page, '글꼴 · 문자 설정');
                     await page
                         .getByRole('dialog')
@@ -1127,7 +1148,7 @@ try {
                         .selectOption('보조색');
                     await page.getByRole('dialog').getByRole('button', { name: '확인', exact: true }).click();
                     await page.getByRole('button', { name: '문자', exact: true }).click();
-                    await page.mouse.click(left + 0.5, top + 0.5);
+                    await page.mouse.click(...(await point(0.5, 0.5)));
                     await page.getByRole('textbox', { name: /문자 입력/ }).fill('MMMM');
                     if (kind.startsWith('font'))
                         await page.evaluate(() => {
@@ -1135,10 +1156,10 @@ try {
                         });
                 } else if (shape) {
                     await page.getByRole('button', { name: '스포이트', exact: true }).click();
-                    await page.mouse.click(left + 0.5, top + 0.5);
+                    await page.mouse.click(...(await point(0.5, 0.5)));
                     if (kind.startsWith('polygon')) {
                         await page.getByRole('button', { name: '전경색 보조색 바꾸기', exact: true }).click();
-                        await page.mouse.click(left + 0.5, top + 0.5);
+                        await page.mouse.click(...(await point(0.5, 0.5)));
                     }
                     await page.locator('#size').evaluate((input) => {
                         input.value = '4';
@@ -1153,9 +1174,9 @@ try {
                         })
                         .click();
                     if (kind.startsWith('curve')) {
-                        await page.mouse.move(left + 4, top + 12);
+                        await page.mouse.move(...(await point(4, 12)));
                         await page.mouse.down();
-                        await page.mouse.move(left + 24, top + 12);
+                        await page.mouse.move(...(await point(24, 12)));
                         await page.mouse.up();
                     } else {
                         for (const [x, y] of [
@@ -1163,7 +1184,7 @@ try {
                             [24, 4],
                             [12, 24],
                         ])
-                            await page.mouse.click(left + x, top + y);
+                            await page.mouse.click(...(await point(x, y)));
                     }
                 }
             }
