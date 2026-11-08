@@ -95,13 +95,17 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
-      - name: Install pinned compiler and JS dependencies
-        run: |
-          rustup toolchain install 1.94.0 --profile minimal --component rustfmt --component clippy
-          npm ci --no-fund
-      - name: Check native failure paths and build host package
-        run: |
-          cargo fmt --manifest-path src-tauri/Cargo.toml --check
-          cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --locked -- -D warnings
-          cargo test --manifest-path src-tauri/Cargo.toml --locked
-          npm run desktop:build
+      # Keep native commands in separate steps. On Windows, a later successful
+      # command can otherwise mask an earlier nonzero native exit in PowerShell.
+      - name: Install pinned Rust compiler
+        run: rustup toolchain install 1.94.0 --profile minimal --component rustfmt --component clippy
+      - name: Install JS dependencies
+        run: npm ci --no-fund
+      - name: Check native formatting
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
+      - name: Lint native code
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --locked -- -D warnings
+      - name: Test native failure paths
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked
+      - name: Build host package
+        run: npm run desktop:build

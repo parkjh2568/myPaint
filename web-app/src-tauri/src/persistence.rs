@@ -153,6 +153,9 @@ struct Target {
 }
 struct Directory {
     path: PathBuf,
+    // Windows retains this handle for directory lifetime/identity protection.
+    // Only Unix uses its descriptor for relative operations and directory fsync.
+    #[cfg_attr(windows, allow(dead_code))]
     file: File,
     identity: (u64, u64),
 }
@@ -225,6 +228,7 @@ struct Stage {
     name: String,
     file: Option<File>,
     committed: bool,
+    retain_on_failure: bool,
     #[cfg(test)]
     after_commit: Option<Box<dyn FnOnce() + Send>>,
 }
@@ -268,6 +272,7 @@ impl Stage {
             name,
             file: Some(file),
             committed: false,
+            retain_on_failure: false,
             #[cfg(test)]
             after_commit: None,
         };
@@ -362,10 +367,28 @@ impl Stage {
         }
         #[cfg(windows)]
         {
-            use std::os::windows::ffi::OsStrExt;
+            use std::os::windows::{ffi::OsStrExt, fs::OpenOptionsExt};
             use windows_sys::Win32::Storage::FileSystem::{
-                MOVEFILE_WRITE_THROUGH, MoveFileExW, ReplaceFileW,
+                FILE_FLAG_OPEN_REPARSE_POINT, FILE_READ_ATTRIBUTES, FILE_SHARE_DELETE,
+                FILE_SHARE_READ, FILE_SHARE_WRITE, MOVEFILE_WRITE_THROUGH, MoveFileExW,
+                ReplaceFileW,
             };
+            // ReplaceFileW opens the replacement without sharing data access. Keep an
+            // attributes-only handle to track our published identity without retaining
+            // the writer (or reopening the destination and adopting another writer).
+            let writer = self.file.as_ref().ok_or("임시 파일 상태 오류")?;
+            let published = OpenOptions::new()
+                .access_mode(FILE_READ_ATTRIBUTES)
+                .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE)
+                .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT)
+                .open(self.target.directory.path.join(&self.name))
+                .map_err(error)?;
+            if metadata_stamp(writer, &writer.metadata().map_err(error)?)?.identity
+                != metadata_stamp(&published, &published.metadata().map_err(error)?)?.identity
+            {
+                return Err("임시 파일이 변경됐습니다.".into());
+            }
+            self.file = Some(published);
             let from: Vec<u16> = self
                 .target
                 .directory
@@ -397,7 +420,12 @@ impl Stage {
                 }
             };
             if status == 0 {
-                return Err(error(std::io::Error::last_os_error()));
+                let failure = std::io::Error::last_os_error();
+                return Err(if self.target.stamp.is_some() {
+                    self.replacement_error(failure)
+                } else {
+                    error(failure)
+                });
             }
         }
         self.committed = true;
@@ -406,18 +434,36 @@ impl Stage {
             after_commit();
         }
         // Replacement is already committed. A directory sync failure must not be reported as an uncommitted save.
+        // Windows directory handles do not support this Unix durability operation.
+        // The staged file was flushed before publication; MoveFileExW also requests write-through.
+        #[cfg(unix)]
         if let Err(e) = self.target.directory.file.sync_all() {
             eprintln!("myPaint directory sync: {e}");
         }
         Ok(())
     }
+    #[cfg(any(windows, test))]
+    fn replacement_error(&mut self, failure: std::io::Error) -> String {
+        // ReplaceFileW can remove or move the original before failing to publish
+        // the replacement. Keep the staged bytes rather than deleting the only
+        // remaining copy. Do not retry an operation with an uncertain outcome.
+        if matches!(failure.raw_os_error(), Some(1176) | Some(1177)) {
+            self.retain_on_failure = true;
+            format!(
+                "파일 교체가 일부만 완료됐을 수 있습니다. 대상 파일이 이동되거나 사라졌을 수 있습니다. 복구용 임시 파일을 보존했습니다: {} ({failure})",
+                self.target.directory.path.join(&self.name).display()
+            )
+        } else {
+            error(failure)
+        }
+    }
 }
 impl Drop for Stage {
     fn drop(&mut self) {
-        if self.committed {
+        self.file.take();
+        if self.committed || self.retain_on_failure {
             return;
         }
-        self.file.take();
         #[cfg(unix)]
         {
             use std::os::fd::AsRawFd;
@@ -1462,6 +1508,117 @@ mod tests {
             );
             ticket = s.existing_save(1, true, false).unwrap().unwrap();
         }
+    }
+    #[test]
+    fn partial_replacement_failure_retains_staged_bytes() {
+        use std::io::Write;
+        for code in [1176, 1177] {
+            let root = tempfile::tempdir().unwrap();
+            let path = root.path().join("drawing.rpaint");
+            fs::write(&path, b"RPAINT01original").unwrap();
+            let mut stage = Stage::new(Target::new(&path).unwrap()).unwrap();
+            let staged_path = root.path().join(&stage.name);
+            let file = stage.file.as_mut().unwrap();
+            file.write_all(b"RPAINT01recoverable").unwrap();
+            file.sync_all().unwrap();
+            // Model the documented outcomes; this does not inject an actual OS failure.
+            let moved = root.path().join("moved-original.rpaint");
+            if code == 1176 {
+                fs::remove_file(&path).unwrap();
+            } else {
+                fs::rename(&path, &moved).unwrap();
+            }
+            let message = stage.replacement_error(std::io::Error::from_raw_os_error(code));
+            assert!(stage.retain_on_failure);
+            assert!(!stage.committed);
+            assert!(message.contains(staged_path.to_str().unwrap()));
+            assert!(message.contains("대상 파일이 이동되거나 사라졌을 수 있습니다"));
+            drop(stage);
+            assert!(!path.exists());
+            assert_eq!(fs::read(&staged_path).unwrap(), b"RPAINT01recoverable");
+            if code == 1177 {
+                assert_eq!(fs::read(&moved).unwrap(), b"RPAINT01original");
+            }
+            // Cleanup is possible after Drop closes the retained file handle.
+            fs::remove_file(staged_path).unwrap();
+        }
+    }
+    #[test]
+    fn ordinary_replacement_failure_still_removes_stage() {
+        for code in [32, 1175] {
+            let root = tempfile::tempdir().unwrap();
+            let path = root.path().join("drawing.rpaint");
+            fs::write(&path, b"RPAINT01original").unwrap();
+            let mut stage = Stage::new(Target::new(&path).unwrap()).unwrap();
+            let staged_path = root.path().join(&stage.name);
+            let failure = std::io::Error::from_raw_os_error(code);
+            let expected = failure.to_string();
+            assert_eq!(stage.replacement_error(failure), expected);
+            assert!(!stage.retain_on_failure);
+            assert!(!stage.committed);
+            drop(stage);
+            assert!(!staged_path.exists());
+            assert_eq!(fs::read(&path).unwrap(), b"RPAINT01original");
+        }
+    }
+    #[test]
+    fn publication_keeps_the_staged_file_identity() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("drawing.rpaint");
+        for existing in [false, true] {
+            if existing {
+                fs::write(&path, b"RPAINT01original").unwrap();
+            }
+            let mut stage = Stage::new(Target::new(&path).unwrap()).unwrap();
+            let runtime = tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .unwrap();
+            runtime
+                .block_on(stage.write(&[], b"RPAINT01published", &AtomicBool::new(false)))
+                .unwrap();
+            let file = stage.file.as_ref().unwrap();
+            let identity = metadata_stamp(file, &file.metadata().unwrap())
+                .unwrap()
+                .identity;
+            stage.commit().unwrap();
+            let file = stage.file.as_ref().unwrap();
+            let published = metadata_stamp(file, &file.metadata().unwrap()).unwrap();
+            assert_eq!(published.identity, identity);
+            assert_eq!(Some(published), stamp(&path).unwrap());
+            assert_eq!(fs::read(&path).unwrap(), b"RPAINT01published");
+            drop(stage);
+            assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
+        }
+    }
+    #[cfg(windows)]
+    #[test]
+    fn replacement_sharing_failure_preserves_original_and_removes_stage() {
+        use std::os::windows::fs::OpenOptionsExt;
+        use windows_sys::Win32::Storage::FileSystem::{FILE_SHARE_READ, FILE_SHARE_WRITE};
+        let (root, s) = store();
+        let path = root.path().join("drawing.rpaint");
+        fs::write(&path, b"RPAINT01original").unwrap();
+        let ticket = s.register_save(&path, 1, true).unwrap();
+        let job = s.claim_save(&ticket.token, 16, true).unwrap();
+        // An external reader denies deletion/replacement, but permits validation reads.
+        let locked = OpenOptions::new()
+            .read(true)
+            .share_mode(FILE_SHARE_READ | FILE_SHARE_WRITE)
+            .open(&path)
+            .unwrap();
+        assert!(execute(job, b"RPAINT01blocked!").is_err());
+        assert_eq!(fs::read(&path).unwrap(), b"RPAINT01original");
+        assert_eq!(fs::read_dir(root.path()).unwrap().count(), 2);
+        drop(locked);
+        let ticket = s.register_save(&path, 1, true).unwrap();
+        execute(
+            s.claim_save(&ticket.token, 15, true).unwrap(),
+            b"RPAINT01retry!!",
+        )
+        .unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"RPAINT01retry!!");
+        assert_eq!(fs::read_dir(root.path()).unwrap().count(), 2);
     }
     #[test]
     fn recovery_listing_replaces_previous_selection_tickets() {

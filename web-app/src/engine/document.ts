@@ -186,9 +186,17 @@ export function composite(s: State, profile: ResourceProfile = webLimits): Uint8
     for (const l of s.layers)
         if (l.visible)
             for (let i = 0; i < out.length; i += 4) {
-                const a = l.pixels[i + 3] / 255;
-                if (a === 0) continue;
-                const old = out[i + 3] / 255,
+                const alpha = l.pixels[i + 3];
+                if (alpha === 0) continue;
+                if (alpha === 255) {
+                    out[i] = l.pixels[i];
+                    out[i + 1] = l.pixels[i + 1];
+                    out[i + 2] = l.pixels[i + 2];
+                    out[i + 3] = 255;
+                    continue;
+                }
+                const a = alpha / 255,
+                    old = out[i + 3] / 255,
                     next = a + old * (1 - a);
                 for (let c = 0; c < 3; c++)
                     out[i + c] = Math.round((l.pixels[i + c] * a + out[i + c] * old * (1 - a)) / next);
