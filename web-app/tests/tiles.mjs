@@ -205,6 +205,50 @@ try {
                 ...extra,
             });
         }
+        // Diagnose browser rasterization independently of PixelTileCache. Splitting
+        // the same source and clip must not change its mathematical coverage.
+        for (const readFrequently of [false, true]) {
+            const w = 513,
+                h = 257,
+                src = surface(w, h),
+                image = pattern(w, h);
+            src.context.putImageData(new OriginalImage(image, w, h), 0, 0);
+            const render = (split, tiled) => {
+                const canvas = new OriginalCanvas(530, 280),
+                    context = canvas.getContext('2d', { willReadFrequently: readFrequently });
+                for (let x = 0; x < w; x += 510) {
+                    let input = src.canvas,
+                        offset = 0;
+                    if (tiled) {
+                        offset = Math.max(0, x - 1);
+                        const tile = surface(Math.min(w, x + 511) - offset, h);
+                        tile.context.putImageData(new OriginalImage(image, w, h), -offset, 0);
+                        input = tile.canvas;
+                    }
+                    context.save();
+                    context.beginPath();
+                    context.rect(split ? 3 + x : 3, 5, split ? Math.min(510, 512.375 - x) : 512.375, 256.625);
+                    context.clip();
+                    context.drawImage(input, 3 + offset, 5);
+                    context.restore();
+                    if (!split) break;
+                }
+                return { canvas, context };
+            };
+            const reference = render(false, false);
+            await compare(
+                'Browser clip diagnostic full source, split clip CPU=' + readFrequently,
+                render(true, false),
+                reference,
+                { informational: true },
+            );
+            await compare(
+                'Browser clip diagnostic tiled source, split clip CPU=' + readFrequently,
+                render(true, true),
+                reference,
+                { informational: true },
+            );
+        }
         const width = 1024,
             height = 560,
             pixels = pattern(width, height),
@@ -860,7 +904,17 @@ try {
             a.context.setTransform(scale, 0, 0, scale, tx, ty);
             a.context.imageSmoothingEnabled = true;
             const coldStart = performance.now();
-            draw(cache, a.context, owner, image, w, h, viewport, undefined, 0, 0, hook);
+            const rawUploads = [],
+                originalPut = OffscreenCanvasRenderingContext2D.prototype.putImageData;
+            OffscreenCanvasRenderingContext2D.prototype.putImageData = function (data, ...args) {
+                rawUploads.push({ width: data.width, height: data.height, pixels: data.data.slice() });
+                return originalPut.call(this, data, ...args);
+            };
+            try {
+                draw(cache, a.context, owner, image, w, h, viewport, undefined, 0, 0, hook);
+            } finally {
+                OffscreenCanvasRenderingContext2D.prototype.putImageData = originalPut;
+            }
             const coldMs = performance.now() - coldStart,
                 factor = cache.stats.mipFactor,
                 initial = { ...cache.stats };
@@ -872,6 +926,24 @@ try {
             const mip = boxReference(expectedSource, w, h, factor),
                 src = surface(mip.width, mip.height);
             src.context.putImageData(new OriginalImage(mip.pixels, mip.width, mip.height), 0, 0);
+            let rawMismatches = 0;
+            for (let tileIndex = 0; tileIndex < rawUploads.length; tileIndex++) {
+                const uploaded = rawUploads[tileIndex],
+                    sourceX = Math.max(0, tileIndex * cache.stats.tileSize - 1);
+                for (let y = 0; y < uploaded.height; y++)
+                    for (let x = 0; x < uploaded.width; x++)
+                        for (let c = 0; c < 4; c++)
+                            if (
+                                uploaded.pixels[(y * uploaded.width + x) * 4 + c] !==
+                                mip.pixels[(y * mip.width + sourceX + x) * 4 + c]
+                            )
+                                rawMismatches++;
+            }
+            checks.push({
+                name: 'Large raw box mip oracle ' + kind,
+                contractFailures: rawMismatches,
+                rawUploads: rawUploads.length,
+            });
             b.context.setTransform(scale * factor, 0, 0, scale * factor, tx, ty);
             b.context.imageSmoothingEnabled = true;
             b.context.save();
