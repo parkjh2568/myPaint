@@ -152,7 +152,9 @@ async function snapshot() {
 async function exportRaster(format) {
     await page.getByRole('button', { name: '이미지 내보내기', exact: true }).click();
     await page.getByLabel('형식', { exact: true }).selectOption(format);
-    await page.getByLabel('JPG/BMP 바탕색', { exact: true }).fill('#ffffff');
+    const matte = page.getByLabel('JPG/BMP 바탕색', { exact: true });
+    if (format === 'png') assert.equal(await matte.isDisabled(), true);
+    else await matte.fill('#ffffff');
     await page.getByRole('dialog').getByRole('button', { name: '내보내기', exact: true }).click();
     return writeResult();
 }
