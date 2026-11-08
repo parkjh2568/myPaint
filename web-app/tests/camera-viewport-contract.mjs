@@ -365,6 +365,16 @@ async function run(name, options, work) {
     } catch (error) {
         record.error = String(error.stack || error);
         result.failures.push({ name, error: record.error });
+        if (name === 'actual-cdp-page-pinch-and-footer-pan')
+            console.error(
+                JSON.stringify({
+                    name,
+                    before: record.before,
+                    scales: record.scales,
+                    pans: record.pans,
+                    footer: record.footer,
+                }),
+            );
     } finally {
         await context.close();
         await fs.writeFile(output, JSON.stringify(result, null, 2) + '\n');
@@ -591,8 +601,17 @@ try {
         await page.locator('.workspace canvas').focus();
         await page.keyboard.press('Control+a');
         await frames(page);
-        const a = await world(page, 63.5, 63.5),
+        // Stay inside the selection's 12px resize region without hitting the
+        // document's southeast resize control after CSS/backing coordinate rounding.
+        const a = await world(page, 60, 60),
             b = await world(page, 512, 512);
+        assert(
+            await page.evaluate(
+                ({ x, y }) => document.elementFromPoint(x, y) === document.querySelector('.workspace canvas'),
+                a,
+            ),
+            'Selection resize must start on the canvas rather than the document resize handle',
+        );
         await page.mouse.move(a.x, a.y);
         await page.mouse.down();
         await page.evaluate(
