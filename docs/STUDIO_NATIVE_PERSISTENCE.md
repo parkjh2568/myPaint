@@ -105,7 +105,7 @@ npm --prefix web-app run desktop:build
 npm --prefix web-app run test:native-desktop
 ```
 
-새 테스트는 npm/웹 CI에 연결했다. 원격 CI는 아직 실행하지 않았다. 실제 native runner는 macOS에서 확인했으며 OS 선택기 자동 조작이나 Windows 인수를 대신하지 않는다.
+초기 작성 시점에는 새 테스트를 npm/웹 CI에 연결했으나 원격 실행 전이었다. 2026-11-08 후속 CI 결과는 아래에 별도로 기록한다. 기존 실제 native runner의 macOS 확인은 OS 선택기 자동 조작이나 Windows 실기기 인수를 대신하지 않는다.
 
 남은 조건은 Windows 실제 실행·파일 공유/ACL/reparse, 실제 OS 선택기와 저장 취소, Windows 공간 부족 및 rename 실패, 지원 파일시스템 metadata, 최대 문서/전체 IPC 메모리, Android/Safari 실기기 웹, 서명·공증 및 안전 staging이다. 비협조 외부 프로세스의 최종 검사와 rename 사이를 완전한 파일시스템 CAS로 보장하지 않는다. Unix에서 rename 뒤 directory fsync 오류는 기록하지만 이미 교체된 저장을 미확정 실패로 되돌리지 않는다. Windows에는 같은 directory fsync를 적용하지 않으며 교체 전 파일 flush와 새 파일의 `MoveFileExW` write-through를 유지한다. 전원 차단 내구성 인수는 남겨 둔다. 미확정 선택/문자 자동 복구와 강제 종료 임시파일 정리는 별도 작업이다.
 
@@ -115,15 +115,15 @@ npm --prefix web-app run test:native-desktop
 
 프로젝트 열기는 실제 UI에 전달한 bytes의 지문을 활성화·다음 저장까지 전달한다. 저장 성공 뒤 binding은 임시파일에 실제 쓴 prefix/payload의 지문과 게시 handle의 identity를 사용하며 대상 경로를 다시 열어 다른 프로세스의 교체를 새 기준으로 채택하지 않는다. Windows 게시 handle은 attributes-only를 유지한다. 복구 목록 전체와 Qt lock 파일에는 이 내용 해싱을 추가하지 않았다. 최종 검사와 rename 사이의 비협조 외부 쓰기까지 파일시스템 CAS로 보장하지 않는다.
 
-회귀 테스트는 원래 지문을 유지하면서 저장된 metadata만 외부 변경 후 값에 맞춰 같은-metadata 상황을 결정적으로 모델링한다. 등록→claim, write→commit, open→activate/다음 저장, 성공 저장→다음 저장, 빈 파일·300MiB 초과 거부와 접두사 포함 지문을 다룬다. 시간 지연이나 다른 길이로 테스트를 우회하지 않는다. 이 수정의 Rust 컴파일·rustfmt·Clippy·Windows/macOS 실행은 아직 확인하지 않았으며 CI 확인이 필요하다.
+회귀 테스트는 원래 지문을 유지하면서 저장된 metadata만 외부 변경 후 값에 맞춰 같은-metadata 상황을 결정적으로 모델링한다. 등록→claim, write→commit, open→activate/다음 저장, 성공 저장→다음 저장, 빈 파일·300MiB 초과 거부와 접두사 포함 지문을 다룬다. 시간 지연이나 다른 길이로 테스트를 우회하지 않는다. 이 수정은 2026-11-08 원격 CI에서 검증했다. 커밋 `54216d45b7b678dd0bd31427a6befb3f80758303`의 [Windows](https://github.com/parkjh2568/myPaint/actions/runs/42450921413/job/128639777910) 25개와 [macOS](https://github.com/parkjh2568/myPaint/actions/runs/42450921413/job/128639778066) 27개 Rust 테스트, rustfmt, Clippy 및 host release 패키징이 모두 통과했다. 이는 호스트 CI의 코드 실행 근거이며 실제 OS 선택기·전원 차단·사용자 실기기 UI 인수까지 완료했다는 뜻은 아니다.
 
 ### Windows 저장 공유 모드 후속 수정
 
 기준 커밋 `429f135`의 [Windows CI 로그](https://github.com/parkjh2568/myPaint/actions/runs/42197430142/job/127824073497)는 Rust 11개 통과·5개 실패 후 패키징을 계속했다. 실패 원인 중 하나는 임시파일의 쓰기 handle을 유지한 채 `ReplaceFileW`를 호출한 공유 모드 충돌이다. 수정은 같은 임시파일을 `FILE_READ_ATTRIBUTES` 전용으로 열고 살아 있는 writer와 파일 identity를 비교한 뒤 writer를 닫는다. 이 handle은 게시 이후에도 유지해 다른 프로세스가 바꾼 대상 파일을 새 binding으로 오인하지 않도록 한다.
 
-게시 전후 identity, 외부 공유 잠금 실패 후 원본 보존·임시파일 해제·재시도, 부분 실패 때 복구 사본 보존 회귀를 추가했다. 부분 실패 테스트는 문서화된 OS 결과를 모델링하며 실제 Windows 오류를 주입하지 않는다. 이 후속 수정은 소스·독립 리뷰만 완료했으며 Rust 컴파일, rustfmt, Clippy와 실제 Windows 실행은 아직 확인하지 않았다. 위 과거 검증 결과를 이 수정의 실행 증거로 간주하지 않는다. 참고: [ReplaceFileW 계약](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-replacefilew).
+게시 전후 identity, 외부 공유 잠금 실패 후 원본 보존·임시파일 해제·재시도, 부분 실패 때 복구 사본 보존 회귀를 추가했다. 부분 실패 테스트는 문서화된 OS 결과를 모델링하며 실제 Windows 오류를 주입하지 않는다. 이 후속 수정도 바로 위 동일 SHA의 Windows/macOS CI에서 컴파일·rustfmt·Clippy·실패 경로 테스트·host 패키징을 통과했다. 과거 앱 smoke 결과와 이번 호스트 CI 결과를 구분하며, 실제 OS 오류 주입과 사용자 실기기 인수는 여전히 별도 조건이다. 참고: [ReplaceFileW 계약](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-replacefilew).
 
-기존 홈페이지·Qt 실행 경로는 보존했으며 commit/push/공개 배포는 수행하지 않았다. [전체 전환 백로그](QT_FREE_MIGRATION_TASKS.md)의 미충족 완료 조건은 계속 열어 둔다.
+기존 홈페이지·Qt 실행 경로는 보존했다. 초기 검증 이후 2026-11-08 리팩터링은 [PR #1](https://github.com/parkjh2568/myPaint/pull/1) 브랜치에 커밋·푸시했으며 공개 배포는 수행하지 않았다. [전체 전환 백로그](QT_FREE_MIGRATION_TASKS.md)의 미충족 완료 조건은 계속 열어 둔다.
 
 후속 [미확정 편집 계약 검사](evidence/studio-pending-contracts.json)는 Redo 가드가 포함된 macOS 앱에서 같은 복구·코덱·종료 3단계를 다시 통과했다. 위 앱 해시와 해당 후속 앱 해시는 서로 다른 검증 snapshot이다.
 
