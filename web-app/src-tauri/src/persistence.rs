@@ -1517,7 +1517,7 @@ mod tests {
             let path = root.path().join("drawing.rpaint");
             fs::write(&path, b"RPAINT01original").unwrap();
             let mut stage = Stage::new(Target::new(&path).unwrap()).unwrap();
-            let staged_path = root.path().join(&stage.name);
+            let staged_path = stage.target.directory.path.join(&stage.name);
             let file = stage.file.as_mut().unwrap();
             file.write_all(b"RPAINT01recoverable").unwrap();
             file.sync_all().unwrap();
@@ -1550,7 +1550,7 @@ mod tests {
             let path = root.path().join("drawing.rpaint");
             fs::write(&path, b"RPAINT01original").unwrap();
             let mut stage = Stage::new(Target::new(&path).unwrap()).unwrap();
-            let staged_path = root.path().join(&stage.name);
+            let staged_path = stage.target.directory.path.join(&stage.name);
             let failure = std::io::Error::from_raw_os_error(code);
             let expected = failure.to_string();
             assert_eq!(stage.replacement_error(failure), expected);
