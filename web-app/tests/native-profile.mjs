@@ -228,12 +228,29 @@ try {
         );
         assert.deepEqual(await snapshot(), expected);
         await page.getByRole('button', { name: '화면에 맞추기', exact: true }).click();
+        // A one-pixel row needs a stable interior CSS coordinate, away from the resize edge.
+        const minimumZoom = height === 1 ? 400 : 100;
         for (let step = 0; step < 32; step++) {
-            if (Number.parseInt(await page.locator('#zoom').textContent(), 10) >= 100) break;
+            if (Number.parseInt(await page.locator('#zoom').textContent(), 10) >= minimumZoom) break;
             await page.getByRole('button', { name: '확대', exact: true }).click();
         }
+        assert.ok(Number.parseInt(await page.locator('#zoom').textContent(), 10) >= minimumZoom);
         const box = await page.locator('.workspace canvas').boundingBox(),
-            center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+            paper = await page.locator('.canvas-bounds').boundingBox(),
+            center = { x: box.x + box.width / 2, y: paper.y + paper.height / 2 };
+        assert.ok(center.y > paper.y && center.y < paper.y + paper.height);
+        assert.equal(
+            await page.evaluate(
+                ({ x, y }) =>
+                    [0, 20, 50, 75].every(
+                        (dx) =>
+                            document.elementFromPoint(x + dx, y) ===
+                            document.querySelector('.workspace canvas'),
+                    ),
+                center,
+            ),
+            true,
+        );
         await page.getByRole('button', { name: '연필', exact: true }).click();
         await page.mouse.move(center.x, center.y);
         await page.mouse.down();
