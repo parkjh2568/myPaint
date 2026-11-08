@@ -454,7 +454,7 @@ try {
                 ])
                     observation[stage] = {
                         rawStateSha256: hash(Buffer.from(JSON.stringify(snapshot.state))),
-                        canvasSha256: Buffer.from(snapshot.frame).toString('hex'),
+                        canvasSha256: snapshot.frame.sha256,
                         title: snapshot.title,
                         pendingTitle: snapshot.pendingTitle,
                         undo: snapshot.undo,
