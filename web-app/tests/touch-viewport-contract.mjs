@@ -474,8 +474,22 @@ try {
             );
             const target = await page.locator('.workspace canvas').evaluate((c) => {
                 const r = c.getBoundingClientRect(),
-                    pixels = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-                for (let y = 0; y < c.height; y++)
+                    bounds = document.querySelector('.canvas-bounds').getBoundingClientRect(),
+                    scaleX = bounds.width / 64,
+                    scaleY = bounds.height / 64,
+                    pixels = c.getContext('2d').getImageData(0, 0, c.width, c.height).data,
+                    point = (x, y) => ({ x: bounds.x + x * scaleX, y: bounds.y + y * scaleY }),
+                    sample = ({ x, y }) => {
+                        const bx = Math.floor(((x - r.x) * c.width) / r.width),
+                            by = Math.floor(((y - r.y) * c.height) / r.height),
+                            i = (by * c.width + bx) * 4;
+                        return Array.from(pixels.slice(i, i + 4));
+                    },
+                    target = point(40.5, 32.5);
+                // A displayed backing pixel is quantized, not the continuous document origin.
+                // Keep the old visual scan as evidence, not as a coordinate calibration.
+                let firstRed;
+                for (let y = 0; y < c.height && !firstRed; y++)
                     for (let x = 0; x < c.width; x++) {
                         const i = (y * c.width + x) * 4;
                         if (
@@ -483,14 +497,35 @@ try {
                             pixels[i + 1] === 0 &&
                             pixels[i + 2] === 0 &&
                             pixels[i + 3] === 255
-                        )
-                            return {
-                                x: r.x + ((x + 8.5) * r.width) / c.width,
-                                y: r.y + ((y + 0.5) * r.height) / c.height,
+                        ) {
+                            firstRed = {
+                                x,
+                                y,
+                                oldTargetDocumentX:
+                                    (r.x + ((x + 8.5) * r.width) / c.width - bounds.x) / scaleX,
+                                oldTargetDocumentY:
+                                    (r.y + ((y + 0.5) * r.height) / c.height - bounds.y) / scaleY,
                             };
+                            break;
+                        }
                     }
-                throw Error('Original displayed marker missing');
+                return {
+                    ...target,
+                    scaleX,
+                    scaleY,
+                    firstRed,
+                    marker: sample(point(33.5, 33.5)),
+                    destination: sample(target),
+                    hitsCanvas: document.elementFromPoint(target.x, target.y) === c,
+                };
             });
+            record.retryTarget = target;
+            assert.equal(target.scaleX, 1, 'The small document remains at 100% after viewport change');
+            assert.equal(target.scaleY, 1);
+            assert(target.firstRed, 'Original displayed marker missing');
+            assert.deepEqual(target.marker, [255, 0, 0, 255], 'Document marker must remain visibly aligned');
+            assert.deepEqual(target.destination, [255, 255, 255, 255], 'Retry must start on blank source');
+            assert(target.hitsCanvas, 'First retry point must hit the canvas, not a resize control');
             await page.mouse.click(target.x, target.y);
             const expected = {
                 ...original,
