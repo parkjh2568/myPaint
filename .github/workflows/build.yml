@@ -41,7 +41,7 @@ jobs:
           - os: ubuntu-24.04
             host: linux
             arch: linux_gcc_64
-          - os: macos-14
+          - os: macos-15
             host: mac
             arch: clang_64
           - os: windows-2022
