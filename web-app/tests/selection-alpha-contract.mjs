@@ -232,16 +232,43 @@ try {
             () => window.__myPaintPersistenceTest.generation === 2 && !document.querySelector('.busy'),
         );
         await page.waitForSelector('canvas[data-ready=true]');
-        const box = await page.locator('.workspace canvas').boundingBox(),
-            left = box.x + box.width / 2 - 4,
-            top = box.y + box.height / 2 - 0.5;
+        // Keep the one-pixel row's input away from resize edges without altering its RGBA fixture.
+        assert.equal(await page.locator('#zoom').textContent(), '100%');
+        for (let step = 0; step < 16; step++) {
+            if (Number.parseInt(await page.locator('#zoom').textContent(), 10) >= 400) break;
+            await page.getByRole('button', { name: '확대', exact: true }).click();
+        }
+        await page.waitForFunction(
+            () => document.querySelector('.canvas-bounds').getBoundingClientRect().height >= 4,
+        );
+        const bounds = await page.locator('.canvas-bounds').boundingBox();
+        assert(bounds && bounds.width > 0 && bounds.height > 0, 'Document bounds must be visible');
+        const scaleX = bounds.width / source.width,
+            scaleY = bounds.height / source.height;
+        assert(scaleX >= 4 && scaleY >= 4);
+        const clickPixel = async (x) => {
+            const point = {
+                x: bounds.x + (x + 0.5) * scaleX,
+                y: bounds.y + 0.5 * scaleY,
+            };
+            assert.equal(
+                await page.evaluate(
+                    ({ x, y }) =>
+                        document.elementFromPoint(x, y) === document.querySelector('.workspace canvas'),
+                    point,
+                ),
+                true,
+                `Pixel ${x} must hit the canvas, not a resize handle or overlay`,
+            );
+            await page.mouse.click(point.x, point.y);
+        };
         await page.getByRole('button', { name: '연필', exact: true }).click();
-        await page.mouse.click(left + 7.5, top + 0.5);
+        await clickPixel(7);
         assert.equal(await page.getByRole('button', { name: '실행 취소', exact: true }).isEnabled(), true);
         await page.getByRole('button', { name: '실행 취소', exact: true }).click();
         assert.deepEqual(await controls(page), { dirty: false, undo: false, redo: true });
         await page.getByRole('button', { name: '스포이트', exact: true }).click();
-        await page.mouse.click(left + spec.pick + 0.5, top + 0.5);
+        await clickPixel(spec.pick);
         await page.getByRole('button', { name: '전경색 보조색 바꾸기', exact: true }).click();
         await page.getByRole('button', { name: '사각 선택', exact: true }).click();
         await page.locator('#transparent-selection').check();

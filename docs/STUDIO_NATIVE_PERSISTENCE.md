@@ -40,7 +40,7 @@ pinned Tauri 2.12.5 / runtime-wry 2.12.3 / Tao 0.37.2 / muda 0.20.0 소스를 �
 | 이전 사본 | 기존 IndexedDB 데이터 유지 | 이전 WebView IndexedDB 읽기 + 이전 Qt 사본 읽기 전용 |
 | 삭제 | 트랜잭션에서 head/sequence 검증 | 파일 식별자·버전과 head 검증; Qt 원본 삭제 거부 |
 
-네이티브 `.rprec`는 12바이트 prefix, 최대 4KiB JSON header, 기존 RPAINT01 payload를 한 파일로 원자 교체한다. 외부 `.rpaint` 형식은 변경하지 않는다. 1GiB는 확정 payload 합계이며 실제 디스크 사용량 상한이 아니다. header와 최대 300MiB 복구 임시파일, 별도 수동 저장 임시파일이 추가될 수 있다. 실패/취소의 임시파일은 해제하지만 강제 종료로 남은 `.mypaint-*.tmp`는 자동 삭제하지 않는다. 복구 사본 자동 prune도 하지 않는다.
+네이티브 `.rprec`는 12바이트 prefix, 최대 4KiB JSON header, 기존 RPAINT01 payload를 한 파일로 원자 교체한다. 외부 `.rpaint` 형식은 변경하지 않는다. 1GiB는 확정 payload 합계이며 실제 디스크 사용량 상한이 아니다. header와 최대 300MiB 복구 임시파일, 별도 수동 저장 임시파일이 추가될 수 있다. 일반 실패/취소의 임시파일은 해제하지만 강제 종료로 남은 `.mypaint-*.tmp`는 자동 삭제하지 않는다. Windows `ReplaceFileW`의 부분 실패 1176/1177에서는 마지막 복구 가능 사본을 지우지 않도록 임시파일을 보존하고 오류에 그 경로를 표시한다. 대상 원본이 이미 이동되거나 사라졌을 수 있으므로 자동 재시도나 원본 복원을 보장하지 않는다. 복구 사본 자동 prune도 하지 않는다.
 
 macOS의 이전 Qt 위치는 실제 Qt 6.12 probe로 `~/Library/Application Support/RetroPaint/RetroPaint`를 확인했다. Windows는 기존 `AppLocalDataLocation` 계약에 따라 `%LOCALAPPDATA%/RetroPaint/RetroPaint`를 사용하며 실제 Windows 인수는 남아 있다. `recovery.rpaint`와 보관된 timestamp 사본을 읽고 원본·session.lock을 수정하지 않는다. 잠금 파일의 존재만으로 복구를 차단하지 않는다. macOS 실제 Qt 프로세스를 강제 종료한 뒤 남은 stale lock에서도 읽기 전용 shared guard로 복구가 가능했고, 실행 중인 Qt의 배타 잠금은 거부했다.
 
@@ -105,11 +105,25 @@ npm --prefix web-app run desktop:build
 npm --prefix web-app run test:native-desktop
 ```
 
-새 테스트는 npm/웹 CI에 연결했다. 원격 CI는 아직 실행하지 않았다. 실제 native runner는 macOS에서 확인했으며 OS 선택기 자동 조작이나 Windows 인수를 대신하지 않는다.
+초기 작성 시점에는 새 테스트를 npm/웹 CI에 연결했으나 원격 실행 전이었다. 2026-11-08 후속 CI 결과는 아래에 별도로 기록한다. 기존 실제 native runner의 macOS 확인은 OS 선택기 자동 조작이나 Windows 실기기 인수를 대신하지 않는다.
 
-남은 조건은 Windows 실제 실행·파일 공유/ACL/reparse, 실제 OS 선택기와 저장 취소, Windows 공간 부족 및 rename/directory-sync 실패, 지원 파일시스템 metadata, 최대 문서/전체 IPC 메모리, Android/Safari 실기기 웹, 서명·공증 및 안전 staging이다. 비협조 외부 프로세스의 최종 검사와 rename 사이를 완전한 파일시스템 CAS로 보장하지 않는다. rename 뒤 directory fsync 오류는 기록하지만 이미 교체된 저장을 미확정 실패로 되돌리지 않으며 전원 차단 내구성 인수는 남겨 둔다. 미확정 선택/문자 자동 복구와 강제 종료 임시파일 정리는 별도 작업이다.
+남은 조건은 Windows 실제 실행·파일 공유/ACL/reparse, 실제 OS 선택기와 저장 취소, Windows 공간 부족 및 rename 실패, 지원 파일시스템 metadata, 최대 문서/전체 IPC 메모리, Android/Safari 실기기 웹, 서명·공증 및 안전 staging이다. 비협조 외부 프로세스의 최종 검사와 rename 사이를 완전한 파일시스템 CAS로 보장하지 않는다. Unix에서 rename 뒤 directory fsync 오류는 기록하지만 이미 교체된 저장을 미확정 실패로 되돌리지 않는다. Windows에는 같은 directory fsync를 적용하지 않으며 교체 전 파일 flush와 새 파일의 `MoveFileExW` write-through를 유지한다. 전원 차단 내구성 인수는 남겨 둔다. 미확정 선택/문자 자동 복구와 강제 종료 임시파일 정리는 별도 작업이다.
 
-기존 홈페이지·Qt 실행 경로는 보존했으며 commit/push/공개 배포는 수행하지 않았다. [전체 전환 백로그](QT_FREE_MIGRATION_TASKS.md)의 미충족 완료 조건은 계속 열어 둔다.
+### 동일 metadata의 외부 변경 보호
+
+수동 저장 대상으로 등록한 기존 파일은 SHA-256 내용 지문도 보관한다. 저장 시작과 교체 직전에 metadata와 내용 모두 비교하므로 Windows에서 같은 크기·같은 timestamp tick으로 기록된 외부 수정도 거부한다. 기존 덮어쓰기 대상은 300MiB 이내로 제한하며, 지문 계산은 64KiB 고정 버퍼로 예상 크기 + 1바이트까지만 읽는다. 읽기 전후 동일 handle의 metadata와 경로 identity를 재검사하고 크기 변경도 거부한다. 이 추가 검사는 파일 크기에 비례하는 I/O와 CPU 비용이 있으며 실제 최대 파일 지연은 별도 측정이 필요하다.
+
+프로젝트 열기는 실제 UI에 전달한 bytes의 지문을 활성화·다음 저장까지 전달한다. 저장 성공 뒤 binding은 임시파일에 실제 쓴 prefix/payload의 지문과 게시 handle의 identity를 사용하며 대상 경로를 다시 열어 다른 프로세스의 교체를 새 기준으로 채택하지 않는다. Windows 게시 handle은 attributes-only를 유지한다. 복구 목록 전체와 Qt lock 파일에는 이 내용 해싱을 추가하지 않았다. 최종 검사와 rename 사이의 비협조 외부 쓰기까지 파일시스템 CAS로 보장하지 않는다.
+
+회귀 테스트는 원래 지문을 유지하면서 저장된 metadata만 외부 변경 후 값에 맞춰 같은-metadata 상황을 결정적으로 모델링한다. 등록→claim, write→commit, open→activate/다음 저장, 성공 저장→다음 저장, 빈 파일·300MiB 초과 거부와 접두사 포함 지문을 다룬다. 시간 지연이나 다른 길이로 테스트를 우회하지 않는다. 이 수정은 2026-11-08 원격 CI에서 검증했다. 커밋 `54216d45b7b678dd0bd31427a6befb3f80758303`의 [Windows](https://github.com/parkjh2568/myPaint/actions/runs/42450921413/job/128639777910) 25개와 [macOS](https://github.com/parkjh2568/myPaint/actions/runs/42450921413/job/128639778066) 27개 Rust 테스트, rustfmt, Clippy 및 host release 패키징이 모두 통과했다. 이는 호스트 CI의 코드 실행 근거이며 실제 OS 선택기·전원 차단·사용자 실기기 UI 인수까지 완료했다는 뜻은 아니다.
+
+### Windows 저장 공유 모드 후속 수정
+
+기준 커밋 `429f135`의 [Windows CI 로그](https://github.com/parkjh2568/myPaint/actions/runs/42197430142/job/127824073497)는 Rust 11개 통과·5개 실패 후 패키징을 계속했다. 실패 원인 중 하나는 임시파일의 쓰기 handle을 유지한 채 `ReplaceFileW`를 호출한 공유 모드 충돌이다. 수정은 같은 임시파일을 `FILE_READ_ATTRIBUTES` 전용으로 열고 살아 있는 writer와 파일 identity를 비교한 뒤 writer를 닫는다. 이 handle은 게시 이후에도 유지해 다른 프로세스가 바꾼 대상 파일을 새 binding으로 오인하지 않도록 한다.
+
+게시 전후 identity, 외부 공유 잠금 실패 후 원본 보존·임시파일 해제·재시도, 부분 실패 때 복구 사본 보존 회귀를 추가했다. 부분 실패 테스트는 문서화된 OS 결과를 모델링하며 실제 Windows 오류를 주입하지 않는다. 이 후속 수정도 바로 위 동일 SHA의 Windows/macOS CI에서 컴파일·rustfmt·Clippy·실패 경로 테스트·host 패키징을 통과했다. 과거 앱 smoke 결과와 이번 호스트 CI 결과를 구분하며, 실제 OS 오류 주입과 사용자 실기기 인수는 여전히 별도 조건이다. 참고: [ReplaceFileW 계약](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-replacefilew).
+
+기존 홈페이지·Qt 실행 경로는 보존했다. 초기 검증 이후 2026-11-08 리팩터링은 [PR #1](https://github.com/parkjh2568/myPaint/pull/1) 브랜치에 커밋·푸시했으며 공개 배포는 수행하지 않았다. [전체 전환 백로그](QT_FREE_MIGRATION_TASKS.md)의 미충족 완료 조건은 계속 열어 둔다.
 
 후속 [미확정 편집 계약 검사](evidence/studio-pending-contracts.json)는 Redo 가드가 포함된 macOS 앱에서 같은 복구·코덱·종료 3단계를 다시 통과했다. 위 앱 해시와 해당 후속 앱 해시는 서로 다른 검증 snapshot이다.
 

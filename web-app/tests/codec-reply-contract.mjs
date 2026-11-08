@@ -15,15 +15,15 @@ const result = {
     scope: 'Public normal-web chooser, editing, Undo/Redo, actual download files and codec Workers. Named test-only faults replace one real Worker reply; these are not naturally observed Worker faults. The large lasso path uses trusted pointerdown plus8193 synthetic public moves/release to reach the actual selection Worker. ClipboardItem/getType transport is modeled, without OS clipboard, native persistence, physical device or performance validation.',
     url: process.env.PAINT_TEST_URL || 'http://127.0.0.1:8962/',
     testSha256: hash(await fs.readFile(new URL(import.meta.url))),
-    frozenBaselineSourceSha256: JSON.parse(
-        await fs.readFile(
-            new URL(
-                '../../build-web-work/task-planning/codec-reply-contract/before-source.json',
-                import.meta.url,
+    sourceSha256: Object.fromEntries(
+        await Promise.all(
+            ['main.ts', 'platform/codec.ts', 'workers/codec.worker.ts', 'engine/format.ts'].map(
+                async (name) => [name, hash(await fs.readFile(new URL(`../src/${name}`, import.meta.url)))],
             ),
-            'utf8',
         ),
     ),
+    sourceHashScope:
+        'Current checkout sources at test start; not a historical before snapshot or proof that a remote served bundle matches this checkout. Loaded asset bodies are recorded separately.',
     assetHashScope:
         'Observed loaded asset URLs; response body hashes with same-URL HTTP fallback where Chromium makes terminated Worker response bodies unavailable. Static bundles are frozen during each run.',
     assets: [],

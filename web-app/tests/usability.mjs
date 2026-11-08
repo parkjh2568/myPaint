@@ -501,9 +501,22 @@ const cases = [
         async (page) => {
             const box = await page.locator('.workspace canvas').boundingBox();
             await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+            const origin = await page.locator('.canvas-bounds').boundingBox();
             await page.mouse.wheel(900, 700);
+            // Wheel dispatch and canvas painting are asynchronous browser work.
+            await page.waitForFunction(({ x, y }) => {
+                const bounds = document.querySelector('.canvas-bounds').getBoundingClientRect();
+                return Math.abs(bounds.x - (x - 900)) < 1 && Math.abs(bounds.y - (y - 700)) < 1;
+            }, origin);
             assert(await pastePayload(page));
             await page.getByRole('status').filter({ hasText: '드래그로 배치' }).waitFor();
+            await page.waitForFunction(() => {
+                const canvas = document.querySelector('.workspace canvas');
+                const pixel = canvas
+                    .getContext('2d')
+                    .getImageData(Math.floor(canvas.width / 2), Math.floor(canvas.height / 2), 1, 1).data;
+                return pixel[0] === 255 && pixel[1] === 0 && pixel[2] === 0 && pixel[3] === 255;
+            });
             const pixel = await page
                 .locator('.workspace canvas')
                 .evaluate((canvas) =>

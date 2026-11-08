@@ -7,6 +7,23 @@ permissions:
   contents: read
 jobs:
   web:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: core
+            suites: test:browser test:usability test:fill-failure test:gif-input test:jpeg-orientation test:native-profile test:native-persistence test:native-recovery-flow test:spray-contract test:bulk-edit test:render-preparation
+          - group: drawing
+            suites: test:pointer-contract test:color-eraser-contract test:shape-color-contract test:roundrect-contract test:export-preview
+          - group: viewport
+            suites: test:touch-viewport test:camera-viewport test:recovery-contract test:codec-reply test:alpha-contract
+          - group: selection
+            suites: test:selection-preparation test:selection-resize test:selection-contract test:selection-source test:masked-transform test:fill-key test:cut-key test:eraser-picker-contract test:square-contract test:clipboard-contract
+          - group: pending
+            suites: test:pending-contract
+          - group: raster
+            suites: test:tiles test:scene-contract
+    name: web (${{ matrix.group }})
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -30,6 +47,8 @@ jobs:
           python3 tests/test_build_studio.py
           python3 tools/build_studio.py
       - name: Exercise production assets at the Pages subpath
+        env:
+          BROWSER_SUITES: ${{ matrix.suites }}
         shell: bash
         working-directory: web-app
         run: |
@@ -42,45 +61,24 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid"' EXIT
           export PAINT_TEST_URL=http://127.0.0.1:8922/mypaint/
-          npm run test:browser
-          npm run test:usability
-          npm run test:fill-failure
-          npm run test:gif-input
-          npm run test:jpeg-orientation
-          npm run test:native-profile
-          npm run test:native-persistence
-          npm run test:native-recovery-flow
-          npm run test:spray-contract
-          npm run test:bulk-edit
-          PAINT_RENDER_PREPARATION_OUTPUT="$RUNNER_TEMP/studio-render-preparation/results.json" npm run test:render-preparation
-          npm run test:pointer-contract
-          npm run test:color-eraser-contract
-          npm run test:shape-color-contract
-          npm run test:roundrect-contract
-          npm run test:export-preview
-          npm run test:touch-viewport
-          npm run test:camera-viewport
-          npm run test:recovery-contract
-          npm run test:codec-reply
-          npm run test:alpha-contract
-          npm run test:selection-preparation
-          npm run test:selection-resize
-          npm run test:selection-contract
-          npm run test:selection-source
-          npm run test:masked-transform
-          npm run test:fill-key
-          npm run test:cut-key
-          npm run test:eraser-picker-contract
-          npm run test:square-contract
-          npm run test:pending-contract
-          npm run test:clipboard-contract
-          npm run test:tiles
-          npm run test:scene-contract
+          export PAINT_RENDER_PREPARATION_OUTPUT="$RUNNER_TEMP/studio-render-preparation/results.json"
+          status=0
+          for suite in $BROWSER_SUITES; do
+            echo "::group::$suite"
+            if npm run "$suite"; then
+              echo "PASS $suite"
+            else
+              echo "::error::$suite failed"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit "$status"
   desktop:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, windows-2022]
+        os: [macos-15, windows-2022]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 35
     env:
@@ -95,13 +93,17 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
-      - name: Install pinned compiler and JS dependencies
-        run: |
-          rustup toolchain install 1.94.0 --profile minimal --component rustfmt --component clippy
-          npm ci --no-fund
-      - name: Check native failure paths and build host package
-        run: |
-          cargo fmt --manifest-path src-tauri/Cargo.toml --check
-          cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --locked -- -D warnings
-          cargo test --manifest-path src-tauri/Cargo.toml --locked
-          npm run desktop:build
+      # Keep native commands in separate steps. On Windows, a later successful
+      # command can otherwise mask an earlier nonzero native exit in PowerShell.
+      - name: Install pinned Rust compiler
+        run: rustup toolchain install 1.94.0 --profile minimal --component rustfmt --component clippy
+      - name: Install JS dependencies
+        run: npm ci --no-fund
+      - name: Check native formatting
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
+      - name: Lint native code
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --locked -- -D warnings
+      - name: Test native failure paths
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked
+      - name: Build host package
+        run: npm run desktop:build

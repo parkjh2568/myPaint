@@ -5,17 +5,20 @@ Qt-free 새 버전은 [`web-app/`](web-app/)에서 개발 중입니다. Studio �
 
 저장소: https://github.com/parkjh2568/myPaint
 
-독립형 오프라인 그림판 프로젝트입니다. 현재 앱의 개발명과 실행 대상 이름은 **RetroPaint 0.1.0 / `retropaint`**입니다. 클라우드 개발 환경 설정은 [CLOUD_SETUP.md](docs/CLOUD_SETUP.md)를 참고하세요.
+독립형 오프라인 그림판입니다. **현재 개발 대상은 Studio 0.2.0**으로, TypeScript 픽셀 엔진과 웹 UI를 사용하고 Windows/macOS 설치형은 Tauri/Rust가 로컬 저장과 창 수명을 담당합니다. Electron 앱이 아니며, Studio 설치형은 번들된 로컬 UI만 시스템 WebView로 표시합니다. 모바일·태블릿은 웹으로 제공합니다.
 
-클래식 그림판 도구에 어두운 드로잉 작업 공간과 부드러운 브러시를 더한 독립형 그림판입니다. 웹과 데스크톱이 같은 편집 화면을 사용합니다. C++20, Qt Widgets, CMake를 사용합니다. 원본 Windows 그림판 실행 파일이나 REA의 코드를 가져오지 않았습니다.
+**기존 RetroPaint 0.1.0의 C++20/Qt 구현은 호환성 기준과 테스트를 위해 보존합니다.** 아래 기능·빌드 설명은 별도 Studio 표기가 없는 한 Qt 기준입니다. 과거 Linux/macOS 검증 기록을 현재 Studio 전체의 플랫폼 인수로 해석하지 않습니다.
 
-**현재 상태: Linux 검증 기록, macOS ARM64 네이티브 자동 검증, 데스크톱 Chrome의 웹 버전을 제공합니다. Windows·네이티브 입력·Retina·다른 웹 브라우저·실제 Pages 게시 인수는 별도 확인이 필요합니다.**
+- 시작·명령: [Studio 개발 안내](docs/STUDIO_IMPLEMENTATION.md)
+- 현재 계약과 남은 인수: [문서 안내](docs/README.md)
+- 이번 변경·검증 한계: [측정 기반 리팩터링](docs/MEASURED_REFACTOR.md)
+- 개발 환경: [클라우드 설정](docs/CLOUD_SETUP.md)
 
 ![myPaint 웹 드로잉 화면](docs/studio-web.png)
 
 [드로잉 UI·브러시 개선과 검증](docs/STUDIO_UPGRADE.md), [홈페이지 용량 정리](docs/WEB_SIZE_CLEANUP.md)를 참고하세요.
 
-## 구현 범위
+## Qt 기준 구현 범위
 
 | 영역 | 기능 |
 | --- | --- |

@@ -14,7 +14,7 @@ import {
     type State,
     type Color,
 } from './engine/document';
-import { applySelectionMask, resizeState, resizeNearestSteps } from './engine/operations';
+import { applySelectionMask, resizeState, resizeNearestSteps, snapLineDelta } from './engine/operations';
 import { runCodec, runGeometry, readArtwork, exportBytes, type Raster } from './platform/codec';
 import { RecoveryStore, type RecoveryEntry } from './platform/storage';
 import { icon, toolDefinitions, type Tool } from './ui/icons';
@@ -1794,10 +1794,9 @@ class Studio {
             const dx = p.x - drag.start.x,
                 dy = p.y - drag.start.y;
             if (drag.mode === 'line') {
-                const angle = (Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI) / 4,
-                    length = Math.hypot(dx, dy);
-                p.x = drag.start.x + Math.cos(angle) * length;
-                p.y = drag.start.y + Math.sin(angle) * length;
+                const delta = snapLineDelta(dx, dy);
+                p.x = drag.start.x + delta.x;
+                p.y = drag.start.y + delta.y;
             } else {
                 const size = Math.max(Math.abs(dx), Math.abs(dy));
                 p.x = drag.start.x + Math.sign(dx || 1) * size;

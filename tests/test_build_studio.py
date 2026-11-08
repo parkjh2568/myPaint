@@ -254,16 +254,30 @@ class BuildStudioTests(unittest.TestCase):
             builder.main()
         target = self.root / "dist/studio"
         builder.readBundle(target)
+        summary, _ = json.JSONDecoder().raw_decode(output.getvalue())
+        self.assertEqual(summary["output"], str(target))
         site = Path(self.temporary.name) / "homepage"
         site.mkdir()
         (site / "index.html").write_text("unrelated homepage")
+        output = io.StringIO()
         with patch.object(builder, "__file__", str(self.root / "tools/build_studio.py")), patch.object(sys, "argv", ["build_studio.py", "--homepage", str(site)]), patch.object(builder, "stageBundle", side_effect=RuntimeError("fixture homepage refusal")), contextlib.redirect_stdout(output):
             with self.assertRaises(SystemExit) as error:
                 builder.main()
         self.assertEqual(error.exception.code, 1)
         builder.readBundle(target)
-        self.assertIn(str(target), output.getvalue())
+        summary, _ = json.JSONDecoder().raw_decode(output.getvalue())
+        self.assertEqual(summary["output"], str(target))
         self.assertEqual((site / "index.html").read_text(), "unrelated homepage")
+
+    def test_cli_json_round_trips_platform_paths(self):
+        for target in (r"C:\Users\사용자\source with spaces\dist\studio", "/tmp/source with spaces/dist/studio"):
+            with self.subTest(target=target):
+                output = io.StringIO()
+                result = {"output": target, "files": 7, "bytes": 294}
+                with patch.object(builder, "buildStudio", return_value=result), patch.object(sys, "argv", ["build_studio.py"]), contextlib.redirect_stdout(output):
+                    builder.main()
+                summary, _ = json.JSONDecoder().raw_decode(output.getvalue())
+                self.assertEqual(summary, result)
 
 
 if __name__ == "__main__":

@@ -496,11 +496,42 @@ try {
                             bottom = Math.max(bottom, y);
                         }
                     }
-                assert.equal(
-                    right - left,
-                    bottom - top,
-                    'Shift must produce square bounds or a 45-degree line, rather than merely matching two unconstrained gestures',
-                );
+                if (tool === '직선') {
+                    // A round cap's faint antialiased edge need not have symmetric ink bounds.
+                    // Compare every pixel with an independent exact 45-degree Canvas path instead.
+                    const expectedLine = await target.page.evaluate(() => {
+                        const surface = new OffscreenCanvas(64, 64),
+                            ctx = surface.getContext('2d'),
+                            endpoint = 8 + Math.sqrt(250);
+                        ctx.strokeStyle = '#ff0000';
+                        ctx.lineWidth = 1;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+                        ctx.beginPath();
+                        ctx.moveTo(8, 8);
+                        ctx.lineTo(endpoint, endpoint);
+                        ctx.stroke();
+                        const pixels = ctx.getImageData(0, 0, 64, 64).data;
+                        for (let i = 0; i < pixels.length; i += 4) {
+                            const alpha = pixels[i + 3];
+                            pixels[i] = 255;
+                            pixels[i + 1] = pixels[i + 2] = 255 - alpha;
+                            pixels[i + 3] = 255;
+                        }
+                        return Array.from(pixels);
+                    });
+                    assert.deepEqual(
+                        Array.from(painted.layers[0].pixels),
+                        expectedLine,
+                        'Shift line must match an independent exact 45-degree path with the original drag length',
+                    );
+                } else {
+                    assert.equal(
+                        right - left,
+                        bottom - top,
+                        'Shift must produce square bounds rather than merely matching two unconstrained gestures',
+                    );
+                }
 
                 if (tool !== '직선')
                     assert.deepEqual(

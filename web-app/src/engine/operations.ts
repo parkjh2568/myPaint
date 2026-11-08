@@ -4,6 +4,16 @@ export type GeometryChange =
     | { kind: 'transform'; operation: string }
     | { kind: 'shear'; angle: number }
     | { kind: 'crop'; x: number; y: number; width: number; height: number };
+// Preserve the drag length while snapping to one of eight exact directions.
+// Separate sin/cos calls can leave unequal diagonals or nonzero cardinal components.
+export function snapLineDelta(dx: number, dy: number): { x: number; y: number } {
+    const octant = (Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) + 8) % 8,
+        length = Math.hypot(dx, dy),
+        distance = octant % 2 ? length / Math.SQRT2 : length,
+        xDirection = [1, 1, 0, -1, -1, -1, 0, 1][octant],
+        yDirection = [0, 1, 1, 1, 0, -1, -1, -1][octant];
+    return { x: xDirection * distance || 0, y: yDirection * distance || 0 };
+}
 export function polygonMask(
     points: readonly { x: number; y: number }[],
     left: number,

@@ -37,7 +37,15 @@ const server = await createServer({
     server: { host: '127.0.0.1', port: 8941, strictPort: true, fs: { allow: [snapshot, root] } },
     logLevel: 'warn',
 });
-const report = { sources, snapshot, checks: [], pageErrors: [] };
+const report = {
+    sources,
+    snapshot,
+    pixelOracleBackend:
+        'CPU Canvas2D for every source, cache tile, and target (willReadFrequently:true); byte-exact comparisons',
+    gpuProbeScope: 'Independent browser rasterization diagnostics only; not GPU byte identity guarantees',
+    checks: [],
+    pageErrors: [],
+};
 let browser, watchdog;
 try {
     await server.listen();
@@ -62,6 +70,35 @@ try {
             OriginalImage = ImageData,
             surfaces = [],
             checks = [];
+        const originalOffscreenGetContext = OriginalCanvas.prototype.getContext,
+            originalHtmlGetContext = HTMLCanvasElement.prototype.getContext;
+        let cpuContextRequests = 0;
+        // Fix the backend for the entire strict pipeline, not only the final
+        // readback target: CPU/GPU source uploads can quantize low alpha differently.
+        // This shim is test-local; production context2D and surfaces stay unchanged.
+        for (const [prototype, getContext] of [
+            [OriginalCanvas.prototype, originalOffscreenGetContext],
+            [HTMLCanvasElement.prototype, originalHtmlGetContext],
+        ]) {
+            prototype.getContext = function (type, options) {
+                if (type !== '2d') return getContext.call(this, type, options);
+                const context = getContext.call(this, type, { ...options, willReadFrequently: true });
+                if (context) {
+                    if (!context.getContextAttributes().willReadFrequently)
+                        throw Error('Strict pixel fixture created a non-CPU context');
+                    cpuContextRequests++;
+                }
+                return context;
+            };
+        }
+        function probeSurface(width, height, readFrequently) {
+            const canvas = new OriginalCanvas(width, height),
+                context = originalOffscreenGetContext.call(canvas, '2d', {
+                    willReadFrequently: readFrequently,
+                });
+            if (!context) throw Error('No independent probe 2D context');
+            return { canvas, context };
+        }
         let guarding = false,
             largestCreated = 0,
             imageDataLargest = 0;
@@ -102,8 +139,12 @@ try {
             });
         }
         function surface(width, height) {
+            // Byte-exact pixel oracles require a deterministic raster backend.
+            // Chromium GPU coverage can round an identical fractional outer edge
+            // differently when a draw/clip span is split (see independent probes).
+            // Keep production surfaces unchanged; GPU probes below opt in explicitly.
             const canvas = new OriginalCanvas(width, height),
-                context = canvas.getContext('2d');
+                context = canvas.getContext('2d', { willReadFrequently: true });
             if (!context) throw Error('No reference 2D context');
             return { canvas, context };
         }
@@ -204,6 +245,88 @@ try {
                 first,
                 ...extra,
             });
+        }
+        // Diagnose browser rasterization independently of PixelTileCache. Splitting
+        // the same source and clip must not change its mathematical coverage.
+        for (const readFrequently of [false, true]) {
+            const w = 513,
+                h = 257,
+                src = probeSurface(w, h, readFrequently),
+                image = pattern(w, h);
+            src.context.putImageData(new OriginalImage(image, w, h), 0, 0);
+            const render = (split, tiled) => {
+                const { canvas, context } = probeSurface(530, 280, readFrequently);
+                for (let x = 0; x < w; x += 510) {
+                    let input = src.canvas,
+                        offset = 0;
+                    if (tiled) {
+                        offset = Math.max(0, x - 1);
+                        const tile = probeSurface(Math.min(w, x + 511) - offset, h, readFrequently);
+                        tile.context.putImageData(new OriginalImage(image, w, h), -offset, 0);
+                        input = tile.canvas;
+                    }
+                    context.save();
+                    context.beginPath();
+                    context.rect(split ? 3 + x : 3, 5, split ? Math.min(510, 512.375 - x) : 512.375, 256.625);
+                    context.clip();
+                    context.drawImage(input, 3 + offset, 5);
+                    context.restore();
+                    if (!split) break;
+                }
+                return { canvas, context };
+            };
+            const reference = render(false, false);
+            await compare(
+                'Browser clip diagnostic full source, split clip CPU=' + readFrequently,
+                render(true, false),
+                reference,
+                { informational: !readFrequently },
+            );
+            await compare(
+                'Browser clip diagnostic tiled source, split clip CPU=' + readFrequently,
+                render(true, true),
+                reference,
+                { informational: !readFrequently },
+            );
+            // Independent fractional nearest-neighbor outer-edge probe, without
+            // PixelTileCache, mip generation, or the production tile implementation.
+            const rgba = pattern(1024, 560),
+                full = probeSurface(1024, 560, readFrequently),
+                renderRgba = (tiled) => {
+                    const { canvas, context } = probeSurface(1200, 760, readFrequently);
+                    context.imageSmoothingEnabled = false;
+                    if (!tiled) context.drawImage(full.canvas, 3.25, 5.125);
+                    else
+                        for (let y = 0; y < 560; y += 510)
+                            for (let x = 0; x < 1024; x += 510) {
+                                const ox = Math.max(0, x - 1),
+                                    oy = Math.max(0, y - 1),
+                                    tile = probeSurface(
+                                        Math.min(1024, x + 511) - ox,
+                                        Math.min(560, y + 511) - oy,
+                                        readFrequently,
+                                    ),
+                                    left = x ? Math.round(3.25 + x) : 3,
+                                    top = y ? Math.round(5.125 + y) : 5,
+                                    right = x + 510 >= 1024 ? 1028 : Math.round(3.25 + x + 510),
+                                    bottom = y + 510 >= 560 ? 566 : Math.round(5.125 + y + 510);
+                                tile.context.putImageData(new OriginalImage(rgba, 1024, 560), -ox, -oy);
+                                context.save();
+                                context.beginPath();
+                                context.rect(left, top, right - left, bottom - top);
+                                context.clip();
+                                context.drawImage(tile.canvas, 3.25 + ox, 5.125 + oy);
+                                context.restore();
+                            }
+                    return { canvas, context };
+                };
+            full.context.putImageData(new OriginalImage(rgba, 1024, 560), 0, 0);
+            await compare(
+                'Browser fractional RGBA diagnostic CPU=' + readFrequently,
+                renderRgba(true),
+                renderRgba(false),
+                { informational: !readFrequently },
+            );
         }
         const width = 1024,
             height = 560,
@@ -549,13 +672,36 @@ try {
                 }
             const c = surface(8, 8),
                 d = surface(8, 8),
-                blue = new Uint8ClampedArray(8 * 8 * 4);
+                mip = boxReference(image, w, h, 512),
+                mipSource = surface(mip.width, mip.height),
+                originalPut = OffscreenCanvasRenderingContext2D.prototype.putImageData;
+            let rawUploads = 0;
             c.context.setTransform(1 / 1024, 0, 0, 1 / 1024, 0, 0);
             c.context.globalAlpha = 0.5;
-            draw(cache, c.context, {}, image, w, h, { x: 0, y: 0, width: 8192, height: 8192 });
-            for (let y = 0; y < 4; y++)
-                for (let x = 0; x < 4; x++) blue.set([0, 0, 255, 64], (y * 8 + x) * 4);
-            d.context.putImageData(new OriginalImage(blue, 8, 8), 0, 0);
+            OffscreenCanvasRenderingContext2D.prototype.putImageData = function (data, ...args) {
+                rawUploads++;
+                if (
+                    data.width !== mip.width ||
+                    data.height !== mip.height ||
+                    data.data.some((v, i) => v !== mip.pixels[i])
+                )
+                    throw Error('Minimum zoom raw mip differs from independent boxReference');
+                return originalPut.call(this, data, ...args);
+            };
+            try {
+                draw(cache, c.context, {}, image, w, h, { x: 0, y: 0, width: 8192, height: 8192 });
+            } finally {
+                OffscreenCanvasRenderingContext2D.prototype.putImageData = originalPut;
+            }
+            if (cache.stats.mipFactor !== 512 || rawUploads !== 1)
+                throw Error('Minimum zoom fixture must upload one factor512 mip');
+            // Independently generated mip bytes stay exact. Let the same Canvas
+            // backend perform bilinear sampling and opacity quantization instead
+            // of collapsing both operations into a hardcoded final alpha byte.
+            mipSource.context.putImageData(new OriginalImage(mip.pixels, mip.width, mip.height), 0, 0);
+            d.context.setTransform(0.5, 0, 0, 0.5, 0, 0);
+            d.context.globalAlpha = 0.5;
+            d.context.drawImage(mipSource.canvas, 0, 0);
             await compare('Minimum zoom alpha-aware samples and global opacity', c, d, {
                 stats: cache.stats,
             });
@@ -860,7 +1006,17 @@ try {
             a.context.setTransform(scale, 0, 0, scale, tx, ty);
             a.context.imageSmoothingEnabled = true;
             const coldStart = performance.now();
-            draw(cache, a.context, owner, image, w, h, viewport, undefined, 0, 0, hook);
+            const rawUploads = [],
+                originalPut = OffscreenCanvasRenderingContext2D.prototype.putImageData;
+            OffscreenCanvasRenderingContext2D.prototype.putImageData = function (data, ...args) {
+                rawUploads.push({ width: data.width, height: data.height, pixels: data.data.slice() });
+                return originalPut.call(this, data, ...args);
+            };
+            try {
+                draw(cache, a.context, owner, image, w, h, viewport, undefined, 0, 0, hook);
+            } finally {
+                OffscreenCanvasRenderingContext2D.prototype.putImageData = originalPut;
+            }
             const coldMs = performance.now() - coldStart,
                 factor = cache.stats.mipFactor,
                 initial = { ...cache.stats };
@@ -872,6 +1028,24 @@ try {
             const mip = boxReference(expectedSource, w, h, factor),
                 src = surface(mip.width, mip.height);
             src.context.putImageData(new OriginalImage(mip.pixels, mip.width, mip.height), 0, 0);
+            let rawMismatches = 0;
+            for (let tileIndex = 0; tileIndex < rawUploads.length; tileIndex++) {
+                const uploaded = rawUploads[tileIndex],
+                    sourceX = Math.max(0, tileIndex * cache.stats.tileSize - 1);
+                for (let y = 0; y < uploaded.height; y++)
+                    for (let x = 0; x < uploaded.width; x++)
+                        for (let c = 0; c < 4; c++)
+                            if (
+                                uploaded.pixels[(y * uploaded.width + x) * 4 + c] !==
+                                mip.pixels[(y * mip.width + sourceX + x) * 4 + c]
+                            )
+                                rawMismatches++;
+            }
+            checks.push({
+                name: 'Large raw box mip oracle ' + kind,
+                contractFailures: rawMismatches,
+                rawUploads: rawUploads.length,
+            });
             b.context.setTransform(scale * factor, 0, 0, scale * factor, tx, ty);
             b.context.imageSmoothingEnabled = true;
             b.context.save();
@@ -2267,6 +2441,7 @@ try {
         if (surfaces.some((s) => s.width && s.height)) throw Error('Test left retained tile surfaces');
         checks.push({
             name: 'Independent allocation guards',
+            cpuContextRequests,
             largestCreated,
             imageDataLargest,
             retainedSurfaceCount: 0,

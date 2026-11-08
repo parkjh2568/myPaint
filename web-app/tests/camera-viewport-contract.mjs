@@ -365,6 +365,17 @@ async function run(name, options, work) {
     } catch (error) {
         record.error = String(error.stack || error);
         result.failures.push({ name, error: record.error });
+        if (name === 'actual-cdp-page-pinch-and-footer-pan')
+            console.error(
+                JSON.stringify({
+                    name,
+                    before: record.before,
+                    scales: record.scales,
+                    pans: record.pans,
+                    panInputs: record.panInputs,
+                    footer: record.footer,
+                }),
+            );
     } finally {
         await context.close();
         await fs.writeFile(output, JSON.stringify(result, null, 2) + '\n');
@@ -591,8 +602,17 @@ try {
         await page.locator('.workspace canvas').focus();
         await page.keyboard.press('Control+a');
         await frames(page);
-        const a = await world(page, 63.5, 63.5),
+        // Stay inside the selection's 12px resize region without hitting the
+        // document's southeast resize control after CSS/backing coordinate rounding.
+        const a = await world(page, 60, 60),
             b = await world(page, 512, 512);
+        assert(
+            await page.evaluate(
+                ({ x, y }) => document.elementFromPoint(x, y) === document.querySelector('.workspace canvas'),
+                a,
+            ),
+            'Selection resize must start on the canvas rather than the document resize handle',
+        );
         await page.mouse.move(a.x, a.y);
         await page.mouse.down();
         await page.evaluate(
@@ -891,6 +911,7 @@ try {
             }
             const anchor = await bounds(page, 'dialog[open]');
             record.pans = [];
+            record.panInputs = [];
             for (let i = 0; i < 6; i++) {
                 const target = await bounds(page, 'dialog[open] button[value=ok]'),
                     v = (await read()).visual,
@@ -906,16 +927,65 @@ try {
                 const needX = target.left < v.offsetLeft + 2 || target.right > v.offsetLeft + v.width - 2,
                     dx = cx - v.offsetLeft - v.width * 0.5,
                     dy = cy - v.offsetTop - v.height * 0.5;
-                await cdp.send('Input.synthesizeScrollGesture', {
+                const gesture = {
                     x: needX ? v.width * (dx >= 0 ? 0.85 : 0.15) : v.width * 0.5,
                     y: needX ? v.height * 0.5 : v.height * (dy >= 0 ? 0.85 : 0.15),
                     xDistance: needX ? -Math.max(-v.width * 0.7, Math.min(v.width * 0.7, dx)) : 0,
                     yDistance: needX ? 0 : -Math.max(-v.height * 0.7, Math.min(v.height * 0.7, dy)),
-                    speed: 800,
-                    preventFling: true,
-                    gestureSourceType: 'touch',
+                };
+                const observation = await page.evaluate(
+                    ({ x, y }) => {
+                        const target = document.elementFromPoint(x, y),
+                            ancestors = [];
+                        for (let element = target; element; element = element.parentElement) {
+                            const style = getComputedStyle(element);
+                            ancestors.push({
+                                tag: element.tagName,
+                                touchAction: style.touchAction,
+                                overflow: style.overflow,
+                                overscroll: style.overscrollBehavior,
+                            });
+                        }
+                        return { eventIndex: window.cameraContract.events.length, ancestors };
+                    },
+                    { x: v.offsetLeft + gesture.x, y: v.offsetTop + gesture.y },
+                );
+                record.panInputs.push({ gesture, observation });
+                // CDP's touch path accepts visual-viewport CSS coordinates and applies
+                // page scale internally. Deliver a real contact sequence, not a scroll
+                // request whose acknowledgement does not prove that a touch was routed.
+                await cdp.send('Input.dispatchTouchEvent', {
+                    type: 'touchStart',
+                    touchPoints: [{ x: gesture.x, y: gesture.y, id: 0 }],
                 });
+                try {
+                    for (let step = 1; step <= 12; step++) {
+                        await cdp.send('Input.dispatchTouchEvent', {
+                            type: 'touchMove',
+                            touchPoints: [
+                                {
+                                    x: gesture.x + (gesture.xDistance * step) / 12,
+                                    y: gesture.y + (gesture.yDistance * step) / 12,
+                                    id: 0,
+                                },
+                            ],
+                        });
+                        await frames(page);
+                    }
+                } finally {
+                    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+                }
                 await frames(page);
+                record.panInputs.at(-1).events = await page.evaluate(
+                    (index) => window.cameraContract.events.slice(index),
+                    observation.eventIndex,
+                );
+                assert(
+                    record.panInputs
+                        .at(-1)
+                        .events.some((event) => event.type === 'pointerdown' && event.trusted),
+                    'Browser pan must originate from a trusted touch contact',
+                );
                 record.pans.push(await read());
                 assert.deepEqual(
                     await bounds(page, 'dialog[open]'),
