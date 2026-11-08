@@ -109,6 +109,14 @@ npm --prefix web-app run test:native-desktop
 
 남은 조건은 Windows 실제 실행·파일 공유/ACL/reparse, 실제 OS 선택기와 저장 취소, Windows 공간 부족 및 rename 실패, 지원 파일시스템 metadata, 최대 문서/전체 IPC 메모리, Android/Safari 실기기 웹, 서명·공증 및 안전 staging이다. 비협조 외부 프로세스의 최종 검사와 rename 사이를 완전한 파일시스템 CAS로 보장하지 않는다. Unix에서 rename 뒤 directory fsync 오류는 기록하지만 이미 교체된 저장을 미확정 실패로 되돌리지 않는다. Windows에는 같은 directory fsync를 적용하지 않으며 교체 전 파일 flush와 새 파일의 `MoveFileExW` write-through를 유지한다. 전원 차단 내구성 인수는 남겨 둔다. 미확정 선택/문자 자동 복구와 강제 종료 임시파일 정리는 별도 작업이다.
 
+### 동일 metadata의 외부 변경 보호
+
+수동 저장 대상으로 등록한 기존 파일은 SHA-256 내용 지문도 보관한다. 저장 시작과 교체 직전에 metadata와 내용 모두 비교하므로 Windows에서 같은 크기·같은 timestamp tick으로 기록된 외부 수정도 거부한다. 기존 덮어쓰기 대상은 300MiB 이내로 제한하며, 지문 계산은 64KiB 고정 버퍼로 예상 크기 + 1바이트까지만 읽는다. 읽기 전후 동일 handle의 metadata와 경로 identity를 재검사하고 크기 변경도 거부한다. 이 추가 검사는 파일 크기에 비례하는 I/O와 CPU 비용이 있으며 실제 최대 파일 지연은 별도 측정이 필요하다.
+
+프로젝트 열기는 실제 UI에 전달한 bytes의 지문을 활성화·다음 저장까지 전달한다. 저장 성공 뒤 binding은 임시파일에 실제 쓴 prefix/payload의 지문과 게시 handle의 identity를 사용하며 대상 경로를 다시 열어 다른 프로세스의 교체를 새 기준으로 채택하지 않는다. Windows 게시 handle은 attributes-only를 유지한다. 복구 목록 전체와 Qt lock 파일에는 이 내용 해싱을 추가하지 않았다. 최종 검사와 rename 사이의 비협조 외부 쓰기까지 파일시스템 CAS로 보장하지 않는다.
+
+회귀 테스트는 원래 지문을 유지하면서 저장된 metadata만 외부 변경 후 값에 맞춰 같은-metadata 상황을 결정적으로 모델링한다. 등록→claim, write→commit, open→activate/다음 저장, 성공 저장→다음 저장, 빈 파일·300MiB 초과 거부와 접두사 포함 지문을 다룬다. 시간 지연이나 다른 길이로 테스트를 우회하지 않는다. 이 수정의 Rust 컴파일·rustfmt·Clippy·Windows/macOS 실행은 아직 확인하지 않았으며 CI 확인이 필요하다.
+
 ### Windows 저장 공유 모드 후속 수정
 
 기준 커밋 `429f135`의 [Windows CI 로그](https://github.com/parkjh2568/myPaint/actions/runs/42197430142/job/127824073497)는 Rust 11개 통과·5개 실패 후 패키징을 계속했다. 실패 원인 중 하나는 임시파일의 쓰기 handle을 유지한 채 `ReplaceFileW`를 호출한 공유 모드 충돌이다. 수정은 같은 임시파일을 `FILE_READ_ATTRIBUTES` 전용으로 열고 살아 있는 writer와 파일 identity를 비교한 뒤 writer를 닫는다. 이 handle은 게시 이후에도 유지해 다른 프로세스가 바꾼 대상 파일을 새 binding으로 오인하지 않도록 한다.

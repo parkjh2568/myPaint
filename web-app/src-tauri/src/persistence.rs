@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::{
     collections::HashMap,
     fs::{self, File, Metadata, OpenOptions},
@@ -149,6 +150,7 @@ fn stamp(path: &Path) -> Result<Option<Stamp>, String> {
 struct Target {
     path: PathBuf,
     stamp: Option<Stamp>,
+    content_digest: Option<[u8; 32]>,
     directory: Arc<Directory>,
 }
 struct Directory {
@@ -212,13 +214,60 @@ impl Target {
         Ok(Self {
             path,
             stamp,
+            content_digest: None,
             directory,
         })
+    }
+    // Content checks are opt-in for manual save/open bindings, not recovery scans.
+    fn capture_content(&mut self) -> Result<(), String> {
+        self.check()?;
+        if let Some(expected) = &self.stamp {
+            self.content_digest = Some(self.fingerprint(expected)?);
+        }
+        Ok(())
+    }
+    fn fingerprint(&self, expected: &Stamp) -> Result<[u8; 32], String> {
+        if expected.size > MAX_BYTES {
+            return Err("덮어쓸 원본 파일은 300 MiB 이내여야 합니다.".into());
+        }
+        let mut file = open_regular(&self.path, false)?;
+        if metadata_stamp(&file, &file.metadata().map_err(error)?)? != *expected {
+            return Err("원본 파일이 변경됐습니다.".into());
+        }
+        let mut hash = Sha256::new();
+        let mut buffer = [0u8; 64 * 1024];
+        let mut total = 0u64;
+        loop {
+            // Read at most the expected size plus one byte, even if another writer grows it.
+            let limit = (expected.size + 1 - total).min(buffer.len() as u64) as usize;
+            let count = file.read(&mut buffer[..limit]).map_err(error)?;
+            if count == 0 {
+                break;
+            }
+            total += count as u64;
+            if total > expected.size {
+                return Err("읽는 중 원본 파일 크기가 변경됐습니다.".into());
+            }
+            hash.update(&buffer[..count]);
+        }
+        if total != expected.size
+            || metadata_stamp(&file, &file.metadata().map_err(error)?)? != *expected
+            || stamp(&self.path)?.as_ref() != Some(expected)
+        {
+            return Err("읽는 중 원본 파일이 변경됐습니다.".into());
+        }
+        Ok(hash.finalize().into())
     }
     fn check(&self) -> Result<(), String> {
         self.directory.check()?;
         if stamp(&self.path)? != self.stamp {
             return Err("다른 프로그램이 파일을 변경했습니다. 다시 선택하세요.".into());
+        }
+        if let Some(digest) = self.content_digest {
+            let expected = self.stamp.as_ref().ok_or("원본 파일 상태 오류")?;
+            if self.fingerprint(expected)? != digest {
+                return Err("다른 프로그램이 파일 내용을 변경했습니다. 다시 선택하세요.".into());
+            }
         }
         Ok(())
     }
@@ -229,6 +278,7 @@ struct Stage {
     file: Option<File>,
     committed: bool,
     retain_on_failure: bool,
+    content_digest: Option<[u8; 32]>,
     #[cfg(test)]
     after_commit: Option<Box<dyn FnOnce() + Send>>,
 }
@@ -273,6 +323,7 @@ impl Stage {
             file: Some(file),
             committed: false,
             retain_on_failure: false,
+            content_digest: None,
             #[cfg(test)]
             after_commit: None,
         };
@@ -318,6 +369,8 @@ impl Stage {
     ) -> Result<(), String> {
         let mut file = tokio::fs::File::from_std(self.file.take().ok_or("임시 파일 상태 오류")?);
         file.set_max_buf_size(2 * 1024 * 1024);
+        self.content_digest = None;
+        let mut hash = Sha256::new();
         let result = async {
             for data in [prefix, bytes] {
                 for chunk in data.chunks(2 * 1024 * 1024) {
@@ -325,6 +378,7 @@ impl Stage {
                         return Err("저장을 취소했습니다.".into());
                     }
                     file.write_all(chunk).await.map_err(error)?;
+                    hash.update(chunk);
                 }
             }
             file.flush().await.map_err(error)?;
@@ -333,6 +387,9 @@ impl Stage {
         }
         .await;
         self.file = Some(file.into_std().await);
+        if result.is_ok() {
+            self.content_digest = Some(hash.finalize().into());
+        }
         result
     }
     fn commit(&mut self) -> Result<(), String> {
@@ -812,6 +869,8 @@ impl Persistence {
             return Err("파일 선택이 변경됐습니다.".into());
         }
         current.project_read = project;
+        // Bind to the bytes actually delivered, not a later reopening of the path.
+        current.target.content_digest = project.then(|| Sha256::digest(&data).into());
         Ok(data)
     }
     pub fn existing_save(
@@ -864,7 +923,7 @@ impl Persistence {
         generation: u64,
         project: bool,
     ) -> Result<SaveTarget, String> {
-        let target = Target::new(path)?;
+        let mut target = Target::new(path)?;
         if self.forbidden(&target.path) {
             return Err("앱의 복구 원본에는 저장할 수 없습니다.".into());
         }
@@ -875,6 +934,7 @@ impl Persistence {
         {
             return Err("프로젝트는 .rpaint 이름으로 저장하세요.".into());
         }
+        target.capture_content()?;
         let mut session = self.session.lock().map_err(error)?;
         if generation != session.generation {
             return Err("문서 세대가 만료됐습니다.".into());
@@ -1342,6 +1402,7 @@ impl WriteJob {
                         Some(Target {
                             path: stage.target.path.clone(),
                             stamp: Some(metadata_stamp(file, &file.metadata().ok()?).ok()?),
+                            content_digest: stage.content_digest,
                             directory: stage.target.directory.clone(),
                         })
                     });
@@ -1458,6 +1519,122 @@ mod tests {
         fs::write(&path, b"RPAINT01external").unwrap();
         assert!(s.claim_save(&t.token, 10, true).is_err());
         assert_eq!(fs::read(&path).unwrap(), b"RPAINT01external");
+    }
+    #[test]
+    fn content_fingerprint_rejects_metadata_collisions_at_claim_and_commit() {
+        for at_commit in [false, true] {
+            let (root, s) = store();
+            let path = root.path().join("drawing.rpaint");
+            fs::write(&path, b"RPAINT01original").unwrap();
+            let ticket = s.register_save(&path, 1, true).unwrap();
+            if at_commit {
+                let mut job = s.claim_save(&ticket.token, 15, true).unwrap();
+                fs::write(&path, b"RPAINT01external").unwrap();
+                // Deterministically model a filesystem returning identical metadata:
+                // retain the original digest while making metadata checks succeed.
+                job.stage.as_mut().unwrap().target.stamp = stamp(&path).unwrap();
+                assert!(execute(job, b"RPAINT01pending!").is_err());
+            } else {
+                fs::write(&path, b"RPAINT01external").unwrap();
+                s.session
+                    .lock()
+                    .unwrap()
+                    .saves
+                    .get_mut(&ticket.token)
+                    .unwrap()
+                    .target
+                    .stamp = stamp(&path).unwrap();
+                assert!(s.claim_save(&ticket.token, 15, true).is_err());
+            }
+            assert_eq!(fs::read(&path).unwrap(), b"RPAINT01external");
+            assert_eq!(fs::read_dir(root.path()).unwrap().count(), 2);
+        }
+    }
+    #[test]
+    fn opened_content_digest_survives_activation_and_later_save() {
+        for before_activation in [false, true] {
+            let (root, s) = store();
+            let path = root.path().join("drawing.rpaint");
+            fs::write(&path, b"RPAINT01original").unwrap();
+            let opened = s.register_open(&path).unwrap();
+            assert_eq!(
+                s.read_selected(&opened.token).unwrap(),
+                b"RPAINT01original"
+            );
+            if before_activation {
+                fs::write(&path, b"RPAINT01external").unwrap();
+                s.session
+                    .lock()
+                    .unwrap()
+                    .reads
+                    .get_mut(&opened.token)
+                    .unwrap()
+                    .target
+                    .stamp = stamp(&path).unwrap();
+                assert!(s.activate(2, "opened".into(), Some(opened.token)).is_err());
+            } else {
+                s.activate(2, "opened".into(), Some(opened.token))
+                    .unwrap();
+                fs::write(&path, b"RPAINT01external").unwrap();
+                s.session.lock().unwrap().binding.as_mut().unwrap().stamp = stamp(&path).unwrap();
+                let next = s.existing_save(2, true, false).unwrap().unwrap();
+                assert!(s.claim_save(&next.token, 15, true).is_err());
+            }
+            assert_eq!(fs::read(&path).unwrap(), b"RPAINT01external");
+        }
+    }
+    #[test]
+    fn published_content_digest_rejects_later_same_metadata_change() {
+        let (root, s) = store();
+        let path = root.path().join("drawing.rpaint");
+        let ticket = s.register_save(&path, 1, true).unwrap();
+        execute(
+            s.claim_save(&ticket.token, 15, true).unwrap(),
+            b"RPAINT01original",
+        )
+        .unwrap();
+        let expected: [u8; 32] = Sha256::digest(b"RPAINT01original").into();
+        assert_eq!(
+            s.session.lock().unwrap().binding.as_ref().unwrap().content_digest,
+            Some(expected)
+        );
+        fs::write(&path, b"RPAINT01external").unwrap();
+        s.session.lock().unwrap().binding.as_mut().unwrap().stamp = stamp(&path).unwrap();
+        let next = s.existing_save(1, true, false).unwrap().unwrap();
+        assert!(s.claim_save(&next.token, 15, true).is_err());
+        assert_eq!(fs::read(&path).unwrap(), b"RPAINT01external");
+    }
+    #[test]
+    fn content_fingerprint_is_bounded_and_handles_empty_files() {
+        let (root, s) = store();
+        let path = root.path().join("drawing.rpaint");
+        let file = File::create(&path).unwrap();
+        file.set_len(MAX_BYTES + 1).unwrap();
+        drop(file);
+        assert!(s.register_save(&path, 1, true).is_err());
+        assert_eq!(fs::metadata(&path).unwrap().len(), MAX_BYTES + 1);
+        fs::write(&path, []).unwrap();
+        let ticket = s.register_save(&path, 1, true).unwrap();
+        execute(
+            s.claim_save(&ticket.token, 15, true).unwrap(),
+            b"RPAINT01original",
+        )
+        .unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"RPAINT01original");
+    }
+    #[test]
+    fn staged_digest_includes_prefix_and_payload() {
+        let root = tempfile::tempdir().unwrap();
+        let mut stage = Stage::new(Target::new(&root.path().join("test.rprec")).unwrap()).unwrap();
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .unwrap();
+        runtime
+            .block_on(stage.write(b"prefix", b"payload", &AtomicBool::new(false)))
+            .unwrap();
+        let expected: [u8; 32] = Sha256::digest(b"prefixpayload").into();
+        assert_eq!(stage.content_digest, Some(expected));
     }
     #[test]
     fn saved_binding_preserves_a_file_replaced_after_commit() {
