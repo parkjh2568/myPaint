@@ -52,6 +52,9 @@ function fixture(fail = false) {
         workspace: { querySelector: () => null },
         pendingDirty: new Map(),
         settle() {},
+        hasPending() {
+            return false;
+        },
         async autoRecover() {},
         async task(_label: string, action: () => Promise<void>) {
             await (action as any)(new AbortController().signal);
@@ -119,4 +122,21 @@ test('menu commands are unique and settings are in their own category', () => {
         ['settings', 'text-options', 'background'],
     );
     assert.ok(documentMenuGroups.find((g) => g.label === '파일')!.commands.some(([c]) => c === 'open'));
+});
+
+test('failed tab activation preserves pending candidate and redo history', async () => {
+    const { app, first } = fixture(true);
+    first.edit('red', (state) => {
+        state.layers[0].pixels.set([255, 0, 0, 255]);
+    });
+    first.undo();
+    const candidate = createState(2, 2, [0, 255, 0, 255]);
+    app.hasPending = () => true;
+    app.pendingState = () => candidate;
+    await assert.rejects(app.switchTab('b'), /activation failed/);
+    assert.equal(first.cursor, 0);
+    assert.equal(first.history.length, 1);
+    assert.equal(first.state.layers[0].pixels[1], 255);
+    first.redo();
+    assert.equal(first.state.layers[0].pixels[0], 255);
 });

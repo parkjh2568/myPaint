@@ -3331,7 +3331,9 @@ class Studio {
         if (!target || target.doc === this.doc) return;
         if (this.busy || this.drag || this.doc.stroke || this.selectionPreparation || this.selectionResize)
             throw Error('진행 중인 작업을 마친 뒤 탭을 전환하세요.');
-        this.settle();
+        const prepared = this.hasPending()
+            ? this.doc.prepareState('탭 전환', this.pendingState())
+            : undefined;
         // Save a recovery snapshot before suspending this document; failed recovery never discards it.
         const outgoing = this.captureTab();
         const generation = this.epoch + 1;
@@ -3339,6 +3341,9 @@ class Studio {
             await this.autoRecover(true);
             signal.throwIfAborted();
             await activateNative(generation, target.key);
+            if (prepared) this.doc.installPrepared(prepared);
+            this.editor?.remove();
+            this.editor = undefined;
             this.tabs[this.tabs.findIndex((tab) => tab.doc === this.doc)] = outgoing;
             this.doc = target.doc;
             this.name = target.name;
@@ -3393,7 +3398,9 @@ class Studio {
         const incoming = state.layers.reduce((sum, layer) => sum + layer.pixels.byteLength, 0);
         if (retained + incoming > 512 * 1048576)
             throw Error('열린 그림의 메모리 한도입니다. 저장 후 다른 탭을 닫으세요.');
-        this.settle();
+        const prepared = this.hasPending()
+            ? this.doc.prepareState('탭 전환', this.pendingState())
+            : undefined;
         const generation = this.epoch + 1,
             key = crypto.randomUUID(),
             outgoing = this.captureTab();
@@ -3403,6 +3410,9 @@ class Studio {
             await this.autoRecover(true);
             signal.throwIfAborted();
             await activateNative(generation, key, sourceToken);
+            if (prepared) this.doc.installPrepared(prepared);
+            this.editor?.remove();
+            this.editor = undefined;
             this.tabs[this.tabs.findIndex((tab) => tab.doc === this.doc)] = outgoing;
             this.doc = next;
             this.recovery = new RecoveryStore(runtimeProfile);
@@ -3412,8 +3422,6 @@ class Studio {
             this.recoveredRevision = 0;
             this.name = name;
             this.selection = undefined;
-            this.editor?.remove();
-            this.editor = undefined;
             this.points = [];
             this.curveControls = [];
             this.cancelRenderPreparation();
