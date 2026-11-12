@@ -19,6 +19,18 @@ import { runCodec, runGeometry, readArtwork, exportBytes, type Raster } from './
 import { RecoveryStore, type RecoveryEntry } from './platform/storage';
 import { icon, toolDefinitions, type Tool } from './ui/icons';
 import { readEraserPreferences, eraserColor } from './ui/eraser';
+import { documentMenuGroups } from './ui/menu';
+interface DocumentTab {
+    key: string;
+    doc: PaintDocument;
+    name: string;
+    recovery: RecoveryStore;
+    recoveredRevision: number;
+    zoom: number;
+    offsetX: number;
+    offsetY: number;
+    autoFit: boolean;
+}
 interface Point {
     x: number;
     y: number;
@@ -112,6 +124,8 @@ class Studio {
     fullPixels = true;
     pendingDirty = new Map<Uint8ClampedArray, PixelRect[]>();
     name = '제목 없음';
+    tabs: DocumentTab[] = [];
+    tabsSignature = '';
     busy = false;
     epoch = 1;
     nativeReady: Promise<void> = Promise.resolve();
@@ -184,7 +198,8 @@ class Studio {
     };
     constructor() {
         this.root = document.getElementById('app')!;
-        this.root.innerHTML = `<header class="topbar"><strong class="brand">myPaint</strong><button data-command="menu" aria-label="파일 및 편집 메뉴">${icon('menu')}</button><button data-command="open" aria-label="파일 열기">${icon('open')}<span class="button-text">열기</span></button><button data-command="undo" aria-label="실행 취소">${icon('undo')}</button><button data-command="redo" aria-label="다시 실행">${icon('redo')}</button><span class="title"></span><button class="mobile-only" data-command="properties" aria-label="색상과 브러시">${icon('palette')}</button><button class="mobile-only" data-command="layers" aria-label="레이어 패널">${icon('layers')}</button><button data-command="settings" class="settings-button" aria-label="테마 · 환경설정">${icon('settings')}<span>설정</span></button><button data-command="export" aria-label="이미지 내보내기">${icon('export')}<span class="button-text">내보내기</span></button><button data-command="save" class="primary" aria-label="프로젝트 저장 또는 다운로드">${icon('save')}<span class="button-text">프로젝트</span></button></header><main class="body"><nav class="tools" aria-label="그리기 도구"></nav><section class="workspace"><canvas tabindex="0" aria-label="그리기 캔버스. B 브러시, E 지우개, V 선택, H 화면 이동"></canvas><button class="resize-cancel" hidden aria-label="선택 크기 변경 취소">${icon('close')}<span>크기 변경 취소</span></button></section><aside class="inspector" aria-label="색상, 브러시, 레이어"><h2>색상 · 브러시 <button class="mobile-only close-panel" data-command="close-panel" aria-label="패널 닫기">${icon('close')}</button></h2><div class="properties"><fieldset class="eraser-options"><legend>지우개 설정</legend><label for="eraser-mode">지우는 방식</label><select id="eraser-mode"><option value="transparent">투명하게 지우기</option><option value="background">배경색으로 지우기</option></select><label for="eraser-color">지우개 배경색 <input id="eraser-color" type="color" value="#ffffff"></label><small>활성 레이어에만 적용 · 기존 그림과 문서 바탕은 유지</small></fieldset><div class="color-preview" role="img" aria-label="현재 전경색"></div><div class="color-row"><input id="color" type="color" aria-label="전경색"><input id="hex" type="text" maxlength="7" aria-label="HEX 색상" spellcheck="false"></div><label>보조색 <input id="secondary" type="color" aria-label="보조색"><button data-command="swap" aria-label="전경색 보조색 바꾸기">↔</button></label><div class="presets"><button data-preset="ink">잉크</button><button data-preset="soft">부드러운 붓</button><button data-preset="pixel">픽셀</button></div><div class="control"><label for="size">크기 <output id="size-value">12 px</output></label><input id="size" type="range" min="1" max="100" value="12"></div><div class="control"><label for="opacity">불투명도 <output id="opacity-value">100%</output></label><input id="opacity" type="range" min="1" max="100" value="100"></div><div class="control"><label for="hardness">경도 <output id="hardness-value">100%</output></label><input id="hardness" type="range" min="0" max="100" value="100"></div><div class="control"><label for="stabilization">선 보정 <output id="stabilization-value">25</output></label><input id="stabilization" type="range" min="0" max="75" value="25"></div><label><input id="pressure" type="checkbox" checked>펜 필압으로 크기 조절</label><label><input id="finger" type="checkbox" checked>손가락으로 그리기</label><label><input id="square" type="checkbox">사각 브러시</label><p class="square-hint" hidden>사각 도구는 픽셀 경계가 선명한 선을 그립니다. 불투명도·경도·선 보정·필압 설정은 둥근 도구에 적용됩니다.</p><label><input id="fill-shape" type="checkbox">도형 내부 채우기</label><label><input id="outline-shape" type="checkbox" checked>도형 윤곽선</label><label><input id="transparent-selection" type="checkbox">선택의 보조색을 투명하게</label><div class="swatches" aria-label="색상 모음"></div><button data-command="text-options">글꼴 · 문자 설정</button></div><section class="layers"><h2>레이어 · 위 → 아래</h2><div class="layer-list"></div><div class="layer-actions"><button data-command="layer-add" aria-label="레이어 추가">${icon('plus')}</button><button data-command="layer-delete" aria-label="레이어 삭제">${icon('minus')}</button><button data-command="layer-up" aria-label="레이어 위로 이동">↑</button><button data-command="layer-down" aria-label="레이어 아래로 이동">↓</button><button data-command="layer-merge" aria-label="아래 레이어와 병합">⇣</button><button data-command="layer-rename" aria-label="레이어 이름 변경">✎</button></div></section></aside></main><footer class="statusbar"><span class="tool-name">브러시</span><span class="document-info"></span><span class="status" role="status" aria-live="polite">기기 안에서 편집 · 파일을 업로드하지 않습니다</span><div class="zoom-controls"><button data-command="zoom-out" aria-label="축소">${icon('minus')}</button><span id="zoom">100%</span><button data-command="zoom-in" aria-label="확대">${icon('plus')}</button><button data-command="fit" aria-label="화면에 맞추기">${icon('fit')}</button></div></footer>`;
+        this.root.innerHTML = `<header class="topbar"><strong class="brand">myPaint</strong><button data-command="menu" aria-label="파일 및 편집 메뉴">${icon('menu')}</button><button data-command="open" aria-label="파일 열기">${icon('open')}<span class="button-text">열기</span></button><button data-command="undo" aria-label="실행 취소">${icon('undo')}</button><button data-command="redo" aria-label="다시 실행">${icon('redo')}</button><span class="title"></span><button class="mobile-only" data-command="properties" aria-label="색상과 브러시">${icon('palette')}</button><button class="mobile-only" data-command="layers" aria-label="레이어 패널">${icon('layers')}</button><button data-command="settings" class="settings-button" aria-label="테마 · 환경설정">${icon('settings')}<span>설정</span></button><button data-command="export" aria-label="이미지 내보내기">${icon('export')}<span class="button-text">내보내기</span></button><button data-command="save" class="primary" aria-label="프로젝트 저장 또는 다운로드">${icon('save')}<span class="button-text">프로젝트</span></button></header><nav class="document-tabs" aria-label="열린 그림"><div role="tablist" aria-label="그림 탭"></div><button data-command="new" aria-label="새 그림 탭">+</button></nav><main class="body"><nav class="tools" aria-label="그리기 도구"></nav><section class="workspace"><canvas tabindex="0" aria-label="그리기 캔버스. B 브러시, E 지우개, V 선택, H 화면 이동"></canvas><button class="resize-cancel" hidden aria-label="선택 크기 변경 취소">${icon('close')}<span>크기 변경 취소</span></button></section><aside class="inspector" aria-label="색상, 브러시, 레이어"><h2>색상 · 브러시 <button class="mobile-only close-panel" data-command="close-panel" aria-label="패널 닫기">${icon('close')}</button></h2><div class="properties"><fieldset class="eraser-options"><legend>지우개 설정</legend><label for="eraser-mode">지우는 방식</label><select id="eraser-mode"><option value="transparent">투명하게 지우기</option><option value="background">배경색으로 지우기</option></select><label for="eraser-color">지우개 배경색 <input id="eraser-color" type="color" value="#ffffff"></label><small>활성 레이어에만 적용 · 기존 그림과 문서 바탕은 유지</small></fieldset><div class="color-preview" role="img" aria-label="현재 전경색"></div><div class="color-row"><input id="color" type="color" aria-label="전경색"><input id="hex" type="text" maxlength="7" aria-label="HEX 색상" spellcheck="false"></div><label>보조색 <input id="secondary" type="color" aria-label="보조색"><button data-command="swap" aria-label="전경색 보조색 바꾸기">↔</button></label><div class="presets"><button data-preset="ink">잉크</button><button data-preset="soft">부드러운 붓</button><button data-preset="pixel">픽셀</button></div><div class="control"><label for="size">크기 <output id="size-value">12 px</output></label><input id="size" type="range" min="1" max="100" value="12"></div><div class="control"><label for="opacity">불투명도 <output id="opacity-value">100%</output></label><input id="opacity" type="range" min="1" max="100" value="100"></div><div class="control"><label for="hardness">경도 <output id="hardness-value">100%</output></label><input id="hardness" type="range" min="0" max="100" value="100"></div><div class="control"><label for="stabilization">선 보정 <output id="stabilization-value">25</output></label><input id="stabilization" type="range" min="0" max="75" value="25"></div><label><input id="pressure" type="checkbox" checked>펜 필압으로 크기 조절</label><label><input id="finger" type="checkbox" checked>손가락으로 그리기</label><label><input id="square" type="checkbox">사각 브러시</label><p class="square-hint" hidden>사각 도구는 픽셀 경계가 선명한 선을 그립니다. 불투명도·경도·선 보정·필압 설정은 둥근 도구에 적용됩니다.</p><label><input id="fill-shape" type="checkbox">도형 내부 채우기</label><label><input id="outline-shape" type="checkbox" checked>도형 윤곽선</label><label><input id="transparent-selection" type="checkbox">선택의 보조색을 투명하게</label><div class="swatches" aria-label="색상 모음"></div><button data-command="text-options">글꼴 · 문자 설정</button></div><section class="layers"><h2>레이어 · 위 → 아래</h2><div class="layer-list"></div><div class="layer-actions"><button data-command="layer-add" aria-label="레이어 추가">${icon('plus')}</button><button data-command="layer-delete" aria-label="레이어 삭제">${icon('minus')}</button><button data-command="layer-up" aria-label="레이어 위로 이동">↑</button><button data-command="layer-down" aria-label="레이어 아래로 이동">↓</button><button data-command="layer-merge" aria-label="아래 레이어와 병합">⇣</button><button data-command="layer-rename" aria-label="레이어 이름 변경">✎</button></div></section></aside></main><footer class="statusbar"><span class="tool-name">브러시</span><span class="document-info"></span><span class="status" role="status" aria-live="polite">기기 안에서 편집 · 파일을 업로드하지 않습니다</span><div class="zoom-controls"><button data-command="zoom-out" aria-label="축소">${icon('minus')}</button><span id="zoom">100%</span><button data-command="zoom-in" aria-label="확대">${icon('plus')}</button><button data-command="fit" aria-label="화면에 맞추기">${icon('fit')}</button></div></footer>`;
+        this.tabs.push(this.captureTab());
         this.workspace = this.root.querySelector('.workspace')!;
         this.canvas = this.workspace.querySelector('canvas')!;
         this.canvasBounds = document.createElement('div');
@@ -311,7 +326,9 @@ class Studio {
             const b = (e.target as Element).closest<HTMLButtonElement>('button');
             if (!b) return;
             this.run(async () => {
-                if (b.dataset.tool) this.chooseTool(b.dataset.tool as Tool);
+                if (b.dataset.tab) await this.switchTab(b.dataset.tab);
+                else if (b.dataset.closeTab) await this.closeTab(b.dataset.closeTab);
+                else if (b.dataset.tool) this.chooseTool(b.dataset.tool as Tool);
                 else if (b.dataset.command) await this.command(b.dataset.command);
                 else if (b.dataset.preset) {
                     this.chooseTool(b.dataset.preset === 'pixel' ? 'pencil' : 'brush');
@@ -333,8 +350,8 @@ class Studio {
                     ...this.eraserPreferences,
                     [id === 'eraser-mode' ? 'mode' : 'background']: value,
                 });
-                this.applyPreferences();
-                this.sync(false);
+                this.savePreferences();
+                this.syncEraserPreferences();
             };
         for (const id of ['size', 'opacity', 'hardness', 'stabilization'])
             this.root.querySelector<HTMLInputElement>('#' + id)!.oninput = (e) => {
@@ -492,7 +509,7 @@ class Studio {
         });
         window.addEventListener('blur', () => this.cancelPointer());
         window.addEventListener('beforeunload', (e) => {
-            if (this.doc.dirty || this.hasPending()) {
+            if (this.tabs.some((tab) => tab.doc.dirty) || this.hasPending()) {
                 e.preventDefault();
                 e.returnValue = '';
             }
@@ -596,7 +613,10 @@ class Studio {
                         this.message('진행 중인 작업을 완료하거나 취소한 뒤 닫으세요.');
                         return;
                     }
-                    if (!(await this.replacementAllowed())) return;
+                    for (const tab of [...this.tabs]) {
+                        await this.switchTab(tab.key);
+                        if (!(await this.replacementAllowed())) return;
+                    }
                 }
                 const previousInert = this.root.inert;
                 this.busy = true;
@@ -705,6 +725,7 @@ class Studio {
     }
     sync(layers = true): void {
         this.root.querySelector<HTMLButtonElement>('.resize-cancel')!.hidden = !this.selectionResize;
+        this.syncTabs();
         this.title.textContent = this.name + (this.doc.dirty || this.hasPending() ? ' · 편집 중' : '');
         document.title = (this.doc.dirty ? '* ' : '') + this.name + ' — myPaint';
         for (const b of this.root.querySelectorAll<HTMLButtonElement>('[data-tool]'))
@@ -737,10 +758,7 @@ class Studio {
                   : this.tool === 'text'
                     ? 'text'
                     : 'crosshair';
-        this.root.querySelector<HTMLSelectElement>('#eraser-mode')!.value = this.eraserPreferences.mode;
-        const eraserInput = this.root.querySelector<HTMLInputElement>('#eraser-color')!;
-        eraserInput.value = this.eraserPreferences.background;
-        eraserInput.disabled = this.eraserPreferences.mode !== 'background';
+        this.syncEraserPreferences();
         const pencil = this.tool === 'pencil',
             hardSquare = this.square && (this.tool === 'brush' || this.tool === 'eraser'),
             pixelHint = this.root.querySelector<HTMLElement>('.square-hint')!;
@@ -897,9 +915,19 @@ class Studio {
             this.colorDrag = 0;
         };
     }
+    syncEraserPreferences(): void {
+        this.root.querySelector<HTMLSelectElement>('#eraser-mode')!.value = this.eraserPreferences.mode;
+        const eraserInput = this.root.querySelector<HTMLInputElement>('#eraser-color')!;
+        eraserInput.value = this.eraserPreferences.background;
+        eraserInput.disabled = this.eraserPreferences.mode !== 'background';
+        this.brushCursor.hidden = true;
+    }
+    private wheelPaintKey = '';
     paintColorWheel(): void {
         const canvas = this.wheel;
         if (!canvas) return;
+        const key = [...this.foreground, this.hue, canvas.width, canvas.height].join(',');
+        if (key === this.wheelPaintKey) return;
         const ctx = canvas.getContext('2d')!;
         ctx.setTransform(2, 0, 0, 2, 0, 0);
         ctx.clearRect(0, 0, 220, 210);
@@ -943,6 +971,7 @@ class Studio {
             ctx.strokeStyle = '#fff';
             ctx.stroke();
         }
+        this.wheelPaintKey = [...this.foreground, this.hue, canvas.width, canvas.height].join(',');
     }
     applyPreferences(): void {
         this.densityPending = false;
@@ -953,6 +982,10 @@ class Studio {
                     ? 'touch'
                     : 'mouse'
                 : this.density;
+        this.savePreferences();
+        this.draw();
+    }
+    savePreferences(): void {
         try {
             localStorage.setItem(
                 'mypaint.ui.v1',
@@ -961,7 +994,6 @@ class Studio {
         } catch {
             this.message('설정은 이번 세션에만 적용됩니다.');
         }
-        this.draw();
     }
     resizeView(): void {
         if (this.densityPending && !this.pointers.size && !this.drag && !this.doc.stroke && !this.navigation)
@@ -3095,54 +3127,62 @@ class Studio {
     async menu(kind = 'menu'): Promise<void> {
         const dialog = document.createElement('dialog'),
             title = document.createElement('h2');
-        title.textContent = kind === 'tools' ? '그리기 도구' : '파일 · 편집 · 이미지';
+        title.textContent = kind === 'tools' ? '그리기 도구' : '메뉴';
+        dialog.classList.add('categorized-menu');
         dialog.append(title);
+        const categories = document.createElement('div');
+        categories.className = 'menu-categories';
+        categories.setAttribute('role', 'tablist');
+        categories.setAttribute('aria-label', '메뉴 범주');
         const grid = document.createElement('div');
         grid.className = 'menu-grid';
+        grid.setAttribute('role', 'tabpanel');
         let selected: string | undefined;
-        const commands =
+        const groups =
             kind === 'tools'
-                ? toolDefinitions.map((t) => [t[0], t[1], t[0]])
-                : [
-                      ['new', '새 그림', 'plus'],
-                      ['open', '파일 열기', 'open'],
-                      ['insert', '사진 삽입', 'open'],
-                      ['save', '프로젝트 저장', 'save'],
-                      ['save-as', '프로젝트 다른 이름 저장', 'save'],
-                      ['export', '이미지 내보내기', 'export'],
-                      ['recover', '복구 사본', 'save'],
-                      ['copy', '복사', 'select'],
-                      ['cut', '잘라내기', 'select'],
-                      ['paste', '붙여넣기', 'select'],
-                      ['select-all', '전체 선택', 'select'],
-                      ['delete', '선택 삭제', 'eraser'],
-                      ['crop', '선택 자르기', 'select'],
-                      ['selection-size', '선택 크기', 'fit'],
-                      ['canvas-size', '캔버스 크기', 'rectangle'],
-                      ['image-size', '이미지 크기', 'fit'],
-                      ['rotate-right', '오른쪽 회전', 'redo'],
-                      ['rotate-left', '왼쪽 회전', 'undo'],
-                      ['flip-x', '좌우 반전', 'pan'],
-                      ['flip-y', '상하 반전', 'pan'],
-                      ['shear', '가로 기울이기', 'polygon'],
-                      ['invert', '색 반전', 'palette'],
-                      ['clear', '활성 레이어 지우기', 'eraser'],
-                      ['background', '문서 지우기 바탕', 'palette'],
-                      ['text-options', '문자 설정', 'text'],
-                      ['settings', '테마 · 환경설정', 'settings'],
-                      ['help', '사용 방법', 'menu'],
-                  ];
-        for (const [command, label, image] of commands) {
+                ? [{ label: '그리기 도구', commands: toolDefinitions.map((t) => [t[0], t[1], t[0]]) }]
+                : documentMenuGroups;
+        const show = (index: number) => {
+            for (const [i, button] of [...categories.children].entries()) {
+                button.setAttribute('aria-selected', String(i === index));
+                (button as HTMLElement).tabIndex = i === index ? 0 : -1;
+            }
+            grid.setAttribute('aria-label', groups[index].label);
+            grid.replaceChildren();
+            for (const [command, label, image] of groups[index].commands) {
+                const button = document.createElement('button');
+                button.disabled = ['crop', 'selection-size'].includes(command) && !this.selection;
+                button.innerHTML = icon(image);
+                button.append(document.createTextNode(label));
+                button.onclick = () => {
+                    selected = command;
+                    dialog.close();
+                };
+                grid.append(button);
+            }
+        };
+        groups.forEach((group, index) => {
             const button = document.createElement('button');
-            button.disabled = ['crop', 'selection-size'].includes(command) && !this.selection;
-            button.innerHTML = icon(image);
-            button.append(document.createTextNode(label));
-            button.onclick = () => {
-                selected = command;
-                dialog.close();
+            button.type = 'button';
+            button.textContent = group.label;
+            button.setAttribute('role', 'tab');
+            button.onclick = () => show(index);
+            button.onkeydown = (event) => {
+                if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                event.preventDefault();
+                const next =
+                    event.key === 'Home'
+                        ? 0
+                        : event.key === 'End'
+                          ? groups.length - 1
+                          : (index + (event.key === 'ArrowRight' ? 1 : -1) + groups.length) % groups.length;
+                show(next);
+                (categories.children[next] as HTMLElement).focus();
             };
-            grid.append(button);
-        }
+            categories.append(button);
+        });
+        show(0);
+        dialog.append(categories);
         const close = document.createElement('button');
         close.textContent = '닫기';
         close.onclick = () => dialog.close();
@@ -3214,9 +3254,9 @@ class Studio {
         if (this.busy) throw Error('진행 중인 작업을 먼저 마치세요.');
         const controller = new AbortController(),
             editor = this.editor;
-        const controls = [...this.root.querySelectorAll<HTMLElement>('.topbar, .tools, .inspector')].map(
-            (element) => ({ element, inert: element.inert }),
-        );
+        const controls = [
+            ...this.root.querySelectorAll<HTMLElement>('.topbar, .document-tabs, .tools, .inspector'),
+        ].map((element) => ({ element, inert: element.inert }));
         const overlay = document.createElement('div');
         overlay.className = 'busy';
         const text = document.createElement('span');
@@ -3240,15 +3280,132 @@ class Studio {
             this.abort = undefined;
         }
     }
+    captureTab(): DocumentTab {
+        return {
+            key: this.recovery.key,
+            doc: this.doc,
+            name: this.name,
+            recovery: this.recovery,
+            recoveredRevision: this.recoveredRevision,
+            zoom: this.zoom,
+            offsetX: this.offsetX,
+            offsetY: this.offsetY,
+            autoFit: this.autoFit,
+        };
+    }
+    syncTabs(): void {
+        const current = this.tabs.find((tab) => tab.doc === this.doc);
+        if (current) current.name = this.name;
+        const signature = JSON.stringify(
+            this.tabs.map((tab) => [
+                tab.key,
+                tab.name,
+                tab.doc.dirty || (tab.doc === this.doc && this.hasPending()),
+                tab.doc === this.doc,
+            ]),
+        );
+        if (signature === this.tabsSignature) return;
+        this.tabsSignature = signature;
+        const list = this.root.querySelector('[role="tablist"][aria-label="그림 탭"]')!;
+        list.replaceChildren();
+        for (const tab of this.tabs) {
+            const item = document.createElement('div');
+            item.className = 'document-tab';
+            const button = document.createElement('button');
+            button.dataset.tab = tab.key;
+            button.setAttribute('role', 'tab');
+            button.setAttribute('aria-selected', String(tab.doc === this.doc));
+            button.textContent =
+                tab.name + (tab.doc.dirty || (tab.doc === this.doc && this.hasPending()) ? ' ●' : '');
+            button.title = tab.name;
+            const close = document.createElement('button');
+            close.dataset.closeTab = tab.key;
+            close.textContent = '×';
+            close.setAttribute('aria-label', tab.name + ' 탭 닫기');
+            item.append(button, close);
+            list.append(item);
+        }
+    }
+    async switchTab(key: string): Promise<void> {
+        const target = this.tabs.find((tab) => tab.key === key);
+        if (!target || target.doc === this.doc) return;
+        if (this.busy || this.drag || this.doc.stroke || this.selectionPreparation || this.selectionResize)
+            throw Error('진행 중인 작업을 마친 뒤 탭을 전환하세요.');
+        this.settle();
+        // Save a recovery snapshot before suspending this document; failed recovery never discards it.
+        const outgoing = this.captureTab();
+        const generation = this.epoch + 1;
+        await this.task('탭 전환 중', async (signal) => {
+            await this.autoRecover(true);
+            signal.throwIfAborted();
+            await activateNative(generation, target.key);
+            this.tabs[this.tabs.findIndex((tab) => tab.doc === this.doc)] = outgoing;
+            this.doc = target.doc;
+            this.name = target.name;
+            this.recovery = target.recovery;
+            this.recovery.generation = generation;
+            this.recoveredRevision = target.recoveredRevision;
+            this.epoch = generation;
+            this.zoom = target.zoom;
+            this.offsetX = target.offsetX;
+            this.offsetY = target.offsetY;
+            this.autoFit = target.autoFit;
+            this.selection = undefined;
+            this.points = [];
+            this.curveControls = [];
+            this.cancelRenderPreparation();
+            this.sceneCache.clear();
+            this.pendingDirty.clear();
+            this.workspace.querySelector('.download')?.remove();
+            if (this.downloadUrl) {
+                URL.revokeObjectURL(this.downloadUrl);
+                this.downloadUrl = undefined;
+            }
+            this.draw(true);
+        });
+    }
+    async closeTab(key: string): Promise<void> {
+        await this.switchTab(key);
+        if (this.busy || this.drag || this.doc.stroke) throw Error('현재 작업을 먼저 마치세요.');
+        if (!(await this.replacementAllowed())) return;
+        const closing = this.tabs.find((tab) => tab.key === key);
+        if (!closing) return;
+        if (this.tabs.length === 1) {
+            await this.replaceDocument(createState(800, 600, [0, 0, 0, 0], runtimeProfile), '제목 없음');
+        } else {
+            const index = this.tabs.indexOf(closing);
+            // Discard only after the destination activation succeeds.
+            await this.switchTab(this.tabs[index === 0 ? 1 : index - 1].key);
+        }
+        this.tabs = this.tabs.filter((tab) => tab.key !== key);
+        this.syncTabs();
+    }
     async replaceDocument(state: State, name: string, saved = true, sourceToken?: string): Promise<void> {
         validate(state, runtimeProfile);
+        if (this.tabs.length >= 12) throw Error('최대 12개의 그림을 열 수 있습니다. 저장 후 탭을 닫으세요.');
+        const retained = this.tabs.reduce(
+            (sum, tab) =>
+                sum +
+                tab.doc.historyBytes +
+                tab.doc.state.layers.reduce((bytes, layer) => bytes + layer.pixels.byteLength, 0),
+            0,
+        );
+        const incoming = state.layers.reduce((sum, layer) => sum + layer.pixels.byteLength, 0);
+        if (retained + incoming > 512 * 1048576)
+            throw Error('열린 그림의 메모리 한도입니다. 저장 후 다른 탭을 닫으세요.');
+        this.settle();
         const generation = this.epoch + 1,
-            key = crypto.randomUUID();
+            key = crypto.randomUUID(),
+            outgoing = this.captureTab();
+        const next = new PaintDocument(state, runtimeProfile);
+        if (!saved) next.savedRevision = 0;
         await this.task('문서 준비 중', async (signal) => {
+            await this.autoRecover(true);
             signal.throwIfAborted();
             await activateNative(generation, key, sourceToken);
-            // Activation is the commit point; a late cancel cannot split native and UI ownership.
-            this.doc.reset(state, saved);
+            this.tabs[this.tabs.findIndex((tab) => tab.doc === this.doc)] = outgoing;
+            this.doc = next;
+            this.recovery = new RecoveryStore(runtimeProfile);
             this.recovery.reset(key, generation);
             this.epoch = generation;
             this.nativeReady = Promise.resolve();
@@ -3261,7 +3418,9 @@ class Studio {
             this.curveControls = [];
             this.cancelRenderPreparation();
             this.sceneCache.clear();
+            this.pendingDirty.clear();
             this.fit();
+            this.tabs.push(this.captureTab());
             this.draw(true);
         });
     }
@@ -3328,7 +3487,7 @@ class Studio {
             this.selection = { width: loaded.width, height: loaded.height, pixels, x, y, modified: true };
             this.tool = 'select';
             this.message('드래그로 배치 · Enter 확정 · Escape 취소');
-        } else if (await this.replacementAllowed()) {
+        } else {
             await this.replaceDocument(loaded, file.name, true, sourceToken);
         }
         this.draw(true);
@@ -3358,14 +3517,15 @@ class Studio {
         input.type = 'file';
         input.accept = '.rpaint,.png,.jpg,.jpeg,.bmp,.gif';
         input.hidden = true;
+        input.multiple = !insert;
         document.body.append(input);
         try {
-            const file = await new Promise<File | undefined>((resolve) => {
-                input.onchange = () => resolve(input.files?.[0]);
-                input.oncancel = () => resolve(undefined);
+            const files = await new Promise<File[]>((resolve) => {
+                input.onchange = () => resolve(Array.from(input.files || []));
+                input.oncancel = () => resolve([]);
                 input.click();
             });
-            if (file) await this.loadFile(file, insert);
+            for (const file of files) await this.loadFile(file, insert);
         } finally {
             input.remove();
         }
@@ -3940,10 +4100,10 @@ class Studio {
             throw Error('편집 상태가 변경되어 붙여넣지 않았습니다.');
         await this.loadFile(file!, true);
     }
-    async autoRecover(): Promise<void> {
+    async autoRecover(duringTransition = false): Promise<void> {
         if (
             this.recoveryBusy ||
-            this.busy ||
+            (this.busy && !duringTransition) ||
             this.doc.stroke ||
             !this.doc.dirty ||
             this.doc.revision === this.recoveredRevision
@@ -4054,7 +4214,7 @@ class Studio {
                 signal.throwIfAborted();
                 state = (await runCodec('project-read', undefined, bytes, signal, runtimeProfile)).state;
             });
-            if (state && (await this.replacementAllowed())) {
+            if (state) {
                 await this.replaceDocument(state, entry.name, false);
                 this.message('복구했습니다. 프로젝트를 별도로 저장하세요.');
             }
@@ -4198,7 +4358,7 @@ class Studio {
                     result.background === '투명' ? [0, 0, 0, 0] : [255, 255, 255, 255],
                     runtimeProfile,
                 );
-                if (await this.replacementAllowed()) await this.replaceDocument(state, '제목 없음');
+                await this.replaceDocument(state, '제목 없음');
             }
             return;
         }
@@ -4525,6 +4685,13 @@ class Studio {
             return;
         }
         if (input) return;
+        if (e.ctrlKey && e.key === 'Tab') {
+            e.preventDefault();
+            const index = this.tabs.findIndex((tab) => tab.doc === this.doc);
+            const next = (index + (e.shiftKey ? -1 : 1) + this.tabs.length) % this.tabs.length;
+            void this.run(() => this.switchTab(this.tabs[next].key));
+            return;
+        }
         if (meta && e.key.toLowerCase() === 'v') return;
         let command = '';
         if (meta) {

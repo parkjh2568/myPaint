@@ -649,6 +649,7 @@ struct Session {
     generation: u64,
     key: String,
     binding: Option<Target>,
+    tab_bindings: HashMap<String, Target>,
     reads: HashMap<String, ReadTicket>,
     saves: HashMap<String, SaveTicket>,
     recovery: HashMap<String, RecoveryTicket>,
@@ -805,8 +806,16 @@ impl Persistence {
                 Some(ticket.target.clone())
             }
         } else {
-            None
+            session.tab_bindings.get(&key).cloned()
         };
+        // Keep save destinations owned by document keys, never by the visible tab index.
+        let previous_key = session.key.clone();
+        if let Some(previous) = session.binding.clone() {
+            if session.tab_bindings.len() >= 64 && !session.tab_bindings.contains_key(&previous_key) {
+                return Err("저장 대상 세션 한도입니다. 저장 후 앱을 다시 여세요.".into());
+            }
+            session.tab_bindings.insert(previous_key, previous);
+        }
         for cancelled in session.writing.values() {
             cancelled.store(true, Ordering::SeqCst);
         }
@@ -1470,6 +1479,22 @@ mod tests {
             bytes,
         )
         .map(|_| ())
+    }
+    #[test]
+    fn document_tabs_keep_separate_save_destinations() {
+        let (root, s) = store();
+        let a = root.path().join("a.rpaint");
+        let b = root.path().join("b.rpaint");
+        fs::write(&a, b"RPAINT01a").unwrap();
+        fs::write(&b, b"RPAINT01b").unwrap();
+        s.session.lock().unwrap().binding = Some(Target::new(&a).unwrap());
+        s.activate(2, "document-b".into(), None).unwrap();
+        assert!(s.session.lock().unwrap().binding.is_none());
+        s.session.lock().unwrap().binding = Some(Target::new(&b).unwrap());
+        s.activate(3, "document-a".into(), None).unwrap();
+        assert_eq!(s.session.lock().unwrap().binding.as_ref().unwrap().path, a);
+        s.activate(4, "document-b".into(), None).unwrap();
+        assert_eq!(s.session.lock().unwrap().binding.as_ref().unwrap().path, b);
     }
     #[test]
     fn snapshot_staleness_and_legacy_are_preserved() {

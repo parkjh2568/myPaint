@@ -111,7 +111,7 @@ label {
     height: 100dvh;
     height: var(--app-height, 100dvh);
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto 1fr auto;
     grid-template-columns: minmax(0, 1fr);
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
         env(safe-area-inset-left);
@@ -1208,4 +1208,53 @@ dialog p {
     .settings-button svg {
         display: none;
     }
+}
+
+.document-tabs {
+    display: flex;
+    min-width: 0;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+}
+.document-tabs [role='tablist'] {
+    display: flex;
+    overflow-x: auto;
+    flex: 1;
+    min-width: 0;
+}
+.document-tab {
+    display: flex;
+    flex: 0 0 auto;
+    border-right: 1px solid var(--line);
+}
+.document-tab [role='tab'] {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    justify-content: flex-start;
+}
+.document-tab [aria-selected='true'],
+.menu-categories [aria-selected='true'] {
+    background: var(--accent);
+    color: var(--on);
+}
+.menu-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+.categorized-menu {
+    width: min(580px, 94vw);
+}
+.categorized-menu .menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 58dvh;
+    overflow-y: auto;
+}
+:root[data-skin='classic'] .document-tabs {
+    background: #c0c0c0;
 }

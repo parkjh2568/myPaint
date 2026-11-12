@@ -52,7 +52,8 @@
         "test:matched-core": "node --import tsx tests/matched-core.mjs",
         "test:core-fixtures": "node tests/core-fixtures.mjs",
         "test:usability": "node --import tsx tests/usability.mjs",
-        "test:eraser-settings": "node --import tsx tests/eraser-settings.mjs"
+        "test:eraser-settings": "node --import tsx tests/eraser-settings.mjs",
+        "test:document-tabs": "node --import tsx tests/document-tabs.mjs"
     },
     "dependencies": {
         "buffer": "6.0.3",

@@ -5,6 +5,7 @@ export function installNativeHarness(options = {}) {
         generation: 0,
         key: '',
         binding: undefined,
+        tabBindings: new Map(),
         serial: 0,
         calls: [],
         writes: [],
@@ -180,6 +181,9 @@ export function installNativeHarness(options = {}) {
                                 throw Error('Source is not a decoded project capability');
                             binding = { path: source.path, generation: args.generation };
                         }
+                        if (!args.sourceToken && state.tabBindings.has(args.key))
+                            binding = { path: state.tabBindings.get(args.key), generation: args.generation };
+                        if (state.binding) state.tabBindings.set(state.key, state.binding.path);
                         state.generation = args.generation;
                         state.key = args.key;
                         state.binding = binding;
