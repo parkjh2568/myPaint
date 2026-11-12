@@ -1,3 +1,5 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 웹 버전 구현·검증 결과
 
 > 아래는 2026-11-03 구현 시점 기록이다. 2026-11-04 배포 용량·소스 제공 방식 변경은 [용량 정리 결과](WEB_SIZE_CLEANUP.md)를 따른다.
@@ -6,7 +8,7 @@
 
 초기 게시용 최종 release는 `2c6e8b800f0b183a3fadc1c8`, 관리 파일 56개, 전체 89,321,748바이트(약 85.2 MiB)다. 작업 중 생성한 미게시 시험 버전은 홈페이지 밖 `build-web-work`의 unpublished/pre-gesture/pre-atomic-recovery preview 폴더에 보관했다. 평소 재빌드는 게시된 이전 release를 자동 삭제하지 않는다.
 
-![Chrome에서 실행한 웹 그림판](web-app.png)
+![Chrome에서 실행한 웹 그림판](../web-app.png)
 
 ## 구현 범위와 구조
 
@@ -41,7 +43,7 @@
 
 Mac 웹에서는 Qt의 Ctrl 표시가 실제 ⌘ 키에 대응하므로 HTML 헤더에 안내를 추가했다.
 
-완료 TODO·임시 진단 코드를 제품 경로에 남기지 않았다. 별도 JS/Python linter 설정은 없어 Node/Python 문법 검사와 동작 시험을 적용했다. C++ 포맷·컴파일 경고·diff 공백 검사도 확인했다. 기존 네이티브 검토와 수정 내역은 [코드 검토](CODE_REVIEW.md), [네이티브 결과](IMPLEMENTATION_RESULTS.md)를 따른다.
+완료 TODO·임시 진단 코드를 제품 경로에 남기지 않았다. 별도 JS/Python linter 설정은 없어 Node/Python 문법 검사와 동작 시험을 적용했다. C++ 포맷·컴파일 경고·diff 공백 검사도 확인했다. 기존 네이티브 검토와 수정 내역은 [코드 검토](https://github.com/parkjh2568/myPaint/blob/cc5f0994df35553b987c523b164cfe0ac0fd738c/docs/CODE_REVIEW.md), [네이티브 결과](IMPLEMENTATION_RESULTS.md)를 따른다.
 
 ## 사용자 동작과 실패 계약
 
@@ -65,7 +67,7 @@ Mac 웹에서는 Qt의 Ctrl 표시가 실제 ⌘ 키에 대응하므로 HTML 헤
 
 JS Blob·GPU·브라우저 전체 메모리는 Wasm 메모리 상한에 포함되지 않는다. 마지막 이력 한 항목을 남기는 기존 규칙도 동일하다. 네이티브 한도는 변경하지 않았다.
 
-macOS ARM64 / Qt 6.12.0 / Emscripten 5.0.5 / Chrome 156.0.8078.80 headless에서 최대 4 Mi 픽셀 채우기와 합계 6 Mi 픽셀의 결정적 난수 2개 레이어를 3회 측정했다. 최종 3회 범위는 채우기 28~31ms, 프로젝트 인코딩 187~191ms, 프로젝트 디코딩 56~60ms, PNG 인코딩 104~110ms다. 정확한 수치는 [성능 JSON](evidence/web-performance.json)에 있다. 단일 코어 호출 측정이며 전체 사용자 입력 지연의 p95나 다른 기기의 상한을 뜻하지 않는다. 동기 코덱 호출 중 즉시 취소가 가능하다고 표시하지 않는다.
+macOS ARM64 / Qt 6.12.0 / Emscripten 5.0.5 / Chrome 156.0.8078.80 headless에서 최대 4 Mi 픽셀 채우기와 합계 6 Mi 픽셀의 결정적 난수 2개 레이어를 3회 측정했다. 최종 3회 범위는 채우기 28~31ms, 프로젝트 인코딩 187~191ms, 프로젝트 디코딩 56~60ms, PNG 인코딩 104~110ms다. 정확한 수치는 [성능 JSON](../evidence/web-performance.json)에 있다. 단일 코어 호출 측정이며 전체 사용자 입력 지연의 p95나 다른 기기의 상한을 뜻하지 않는다. 동기 코덱 호출 중 즉시 취소가 가능하다고 표시하지 않는다.
 
 초기 실행 자산은 Wasm 19,969,640바이트, JS 199,826바이트, Qt 로더 13,437바이트와 HTML이다. 약 85.2 MiB의 전체 게시 폴더에는 초기 실행 때 읽지 않는 대응 소스·라이선스 자료도 포함된다. 실제 Pages의 전송 압축·네트워크 시작 시간은 게시 후 측정해야 한다.
 
@@ -73,20 +75,20 @@ macOS ARM64 / Qt 6.12.0 / Emscripten 5.0.5 / Chrome 156.0.8078.80 headless에서
 
 | 시험 | 실제 결과와 증거 |
 | --- | --- |
-| 네이티브 Release CTest | web_stage·core·allocation_failure·smoke·ui 5개 그룹 통과. [로그](evidence/web-native-ctest.log) |
-| ASan/UBSan | core·ui 2개 그룹 통과. macOS, detect_leaks=0. [로그](evidence/web-native-sanitize.log) |
-| 로컬 홈페이지 실제 /mypaint/ | 버전별 JS/Wasm 요청, 라이선스/대응 소스 링크 확인. 실제 획 픽셀, Undo/Redo, 미확정 선택 다운로드, PNG, 손상/대용량/취소, cut 거절, 재로딩 후 정확한 복원 통과. [JSON](evidence/web-chromium.json) |
+| 네이티브 Release CTest | web_stage·core·allocation_failure·smoke·ui 5개 그룹 통과. [로그](../evidence/web-native-ctest.log) |
+| ASan/UBSan | core·ui 2개 그룹 통과. macOS, detect_leaks=0. [로그](../evidence/web-native-sanitize.log) |
+| 로컬 홈페이지 실제 /mypaint/ | 버전별 JS/Wasm 요청, 라이선스/대응 소스 링크 확인. 실제 획 픽셀, Undo/Redo, 미확정 선택 다운로드, PNG, 손상/대용량/취소, cut 거절, 재로딩 후 정확한 복원 통과. [JSON](../evidence/web-chromium.json) |
 | 시작·그래픽 오류 | Wasm 요청 차단 시 시작 오류 안내. Qt 래스터 Canvas의 합성 contextlost 이벤트로 안내 확인. 실제 GPU 장애를 재현한 검증은 아님 |
-| 브라우저 저장소 경계 | 실제 IndexedDB에서 다중 탭·quota/transaction 실패·이전 문서 지연 완료·손상·명시적 삭제·접근 거절, Blob URL 교체/해제 통과. [JSON](evidence/web-storage.json) |
-| 폴더 반영 실패 | 정상 반영·중복·기존 홈페이지/staging·수동 수정·미확인 파일/빈 폴더·symlink·경로 탈출·잘못된 manifest·복사 실패·설치 실패 복원 등 11개 시험 통과. [로그](evidence/web-stage-tests.log) |
-| 실제 홈페이지 보존 | 기존 파일 18개와 Git index 해시 불변, 산출물 manifest 전체 검증, 재반영 check changed=false. [JSON](evidence/web-homepage-stage.json) |
+| 브라우저 저장소 경계 | 실제 IndexedDB에서 다중 탭·quota/transaction 실패·이전 문서 지연 완료·손상·명시적 삭제·접근 거절, Blob URL 교체/해제 통과. [JSON](../evidence/web-storage.json) |
+| 폴더 반영 실패 | 정상 반영·중복·기존 홈페이지/staging·수동 수정·미확인 파일/빈 폴더·symlink·경로 탈출·잘못된 manifest·복사 실패·설치 실패 복원 등 11개 시험 통과. [로그](../evidence/web-stage-tests.log) |
+| 실제 홈페이지 보존 | 기존 파일 18개와 Git index 해시 불변, 산출물 manifest 전체 검증, 재반영 check changed=false. [JSON](../evidence/web-homepage-stage.json) |
 | 정적 확인 | 전체 src/tests C++ 포맷, Node 문법, Python 컴파일, git diff --check 통과. 최종 Release/Web/Sanitizer 빌드 로그에서 compiler warning/error 없음 |
 
 UI 자동화는 Playwright 1.62.1과 별도 임시 Chrome 프로필을 사용했다. 앱 제품 의존성이 아니다. 저장소 실패 시험은 실제 IndexedDB 위의 명시적 실패 주입이며 실제 디스크를 가득 채운 시험은 아니다. 웹 자산 요청은 같은 origin으로 한정됐고 외부 글꼴·사용자 파일 업로드·telemetry를 추가하지 않았다.
 
 ## 다음 실행과 남은 인수
 
-[빌드 문서](WEB_BUILD.md)의 한 명령으로 재빌드하고 형제 홈페이지에 반영한다. 각 저장소의 [pull·push 절차](GIT_WORKFLOW.md)는 분리돼 있다. 홈페이지 폴더에서 `git add -- mypaint/` 전후의 전체 staging을 확인하고 사용자가 별도로 commit·push한다. 목표 공개 URL은 `https://parkjh2568.github.io/mypaint/`다.
+[빌드 문서](../WEB_BUILD.md)의 한 명령으로 재빌드하고 형제 홈페이지에 반영한다. 각 저장소의 [pull·push 절차](https://github.com/parkjh2568/myPaint/blob/cc5f0994df35553b987c523b164cfe0ac0fd738c/docs/GIT_WORKFLOW.md)는 분리돼 있다. 홈페이지 폴더에서 `git add -- mypaint/` 전후의 전체 staging을 확인하고 사용자가 별도로 commit·push한다. 목표 공개 URL은 `https://parkjh2568.github.io/mypaint/`다.
 
 P0 게시 인수는 홈페이지의 기존 main 게시 workflow 성공, 공개 URL의 실제 MIME/캐시·새로고침·파일 왕복·복구와 기존 홈페이지 보존 확인이다. 이번에는 원격 push와 Pages 게시를 수행하지 않았다.
 

@@ -1,6 +1,6 @@
 # Studio 제품·도메인·로컬 계약
 
-2026-11-05 / Qt-free 전환의 현재 구조와 목표 계약. 실제 검증 상태와 남은 차이는 [구현 기록](STUDIO_IMPLEMENTATION.md), [독립 리뷰/RCA](STUDIO_REVIEW_AND_RCA.md)를 기준으로 한다.
+2026-11-05 / Qt-free 전환의 현재 구조와 목표 계약. 실제 검증 상태와 남은 차이는 [구현 기록](STUDIO_IMPLEMENTATION.md), [독립 리뷰/RCA](archive/STUDIO_REVIEW_AND_RCA.md)를 기준으로 한다.
 
 [문서·알파·비동기 확정의 명시 계약과 최신 QF-04 감사](STUDIO_DOCUMENT_CONTRACTS.md)를 따른다. 아래 날짜별 실행 기록은 각각 당시 소스에 한정한다.
 
@@ -31,7 +31,7 @@
 
 생성된 chunk 그래프는 별도로 구분한다. 당시 Codec 응답 산출물의 JavaScript chunk 5개는 정적 평가 순환이 없고, 동적 로딩까지 포함하면 entry↔smoke와 codec.worker↔Buffer/encoder의 SCC 2개가 있다. Entry는 Studio를 먼저 생성하고, top-level await 없는 모듈 안의 별도 async workflow가 `runtime_ready`에서 기다린다. 이후 동적으로 불러온 smoke는 이미 평가된 Entry의 공유 helper를 참조하므로 Entry와 Studio를 다시 실행하지 않는다. Worker도 평가와 handler 설치를 마친 뒤 JPEG 요청에서 공유 helper chunk를 불러온다. 초기화 전 지연 import나 의존 chunk를 기다리는 top-level await가 추가되면 이 순서를 다시 검토한다. 소스와 산출물 해시, 각 그래프의 집계 범위는 의존성 기록에 남긴다.
 
-직전 네이티브 저장·복구 단계는 [당시 보고](STUDIO_NATIVE_OWNERSHIP.md)의 main `b7b9d26c`·persistence `4d46f4cb`·entry `index-DLvOR2As.js`를 따른다. 현재 웹 후보의 main `48695bee`·entry `index-DIgO41Ne.js`와 오류 세대 검사는 [QF-04 계약 감사](STUDIO_DOCUMENT_CONTRACTS.md)에 연결한다. 복구 조회 전체 흐름에 owner guard를 두고 저장 binding은 게시한 열린 파일 descriptor에서 갱신한다. 앞선 smoke 단계·시간 기록은 유지한다. import 관계는 바꾸지 않았으며 위 그래프의 원문·해시는 직전 Codec 응답 단계 snapshot으로 보존한다. 최신 자산 그래프를 새로 생성했다고 주장하지 않는다.
+직전 네이티브 저장·복구 단계는 [당시 보고](archive/STUDIO_NATIVE_OWNERSHIP.md)의 main `b7b9d26c`·persistence `4d46f4cb`·entry `index-DLvOR2As.js`를 따른다. 현재 웹 후보의 main `48695bee`·entry `index-DIgO41Ne.js`와 오류 세대 검사는 [QF-04 계약 감사](STUDIO_DOCUMENT_CONTRACTS.md)에 연결한다. 복구 조회 전체 흐름에 owner guard를 두고 저장 binding은 게시한 열린 파일 descriptor에서 갱신한다. 앞선 smoke 단계·시간 기록은 유지한다. import 관계는 바꾸지 않았으며 위 그래프의 원문·해시는 직전 Codec 응답 단계 snapshot으로 보존한다. 최신 자산 그래프를 새로 생성했다고 주장하지 않는다.
 
 핵심 데이터 흐름은 입력→Stroke 임시 patch→권위 pixels→dirty 영역 표시→획 종료 history다. 파일 흐름은 bounded File bytes→Worker 검증/해독 또는 헤더 검사 후 플랫폼 bitmap→후보→교체 여부→Document reset이다. 저장은 pending 후보/이력 준비→Worker 인코딩→웹 다운로드 또는 네이티브 원자 교체→해당 문서/세대에만 확정이다.
 
@@ -49,7 +49,7 @@ nearest는 호출당 X 표와 행 Y를 공유하며 aligned source를 명시 byt
 
 표시는 `PixelTileCache`의 source 타일과 `FinalSceneCache`의 완성된 불투명 화면을 함께 소유한다. source는 실제 pixels 객체를 식별자로 사용하고, 선택의 잘라낸 바탕 preview는 별도 cut owner를 사용한다. 물리 배율이 1 이상이고 원래 가시 작업량이 64타일을 넘으며 전체 scene이 예산 안에 맞을 때만 final scene을 유지한다. Source 510px 격자의 device clip 경계를 정렬하고 각 투영 구획을 최대 512px로 나눈다. 생성된 world viewport의 정수 `deviceBounds`를 source culling에 전달해 분수 배율의 역변환 오차를 피한다. 기존 PixelRect 호출자는 같은 경로를 유지한다.
 
-Source와 scene은 합계 64타일·128MiB의 추정 RGBA 예산을 공유한다. 축소나 scene 예산 부족에서는 원래 source 예산으로 돌아간다. 이는 전체 RSS나 GPU 복사를 포함한 상한이 아니다. 물리 Canvas 전체에 불투명 배경을 먼저 채우며, 완성된 scene을 얻은 뒤 선택·곡선·다각형 overlay를 한 번 그린다. 완전한 cache hit에서는 종이와 체커보드를 다시 채우지 않는다. Dirty는 source에 한 번 등록하고, context loss·예외·문서 교체에서는 두 cache를 함께 해제한다. 원본 RGBA·알파·halo·mip 선택은 유지한다. 여러 dirty 구획의 단일 bounding box와 최초 cache 생성의 응답성 한계는 [최대 문서 기록](STUDIO_MAX_DOCUMENT.md)에 별도 인수 항목으로 남긴다. 균일 mip 영역의 검사는 행 시작 인덱스를 한 번 계산하고 4word 비교와 tail을 순차 처리한다. 최초 불일치에서 기존 box 평균으로 돌아가며, unaligned 버퍼와 transform은 기존 fallback을 유지한다. 원본 RGBA·zero-alpha preview·좌표·할당·예산 계약은 바꾸지 않는다.
+Source와 scene은 합계 64타일·128MiB의 추정 RGBA 예산을 공유한다. 축소나 scene 예산 부족에서는 원래 source 예산으로 돌아간다. 이는 전체 RSS나 GPU 복사를 포함한 상한이 아니다. 물리 Canvas 전체에 불투명 배경을 먼저 채우며, 완성된 scene을 얻은 뒤 선택·곡선·다각형 overlay를 한 번 그린다. 완전한 cache hit에서는 종이와 체커보드를 다시 채우지 않는다. Dirty는 source에 한 번 등록하고, context loss·예외·문서 교체에서는 두 cache를 함께 해제한다. 원본 RGBA·알파·halo·mip 선택은 유지한다. 여러 dirty 구획의 단일 bounding box와 최초 cache 생성의 응답성 한계는 [최대 문서 기록](archive/STUDIO_MAX_DOCUMENT.md)에 별도 인수 항목으로 남긴다. 균일 mip 영역의 검사는 행 시작 인덱스를 한 번 계산하고 4word 비교와 tail을 순차 처리한다. 최초 불일치에서 기존 box 평균으로 돌아가며, unaligned 버퍼와 transform은 기존 fallback을 유지한다. 원본 RGBA·zero-alpha preview·좌표·할당·예산 계약은 바꾸지 않는다.
 
 네이티브 검증 모드에서는 기본 문서가 유지되는 준비 단계에서 constructor의 500ms recovery workflow를 기다린 뒤 rAF를 비우고 target을 설치한다. 750ms 대기와 초기화는 `startupDrainMs/setupMs`로 분리한다. Target 설치 이후 예약된 자동 frame이나 owner·camera·view·DPR 변경은 표본을 실패시킨다. Cold는 renderer cache가 비어 있음을 뜻하며 OS·CPU cache까지 차갑다는 보장은 아니다. 시간 batch는 test rAF 안의 실제 `Studio.render()` API 반환 시간을 잰다. Production scene capture의 Canvas-to-Canvas `drawImage`는 포함하고, 추가 test `getImageData`·권위 픽셀 hash·reference render는 뒤로 분리한다. `derivedPaperMatrix`는 산술 메타데이터이며 실제 backend transform 기록이 아니다. `queueMs`와 rAF timestamp 간격도 물리 화면 제시나 전체 입력 지연을 뜻하지 않는다.
 
@@ -72,7 +72,7 @@ RPAINT01의 little-endian header, 크기/레이어 수/active/background, UTF-8 
 
 GIF는 첫 image descriptor까지 GCT·extension subblock의 길이를 확인하며 진행하고, logical screen과 첫 프레임 offset+치수의 최대 범위를 디코더 호출 전에 검사한다. 긴 prefix는 진행량과 경과 시간을 기준으로 event loop에 양보하며 취소를 확인한다. 정상 animation은 첫 프레임만 여는 기존 정책을 유지한다. 후속 프레임이나 bounded 비규격 GIF를 일괄 금지하지 않고, 플랫폼별 실제 bitmap 치수·픽셀과 기존 zero-logical 거부를 유지한다. 이 사전검사는 브라우저 디코더 내부 중간 버퍼·전체 프레임 metadata·전체 RSS 상한의 증명은 아니다.
 
-웹은4Mi pixels/총6Mi/4096/16 layers/파일40MiB, 설치형은32Mi/총64Mi/32768/파일300MiB의 명시 프로필을 사용한다. State/파일에 프로필을 저장하지 않고 실행 환경과 Worker 요청/응답에 일치시킨다. 실제 대형 문서·타일·geometry·JPEG 경계 검증과 남은 최대 부하 인수는 [후속 기록](STUDIO_NATIVE_PROFILES.md)을 따른다.
+웹은4Mi pixels/총6Mi/4096/16 layers/파일40MiB, 설치형은32Mi/총64Mi/32768/파일300MiB의 명시 프로필을 사용한다. State/파일에 프로필을 저장하지 않고 실행 환경과 Worker 요청/응답에 일치시킨다. 실제 대형 문서·타일·geometry·JPEG 경계 검증과 남은 최대 부하 인수는 [후속 기록](archive/STUDIO_NATIVE_PROFILES.md)을 따른다.
 
 ## 내부 API와 권한
 
@@ -102,7 +102,7 @@ Vite/strict TypeScript, DOM/CSS, Canvas2D 표시와 로컬 SVG 아이콘을 쓴�
 
 소스 origin과 형제 홈페이지 저장소는 별도 디렉토리/commit/push를 유지한다. 홈페이지에는 검증된 산출물만 전달하며 SDK/node_modules/Rust target을 올리지 않는다. 새 manifest staging과 구탭 자산/롤백 인수가 끝나기 전에는 기존 공개 앱을 교체하지 않는다. release 서명·공증과 공개 URL 인수는 빌드 성공과 별개다.
 
-기본 검사는 `npm --prefix web-app run check`, `format:check`, `test`다. 브라우저는 lockfile의 Playwright로 Chromium을 준비한 뒤 고정 정적 서버에 `PAINT_TEST_URL`을 지정하고 `test:browser`를 실행한다. 명시적 성능 검사는 `test:performance`이며 환경/프로필/해시를 결과에 남긴다. CI는 실패를 검사 상태로 알리고, 앱에서는 현재 상태 메시지와 로컬 오류 로그만 제공한다. 현재 검증과 미확인 기기는 후속 기록에서 분리한다. [최대 문서 기록](STUDIO_MAX_DOCUMENT.md)은 cold/steady, 2layer 축소와16layer1:1을 구분한다. [native 저장·복구 기록](STUDIO_NATIVE_PERSISTENCE.md)은 실제 OS 파일 검증과 Chromium IPC 모델 검증을 구분한다.
+기본 검사는 `npm --prefix web-app run check`, `format:check`, `test`다. 브라우저는 lockfile의 Playwright로 Chromium을 준비한 뒤 고정 정적 서버에 `PAINT_TEST_URL`을 지정하고 `test:browser`를 실행한다. 명시적 성능 검사는 `test:performance`이며 환경/프로필/해시를 결과에 남긴다. CI는 실패를 검사 상태로 알리고, 앱에서는 현재 상태 메시지와 로컬 오류 로그만 제공한다. 현재 검증과 미확인 기기는 후속 기록에서 분리한다. [최대 문서 기록](archive/STUDIO_MAX_DOCUMENT.md)은 cold/steady, 2layer 축소와16layer1:1을 구분한다. [native 저장·복구 기록](STUDIO_NATIVE_PERSISTENCE.md)은 실제 OS 파일 검증과 Chromium IPC 모델 검증을 구분한다.
 
 
 ## 입력 실패의 자원 소유권 보완
@@ -153,20 +153,20 @@ Studio.render 안의 cut transform 하나만 변경했다. 정수row/col과 원�
 
 ## 출력 미리보기 소유권
 
-[현재 구현·검증](STUDIO_EXPORT_PREVIEW.md). exportImage는 원본을 읽는 최대 192px grid·채널·폰트 대기·표면·대화상자를 소유한다. 선택 원본 지우기와 확장 바탕을 적용한 뒤 pending 문자/도형을 활성 레이어 안에 합성하고, 상위 레이어와 최종 matte를 순서대로 적용한다. 형식·색 변경은 캐시만 갱신하며 실제 확정 전에는 전체 후보·Worker를 만들지 않는다. 문자 줄바꿈과 그리기는 동기 실제 출력과 분할 미리보기가 공유한다. 취소·stale·실패는 원본과 Redo를 유지한다. 새 런타임 모듈·의존성은 없으며 기본 Surface API는 그대로다.
+[현재 구현·검증](archive/STUDIO_EXPORT_PREVIEW.md). exportImage는 원본을 읽는 최대 192px grid·채널·폰트 대기·표면·대화상자를 소유한다. 선택 원본 지우기와 확장 바탕을 적용한 뒤 pending 문자/도형을 활성 레이어 안에 합성하고, 상위 레이어와 최종 matte를 순서대로 적용한다. 형식·색 변경은 캐시만 갱신하며 실제 확정 전에는 전체 후보·Worker를 만들지 않는다. 문자 줄바꿈과 그리기는 동기 실제 출력과 분할 미리보기가 공유한다. 취소·stale·실패는 원본과 Redo를 유지한다. 새 런타임 모듈·의존성은 없으며 기본 Surface API는 그대로다.
 
 ## 입력 투영과 터치 표적
 
-[현재 구현·검증](STUDIO_TOUCH_VIEWPORT.md). UI는 canvas 원점·크기와 backing/DPR을 저장한다. 실제 pointer가 소유한 provisional/navigation의 투영이 달라지면 rollback 후 geometry를 갱신하며, down/move에서 소유권을 확인한 뒤 문서 좌표로 변환한다. 손을 뗀 비동기 resize/preparation은 별도 작업 소유권을 유지한다. 정지 pending·수동 줌·문자 box와 내용은 보존하고 필요한 camera offset만 조정한다. Move/coalesced는 기존 point 메서드가 같은 rect를 재사용한다. 터치48px은 label·레일·grid·scrollport의 실제 영역 기준이며 모델리스 패널의 전체 scroll/sticky heading과 함께 적용한다.
+[현재 구현·검증](archive/STUDIO_TOUCH_VIEWPORT.md). UI는 canvas 원점·크기와 backing/DPR을 저장한다. 실제 pointer가 소유한 provisional/navigation의 투영이 달라지면 rollback 후 geometry를 갱신하며, down/move에서 소유권을 확인한 뒤 문서 좌표로 변환한다. 손을 뗀 비동기 resize/preparation은 별도 작업 소유권을 유지한다. 정지 pending·수동 줌·문자 box와 내용은 보존하고 필요한 camera offset만 조정한다. Move/coalesced는 기존 point 메서드가 같은 rect를 재사용한다. 터치48px은 label·레일·grid·scrollport의 실제 영역 기준이며 모델리스 패널의 전체 scroll/sticky heading과 함께 적용한다.
 
 ## 카메라와 VisualViewport 소유권
 
-[현재 구현·검증](STUDIO_CAMERA_VIEWPORT.md). canvas wheel은 진행 중 pointer/provisional/navigation/busy/modal과 동시에 투영을 바꾸지 않는다. VV의 normalized 높이는 앱 레이아웃, raw rect는 접근 가능한 패널을 소유한다. 좁은 pinch에서는 anchor를 고정하고 실제 span/layout 변화에만 재기준화한다. scale1/full-width origin은 앱 전체가 따른다. 반복된 같은 기하는 focused editor clamp를 덮지 않으며, 선택·UndoRedo의 기존 맞춤은 유지한다. 미변형 선택은 기존 commitPending 검증·정리로 합류하고 픽셀 복제만 생략한다.
+[현재 구현·검증](archive/STUDIO_CAMERA_VIEWPORT.md). canvas wheel은 진행 중 pointer/provisional/navigation/busy/modal과 동시에 투영을 바꾸지 않는다. VV의 normalized 높이는 앱 레이아웃, raw rect는 접근 가능한 패널을 소유한다. 좁은 pinch에서는 anchor를 고정하고 실제 span/layout 변화에만 재기준화한다. scale1/full-width origin은 앱 전체가 따른다. 반복된 같은 기하는 focused editor clamp를 덮지 않으며, 선택·UndoRedo의 기존 맞춤은 유지한다. 미변형 선택은 기존 commitPending 검증·정리로 합류하고 픽셀 복제만 생략한다.
 
 ## 복구 snapshot과 실패 소유권
 
-[현재 근거](STUDIO_RECOVERY_SNAPSHOT.md). 확정 revision의 전용 snapshot만 Worker로 전송하며 live/이력 버퍼는 유지한다. recovery owner는 backend를 고르기 전에 typed/nonempty/profile byte 한도를 검증한다. IDB 완료나 native commit을 성공으로 받은 뒤에만 recoveredRevision을 표시하며, 이전 epoch의 늦은 오류가 새 문서 상태를 덮지 않는다. key/generation·quota·기존 사본·원자성 검사는 유지한다. stage wall time을 clone/Worker/storage로 분리하고 실제 플랫폼 게이트와 모델을 구분한다.
+[현재 근거](archive/STUDIO_RECOVERY_SNAPSHOT.md). 확정 revision의 전용 snapshot만 Worker로 전송하며 live/이력 버퍼는 유지한다. recovery owner는 backend를 고르기 전에 typed/nonempty/profile byte 한도를 검증한다. IDB 완료나 native commit을 성공으로 받은 뒤에만 recoveredRevision을 표시하며, 이전 epoch의 늦은 오류가 새 문서 상태를 덮지 않는다. key/generation·quota·기존 사본·원자성 검사는 유지한다. stage wall time을 clone/Worker/storage로 분리하고 실제 플랫폼 게이트와 모델을 구분한다.
 
 ## Codec 작업별 응답 계약
 
-[현재 근거](STUDIO_CODEC_REPLY.md). runCodec은10개 operation의 envelope/profile/필수slot과 typed/profile-bounded 상태·래스터를 검증한다. fill은 own image:undefined만 정상NoOp로 구분하고 selection mask binary scan은 기존 yield owner가 맡는다. metadata layer count와4색상 own인덱스를 bounded하게 확인한다. timer/abort/terminate/active는한finally, malformed/error/messageerror는실패로합류한다. 공개signature/후보transfer/기존source epoch와history guard는유지한다. native첫timeout 원인·CRC후보비채택·실제플랫폼게이트는별도기록이다.
+[현재 근거](archive/STUDIO_CODEC_REPLY.md). runCodec은10개 operation의 envelope/profile/필수slot과 typed/profile-bounded 상태·래스터를 검증한다. fill은 own image:undefined만 정상NoOp로 구분하고 selection mask binary scan은 기존 yield owner가 맡는다. metadata layer count와4색상 own인덱스를 bounded하게 확인한다. timer/abort/terminate/active는한finally, malformed/error/messageerror는실패로합류한다. 공개signature/후보transfer/기존source epoch와history guard는유지한다. native첫timeout 원인·CRC후보비채택·실제플랫폼게이트는별도기록이다.

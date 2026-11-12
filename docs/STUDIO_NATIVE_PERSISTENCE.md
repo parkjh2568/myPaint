@@ -77,7 +77,7 @@ raw IPC 요청을 다시 `Vec` 전체 복제하던 경로를 제거하고 2MiB �
 
 이 실행의 앱 SHA-256은 `0b213edb8907f2011d8158c763bda72053333ac876c39b5d1a576b408d00afaa`다. 원시 결과는 `build-web-work/task-planning/max-document/quit-desktop.json`, 정리된 검증 요약은 [최대 문서 근거](evidence/studio-max-document.json)를 따른다. 이는 실제 macOS 네이티브 경로 검증이며 Windows 실행, OS 선택기 조작, 강제 종료 검증을 대신하지 않는다.
 
-후속 [최대 문서·PNG 검증](STUDIO_MAX_DOCUMENT.md)에서 저장/복구를 재검증하고 실제 native 코덱·렌더러 검사도 별도 임시 root로 격리했다. 이 문서의 43개 단위 회귀는 당시 표본이며 최신 개수와 source hash는 후속 기록을 따른다.
+후속 [최대 문서·PNG 검증](archive/STUDIO_MAX_DOCUMENT.md)에서 저장/복구를 재검증하고 실제 native 코덱·렌더러 검사도 별도 임시 root로 격리했다. 이 문서의 43개 단위 회귀는 당시 표본이며 최신 개수와 source hash는 후속 기록을 따른다.
 
 ## 실제 APFS 공간 부족 검사
 

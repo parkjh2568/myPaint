@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 카메라·VisualViewport와 선택 확정 최적화
 
-2026-11-06. [소스·최초 실패·원인 분리·최종 검증](evidence/studio-camera-viewport.json). 모바일·태블릿은 웹만, 실행 파일은 Windows/macOS만 제공한다. 이번 단계는 전체34태스크·실기기·출시 완료 판정이 아니다.
+2026-11-06. [소스·최초 실패·원인 분리·최종 검증](../evidence/studio-camera-viewport.json). 모바일·태블릿은 웹만, 실행 파일은 Windows/macOS만 제공한다. 이번 단계는 전체34태스크·실기기·출시 완료 판정이 아니다.
 
 ## 우선순위와 수정
 
@@ -37,7 +39,7 @@
 
 ## 구조·문서·남은 작업
 
-런타임17개 중 main/CSS만 변경했고 기존 메서드 안에 순차 구현했다. 새 작은 helper·런타임 모듈·외부 의존성·엔진/형식/Rust 변경은 없다. 공유 VV 핸들러는 같은 이벤트 자원과 배치 상태를 소유한다. 신규 주석은 좁은 pinch anchor와 반복 observer의 의도만 설명한다. [소스·배포 의존성 그래프](evidence/studio-camera-viewport-module-graph.json)의 runtime 순환0·정적 평가 순환0·기존 동적 SCC2를 확인했다.
+런타임17개 중 main/CSS만 변경했고 기존 메서드 안에 순차 구현했다. 새 작은 helper·런타임 모듈·외부 의존성·엔진/형식/Rust 변경은 없다. 공유 VV 핸들러는 같은 이벤트 자원과 배치 상태를 소유한다. 신규 주석은 좁은 pinch anchor와 반복 observer의 의도만 설명한다. [소스·배포 의존성 그래프](../evidence/studio-camera-viewport-module-graph.json)의 runtime 순환0·정적 평가 순환0·기존 동적 SCC2를 확인했다.
 
 최종 웹 payload는 LICENSE 포함9파일·288,921B, entry는 `assets/index-CKNQ3vWc.js`다. 검증 manifest는 별도이며 SDK·node_modules·Rust target은 포함하지 않는다. 홈페이지 쓰기·Git commit/push·공개 배포는 하지 않았다.
 

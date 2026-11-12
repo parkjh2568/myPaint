@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 터치 조작과 입력 투영 보존
 
-2026-11-06. [소스·재현·수정·독립 검증 근거](evidence/studio-touch-viewport.json). QF-19/20의 확인된 문제를 수정한 단계이며 전체 전환·실기기·출시 완료를 뜻하지 않는다.
+2026-11-06. [소스·재현·수정·독립 검증 근거](../evidence/studio-touch-viewport.json). QF-19/20의 확인된 문제를 수정한 단계이며 전체 전환·실기기·출시 완료를 뜻하지 않는다.
 
 ## 확인한 원인과 수정
 
@@ -33,7 +35,7 @@
 
 기존 `point`가 한 이벤트의 직사각형을 재사용한다. 실제4/16/64개 합쳐진 샘플에서 동기 Canvas 좌표 읽기는 각각5/17/65회→1회였고, 세 쌍의 실제 PNG와 한 번 Undo가 같았다. 이는 호출 수 계측이며 강제 layout 시간·CPU·FPS·p95 개선 수치가 아니다.
 
-런타임17개 중 main/CSS만 바뀌었다. 기존8메서드와 보기 원점 필드2개가 변경 범위이고 새 helper·런타임 모듈·의존성·Rust/엔진/형식 변경은 없다. 문자·도형·pending·내보내기 알고리즘은 AST로 이전과 동일하다. [최신 의존성 그래프](evidence/studio-touch-viewport-module-graph.json)는 소스 runtime 순환0, 배포 정적 평가 순환0과 기존 동적 SCC2개를 확인했다.
+런타임17개 중 main/CSS만 바뀌었다. 기존8메서드와 보기 원점 필드2개가 변경 범위이고 새 helper·런타임 모듈·의존성·Rust/엔진/형식 변경은 없다. 문자·도형·pending·내보내기 알고리즘은 AST로 이전과 동일하다. [최신 의존성 그래프](../evidence/studio-touch-viewport-module-graph.json)는 소스 runtime 순환0, 배포 정적 평가 순환0과 기존 동적 SCC2개를 확인했다.
 
 최종 웹 payload는 LICENSE 포함9파일·285,903B이며 검증 manifest는 별도다. SDK·node_modules·Rust target은 포함하지 않는다. 고정 `final-bundle`과 최종 소스를 보존했으며 실제 홈페이지 쓰기·커밋·푸시·공개 배포는 수행하지 않았다.
 

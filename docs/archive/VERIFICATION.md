@@ -1,3 +1,5 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 구현 및 검증 보고서
 
 2026-11-03의 후속 수정과 macOS ARM64 검증은 [구현 결과](IMPLEMENTATION_RESULTS.md)를 참고하세요. 아래는 최초 Linux 구현의 역사적 검증 기록입니다.
@@ -26,7 +28,7 @@ Linux에서 Release 빌드, 설치 경로로 복사한 실행 파일의 스모�
 | CI | Ubuntu/macOS/Windows 빌드 매트릭스 작성 및 YAML 구문 확인; 원격 CI 실행은 하지 않음 |
 | macOS/Windows 실기기 | 미검증 |
 
-출력 원문: [Release](evidence/ctest-release.log), [ASan/UBSan](evidence/ctest-asan-ubsan.log), [성능 표본](evidence/performance.json), [Linux 링크 의존성](evidence/linux-dependencies.log).
+출력 원문: [Release](../evidence/ctest-release.log), [ASan/UBSan](../evidence/ctest-asan-ubsan.log), [성능 표본](../evidence/performance.json), [Linux 링크 의존성](../evidence/linux-dependencies.log).
 
 테스트 화면은 offscreen 백엔드입니다. 실제 데스크톱의 시스템 클립보드, 트랙패드, 네이티브 한글 조합창, Retina/다중 모니터, 파일 선택 대화상자의 OS 연동까지 검증했다는 뜻은 아닙니다. QtTest의 한글 검사는 입력기 commit 이벤트를 전달하는 수준입니다. offscreen의 `propagateSizeHints` 경고는 해당 백엔드의 기능 제한이며 테스트 결과와 함께 원문에 남겼습니다.
 

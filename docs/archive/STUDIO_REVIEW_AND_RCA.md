@@ -1,10 +1,12 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # Studio 독립 리뷰·RCA·성능 수정 기록
 
 2026-11-04 / 현재 Qt-free 전환 작업의 수정 배치. 전체 전환·출시 완료 보고가 아니다. Architect, Implementation Engineer, Reviewer, SRE/Optimizer가 같은 작업 트리를 독립 검토하고, 재현 → 수정 → 회귀 → 별도 고정 스냅샷 인수를 진행했다.
 
 ## 요구사항과 설계 적용 범위
 
-이 제품은 로컬 그림 편집기다. 모바일·태블릿은 HTTPS 웹만, 설치 실행파일은 Windows/macOS만 제공한다. 기존 offline/no upload 규칙을 유지하므로 서버·계정·RDBMS·HTTP API를 새로 추가하지 않는다. 요구한 DB/API/인증 설계는 실제 제품의 IndexedDB 스키마, 로컬 파일 계약, Worker/네이티브 IPC와 권한 경계로 구체화한다. 해당 계약은 [아키텍처](STUDIO_ARCHITECTURE.md)에 정리했다.
+이 제품은 로컬 그림 편집기다. 모바일·태블릿은 HTTPS 웹만, 설치 실행파일은 Windows/macOS만 제공한다. 기존 offline/no upload 규칙을 유지하므로 서버·계정·RDBMS·HTTP API를 새로 추가하지 않는다. 요구한 DB/API/인증 설계는 실제 제품의 IndexedDB 스키마, 로컬 파일 계약, Worker/네이티브 IPC와 권한 경계로 구체화한다. 해당 계약은 [아키텍처](../STUDIO_ARCHITECTURE.md)에 정리했다.
 
 | 목표 | 이번 배치에서 확인·수정한 근거 | 남은 완료 조건 |
 | --- | --- | --- |
@@ -22,7 +24,7 @@ Blocker는 현재 구현으로 기존 제품을 교체하기 전에 해결해야
 | 항목 | 분류/비용 | 재현·호출 경로·근본 원인 | 영구 수정과 확인 |
 | --- | --- | --- | --- |
 | macOS 앱 종료가 미저장 확인 우회 | Blocker / M | 창 닫기만 가로챔 → `app.exit`는 `ExitRequested`, 기본 Cmd+Q/Dock은 `NSApplication.terminate:`로 별도 종료. Tao 0.37.2 실제 프로브에서 창 닫기를 막아도 앱 종료는 통과 | runtime 종료와 macOS delegate 종료를 현재 UI 확인에 연결. 문서 활성화 후 보호, 승인 후 입력 동결, IPC 실패 시 복원. 실제 macOS bundle에서 두 종료 경로의 미저장/문자/작업 중 보존·반복 요청·최종 승인 종료를 확인. [후속 근거](STUDIO_MAX_DOCUMENT.md) |
-| Pending 중 Redo 단축키가 원본문서 변경 | Major / S | 헤더 Redo는 비활성화됐지만 Ctrl+Shift+Z/Ctrl+Y가 command redo를 직접 호출 → pending 아래의 committed 문서에 과거 변경을 재실행 | 공통 redo 명령에 inline pending 가드. 실제 Qt disabled QAction 키 시험으로 무동작 계약을 확인하고 수정 전 12개 실패→수정 후 12개 보존을 확인. 실패/취소 24개와 독립 clipboard 4개도 통과. [근거](evidence/studio-pending-contracts.json) |
+| Pending 중 Redo 단축키가 원본문서 변경 | Major / S | 헤더 Redo는 비활성화됐지만 Ctrl+Shift+Z/Ctrl+Y가 command redo를 직접 호출 → pending 아래의 committed 문서에 과거 변경을 재실행 | 공통 redo 명령에 inline pending 가드. 실제 Qt disabled QAction 키 시험으로 무동작 계약을 확인하고 수정 전 12개 실패→수정 후 12개 보존을 확인. 실패/취소 24개와 독립 clipboard 4개도 통과. [근거](../evidence/studio-pending-contracts.json) |
 | 비동기 편집 소유권 | Blocker / M | 채우기 Worker를 지연시키고 레이어 B 클릭 → 입력은 A였으나 완료 시 현재 active=B로 결과 적용. 저장 중 Enter는 pending 문자를 확정해 revision 변경. 활성 획 중 Ctrl+S 거절도 공통 run.catch가 무관한 획을 취소 | 작업 중 조작부 inert·키보드 소유권, 직접 레이어 콜백 가드, 캡처한 문서/epoch/revision/active 재확인. 포인터 실패만 해당 획을 취소. 수정 전 세 사례 전부 실패, 수정 후 concurrency 3개 통과 |
 | 최신 복구 사본 삭제 경합 | Blocker / M | 복구 목록을 연 뒤 원래 탭이 같은 key의 새 generation 저장 → 예전 항목의 삭제가 key만 보고 최신 head/blob까지 삭제 | 동일 readwrite 트랜잭션에서 key/sequence/size 재확인 후 삭제. 변경됐으면 abort·보존. 실제 UI에서 거부 후 최신 사본의 픽셀 재열기까지 확인 |
 | 미확정 도형 중복 합성 | Major / M | pending polygon → image-size가 pendingState를 이미 래스터화한 후보로 확정 → points가 남아 다음 저장/Enter에서 재합성. 수정 전 예상 확대와 525채널 차이 | 크기/바탕/문서 변형을 editPending의 후보·검증·확정·pending 해제 경계로 통합. 단일 Undo와 실패 후 pending 보존 확인 |
@@ -41,7 +43,7 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 
 ## 측정 → 원인 → 수정 → 비교
 
-[상세 측정 기록](evidence/studio-performance.json)은 before/after 소스·실제 UI bundle·Worker·harness 해시와 조건을 포함한다. 소프트웨어 렌더링의 데스크톱 Chrome 측정이며 Android 또는 물리 펜 지연이 아니다.
+[상세 측정 기록](../evidence/studio-performance.json)은 before/after 소스·실제 UI bundle·Worker·harness 해시와 조건을 포함한다. 소프트웨어 렌더링의 데스크톱 Chrome 측정이며 Android 또는 물리 펜 지연이 아니다.
 
 | 지표 | 수정 전 → 수정 후 | 해석 |
 | --- | --- | --- |
@@ -65,7 +67,7 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 - CI는 실패 시 nonzero로 검사 실패를 알린다. 새 브라우저 검사군과 lockfile Playwright를 연결했다. 실제 원격 CI 실행은 미확인이다.
 - 소프트쿼터와 transaction abort, 단발 raster 예외 주입은 확인했지만 실제 브라우저 디스크 고갈·실제 GPU/context 상실·OS 강제 종료 시험과 같다고 기록하지 않는다.
 
-후속 [최대 문서·PNG·계약 검증](STUDIO_MAX_DOCUMENT.md)에서 metadata 전체 복사, 상수색/행 복사, 축소 cache와 종료 dirty 전달, PNG 오류, F02/F09와 macOS 앱 종료의 미저장 확인 우회를 수정·검증했다. 현재 미완료 조건은 [기능 인수표](STUDIO_ACCEPTANCE_MATRIX.md)와 해당 성능 기록을 따른다.
+후속 [최대 문서·PNG·계약 검증](STUDIO_MAX_DOCUMENT.md)에서 metadata 전체 복사, 상수색/행 복사, 축소 cache와 종료 dirty 전달, PNG 오류, F02/F09와 macOS 앱 종료의 미저장 확인 우회를 수정·검증했다. 현재 미완료 조건은 [기능 인수표](../STUDIO_ACCEPTANCE_MATRIX.md)와 해당 성능 기록을 따른다.
 
 ## 구조적으로 남은 부채
 
@@ -78,17 +80,17 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 ## 남은 출시 차단 항목
 
 1. **Blocker / L**: 네이티브 원래 대형 문서 프로필(32Mi pixels/64Mi aggregate/32768)·타일 표시·Worker 경계는 [후속 구현](STUDIO_NATIVE_PROFILES.md)으로 추가했다. 최대 합계 부하·피크 메모리·장시간 편집 인수는 남아 있다.
-2. **Blocker / M~L**: [native 저장·복구 후속 구현](STUDIO_NATIVE_PERSISTENCE.md)에서 경로 저장/열기·파일 복구·Qt 읽기 전용 인계를 구현하고 macOS 실제 파일/Qt live·stale 잠금을 검증했다. 실제 macOS APFS 쓰기 ENOSPC와 원본/metadata/복구 보존·retry도 후속 검사로 확인했다. Windows 실제 파일/잠금·OS 선택기·교체/디렉토리 동기화 실패·지원 metadata 인수는 남아 있다.
+2. **Blocker / M~L**: [native 저장·복구 후속 구현](../STUDIO_NATIVE_PERSISTENCE.md)에서 경로 저장/열기·파일 복구·Qt 읽기 전용 인계를 구현하고 macOS 실제 파일/Qt live·stale 잠금을 검증했다. 실제 macOS APFS 쓰기 ENOSPC와 원본/metadata/복구 보존·retry도 후속 검사로 확인했다. Windows 실제 파일/잠금·OS 선택기·교체/디렉토리 동기화 실패·지원 metadata 인수는 남아 있다.
 3. **Major / L**: 형식/17개 도구/F01~F10 전체 실패 조합, 큰 구조 연산의 UI blocking과 취소, 장시간 자원·실제 디스크/잠금 예외.
 4. **Major / M~L**: 현재 staging의 Qt 고정 가정을 새 manifest와 안전하게 공존시켜 수동/staged 파일·이전 탭 자산·롤백을 보존.
 5. **Blocker / 외부 인수**: Windows 실행, Android 실기기 웹과 Safari 웹, 깨끗한 macOS·서명/공증/고지·공개 배포 인수. 현재 자동화의 통과로 대체하지 않는다.
 
-전체 목표는 active로 유지한다. 다음 단계는 위 순서와 [전환 백로그](QT_FREE_MIGRATION_TASKS.md)의 선행 조건을 따른다.
+전체 목표는 active로 유지한다. 다음 단계는 위 순서와 [전환 백로그](../QT_FREE_MIGRATION_TASKS.md)의 선행 조건을 따른다.
 
 
 ## 최종 화면 캐시의 추가 RCA
 
-2026-11-05. [통합 근거](evidence/studio-scene-integration.json)와 [성능 기록](STUDIO_MAX_DOCUMENT.md)은 기존 source renderer, 1차 통합, 최종 후보를 구분한다.
+2026-11-05. [통합 근거](../evidence/studio-scene-integration.json)와 [성능 기록](STUDIO_MAX_DOCUMENT.md)은 기존 source renderer, 1차 통합, 최종 후보를 구분한다.
 
 | 문제·우선순위 | 재현·원인 | 수정·검증 또는 남은 작업 |
 | --- | --- | --- |
@@ -103,7 +105,7 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 
 ## 도구·투명 입력·프로젝트 크기 경계의 후속 RCA
 
-2026-11-05. [도구·입력 근거](evidence/studio-tool-contracts.json)는 수정 전 반례와 각 단계의 소스/번들·시험 범위를 보존한다.
+2026-11-05. [도구·입력 근거](../evidence/studio-tool-contracts.json)는 수정 전 반례와 각 단계의 소스/번들·시험 범위를 보존한다.
 
 | 분류·비용 | 재현·원인 | 수정·검증 |
 | --- | --- | --- |
@@ -115,7 +117,7 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 
 전체 Node 155개, 최종 decoder 번들의 기본 웹 10개와 실제 macOS 4단계, Qt CTest 5개 프로그램이 통과했다. 도구 UI 32개·기존 103개·bulk 16/pointer 9는 각각 소스 해시가 기록된 앞 snapshot의 근거이며 합쳐서 ‘모든 검사를 한 최종 번들에서 수행’했다고 표시하지 않는다. 동일 UI/엔진 소스 뒤에는 디코더 guard만 추가됐다. CI에 색 교체·도형 회귀를 연결했으며 원격 CI는 아직 실행하지 않았다.
 
-추가 마우스 버튼 3/4가 13픽셀을 칠하고 capture·Undo를 만드는 반례도 후속 수정했다. 초기 mouse 전용 guard로 편집 진입을 차단했으며, 같은 후보의 포인터 23개·기본 웹 10개·편집 13개와 실제 macOS 4단계가 통과했다. [후속 근거](evidence/studio-pointer-buttons.json)는 실제 브라우저 탐색과 편집 계약의 검증 범위를 구분한다.
+추가 마우스 버튼 3/4가 13픽셀을 칠하고 capture·Undo를 만드는 반례도 후속 수정했다. 초기 mouse 전용 guard로 편집 진입을 차단했으며, 같은 후보의 포인터 23개·기본 웹 10개·편집 13개와 실제 macOS 4단계가 통과했다. [후속 근거](../evidence/studio-pointer-buttons.json)는 실제 브라우저 탐색과 편집 계약의 검증 범위를 구분한다.
 
 남은 우선순위는 GIF native decoder 내부 할당의 확인, 실제 WK cold/mip·넓은 dirty 성능, Android/Safari/Windows와 실제 OS 입력·파일 인수다. 형제 홈페이지 staging·되돌리기·서명/공증도 별도 출시 조건이다.
 
@@ -124,14 +126,14 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 
 2026-11-05. **Major / S**: 논리 화면 8×6인 GIF의 첫 descriptor가12×10이거나 offset을 가지면 실제 Chromium 출력은12×10·11×8·28×23으로 확장됐다. 기존 검사는 논리 화면만 확인해 native decoder에 먼저 진입했다. 첫 descriptor까지 팔레트·extension subblock을 경계 검사하고 `max(logical, offset + size)`를 사전 검증하도록 보완했다. [현재 Wuffs 구현](https://raw.githubusercontent.com/google/wuffs/main/std/gif/decode_gif.wuffs)의 확장 경로와 작은 실제 재현이 일치한다. 정상 애니메이션의 첫 장면 열기는 [ImageBitmap 계약](https://html.spec.whatwg.org/multipage/imagebitmap-and-animations.html#createImageBitmap)을 유지한다.
 
-새 사전검사의 빈 extension 목록을 실측하자 약 40MiB에서 135~137ms 동안 취소 timer가 실행되지 않았다. 256KiB 진행마다 시간을 확인하고 4ms soft budget을 넘으면 timer task로 양보한 뒤 취소한다. 독립 Node 비교의 긴 빈 목록 취소 12회는 Blob/bitmap 호출 0, 빠른 payload 경로 24회는 불필요 yield 0이었다. 무취소 전체 처리시간은 약 136→352ms로 늘었으므로 속도 향상으로 표시하지 않는다. [전체 근거](evidence/studio-gif-input.json)는 측정 구간과 최악 관측값, 실제 디코딩0회 조건을 포함한다.
+새 사전검사의 빈 extension 목록을 실측하자 약 40MiB에서 135~137ms 동안 취소 timer가 실행되지 않았다. 256KiB 진행마다 시간을 확인하고 4ms soft budget을 넘으면 timer task로 양보한 뒤 취소한다. 독립 Node 비교의 긴 빈 목록 취소 12회는 Blob/bitmap 호출 0, 빠른 payload 경로 24회는 불필요 yield 0이었다. 무취소 전체 처리시간은 약 136→352ms로 늘었으므로 속도 향상으로 표시하지 않는다. [전체 근거](../evidence/studio-gif-input.json)는 측정 구간과 최악 관측값, 실제 디코딩0회 조건을 포함한다.
 
 전체 Node 166개·공개 GIF UI 22개·기본 웹 10개·실제 macOS 4단계가 통과했다. Native codec 단계에는 정상 GIF 3개 전수 픽셀 검사가 포함된다. 브라우저/네이티브의 전체 프레임 metadata·중간 버퍼와 프로세스 RSS는 여전히 미확인이다. 첫 장면만 반환한다는 사실로 내부 할당이 상수 크기라고 판단하지 않는다.
 
 
 ## 실제 WK 계측과 uniform mip 판정
 
-[WK 후속 근거](evidence/studio-wk-render.json)에서 실제 앱의 timing을 추가 test readback/reference와 분리했다. 초기 실패는 camera 변경이 아니라 시작 시 복구 확인의 `run.finally`가 예약한 draw였다. 측정 fixture 설치 전 준비 단계에서 해당 작업을 끝내고 pending frame·camera·owner guard를 유지했다. 일시적인 draw 호출 wrapper는 제거했다.
+[WK 후속 근거](../evidence/studio-wk-render.json)에서 실제 앱의 timing을 추가 test readback/reference와 분리했다. 초기 실패는 camera 변경이 아니라 시작 시 복구 확인의 `run.finally`가 예약한 draw였다. 측정 fixture 설치 전 준비 단계에서 해당 작업을 끝내고 pending frame·camera·owner guard를 유지했다. 일시적인 draw 호출 wrapper는 제거했다.
 
 **Major / S 개선**: 8K 두 레이어의 전체 uniform rect 판정에서 행 주소를 픽셀마다 계산하던 루프를 행 선형 인덱스·4word/tail 검사로 바꿨다. 같은 실제 WK 조건의 중앙값 345→272ms와 원본·화면·자원·요청량 일치를 확인한 뒤 제품에 반영했다. 수학·좌표·할당·파일 계약은 바꾸지 않았다. 새 11개 독립 mip 회귀를 포함한 필수 74개, Node 166·웹 10·macOS 4단계가 통과했다.
 
@@ -140,12 +142,12 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 
 ## 화면 밖 source 업로드의 후속 RCA
 
-Major / M. 활성 scene이 화면에 걸친510px source 타일 전체를 초기화·업로드해 화면 밖 영역에도 비용을 썼다. 전체 backing Canvas의 역변환 범위+halo로 ImageData만 제한하고 crop을 owner identity에 포함했다. Canvas 크기·origin까지 바꾼 첫 후보는 경계 오차로 폐기했다. 실제 WK 교차6회에서 초기 중앙98→84ms, 요청100.5→44.4MB를 확인했다. [근거](evidence/studio-viewport-tiles.json)는 실패 후보·독립 픽셀 oracle·할당 실패 복구·최종 포맷/빌드 동일성을 보존한다. 초기50ms 목표와 넓은 dirty/최대 mip/실기기 인수는 미해결이다.
+Major / M. 활성 scene이 화면에 걸친510px source 타일 전체를 초기화·업로드해 화면 밖 영역에도 비용을 썼다. 전체 backing Canvas의 역변환 범위+halo로 ImageData만 제한하고 crop을 owner identity에 포함했다. Canvas 크기·origin까지 바꾼 첫 후보는 경계 오차로 폐기했다. 실제 WK 교차6회에서 초기 중앙98→84ms, 요청100.5→44.4MB를 확인했다. [근거](../evidence/studio-viewport-tiles.json)는 실패 후보·독립 픽셀 oracle·할당 실패 복구·최종 포맷/빌드 동일성을 보존한다. 초기50ms 목표와 넓은 dirty/최대 mip/실기기 인수는 미해결이다.
 
 
 ## 펜·투명 지우기·입력 오류의 후속 RCA
 
-2026-11-05. [재현/수정 근거](evidence/studio-basic-tools.json)는 각 수정 전 번들과 최종 후보를 분리한다.
+2026-11-05. [재현/수정 근거](../evidence/studio-basic-tools.json)는 각 수정 전 번들과 최종 후보를 분리한다.
 
 | 분류/비용 | 재현·원인 | 수정·확인 |
 | --- | --- | --- |
@@ -159,7 +161,7 @@ Major / M. 활성 scene이 화면에 걸친510px source 타일 전체를 초기�
 
 ## 사각 붓·지우개의 경계와 이벤트 합성
 
-2026-11-05. **Major / L**: 사각 도구를 soft dab와 한 획 최대 coverage로 근사해, Qt의 정수 경계·square cap·이벤트별 반투명 누적과 달라졌다. 작은 실제 Qt Canvas 기준을 확보한 뒤 폭1 clipping과 넓은 선분의 held-out mask로 확대했다. 단순 polygon/반올림 근사는 경계에서 실패했고 고정소수점 scanline, 교차 경계 anchoring, 제한된 multiply-add 반올림을 적용했다. [통합 근거](evidence/studio-square-tools.json)에 실패 후보와 독립 모델을 보존했다. Qt의 premultiplied RGB 반올림을 현재 straight RGBA에 강제로 적용하지 않았다.
+2026-11-05. **Major / L**: 사각 도구를 soft dab와 한 획 최대 coverage로 근사해, Qt의 정수 경계·square cap·이벤트별 반투명 누적과 달라졌다. 작은 실제 Qt Canvas 기준을 확보한 뒤 폭1 clipping과 넓은 선분의 held-out mask로 확대했다. 단순 polygon/반올림 근사는 경계에서 실패했고 고정소수점 scanline, 교차 경계 anchoring, 제한된 multiply-add 반올림을 적용했다. [통합 근거](../evidence/studio-square-tools.json)에 실패 후보와 독립 모델을 보존했다. Qt의 premultiplied RGB 반올림을 현재 straight RGBA에 강제로 적용하지 않았다.
 
 **Major / S**: 브라우저는 누른 마우스의 다른 버튼 전환을 pointermove로 전달한다. 사각 alpha128 클릭 중 가운데 버튼을 누르면 2회 합성이 4회 또는 6회로 늘어났다. 다른 버튼 전환과 종료 이벤트를 실제 그리기 이동과 구분해 수정했다. 두 release 순서의 전체 raw RGBA와 한 번의 Undo/Redo를 검증했다.
 
@@ -170,7 +172,7 @@ Major / M. 활성 scene이 화면에 걸친510px source 타일 전체를 초기�
 
 ## 팔레트와 Enter 소유권, 연필의 후속 RCA
 
-2026-11-05. [원문 재현·검증](evidence/studio-pencil-palette.json)에 수정 전후의 소스/자산과 별도 Qt 기준을 기록했다.
+2026-11-05. [원문 재현·검증](../evidence/studio-pencil-palette.json)에 수정 전후의 소스/자산과 별도 Qt 기준을 기록했다.
 
 | 분류/비용 | 원인 | 수정·회귀 |
 | --- | --- | --- |
@@ -185,7 +187,7 @@ Major / M. 활성 scene이 화면에 걸친510px source 타일 전체를 초기�
 
 ## 최대 mip 연속 점유의 bounded 준비 RCA
 
-2026-11-05. **Major / L**. 타일 수는 제한돼 있어도 uniform 판정과 box 평균의 원본 스캔이 한 rAF에서 끝나 UI를 오래 점유했다. [통합 근거](evidence/studio-bounded-mip.json)에 같은 cursor의 동기/양보 경로와 최종 UI4 승격을 기록한다. source row 작업량을 최대 65,536개 진행 단위로 제한하고 soft 4ms 뒤 MessageChannel에서 이어서 처리한다. 타일마다 rAF를 기다리는 첫 후보는 완성 시간이 늘어나 채택하지 않았다. Canvas clip/scene target을 task 사이에 유지하지 않고 준비 완료 뒤 한 프레임만 공개한다.
+2026-11-05. **Major / L**. 타일 수는 제한돼 있어도 uniform 판정과 box 평균의 원본 스캔이 한 rAF에서 끝나 UI를 오래 점유했다. [통합 근거](../evidence/studio-bounded-mip.json)에 같은 cursor의 동기/양보 경로와 최종 UI4 승격을 기록한다. source row 작업량을 최대 65,536개 진행 단위로 제한하고 soft 4ms 뒤 MessageChannel에서 이어서 처리한다. 타일마다 rAF를 기다리는 첫 후보는 완성 시간이 늘어나 채택하지 않았다. Canvas clip/scene target을 task 사이에 유지하지 않고 준비 완료 뒤 한 프레임만 공개한다.
 
 **Major / S**. 단순 도구/스킨 변경의 `draw(true)`가 원본 전체를 다시 dirty로 만들어 cold 준비와 입력 대기를 반복했다. 실제 픽셀을 바꾸는 pending 확정의 full invalidation은 유지하고, 도구/환경설정은 일반 draw와 기존 frame/owner/factor/crop key를 사용한다. 취소·새 dirty·문서 교체·할당 실패·context loss에서는 cursor와 채널을 정리하고, 렌더러가 원본·이력을 변경하지 않도록 한다. 같은 backing 크기의 준비 단계에서는 이전 화면을 유지하지만 그리기 도중 실패하면 Canvas를 초기화한다. context loss는 준비 완료를 해제하고 복구 후 다시 그리며, 실제 장치 손실에서 backing 보존을 보장하지 않는다. 64타일/128MiB/512축 한도는 유지한다. 엔진·파일 형식·Rust와 의존성은 바꾸지 않았다.
 
@@ -196,7 +198,7 @@ Major / M. 활성 scene이 화면에 걸친510px source 타일 전체를 초기�
 
 ## 투명 선택 키와 문자 alpha 손실의 RCA
 
-2026-11-05. [수정 전후 근거](evidence/studio-alpha-contracts.json)는 UI4 이후의 별도 배치다.
+2026-11-05. [수정 전후 근거](../evidence/studio-alpha-contracts.json)는 UI4 이후의 별도 배치다.
 
 | 분류/비용 | 재현·원인 | 수정·검증 |
 | --- | --- | --- |
@@ -210,7 +212,7 @@ Major / M. 활성 scene이 화면에 걸친510px source 타일 전체를 초기�
 
 ## 비동기 작업 setup의 예외 범위와 취소 소유권 RCA
 
-2026-11-05. **Major / S**. [실패 전후 근거](evidence/studio-fill-failure.json)의 기존 `task`는 busy/inert/readOnly를 바꾸고 DOM overlay를 붙인 뒤에 `try/finally`를 시작했다. 단발 setup append 예외를 주입하자 busy overlay는 없는데 topbar/tools/inspector의 inert 세 곳이 남아 후속 작업을 막았다. 이는 실제 공개 UI 재현이지만 OOM이나 OS 오류를 발생시킨 실험은 아니다.
+2026-11-05. **Major / S**. [실패 전후 근거](../evidence/studio-fill-failure.json)의 기존 `task`는 busy/inert/readOnly를 바꾸고 DOM overlay를 붙인 뒤에 `try/finally`를 시작했다. 단발 setup append 예외를 주입하자 busy overlay는 없는데 topbar/tools/inspector의 inert 세 곳이 남아 후속 작업을 막았다. 이는 실제 공개 UI 재현이지만 OOM이나 OS 오류를 발생시킨 실험은 아니다.
 
 소유 함수 안에서 detached DOM·제어 상태를 먼저 준비하고, 실제 상태 변경·append·작업 실행을 `try/finally`에 포함했다. 취소 버튼과 work에는 같은 local AbortController를 사용해 이전 작업의 취소가 새 작업에 전달되지 않게 했다. helper나 엔진/Codec/Rust/파일 형식·fill premul 키·RGBA 정책을 추가로 바꾸지 않았다.
 
@@ -221,7 +223,7 @@ Major / M. 활성 scene이 화면에 걸친510px source 타일 전체를 초기�
 
 ## 채우기·잘라내기 후속 RCA와 독립 리뷰
 
-2026-11-05. [고정 근거](evidence/studio-fill-cut-key.json)에서 앞 단계의 fill premul/cut flag 가설을 실제 Qt와 수정 전 공개 UI로 확인했다.
+2026-11-05. [고정 근거](../evidence/studio-fill-cut-key.json)에서 앞 단계의 fill premul/cut flag 가설을 실제 Qt와 수정 전 공개 UI로 확인했다.
 
 | 분류·비용 | 실패 조건과 원인 | 수정과 확인 |
 | --- | --- | --- |
@@ -236,7 +238,7 @@ Architect는 방문값0→2→1·stack≤N·배출 뒤2 없음과 hole/비정렬
 
 ## 자유 선택과 자르기 후속 RCA
 
-2026-11-05. [고정 근거](evidence/studio-selection-mask.json)로 세 계약 차이를 재현·수정했다.
+2026-11-05. [고정 근거](../evidence/studio-selection-mask.json)로 세 계약 차이를 재현·수정했다.
 
 | 분류·비용 | 재현과 근본 원인 | 수정·관측 범위 |
 | --- | --- | --- |
@@ -253,7 +255,7 @@ Architect가 작은601개 뒤 큰 외부 edge와 음수 원점 반올림 반례�
 
 ## 선택 원본 Source-clear의 후속 RCA
 
-2026-11-05. [근거와 고정 해시](evidence/studio-selection-source.json)의 Major / S 한 건이다. 단일 투명 배경 `[37,59,61,0]`에서 binary mask 원본 삭제를 coverage 합성식으로 처리해 alpha0의 RGB를 강제로 0으로 만들었다. 선택된 원본 RGB만 달라졌으며 mask 밖·alpha·치수·배경 metadata는 같았다. 이미 대상 배경인 영역까지 가짜 history/dirty를 만들고 기존 Redo를 폐기했다. 사각/자유 선택 × delete/cut/음수 move와 NoOp의 수정 전 7실패→수정 후 7통과를 확인했다.
+2026-11-05. [근거와 고정 해시](../evidence/studio-selection-source.json)의 Major / S 한 건이다. 단일 투명 배경 `[37,59,61,0]`에서 binary mask 원본 삭제를 coverage 합성식으로 처리해 alpha0의 RGB를 강제로 0으로 만들었다. 선택된 원본 RGB만 달라졌으며 mask 밖·alpha·치수·배경 metadata는 같았다. 이미 대상 배경인 영역까지 가짜 history/dirty를 만들고 기존 Redo를 폐기했다. 사각/자유 선택 × delete/cut/음수 move와 NoOp의 수정 전 7실패→수정 후 7통과를 확인했다.
 
 기존 preview·선택 없는 cut과 같은 raw Source 대입으로 소유 메서드만 수정했다. 원본 mask/stride와 source-less 조기 반환을 유지하고 최종 무변경은 기존 prepareState 판정에 맡겼다. Qt4개/34assertion은 Source 교체·alpha·history 기준이며 Qt premul alpha0의 RGB0을 straight RGBA 저장 정책에 강제하지 않는다. 원형 지우개 coverage의 투명 NoOp와도 구분한다.
 
@@ -264,7 +266,7 @@ Architect는 Qt/저장 정책, Reviewer는 baseline 차이와 최종 실제 메�
 
 ## 연속 선택 크기 조절의 후속 RCA와 독립 검토
 
-2026-11-05. [고정 근거](evidence/studio-masked-transform.json)의 Major/M 한 건이다. 원본3×2를 별도 제스처로2×3→3×2 조절하면 B/E 픽셀이 사라지고, 원래 크기인데도 실제 편집/새 Undo로 기존 Redo를 잃었다. 원인은 매 제스처와 명시 크기 명령이 이미 재샘플된 current pixels를 새 입력으로 택한 것이다. 같은 제스처 안의 왕복은 기존 drag 참조 덕에 안전했다. source/sourceMask와 payload 치수 분리는 이미 안전한 경계였으며 별도 결함으로 세지 않는다.
+2026-11-05. [고정 근거](../evidence/studio-masked-transform.json)의 Major/M 한 건이다. 원본3×2를 별도 제스처로2×3→3×2 조절하면 B/E 픽셀이 사라지고, 원래 크기인데도 실제 편집/새 Undo로 기존 Redo를 잃었다. 원인은 매 제스처와 명시 크기 명령이 이미 재샘플된 current pixels를 새 입력으로 택한 것이다. 같은 제스처 안의 왕복은 기존 drag 참조 덕에 안전했다. source/sourceMask와 payload 치수 분리는 이미 안전한 경계였으며 별도 결함으로 세지 않는다.
 
 Architect의 실제 Qt12/104·리터럴 map과 SRE 공개 두 사례, Root 별도 공개 재현이 손실 라벨0/0/2/3/3/5를 교차 확인했다. 원본 mask는 그대로 두고 nearest resize backing을 유지하는 설계를 채택했다. 최초 NoOp identity와 backing을 같은 역할로 재사용하지 않는다. 명시 geometry 성공은 modified=true·originalPixels=undefined로 비교 참조만 무효화하며 실패/취소/한도 거부 이전에는 바꾸지 않는다. Qt의 키 ON 네 번 회전은7픽셀이 실제 변경돼 단순 역변환=NoOp라는 가정을 반박했다. pointer-only opaque/keyOFF 원복 보호를 모든 명시 변형으로 일반화하지 않는다.
 
@@ -277,7 +279,7 @@ SRE는 최종 코드의 backing/current/initial identity와 Worker 복사·rende
 
 ## 선택 성능의 재현·비용 분해·독립 검토
 
-2026-11-05. [고정 근거](evidence/studio-selection-performance.json)에서 nearest/반복 target/밀집 mask의 비용을 분리했다.
+2026-11-05. [고정 근거](../evidence/studio-selection-performance.json)에서 nearest/반복 target/밀집 mask의 비용을 분리했다.
 
 | 분류·비용 | 재현·원인 | 수정·검증 |
 | --- | --- | --- |
@@ -298,45 +300,45 @@ SRE는 before/word-only/final을 고정해 actual-web n1씩·Node nearest와 mas
 
 ## 큰 선택 준비 후속 — 2026-11-05
 
-큰 path의 pointerUp→bbox/crop→mask/key 동기 경로가 취소 이벤트를 지연시키는 RCA를 고정했다. 소유 ROI/Float64 path의 Worker 처리와 job/state/policy guard로 변경했다. MessageChannel setup-before-try 정리 누락은 독립 리뷰에서 발견해 고쳤고, 대기 abort settle도 검사한다. 테스트의 keyalpha1 미일치 분포·제품 oracle 재사용·cancel 뒤 pending 부활 관측 공백을 보완했다. Node208/공개13/기존7suite와 실제 macOS 표준4·임시WK4가 통과했다. 확정 Blocker/Major는 남지 않았으나 전체 성능/플랫폼 완료가 아니다. pointerup188.6→1.3ms와 timer211.9→24.3ms 개선, 완료210.5→239.7ms 퇴행, preview약54ms를 함께 기록한다. 원본 path/packed16P/Workerobjects가 공존할 수 있으며 RSS 감소를 주장하지 않는다. 다음은 preview/전체 path/최대 resize 및 실제 Android 웹·Windows 인수다. [고정 실행·리뷰 자료](evidence/studio-selection-preparation.json).
+큰 path의 pointerUp→bbox/crop→mask/key 동기 경로가 취소 이벤트를 지연시키는 RCA를 고정했다. 소유 ROI/Float64 path의 Worker 처리와 job/state/policy guard로 변경했다. MessageChannel setup-before-try 정리 누락은 독립 리뷰에서 발견해 고쳤고, 대기 abort settle도 검사한다. 테스트의 keyalpha1 미일치 분포·제품 oracle 재사용·cancel 뒤 pending 부활 관측 공백을 보완했다. Node208/공개13/기존7suite와 실제 macOS 표준4·임시WK4가 통과했다. 확정 Blocker/Major는 남지 않았으나 전체 성능/플랫폼 완료가 아니다. pointerup188.6→1.3ms와 timer211.9→24.3ms 개선, 완료210.5→239.7ms 퇴행, preview약54ms를 함께 기록한다. 원본 path/packed16P/Workerobjects가 공존할 수 있으며 RSS 감소를 주장하지 않는다. 다음은 preview/전체 path/최대 resize 및 실제 Android 웹·Windows 인수다. [고정 실행·리뷰 자료](../evidence/studio-selection-preparation.json).
 
 
 ## 선택 첫 화면 비용 후속 — 2026-11-05
 
-선택 첫 modified 화면을 warm 재사용과 분리했다. 첫RAF58.1ms/18업로드와 warm3.8–4.1ms/업로드0, 별도샘플 transform66/가중49.911ms를 근거로 cut 콜백을 교집합·RGBA4direct로 바꿨다. 후보첫RAF15.7ms/새ready31.3ms(기준74.0), 업로드18/8,437,836B는 동일하다. bbox와대입을 같이 바꿔 set단독 원인을 주장하지 않는다. 같은 최신 main을 공유하는 reference의 공백은 frozen d320 actual56Canvas·12문서·2retry byte 비교로 보완했다. Node211/9suite/macOS표준4도 PASS. 별도 literalmask/alpha/stride 회귀와22,400 backing 조합은 UI·Qt 사례 수와 구분한다. 확정 Blocker/Major는 남지 않았으며 전역50ms/p95/메모리·모바일/Windows·출시는 미완료다. [고정 측정·검증 자료](evidence/studio-selection-preview.json).
+선택 첫 modified 화면을 warm 재사용과 분리했다. 첫RAF58.1ms/18업로드와 warm3.8–4.1ms/업로드0, 별도샘플 transform66/가중49.911ms를 근거로 cut 콜백을 교집합·RGBA4direct로 바꿨다. 후보첫RAF15.7ms/새ready31.3ms(기준74.0), 업로드18/8,437,836B는 동일하다. bbox와대입을 같이 바꿔 set단독 원인을 주장하지 않는다. 같은 최신 main을 공유하는 reference의 공백은 frozen d320 actual56Canvas·12문서·2retry byte 비교로 보완했다. Node211/9suite/macOS표준4도 PASS. 별도 literalmask/alpha/stride 회귀와22,400 backing 조합은 UI·Qt 사례 수와 구분한다. 확정 Blocker/Major는 남지 않았으며 전역50ms/p95/메모리·모바일/Windows·출시는 미완료다. [고정 측정·검증 자료](../evidence/studio-selection-preview.json).
 
 
 ## 대형 nearest 크기 변경 후속 — 2026-11-06
 
 최대 출력의 동기 핸들 콜백 약 70ms를 재현했다. 같은 원본 행·동일 폭에서도 출력 픽셀마다 좌표 표를 읽던 비용을 줄이고, 정확히 2배 정렬 입력은 원본 word를 두 번 대입하도록 nearest 본문만 바꿨다. 단위 217개·공개 UI 9개 묶음·Canvas 56개 비교·실제 WK 진단 4개·일반 macOS 4단계가 통과했다. 독립 리뷰에서 확정 차단 결함을 찾지 못했고 새 primitive의 after-write 실패와 두 번째 레이어 할당 실패에서도 원본을 보존했다. 수정 전 4PASS/2FAIL은 새 primitive 주입 경로가 없던 coverage 차이이며 기존 데이터 손실 버그로 세지 않는다.
 
-최초 일반 비율 70.1→74.8ms는 기준·후보 교차 4회 추가 검사로 확인했다. 각 3회 중앙값 68.4→68.7ms와 겹치는 범위를 보존하며 일반 무퇴행을 단정하지 않는다. 세로 ready 682.3→700.9ms 퇴행, 정확히 2배 가로의 56.2ms와 전체 128MiB 할당도 남는다. 추가 run 압축·반복문 전개는 실제 측정으로 보류했으며 앱 경로 ENOENT·좌표 oracle·취소 ready 대기 오류는 검증기 문제로 분리했다. [측정·구현·독립 검증 근거](evidence/studio-nearest-resize.json).
+최초 일반 비율 70.1→74.8ms는 기준·후보 교차 4회 추가 검사로 확인했다. 각 3회 중앙값 68.4→68.7ms와 겹치는 범위를 보존하며 일반 무퇴행을 단정하지 않는다. 세로 ready 682.3→700.9ms 퇴행, 정확히 2배 가로의 56.2ms와 전체 128MiB 할당도 남는다. 추가 run 압축·반복문 전개는 실제 측정으로 보류했으며 앱 경로 ENOENT·좌표 oracle·취소 ready 대기 오류는 검증기 문제로 분리했다. [측정·구현·독립 검증 근거](../evidence/studio-nearest-resize.json).
 
 
 ## 대형 핸들 분할 처리 후속 — 2026-11-06
 
 동기 전체 nearest 계산이 입력·취소를 막던 경로를 공유 커서와 MessageChannel 행 묶음으로 변경했다. 최신 target 슬롯·gesture snapshot·released drag·job identity와 source guard가 소유권을 유지한다. 리뷰에서 초안의 다층 잔여 행 누적, pending 윤곽/핸들 불일치, stale/timeout의 old capture 정리, Linux CI의 macOS 고정 브라우저 경로를 찾아 수정했다. 이후 고정 후보와 단위 229개·회귀 10묶음·Canvas 56개·WK 진단 4개·일반 macOS 4단계를 확인했다.
 
-새 UI 각 n1의 첫 콜백 0.4/0.8/0.5ms·관측 LongTask 0과 전체 ready 약 0.7초를 구분한다. 동기 API의 70회 raw/source 검사는 별도이며 가로 cold의 36.30→39.03ms도 보존한다. ESM 누락·모바일 컨텍스트/숨겨진 열기 접근은 검증기 오류로 기록했다. 실제 touch·OS picker·원격 CI·장기 RSS와 연속 target 재할당 검증은 남아 있다. [분할 resize 구현·실행·독립 검토 근거](evidence/studio-bounded-resize.json).
+새 UI 각 n1의 첫 콜백 0.4/0.8/0.5ms·관측 LongTask 0과 전체 ready 약 0.7초를 구분한다. 동기 API의 70회 raw/source 검사는 별도이며 가로 cold의 36.30→39.03ms도 보존한다. ESM 누락·모바일 컨텍스트/숨겨진 열기 접근은 검증기 오류로 기록했다. 실제 touch·OS picker·원격 CI·장기 RSS와 연속 target 재할당 검증은 남아 있다. [분할 resize 구현·실행·독립 검토 근거](../evidence/studio-bounded-resize.json).
 
 
 ## Cold mip 조사: 정확도 통과와 성능 채택 분리 — 2026-11-06
 
-[실행 원문과 검토](evidence/studio-cold-mip-investigation.json). 가중 CPU 표본으로 타일 축소 준비를 우선 조사했으나 함수 수준 표본만으로 내부 분기·GC·JIT 원인을 확정하지 않았다. 제품 밖 후보들의 fake backend raw/source 427회와 실제 direct2 Canvas/PNG·취소·Redo는 일치했다. 반면 실제 factor16에서 준비 658.7→884.2ms와 LongTask 증가가 관측됐고 다른 후보도 대조 패턴에서 퇴행했다. 정확도 PASS를 성능 승인으로 취급하지 않고 모두 보류했다. 현행 소스17·자산8·정적 의존성 그래프는 그대로다.
+[실행 원문과 검토](../evidence/studio-cold-mip-investigation.json). 가중 CPU 표본으로 타일 축소 준비를 우선 조사했으나 함수 수준 표본만으로 내부 분기·GC·JIT 원인을 확정하지 않았다. 제품 밖 후보들의 fake backend raw/source 427회와 실제 direct2 Canvas/PNG·취소·Redo는 일치했다. 반면 실제 factor16에서 준비 658.7→884.2ms와 LongTask 증가가 관측됐고 다른 후보도 대조 패턴에서 퇴행했다. 정확도 PASS를 성능 승인으로 취급하지 않고 모두 보류했다. 현행 소스17·자산8·정적 의존성 그래프는 그대로다.
 
 확정된 새 데이터 손실 결함은 없지만, 현행 factor16의 단일 99ms 관측과 연속 target의 장기 메모리는 열린 성능 위험이다. 후보가 factor2 전용이라는 사실은 다른 factor의 무퇴행 증거가 아니다. 원격 CI/실제 Android/Windows·새 WK 성능·p95/RSS를 인수했다고 보고하지 않는다. 초기 Canvas 축척 기대 오류는 resize 전 실행기 실패로 보존했고, 이전 GUI 검증의 완료 기록과 현재 조사를 구분했다.
 
 
 ## 연속 resize: 수집 전 용량과 누수 가설 분리 — 2026-11-06
 
-[고정 관측·보정·검토](evidence/studio-resize-memory.json). 가설은 latest-target가 이전 partial/시작 snapshot을 의도치 않게 유지하는지였다. 실제 소유 메서드의 Node 웹/desktop 모델과 별도 실제 Chromium 시퀀스를 확인했다. burst에서 수집 전 많은 버퍼가 조회됐지만 별도 GC 뒤 current만 남고 Escape·최종GC 뒤 target5개가 수집됐다. 최종raw/원본SHA·기존Redo도 보존돼 이 시퀀스의 강한 참조 누수는 재현되지 않았다. RSS를 ArrayBuffer 용량이나 조회 가능 WeakRef와 동일시하지 않았고, 제품 코드는 바꾸지 않았다.
+[고정 관측·보정·검토](../evidence/studio-resize-memory.json). 가설은 latest-target가 이전 partial/시작 snapshot을 의도치 않게 유지하는지였다. 실제 소유 메서드의 Node 웹/desktop 모델과 별도 실제 Chromium 시퀀스를 확인했다. burst에서 수집 전 많은 버퍼가 조회됐지만 별도 GC 뒤 current만 남고 Escape·최종GC 뒤 target5개가 수집됐다. 최종raw/원본SHA·기존Redo도 보존돼 이 시퀀스의 강한 참조 누수는 재현되지 않았다. RSS를 ArrayBuffer 용량이나 조회 가능 WeakRef와 동일시하지 않았고, 제품 코드는 바꾸지 않았다.
 
 확인된 문제는 관측기였다. 최초 실제 실행은 폭8191에서도8192의 기대 바이트 수를 유지해 앱ready=true를 놓쳤다. 별도 v2의 dimension/bytes 동반 갱신 후 통과했다. Node의 generic metadata 이력·집계 순서·성공 시 오류문자열 생성도 고쳤고 이전 원문을 남겼다. actualCopyWorker 입력raw와 출력PNG bytes, 완료 후 Escape와 준비 중 취소, 자연 구간과 강제GC/검증 구간을 구분했다. 광범위 누수 부재·장기RSS·Windows/모바일·실제native 성능의 승인은 아니다.
 
 
 ## High-minification RCA와 관측 해석 정정 — 2026-11-06
 
-[원문·독립 감사](evidence/studio-high-minification.json). 이전 99ms의 새 재현은 비추적·별도 진단 각 1회 모두 없었다. 현재 진단의 42.8ms next와 43.831ms Task/42.005ms thread CPU를 포함 관계로 확인했다. API/생성자 중첩 0과 짧은 compile/optimization/deopt 계열 이벤트만으로 특정 함수나 99ms의 원인을 확정하지 않았다.
+[원문·독립 감사](../evidence/studio-high-minification.json). 이전 99ms의 새 재현은 비추적·별도 진단 각 1회 모두 없었다. 현재 진단의 42.8ms next와 43.831ms Task/42.005ms thread CPU를 포함 관계로 확인했다. API/생성자 중첩 0과 짧은 compile/optimization/deopt 계열 이벤트만으로 특정 함수나 99ms의 원인을 확정하지 않았다.
 
 확정된 관측 문제는 MessagePort 종류 혼재다. 소스 AST와 등록 본문·stack으로 동기 render-inline과 resize-resolver를 구분했고, 과거 전역 resolverOnly 필드의 이름이 CPU 배제를 증명하지 못함을 정정했다. tracing category 빈 응답으로 편집 전에 중지한 시행은 0표본으로 보존하고, 별도 작은 시험에서 확인된 positive trace 조건만 사용했다. cleanup의 독립 10s는 tracingComplete 대기에 한정되며 Tracing.end/IO.read는 전체 120s watchdog 제약이다.
 
@@ -345,14 +347,14 @@ SRE는 before/word-only/final을 고정해 actual-web n1씩·Node nearest와 mas
 
 ## 2026-11-06 카메라·VisualViewport·무변형 선택
 
-[수정·원인·검증·정정](STUDIO_CAMERA_VIEWPORT.md), [고정 근거](evidence/studio-camera-viewport.json). 새 공개17개·Node232와 최종 기존 입력/선택/웹/출력·macOS 회귀를 통과했다. 휠 중 투영 Major, VV 확대·문자 원점/중복 observer·밀도 취소 Minor를 수정했다. 미변형 선택4K 두 레이어의 동기 slice는128MiB→0이며 draw(true)·엔진 검증·NoOp/Redo를 유지한다. 과거 forced-gutter42/48px 추론은 실제 hit 증거에 따라 철회하고 본문에 범위를 명시했다. 물리 Android 웹·OS IME/파일·Windows·보조공학·출시 및 선행 게이트는 남기며 전체 체크를 닫지 않는다.
+[수정·원인·검증·정정](STUDIO_CAMERA_VIEWPORT.md), [고정 근거](../evidence/studio-camera-viewport.json). 새 공개17개·Node232와 최종 기존 입력/선택/웹/출력·macOS 회귀를 통과했다. 휠 중 투영 Major, VV 확대·문자 원점/중복 observer·밀도 취소 Minor를 수정했다. 미변형 선택4K 두 레이어의 동기 slice는128MiB→0이며 draw(true)·엔진 검증·NoOp/Redo를 유지한다. 과거 forced-gutter42/48px 추론은 실제 hit 증거에 따라 철회하고 본문에 범위를 명시했다. 물리 Android 웹·OS IME/파일·Windows·보조공학·출시 및 선행 게이트는 남기며 전체 체크를 닫지 않는다.
 
 
 ## 2026-11-06 자동 복구의 오류 경계와 비용
 
-[현재 분석·수정·검증](STUDIO_RECOVERY_SNAPSHOT.md), [고정 근거](evidence/studio-recovery-snapshot.json). injected missing/null 출력의 false success→같은 revision 재시도 억제와 이전 epoch 오류 표시를 수정했다. 공개5·단위234·저장13·native IPC 모델15·웹48·실제 macOS4단계를 확인했다. 기준 clone/Worker/storage n3는 모델·실제 IDB를 분리하며, 성능 개선이나 실제 OS I/O/물리 장치 인수로 세지 않는다. full codec 응답 계약·Worker 내부 CPU/entropy·실제 플랫폼·전체 선행 게이트는 남는다.
+[현재 분석·수정·검증](STUDIO_RECOVERY_SNAPSHOT.md), [고정 근거](../evidence/studio-recovery-snapshot.json). injected missing/null 출력의 false success→같은 revision 재시도 억제와 이전 epoch 오류 표시를 수정했다. 공개5·단위234·저장13·native IPC 모델15·웹48·실제 macOS4단계를 확인했다. 기준 clone/Worker/storage n3는 모델·실제 IDB를 분리하며, 성능 개선이나 실제 OS I/O/물리 장치 인수로 세지 않는다. full codec 응답 계약·Worker 내부 CPU/entropy·실제 플랫폼·전체 선행 게이트는 남는다.
 
 
 ## 2026-11-06 Codec10 응답과 Worker 비용
 
-[분석·수정·검증·잔여 조건](STUDIO_CODEC_REPLY.md), [고정 근거](evidence/studio-codec-reply.json). 잘못된파일 성공표시·조건부clipboard cut·typed state/sparse색상·fill응답 경계를 owner에서 닫았다. 동일공개27개 기준22실패/5대조통과→후보27통과, 독립계약89·전체Node323과기존회귀를확인했다. macOS최초20초timeout을보존하며동일binary재시도4단계는통과했다. Worker의지배비용은입력에따른압축·CRC였고CRC임시후보는low혼재로비채택했다. 정상Worker자연장애·OSclipboard·실기기·무회귀성능·전체출시완료로확대하지않는다.
+[분석·수정·검증·잔여 조건](STUDIO_CODEC_REPLY.md), [고정 근거](../evidence/studio-codec-reply.json). 잘못된파일 성공표시·조건부clipboard cut·typed state/sparse색상·fill응답 경계를 owner에서 닫았다. 동일공개27개 기준22실패/5대조통과→후보27통과, 독립계약89·전체Node323과기존회귀를확인했다. macOS최초20초timeout을보존하며동일binary재시도4단계는통과했다. Worker의지배비용은입력에따른압축·CRC였고CRC임시후보는low혼재로비채택했다. 정상Worker자연장애·OSclipboard·실기기·무회귀성능·전체출시완료로확대하지않는다.

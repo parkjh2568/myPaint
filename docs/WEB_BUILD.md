@@ -1,13 +1,13 @@
 # 웹 빌드와 홈페이지 반영
 
-소스와 홈페이지를 형제 폴더로 관리한다. 현재 위치는 `myService/myPaint`와 `myService/parkjh2568.github.io`다. 각 저장소의 `origin`만 사용하며 웹 빌드가 Git staging·commit·pull·push를 수행하지 않는다.
+로컬 화면 테스트는 [루트 OS별 안내](../README.md)를 먼저 따른다. 아래는 별도 홈페이지 저장소로 산출물을 옮기는 고급 절차다. 소스 `myPaint`와 홈페이지 `parkjh2568.github.io`를 형제 폴더로 관리한다. 각 저장소의 `origin`만 사용하며 웹 빌드가 Git staging·commit·pull·push를 수행하지 않는다.
 
 ## Studio 웹 빌드 (Qt-free)
 
 Python 3.11+와 Node 24/npm을 사용한다. 모바일·태블릿은 웹만 제공하고 설치형 패키지는 Windows/macOS만 대상으로 한다. SDK·Rust target·node_modules·앱 소스 압축은 웹 배포 산출물에 넣지 않는다.
 
 ```sh
-cd /Users/jhpark/code/myService/myPaint
+cd /path/to/myPaint  # 실제 소스 폴더로 바꾼다
 npm --prefix web-app ci --no-fund
 python3 tools/build_studio.py
 # 기본 실행은 dist/studio만 생성하고 홈페이지에는 쓰지 않는다.
@@ -73,7 +73,7 @@ cmake --install .
 ## Qt 웹 타깃: 빌드
 
 ```sh
-cd /Users/jhpark/code/myService/myPaint
+cd /path/to/myPaint  # 실제 소스 폴더로 바꾼다
 python3 tools/build_web.py --host-qt /opt/homebrew
 ```
 

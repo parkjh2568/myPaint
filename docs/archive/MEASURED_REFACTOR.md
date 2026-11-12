@@ -1,3 +1,5 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 측정 기반 Studio 리팩터링
 
 2026-11-08. 기준 커밋 `429f135`. 런타임 전면 교체보다 현재 병목과 실패 경로를 줄인다.
@@ -19,7 +21,7 @@
 2. Windows 파일 교체 전에 writer를 닫고 identity가 같은 attributes-only handle을 유지한다. `ReplaceFileW` 부분 실패 1176/1177는 복구용 stage를 보존한다. Windows에 Unix 디렉터리 fsync를 시도하지 않는다. 실제 Windows 실패 주입을 했다는 뜻은 아니다.
 3. Windows CI의 설치·포맷·Clippy·테스트·패키징을 분리해 앞선 native 명령 실패가 뒤의 성공으로 가려지지 않게 한다.
 4. 빌드 출력의 경로는 raw substring 대신 JSON 파싱 후 비교한다. 웹 pan/paste 회귀는 임의 sleep 대신 위치·정확한 픽셀 조건을 기다린다.
-5. README의 Studio/Qt 설명 충돌을 해소하고 [문서 색인](README.md)을 제공한다. 과거 검증 자료·라이선스·fixture는 보존한다.
+5. README의 Studio/Qt 설명 충돌을 해소하고 [문서 색인](../README.md)을 제공한다. 과거 검증 자료·라이선스·fixture는 보존한다.
 
 ## 재현 가능한 합성 측정
 
@@ -29,7 +31,7 @@ npm ci
 node --import tsx tools/benchmark-composite.ts > /tmp/composite.json
 ```
 
-[이번 원시 표본과 환경](evidence/composite-refactor-20261108.json): Node 워밍업 5회, 번갈아 실행한 21개 표본, 1024×1024의 두 레이어, 출력 할당 포함. 원본 알고리즘과 결과 바이트를 측정 전에 비교한다. 공유 호스트 한 회차이며 통계적 유의성·실제 UI·시작 속도·RSS 감소를 입증하지 않는다.
+[이번 원시 표본과 환경](../evidence/composite-refactor-20261108.json): Node 워밍업 5회, 번갈아 실행한 21개 표본, 1024×1024의 두 레이어, 출력 할당 포함. 원본 알고리즘과 결과 바이트를 측정 전에 비교한다. 공유 호스트 한 회차이며 통계적 유의성·실제 UI·시작 속도·RSS 감소를 입증하지 않는다.
 
 | 작업 | 원본 중앙값 ms | 변경 중앙값 ms |
 | --- | ---: | ---: |

@@ -23,7 +23,7 @@ python3 -m http.server 8794 --bind 127.0.0.1 --directory build-wasm-probe
 
 ## 검증 결과
 
-2026-11-03 macOS ARM64, Chrome 156.0.8078.80 headless에서 한글 표시와 실제 클릭·오류창·오류 후 편집까지 통과했다. SDK 구성·한계와 증거는 [웹 진행 기록](../../docs/WEB_IMPLEMENTATION_RESULTS.md)을 참고한다.
+2026-11-03 macOS ARM64, Chrome 156.0.8078.80 headless에서 한글 표시와 실제 클릭·오류창·오류 후 편집까지 통과했다. SDK 구성·한계와 증거는 [웹 진행 기록](../../docs/archive/WEB_IMPLEMENTATION_RESULTS.md)을 참고한다.
 
 ## 웹 한도 성능 시험
 

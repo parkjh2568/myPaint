@@ -1,12 +1,14 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 기존 기능의 독립 기준 목록 — QF-02
 
-2026-11-06. [입력·실행·검토 근거](evidence/studio-fixture-baseline.json). QF-02의 **새 UI와 독립된 기준 데이터·동작 목록**을 완료했다. 전체 도구 옵션·플랫폼·성능·출시 승인은 아니다. 제품 runtime17개와 배포 payload는 그대로다.
+2026-11-06. [입력·실행·검토 근거](../evidence/studio-fixture-baseline.json). QF-02의 **새 UI와 독립된 기준 데이터·동작 목록**을 완료했다. 전체 도구 옵션·플랫폼·성능·출시 승인은 아니다. 제품 runtime17개와 배포 payload는 그대로다.
 
 ## 고정한 기준
 
-[legacy-contracts.json](../web-app/tests/fixtures/legacy-contracts.json)은 F01–F10,17개 도구,6개 상태/실패 영역을 입력·예상 상태·소유 테스트·정책·남은 인수에 연결한다. 레이어·이력·pending 선택/문자·저장 실패·클립보드/복구를 포함한다. 기존 수정은 `fixed-reference`로 유지하며 뒤의 미인수 옵션을 새 결함으로 재분류하지 않는다.
+[legacy-contracts.json](../../web-app/tests/fixtures/legacy-contracts.json)은 F01–F10,17개 도구,6개 상태/실패 영역을 입력·예상 상태·소유 테스트·정책·남은 인수에 연결한다. 레이어·이력·pending 선택/문자·저장 실패·클립보드/복구를 포함한다. 기존 수정은 `fixed-reference`로 유지하며 뒤의 미인수 옵션을 새 결함으로 재분류하지 않는다.
 
-독립 자료16개를 구분했다. Qt 관측, Qt 관측에서 유도한 값, 수작업 literal과 Qt resize의 혼합, 독립 wire producer가 각각 어떤 비교를 허용하는지 기록한다. 제품 encoder로 만든 seed의 mutation이나 자기 roundtrip도 독립 oracle과 구분한다. [실행 안내](../web-app/tests/fixtures/contracts-README.md)에 Node·Qt·공개 UI의 범위를 명시했다.
+독립 자료16개를 구분했다. Qt 관측, Qt 관측에서 유도한 값, 수작업 literal과 Qt resize의 혼합, 독립 wire producer가 각각 어떤 비교를 허용하는지 기록한다. 제품 encoder로 만든 seed의 mutation이나 자기 roundtrip도 독립 oracle과 구분한다. [실행 안내](../../web-app/tests/fixtures/contracts-README.md)에 Node·Qt·공개 UI의 범위를 명시했다.
 
 - 완료된 straight RGBA·alpha0 숨은 RGB·원본 바깥 픽셀과 mask는 해당 raw 기준에서 정확히 보존한다.
 - Qt pixelColor 자료는 alpha와 premultiplied 채널 동등성을 비교한다. Qt 표현 차이를 새 PNG의 raw 보존 완화로 쓰지 않는다.
@@ -17,9 +19,9 @@
 
 ## 실제 보완·검증
 
-기존 Qt 프로젝트 producer가 임시 phase에만 있었으므로 [영구 C++ producer](../web-app/tests/fixtures/qt-project-oracle.cpp)로 보존했다. Qt6.12.0의 실제 paintcore/Core/Gui에서 재실행한 RPAINT01 전체4,173B와 Qt RGBA 두 plane(각3,072B), metadata가 기존 파일과 모두 일치했다. JSON 텍스트 formatting만 달랐으며 expected는 바꾸지 않았다. README의 직접 c++/pkg-config 명령도 별도로 실행해 parsed fixture 전체 일치를 확인했다. Node 소비자는 Qt 설치 없이 실행된다.
+기존 Qt 프로젝트 producer가 임시 phase에만 있었으므로 [영구 C++ producer](../../web-app/tests/fixtures/qt-project-oracle.cpp)로 보존했다. Qt6.12.0의 실제 paintcore/Core/Gui에서 재실행한 RPAINT01 전체4,173B와 Qt RGBA 두 plane(각3,072B), metadata가 기존 파일과 모두 일치했다. JSON 텍스트 formatting만 달랐으며 expected는 바꾸지 않았다. README의 직접 c++/pkg-config 명령도 별도로 실행해 parsed fixture 전체 일치를 확인했다. Node 소비자는 Qt 설치 없이 실행된다.
 
-스프레이에는 [고정 RNG/시간·literal5점](../web-app/tests/fixtures/spray-literal.json)을 추가했다. 공개 도구에서35ms 가상 tick의16난수 호출과 literal raster, release/Undo/Redo, Escape 뒤 원본·기존 Redo, timer/capture 정리·늦은 release를2case로 확인했다. expected를 제품 rasterizer로 만들지 않았다. 실제 난수 분포나 물리 타이밍·Qt 난수 동등성의 검증은 아니다. `test:spray-contract`를 기존 CI에 연결했다.
+스프레이에는 [고정 RNG/시간·literal5점](../../web-app/tests/fixtures/spray-literal.json)을 추가했다. 공개 도구에서35ms 가상 tick의16난수 호출과 literal raster, release/Undo/Redo, Escape 뒤 원본·기존 Redo, timer/capture 정리·늦은 release를2case로 확인했다. expected를 제품 rasterizer로 만들지 않았다. 실제 난수 분포나 물리 타이밍·Qt 난수 동등성의 검증은 아니다. `test:spray-contract`를 기존 CI에 연결했다.
 
 | 검사 | 결과와 범위 |
 | --- | --- |

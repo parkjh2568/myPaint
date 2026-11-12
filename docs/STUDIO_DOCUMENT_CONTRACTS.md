@@ -1,6 +1,6 @@
 # 문서·알파·비동기 확정 계약 — QF-04
 
-2026-11-06. QF-04 원문의 설계 계약을 현재 구현과 대조한다. [독립 기준 목록](STUDIO_FIXTURE_BASELINE.md)의 입력·예상값을 사용하며, 전체 도구 옵션·플랫폼·성능·출시 인수는 각 태스크에 남긴다. 검토·재현·최종 판정은 [근거 JSON](evidence/studio-document-contracts.json)에 기록한다.
+2026-11-06. QF-04 원문의 설계 계약을 현재 구현과 대조한다. [독립 기준 목록](archive/STUDIO_FIXTURE_BASELINE.md)의 입력·예상값을 사용하며, 전체 도구 옵션·플랫폼·성능·출시 인수는 각 태스크에 남긴다. 검토·재현·최종 판정은 [근거 JSON](evidence/studio-document-contracts.json)에 기록한다.
 
 ## 문서와 파일
 
@@ -87,6 +87,6 @@ Minor 1건을 수정했다. A의 수동 복구 목록 조회를 hold하고 B를 
 
 이번에는 native 앱을 다시 빌드하거나 GUI를 재실행하지 않았다. 앞선9f01 macOS4단계 통과는 epoch guard 이전 제품의 근거로 유지한다. 120초 smoke 미완료의 실패 단계·원인 미확정과 이전20초 `project-read-large` 관측도 남긴다. 홈페이지 쓰기·commit/push·공개 배포는 수행하지 않았다.
 
-후속 [최신 소스 macOS 앱 재검증](STUDIO_NATIVE_CURRENT.md)에서 이 guard를 포함해 다시 빌드한 앱의 일반4분기가 통과했다. 이는 아래 Chromium 모형의 특정 late-list-rejection 경합을 실제 OS에서 재현했다는 뜻은 아니다.
+후속 [최신 소스 macOS 앱 재검증](archive/STUDIO_NATIVE_CURRENT.md)에서 이 guard를 포함해 다시 빌드한 앱의 일반4분기가 통과했다. 이는 아래 Chromium 모형의 특정 late-list-rejection 경합을 실제 OS에서 재현했다는 뜻은 아니다.
 
 전체 Android 웹/Windows·OS picker/IME/clipboard·물리 펜·전체 옵션·장시간 메모리·성능 예산·서명/배포 승인은 이 설계 계약의 완료와 별개다. 이전 macOS 바이너리의 통과와 현재 웹 후보 검증의 소스 범위를 각각 명시한다. 모바일/태블릿은 웹, 설치형은 Windows/macOS만 지원한다.

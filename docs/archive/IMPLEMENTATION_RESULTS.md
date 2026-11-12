@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # RetroPaint 결함 수정 결과와 검증
 
-기준일: 2026-11-03 한국 시간. [코드 검토](CODE_REVIEW.md)와 [작업계획](IMPLEMENTATION_PLAN.md)에 따라 제품 코드와 회귀 검사를 적용했다. 기존 소스 구조, Qt Core/Gui와 Widgets 경계, RPAINT01 파일 형식, 오프라인 실행 제약을 유지했다. 변경은 작업 트리에 있으며 커밋·배포·원격 CI 실행은 하지 않았다.
+기준일: 2026-11-03 한국 시간. [코드 검토](https://github.com/parkjh2568/myPaint/blob/cc5f0994df35553b987c523b164cfe0ac0fd738c/docs/CODE_REVIEW.md)와 [작업계획](https://github.com/parkjh2568/myPaint/blob/cc5f0994df35553b987c523b164cfe0ac0fd738c/docs/IMPLEMENTATION_PLAN.md)에 따라 제품 코드와 회귀 검사를 적용했다. 기존 소스 구조, Qt Core/Gui와 Widgets 경계, RPAINT01 파일 형식, 오프라인 실행 제약을 유지했다. 변경은 작업 트리에 있으며 커밋·배포·원격 CI 실행은 하지 않았다.
 
 ## 우선순위별 적용 결과
 
@@ -73,7 +75,7 @@ CI에는 시스템 Qt 기준 빌드와 기존 formatter를 사용하는 포맷 �
 
 최초 `review-probe` 소스와 출력은 초기 진단 자료로 보존한다. 현재 동작의 회귀 판정은 기본 core/UI 테스트를 사용한다.
 
-증거: [Release](evidence/implementation-release.log), [ASan·UBSan](evidence/implementation-sanitize.log), [정적 분석](evidence/implementation-static.log), [성능 JSON](evidence/implementation-performance.json), [성능 원문](evidence/implementation-performance-raw.log), [smoke](evidence/implementation-smoke.log).
+증거: [Release](../evidence/implementation-release.log), [ASan·UBSan](../evidence/implementation-sanitize.log), [정적 분석](../evidence/implementation-static.log), [성능 JSON](../evidence/implementation-performance.json), [성능 원문](../evidence/implementation-performance-raw.log), [smoke](../evidence/implementation-smoke.log).
 
 ### 성능 표본
 

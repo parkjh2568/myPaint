@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 출력 미리보기 구현과 검증
 
-2026-11-06. [소스·검증·독립 리뷰 근거](evidence/studio-output-preview.json). QF-17의 미리보기 구현 단계이며 전체 전환이나 출시 완료 선언은 아니다.
+2026-11-06. [소스·검증·독립 리뷰 근거](../evidence/studio-output-preview.json). QF-17의 미리보기 구현 단계이며 전체 전환이나 출시 완료 선언은 아니다.
 
 ## 변경 결과
 
@@ -16,7 +18,7 @@
 
 공유 의미가 있는 문자 배치와 그리기만 `textLayoutSteps`·`paintText`로 나눴다. 실제 문자 출력도 같은 원래 글꼴·codepoint 줄바꿈·스크롤·RGBA·512 타일 정책을 사용한다. 그 밖의 순차 작업은 소유 함수 안에 두었다. 실제 도형 그리기 `paintShape`와 기본 Surface 정책은 재사용하며 readback hint를 추가하지 않았다.
 
-[최신 의존성 그래프](evidence/studio-output-preview-module-graph.json)는 TS 노드 13개·선언 35개·관계 34개, 소스 런타임 순환 0개다. 배포 JS 5개·관계 6개는 정적 평가 순환과 top-level await가 없고 동적 SCC는 기존 2개다. 런타임 17개 중 main과 CSS만 변경했다. Studio 멤버 131→133, 기존 메서드 변경은 textRaster/dialog/exportImage 3개이며 신규 모듈·의존성·Rust 변경은 없다.
+[최신 의존성 그래프](../evidence/studio-output-preview-module-graph.json)는 TS 노드 13개·선언 35개·관계 34개, 소스 런타임 순환 0개다. 배포 JS 5개·관계 6개는 정적 평가 순환과 top-level await가 없고 동적 SCC는 기존 2개다. 런타임 17개 중 main과 CSS만 변경했다. Studio 멤버 131→133, 기존 메서드 변경은 textRaster/dialog/exportImage 3개이며 신규 모듈·의존성·Rust 변경은 없다.
 
 ## 실제 검증과 한계
 

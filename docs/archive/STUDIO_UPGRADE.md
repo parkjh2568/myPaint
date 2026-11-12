@@ -1,8 +1,10 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 공통 드로잉 화면과 브러시 개선
 
 2026-11-04. 사용자 선택에 따라 웹과 데스크톱을 함께 개선했다. 기존 Qt Widgets 편집 경로와 `.rpaint` 형식을 유지했다.
 
-![실제 웹 드로잉 화면](studio-web.png)
+![실제 웹 드로잉 화면](../studio-web.png)
 
 ## 적용한 내용
 
@@ -22,7 +24,7 @@ Magma의 어두운 작업 공간, 왼쪽 도구, 중앙 종이, 오른쪽 색상
 
 ## 사용법
 
-캔버스에 초점이 있을 때 B 브러시, N 연필, E 지우개, I 스포이트, G 채우기, T 문자, V 사각 선택, H 이동을 사용한다. [ / ]는 크기를 조절한다. HEX·문자 입력 중에는 도구 단축키가 입력 내용을 가로채지 않는다. 상세 파일/저장 안내는 [README](../README.md)와 [웹 빌드](WEB_BUILD.md)를 따른다.
+캔버스에 초점이 있을 때 B 브러시, N 연필, E 지우개, I 스포이트, G 채우기, T 문자, V 사각 선택, H 이동을 사용한다. [ / ]는 크기를 조절한다. HEX·문자 입력 중에는 도구 단축키가 입력 내용을 가로채지 않는다. 상세 파일/저장 안내는 [README](../../README.md)와 [웹 빌드](../WEB_BUILD.md)를 따른다.
 
 ## 검증 범위
 
@@ -43,13 +45,13 @@ macOS ARM64의 offscreen Qt UI, ASan/UBSan, 로컬 Chrome의 실제 Wasm 앱을 
 
 화면 연결 상실 검증은 실제 raster canvas에 합성 context-loss 이벤트를 보낸 안내 경로 시험이다. 실제 GPU 장애 복구 시험은 아니다. Qt Wasm의 접근성 DOM에는 사용자 정의 캔버스와 편집란 이름의 제약이 있어 화면 검출·키 입력·내보낸 픽셀을 함께 검증했다. 실제 보조공학 사용성은 별도 확인이 필요하다.
 
-결과는 [네이티브](evidence/studio-native-ctest.log), [Sanitizer](evidence/studio-sanitize.log), [Chromium](evidence/studio-chromium.json), [웹 저장소 경계](evidence/studio-storage.json), [최종 용량/보존 검사](evidence/studio-size.json)에 남겼다.
+결과는 [네이티브](../evidence/studio-native-ctest.log), [Sanitizer](../evidence/studio-sanitize.log), [Chromium](../evidence/studio-chromium.json), [웹 저장소 경계](../evidence/studio-storage.json), [최종 용량/보존 검사](../evidence/studio-size.json)에 남겼다.
 
 ## 홈페이지 반영
 
 최종 `mypaint/`는 21,385,630바이트(20.40 MiB)다. 최초 109,532,751바이트(104.46 MiB)보다 80.48% 감소했다. 활성 release `29dda4272737fff6f21839c8` 한 개, Wasm 한 개이며 앱 소스·라이선스·빌드 안내를 유지한다. Qt의 수정 없는 대응 소스는 정확한 공식 commit 다운로드 링크로 제공한다. [정리 원인과 정책](WEB_SIZE_CLEANUP.md)을 참고한다.
 
-마지막 주석 정정에 따른 앱 소스 압축파일 갱신 후에도 실행 파일 네 개의 해시와 release 경로가 동일한지 확인했다. 최종 라이선스 페이지의 같은 사이트 링크 48개가 HTTP 200이며, 공식 Qt 소스 링크는 패키지 브라우저 검사에서 확인했다. [링크 확인 기록](evidence/studio-package-links.json)을 남겼다.
+마지막 주석 정정에 따른 앱 소스 압축파일 갱신 후에도 실행 파일 네 개의 해시와 release 경로가 동일한지 확인했다. 최종 라이선스 페이지의 같은 사이트 링크 48개가 HTTP 200이며, 공식 Qt 소스 링크는 패키지 브라우저 검사에서 확인했다. [링크 확인 기록](../evidence/studio-package-links.json)을 남겼다.
 
 원래 홈페이지 파일 18개의 해시는 모두 동일하다. 작업 중 홈페이지 HEAD가 별도로 `55767a8`로 변경됐으므로 최초 index 바이트와 비교해 보존했다고 주장하지 않는다. 최종 검사 시 staged 변경은 없었다. 새 UI 산출물은 해당 HEAD 이후 미커밋 변경이다. 이 작업에서 Git commit·reset·push·리모트 변경을 실행하지 않았다. Git 이력 용량은 현재 배포 용량과 별도이며 자동 재작성하지 않았다.
 

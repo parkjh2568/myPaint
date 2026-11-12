@@ -24,11 +24,11 @@
 | Qt 제거 영향도·성능 기준 | 기존 구현 측정 완료 | 신규 엔진과의 동등 조건 비교는 QF-03/11에서 수행 |
 | 신규 Qt-free 앱·셸 | web-app/에 독립 엔진·웹 UI·macOS 셸 구현 및 부분 검증 | 미완료 전환 조건을 유지하며 기존 앱 대체 전 통합 인수 |
 
-후속 실제 구현/수정: [로컬 계약·아키텍처](STUDIO_ARCHITECTURE.md), [독립 리뷰·RCA·성능](STUDIO_REVIEW_AND_RCA.md). 이번 공개 UI45개·엔진26개의 통과는 아래 전체 전환 조건의 완료와 구분한다.
+후속 실제 구현/수정: [로컬 계약·아키텍처](STUDIO_ARCHITECTURE.md), [독립 리뷰·RCA·성능](archive/STUDIO_REVIEW_AND_RCA.md). 이번 공개 UI45개·엔진26개의 통과는 아래 전체 전환 조건의 완료와 구분한다.
 
-기존 자료: [코드 검토](CODE_REVIEW.md), [수정 결과](IMPLEMENTATION_RESULTS.md), [웹 구현 결과](WEB_IMPLEMENTATION_RESULTS.md), [용량 정리](WEB_SIZE_CLEANUP.md), [Studio 결과](STUDIO_UPGRADE.md), [UI 계획](UI_EVOLUTION_PLAN.md), [Qt 제거 영향도](QT_EXIT_ASSESSMENT.md).
+기존 자료: [코드 검토](https://github.com/parkjh2568/myPaint/blob/cc5f0994df35553b987c523b164cfe0ac0fd738c/docs/CODE_REVIEW.md), [수정 결과](archive/IMPLEMENTATION_RESULTS.md), [웹 구현 결과](archive/WEB_IMPLEMENTATION_RESULTS.md), [용량 정리](archive/WEB_SIZE_CLEANUP.md), [Studio 결과](archive/STUDIO_UPGRADE.md), [UI 계획](https://github.com/parkjh2568/myPaint/blob/cc5f0994df35553b987c523b164cfe0ac0fd738c/docs/UI_EVOLUTION_PLAN.md), [Qt 제거 영향도](archive/QT_EXIT_ASSESSMENT.md).
 
-[후속 native 프로필·타일·Worker 구현과 검증](STUDIO_NATIVE_PROFILES.md), [native 저장·복구 구현과 검증](STUDIO_NATIVE_PERSISTENCE.md), [최대 문서·PNG·동작 계약 검증](STUDIO_MAX_DOCUMENT.md)을 추가했다. [기능 인수 추적표](STUDIO_ACCEPTANCE_MATRIX.md)는 F01–F10과17개 도구의 실제 근거/미확인 조합을 유지한다. 후속 [미확정 편집·클립보드 계약](evidence/studio-pending-contracts.json)에서 F05 행렬/Redo 보존과 F01/F07 성공 payload·확장 crop을 확인했다. 태스크 완료 체크는 모든 완료 조건을 충족한 경우에만 갱신하며, 최대 메모리·실기기·복구/배포 게이트는 계속 열려 있다.
+[후속 native 프로필·타일·Worker 구현과 검증](archive/STUDIO_NATIVE_PROFILES.md), [native 저장·복구 구현과 검증](STUDIO_NATIVE_PERSISTENCE.md), [최대 문서·PNG·동작 계약 검증](archive/STUDIO_MAX_DOCUMENT.md)을 추가했다. [기능 인수 추적표](STUDIO_ACCEPTANCE_MATRIX.md)는 F01–F10과17개 도구의 실제 근거/미확인 조합을 유지한다. 후속 [미확정 편집·클립보드 계약](evidence/studio-pending-contracts.json)에서 F05 행렬/Redo 보존과 F01/F07 성공 payload·확장 crop을 확인했다. 태스크 완료 체크는 모든 완료 조건을 충족한 경우에만 갱신하며, 최대 메모리·실기기·복구/배포 게이트는 계속 열려 있다.
 
 ## 3. 최적화 설계 원칙
 
@@ -88,7 +88,7 @@ QF-11이 실패하면 전체 이식을 확대하지 않고 원인을 해결해 �
 
 ## 6. 상세 태스크
 
-현재 판정은 [전체 완료 조건 감사](STUDIO_COMPLETION_AUDIT.md)를 따른다. 최초 6개 입증·25개 부분·3개 미구현에서 [Studio 로컬 staging](evidence/studio-staging.json) 구현 후 6/26/2로 진행했다. QF-02 독립 기준 목록 완료 후 현재7개 입증·25개 부분·2개 미구현이며, 선행까지 닫힌 것은 QF-01/QF-02/QF-04다. [도형 정책·공개 UI/자원 정리 채택](evidence/studio-roundrect-contract.json)을 마쳤다. QF-17의 미확정 편집까지 포함한 출력 바탕 미리보기와 Classic 98 대비는 [구현·검증 보고서](STUDIO_EXPORT_PREVIEW.md)에 반영했다. 48px 표적과 크기/원점 변경 입력 투영은 [후속 구현·검증](STUDIO_TOUCH_VIEWPORT.md)에 반영했다. VisualViewport 확대·pan/API 모델과 미변형 선택 확정 비용은 [카메라·뷰포트 후속 구현·검증](STUDIO_CAMERA_VIEWPORT.md)에 반영했다. 자동 복구의 clone→Worker→storage 비용과 실패·재시도는 [후속 분석·수정](STUDIO_RECOVERY_SNAPSHOT.md)에 반영했다. Codec10응답 계약과 Worker 내부 비용은 [후속 구현·검증](STUDIO_CODEC_REPLY.md)에 반영했다. [macOS 단계 관측·실제 소스 빌드 비교](STUDIO_NATIVE_TIMING.md)에서 smoke 실패 단계를 구분하고 수정 전·후 macOS 각4단계와 오류 모델6개를 확인했다. CRC 소스 후보는 low/high 혼재로 비채택했다. 첫 timeout 원인은 미확정이며 재발 시 해당 단계의 관측을 기준으로 추적한다. [저장 기준·복구 조회 후속](STUDIO_NATIVE_OWNERSHIP.md)에서 post-save binding과 복구 조회 경합을 수정했고 실제 Rust 저장소65/300MiB 메모리 기준을 확보했다. 후속 일반 macOS 실행4단계는 통과했으나 앞선20초/120초 실패 원인은 미확정으로 보존한다. QF-02 기준 목록과 [QF-04 최신 계약 감사·늦은 복구 오류 수정](STUDIO_DOCUMENT_CONTRACTS.md)을 완료했다. 다음은 QF-03 대상/예산 확정, 120초 native smoke 미완료의 단계·원인과 실제 플랫폼 입력·앱 전체 메모리/지연 예산을 확인한다. 실제 OS 키보드·IME·Android 웹·플랫폼·미리보기 최대 경계 인수는 계속 남긴다. JPEG 방향은 [Chrome 8방향·영구 회귀 11개](evidence/studio-jpeg-orientation.json)를 확인했고 QF-16 전체 인수와 QF-32의 공개 Pages·복구 인계 인수는 남긴다. 아래 날짜별 후속 기록의 당시 우선순위는 현재 작업 순서를 대신하지 않는다.
+현재 판정은 [전체 완료 조건 감사](STUDIO_COMPLETION_AUDIT.md)를 따른다. 최초 6개 입증·25개 부분·3개 미구현에서 [Studio 로컬 staging](evidence/studio-staging.json) 구현 후 6/26/2로 진행했다. QF-02 독립 기준 목록 완료 후 현재7개 입증·25개 부분·2개 미구현이며, 선행까지 닫힌 것은 QF-01/QF-02/QF-04다. [도형 정책·공개 UI/자원 정리 채택](evidence/studio-roundrect-contract.json)을 마쳤다. QF-17의 미확정 편집까지 포함한 출력 바탕 미리보기와 Classic 98 대비는 [구현·검증 보고서](archive/STUDIO_EXPORT_PREVIEW.md)에 반영했다. 48px 표적과 크기/원점 변경 입력 투영은 [후속 구현·검증](archive/STUDIO_TOUCH_VIEWPORT.md)에 반영했다. VisualViewport 확대·pan/API 모델과 미변형 선택 확정 비용은 [카메라·뷰포트 후속 구현·검증](archive/STUDIO_CAMERA_VIEWPORT.md)에 반영했다. 자동 복구의 clone→Worker→storage 비용과 실패·재시도는 [후속 분석·수정](archive/STUDIO_RECOVERY_SNAPSHOT.md)에 반영했다. Codec10응답 계약과 Worker 내부 비용은 [후속 구현·검증](archive/STUDIO_CODEC_REPLY.md)에 반영했다. [macOS 단계 관측·실제 소스 빌드 비교](archive/STUDIO_NATIVE_TIMING.md)에서 smoke 실패 단계를 구분하고 수정 전·후 macOS 각4단계와 오류 모델6개를 확인했다. CRC 소스 후보는 low/high 혼재로 비채택했다. 첫 timeout 원인은 미확정이며 재발 시 해당 단계의 관측을 기준으로 추적한다. [저장 기준·복구 조회 후속](archive/STUDIO_NATIVE_OWNERSHIP.md)에서 post-save binding과 복구 조회 경합을 수정했고 실제 Rust 저장소65/300MiB 메모리 기준을 확보했다. 후속 일반 macOS 실행4단계는 통과했으나 앞선20초/120초 실패 원인은 미확정으로 보존한다. QF-02 기준 목록과 [QF-04 최신 계약 감사·늦은 복구 오류 수정](STUDIO_DOCUMENT_CONTRACTS.md)을 완료했다. 다음은 QF-03 대상/예산 확정, 120초 native smoke 미완료의 단계·원인과 실제 플랫폼 입력·앱 전체 메모리/지연 예산을 확인한다. 실제 OS 키보드·IME·Android 웹·플랫폼·미리보기 최대 경계 인수는 계속 남긴다. JPEG 방향은 [Chrome 8방향·영구 회귀 11개](evidence/studio-jpeg-orientation.json)를 확인했고 QF-16 전체 인수와 QF-32의 공개 Pages·복구 인계 인수는 남긴다. 아래 날짜별 후속 기록의 당시 우선순위는 현재 작업 순서를 대신하지 않는다.
 
 상태: 아래 `[ ]`는 완료 조건 전체를 아직 충족하지 못했다는 뜻이며, 구현 중인 항목도 포함한다. 세부 진척은 [구현 기록](STUDIO_IMPLEMENTATION.md)을 기준으로 확인한다. 조건부 작업은 채택 조건이 성립하지 않으면 측정 근거와 함께 ‘미채택’으로 닫을 수 있다. 구현 완료는 연결된 검증과 결과가 남아야 표시한다.
 
@@ -110,7 +110,7 @@ QF-11이 실패하면 전체 이식을 확대하지 않고 원인을 해결해 �
 - 작업: F01~F10 수정 결과, 17개 도구, 레이어·Undo·pending 선택/문자, 저장/클립보드 실패와 복구를 재현 가능한 입력·문서·예상 상태로 추출한다. 정상/손상 RPAINT01과 투명·반투명 PNG를 포함한다.
 - 완료 조건: 새 UI 구현과 독립적으로 실행할 기준 데이터와 동작 목록이 있고, 기존 수정 사항을 다시 미해결로 분류하지 않는다. 완성 픽셀 보존과 신규 획/문자의 렌더링 차이 허용 범위를 구분한다.
 
-[독립 기준 목록·실행·완료 판정](STUDIO_FIXTURE_BASELINE.md): 10fix/17tools/6상태·실패 영역,16자료의 출처·허용차를 고정했다. 기존 수정은 재개방하지 않으며 전체 UI 옵션·실기기·성능 인수와 구분한다.
+[독립 기준 목록·실행·완료 판정](archive/STUDIO_FIXTURE_BASELINE.md): 10fix/17tools/6상태·실패 영역,16자료의 출처·허용차를 고정했다. 기존 수정은 재개방하지 않으며 전체 UI 옵션·실기기·성능 인수와 구분한다.
 
 ### QF-03 — 비교 성능 측정기와 대상 기기·예산 확정
 
@@ -121,9 +121,9 @@ QF-11이 실패하면 전체 이식을 확대하지 않고 원인을 해결해 �
 - 작업: 기존 Qt/신규 앱에 동일 문서·입력 궤적을 재생한다. 기존 코어 probe 외에 시작 시간, 포인터 처리·표시·commit 지연, 프레임, 메모리, 파일/복구 지연을 분리한다. iPad/Android 실기기 확보 여부를 초기에 확인한다.
 - 완료 조건: 기기·브라우저·DPR·빌드 해시·warm/cold·입력 샘플·반복 조건을 기록하고 p50/p95/p99를 보고한다. 자동화가 실제 화면 표시/물리 펜 지연까지 측정하는지 한계를 명시한다. 아래 성능 예산의 적용 대상을 고정한다.
 
-[측정기 v2 보완·실행·한계](STUDIO_MEASUREMENT_METHOD.md): actual operand/출력 바이트·입력 token·정확성 control·환경/수명 기록을 보완했다. core36행과 별도12/100px method-validity 자료를 확인했으나 첫 통합90초 실패는 보존한다. Android 상세 정보·실기기, 공통 실제 UI trace·Qt/Wasm 웹 비교·안정 tail·예산 인수는 남겨 QF-03은 부분 충족으로 유지한다.
+[측정기 v2 보완·실행·한계](archive/STUDIO_MEASUREMENT_METHOD.md): actual operand/출력 바이트·입력 token·정확성 control·환경/수명 기록을 보완했다. core36행과 별도12/100px method-validity 자료를 확인했으나 첫 통합90초 실패는 보존한다. Android 상세 정보·실기기, 공통 실제 UI trace·Qt/Wasm 웹 비교·안정 tail·예산 인수는 남겨 QF-03은 부분 충족으로 유지한다.
 
-[Qt/Studio 공통 코어 fixture](STUDIO_MATCHED_CORE.md)로 opaque7planes·6입력의 API12작업씩과 양방향3프로젝트를 검증했다. 같은 입력 wire SHA·실제 COW/독립 출력 경계를 고정했다. n3 진단 표본이며 Qt/Wasm UI·앱 향상률/실기기·안정 tail/예산 인수가 아니므로 QF-03은 계속 부분 충족이다.
+[Qt/Studio 공통 코어 fixture](archive/STUDIO_MATCHED_CORE.md)로 opaque7planes·6입력의 API12작업씩과 양방향3프로젝트를 검증했다. 같은 입력 wire SHA·실제 COW/독립 출력 경계를 고정했다. n3 진단 표본이며 Qt/Wasm UI·앱 향상률/실기기·안정 tail/예산 인수가 아니므로 QF-03은 계속 부분 충족이다.
 
 ### QF-04 — 문서·알파·비동기 확정 계약 설계
 
@@ -312,7 +312,7 @@ QF-11이 실패하면 전체 이식을 확대하지 않고 원인을 해결해 �
 - 작업: 프로파일 상위 병목부터 전체 스캔/복사·중복 합성·할당/GC·readback을 줄인다. dirty 패치·캐시·버퍼 재사용을 우선하고 전체 타일 저장소는 실제 메모리/복사 병목이 입증될 때 확대한다.
 - 완료 조건: 같은 fixture의 결과를 유지한 전후 측정이 있고 포인터 hot path의 불필요한 전체 문서 작업이 없다. 최적화로 복잡도만 늘고 실측 이득이 없으면 원복한다.
 
-현재 진행: 2026-11-05 [최종 화면 통합](STUDIO_MAX_DOCUMENT.md)에서 반복 표시·대표 dirty 업로드를 줄였고 원본 UI/WKWebView 픽셀 보존을 확인했다. Cold와 모서리·분리 영역의 frame 비용은 미해결이다. 근거가 없는 Wasm/GPU 도입 없이 이 경계의 반복 측정을 우선한다.
+현재 진행: 2026-11-05 [최종 화면 통합](archive/STUDIO_MAX_DOCUMENT.md)에서 반복 표시·대표 dirty 업로드를 줄였고 원본 UI/WKWebView 픽셀 보존을 확인했다. Cold와 모서리·분리 영역의 frame 비용은 미해결이다. 근거가 없는 Wasm/GPU 도입 없이 이 경계의 반복 측정을 우선한다.
 
 ### QF-24 — 인코딩·복구·장기 작업의 응답성과 메모리 최적화
 
@@ -505,7 +505,7 @@ QF의 파일 입력·자원 한도·취소 인수에서 첫 GIF descriptor 확�
 | 투명 선택 키·문자 alpha | 수정·좁은 인수 완료 | 선택 Qt 4개·UI 4개, 문자 UI 8개, Qt 문자 6case/84check·별도 WK alpha10·일반 macOS4단계·기존 웹48/pending36/clipboard4 |
 | 작업 setup 예외·채우기 실패 | setup 수정·기존 Worker 안전성의 좁은 인수 | 공개 UI 10종류×두 실패/취소 뒤 retry·실제20초 timeout 두 번, 웹48·pending36·일반 macOS4단계. OOM/물리 경쟁/전체 F10은 미인수 |
 
-1. **Major / L** — 고정 DPR의 WK checker 계획을 실행하고 동일 camera/mip에서 bounded 준비의 완성 시간 비용을 확인한다. 계획 준비는 새 계측 결과가 아니다. UI4는 최대 65,536개 source-pixel 진행 단위·soft 4ms MessageChannel과 완성 프레임 공개를 구현했고, 취소/dirty/문서 교체/할당 실패/context loss 및 도구·스킨 warm cache 보존을 검증했다. Chrome 6쌍의 callback은 짧아졌지만 완성은 모두 느려졌으며 WK uniform도 n1뿐이다. DPR/mip가 다른 checker는 성능 비교에서 제외한다. 넓은 dirty·장기 RSS·50ms/실기기 인수는 계속 미완료다. [측정과 다음 경계](STUDIO_MAX_DOCUMENT.md#최대-mip-준비의-다음-구현-경계)를 따른다.
+1. **Major / L** — 고정 DPR의 WK checker 계획을 실행하고 동일 camera/mip에서 bounded 준비의 완성 시간 비용을 확인한다. 계획 준비는 새 계측 결과가 아니다. UI4는 최대 65,536개 source-pixel 진행 단위·soft 4ms MessageChannel과 완성 프레임 공개를 구현했고, 취소/dirty/문서 교체/할당 실패/context loss 및 도구·스킨 warm cache 보존을 검증했다. Chrome 6쌍의 callback은 짧아졌지만 완성은 모두 느려졌으며 WK uniform도 n1뿐이다. DPR/mip가 다른 checker는 성능 비교에서 제외한다. 넓은 dirty·장기 RSS·50ms/실기기 인수는 계속 미완료다. [측정과 다음 경계](archive/STUDIO_MAX_DOCUMENT.md#최대-mip-준비의-다음-구현-경계)를 따른다.
 2. **Major / M** — 후속 선택 배치에서 lasso mask·음수 이동·투명 키·resize 결합의 명시 payload를 인수했다. 후속 배치에서 source-less paste4·투명 배경 Source-clear7을 인수했다. 원본 mask의 명시 변형·연속 resize는 아래 후속 배치에서 인수했으며 임의 조합과 전체 F06은 남아 있다. Worker fill 실패/취소/timeout의 명시 경계와 retry는 후속10개에서 확인했지만 fill premul/NoOp·cut flag·hidden active의 좁은 Qt/UI 대조와 수정은 후속 배치에서 마쳤다. alpha와 task·키 수정만으로 전체 F06/F10/17도구를 완료하지 않는다. 다른 F01–F10 옵션과 홈페이지 staging/rollback도 남아 있다.
 3. **실기기/출시 게이트** — Android Chrome·Safari 웹, Windows/macOS 설치형 OS 통합, 원격 CI·서명/공증을 각각 인수한다. 모바일 APK/AAB·iOS 앱은 만들지 않는다.
 4. **Minor / M** — 선택 색상의 alpha 표시 UX, 같은 불투명색 지우기의 임시 할당, native GIF metadata/RSS를 확인한다.
@@ -635,14 +635,14 @@ hint의 격리 성능 이득과 기술적인 seam 개선은 실제 pointerUp 경
 
 ## 2026-11-06 카메라·VisualViewport·무변형 선택
 
-[수정·원인·검증·정정](STUDIO_CAMERA_VIEWPORT.md), [고정 근거](evidence/studio-camera-viewport.json). 새 공개17개·Node232와 최종 기존 입력/선택/웹/출력·macOS 회귀를 통과했다. 휠 중 투영 Major, VV 확대·문자 원점/중복 observer·밀도 취소 Minor를 수정했다. 미변형 선택4K 두 레이어의 동기 slice는128MiB→0이며 draw(true)·엔진 검증·NoOp/Redo를 유지한다. 과거 forced-gutter42/48px 추론은 실제 hit 증거에 따라 철회하고 본문에 범위를 명시했다. 물리 Android 웹·OS IME/파일·Windows·보조공학·출시 및 선행 게이트는 남기며 전체 체크를 닫지 않는다.
+[수정·원인·검증·정정](archive/STUDIO_CAMERA_VIEWPORT.md), [고정 근거](evidence/studio-camera-viewport.json). 새 공개17개·Node232와 최종 기존 입력/선택/웹/출력·macOS 회귀를 통과했다. 휠 중 투영 Major, VV 확대·문자 원점/중복 observer·밀도 취소 Minor를 수정했다. 미변형 선택4K 두 레이어의 동기 slice는128MiB→0이며 draw(true)·엔진 검증·NoOp/Redo를 유지한다. 과거 forced-gutter42/48px 추론은 실제 hit 증거에 따라 철회하고 본문에 범위를 명시했다. 물리 Android 웹·OS IME/파일·Windows·보조공학·출시 및 선행 게이트는 남기며 전체 체크를 닫지 않는다.
 
 
 ## 2026-11-06 자동 복구의 오류 경계와 비용
 
-[현재 분석·수정·검증](STUDIO_RECOVERY_SNAPSHOT.md), [고정 근거](evidence/studio-recovery-snapshot.json). injected missing/null 출력의 false success→같은 revision 재시도 억제와 이전 epoch 오류 표시를 수정했다. 공개5·단위234·저장13·native IPC 모델15·웹48·실제 macOS4단계를 확인했다. 기준 clone/Worker/storage n3는 모델·실제 IDB를 분리하며, 성능 개선이나 실제 OS I/O/물리 장치 인수로 세지 않는다. full codec 응답 계약·Worker 내부 CPU/entropy·실제 플랫폼·전체 선행 게이트는 남는다.
+[현재 분석·수정·검증](archive/STUDIO_RECOVERY_SNAPSHOT.md), [고정 근거](evidence/studio-recovery-snapshot.json). injected missing/null 출력의 false success→같은 revision 재시도 억제와 이전 epoch 오류 표시를 수정했다. 공개5·단위234·저장13·native IPC 모델15·웹48·실제 macOS4단계를 확인했다. 기준 clone/Worker/storage n3는 모델·실제 IDB를 분리하며, 성능 개선이나 실제 OS I/O/물리 장치 인수로 세지 않는다. full codec 응답 계약·Worker 내부 CPU/entropy·실제 플랫폼·전체 선행 게이트는 남는다.
 
 
 ## 2026-11-06 Codec10 응답과 Worker 비용
 
-[분석·수정·검증·잔여 조건](STUDIO_CODEC_REPLY.md), [고정 근거](evidence/studio-codec-reply.json). 잘못된파일 성공표시·조건부clipboard cut·typed state/sparse색상·fill응답 경계를 owner에서 닫았다. 동일공개27개 기준22실패/5대조통과→후보27통과, 독립계약89·전체Node323과기존회귀를확인했다. macOS최초20초timeout을보존하며동일binary재시도4단계는통과했다. Worker의지배비용은입력에따른압축·CRC였고CRC임시후보는low혼재로비채택했다. 정상Worker자연장애·OSclipboard·실기기·무회귀성능·전체출시완료로확대하지않는다.
+[분석·수정·검증·잔여 조건](archive/STUDIO_CODEC_REPLY.md), [고정 근거](evidence/studio-codec-reply.json). 잘못된파일 성공표시·조건부clipboard cut·typed state/sparse색상·fill응답 경계를 owner에서 닫았다. 동일공개27개 기준22실패/5대조통과→후보27통과, 독립계약89·전체Node323과기존회귀를확인했다. macOS최초20초timeout을보존하며동일binary재시도4단계는통과했다. Worker의지배비용은입력에따른압축·CRC였고CRC임시후보는low혼재로비채택했다. 정상Worker자연장애·OSclipboard·실기기·무회귀성능·전체출시완료로확대하지않는다.

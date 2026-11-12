@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 설계와 예외 처리
 
-Qt-free 신규 경로는 [Studio 아키텍처](STUDIO_ARCHITECTURE.md), [독립 리뷰·RCA](STUDIO_REVIEW_AND_RCA.md)를 따른다. 아래는 전환 동안 보존하는 Qt 기준 구현이다.
+Qt-free 신규 경로는 [Studio 아키텍처](../STUDIO_ARCHITECTURE.md), [독립 리뷰·RCA](STUDIO_REVIEW_AND_RCA.md)를 따른다. 아래는 전환 동안 보존하는 Qt 기준 구현이다.
 
 
 ## 책임 분리

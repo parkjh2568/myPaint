@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 네이티브 대형 문서·타일 표시 구현 기록
 
-2026-11-04 / 전체 목표 진행 중. 모바일은 웹만, 설치 실행파일은 Windows/macOS만 제공한다. [원시 검증 기록](evidence/studio-native-profiles.json)은 소스/산출물 해시와 실제 검사 범위를 포함한다.
+2026-11-04 / 전체 목표 진행 중. 모바일은 웹만, 설치 실행파일은 Windows/macOS만 제공한다. [원시 검증 기록](../evidence/studio-native-profiles.json)은 소스/산출물 해시와 실제 검사 범위를 포함한다.
 
 ## 구현한 경계
 
@@ -40,7 +42,7 @@
 
 ## 남은 우선순위
 
-1. 후속 [native 파일 저장·복구](STUDIO_NATIVE_PERSISTENCE.md)에서 기억한 경로 저장/OS 열기·Qt 읽기 전용 인계·32개/합계1GiB 파일 복구를 구현하고 실제64MiB 초과 복구를 검증했다. Windows 실제 실행·OS 선택기·디스크 부족·전체 IPC 메모리 인수는 계속 남아 있다. 웹의64MiB 정책은 유지한다.
+1. 후속 [native 파일 저장·복구](../STUDIO_NATIVE_PERSISTENCE.md)에서 기억한 경로 저장/OS 열기·Qt 읽기 전용 인계·32개/합계1GiB 파일 복구를 구현하고 실제64MiB 초과 복구를 검증했다. Windows 실제 실행·OS 선택기·디스크 부족·전체 IPC 메모리 인수는 계속 남아 있다. 웹의64MiB 정책은 유지한다.
 2. 실제32Mi 이미지/64Mi 합계의 피크 메모리·장시간 편집·취소 인수. 축소 보기의64타일 교체 반복은 mip cache로 개선했다. 초기 cache 생성과16layer1:1 교체 반복, live 선택 resize·pending 합성·후보/이력 복사는 남아 있다. crop/merge 계산은 Worker로 옮겼다.
 3. 모든 형식/17개 도구/F01~F10 조합, 실제 Windows·Android 웹·Safari 웹, native fractional 시각 인수.
 4. 새 정적 manifest staging·구탭 자산·되돌리기와 서명·공증·전체 native 의존성 고지·공개 인수. 기존 공개 앱/Qt 경로의 제거는 이 조건 이후다.

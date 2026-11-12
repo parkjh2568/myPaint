@@ -1,10 +1,12 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 최신 소스 macOS 앱 재검증
 
-2026-11-06. [소스·빌드·실행 근거](evidence/studio-native-current.json). 화면 잠금 해제 답변 후 콘솔 잠금 상태가 `false`임을 확인하고 최신 소스로 macOS 앱을 다시 빌드했다. **실제 앱의 저장·복구, 코덱, 종료 보호, 렌더링 네 분기가 모두 통과했다.** 제품 코드·helper·의존성 변경은 없다. 모바일·태블릿은 웹, 설치형은 Windows/macOS 범위를 유지한다.
+2026-11-06. [소스·빌드·실행 근거](../evidence/studio-native-current.json). 화면 잠금 해제 답변 후 콘솔 잠금 상태가 `false`임을 확인하고 최신 소스로 macOS 앱을 다시 빌드했다. **실제 앱의 저장·복구, 코덱, 종료 보호, 렌더링 네 분기가 모두 통과했다.** 제품 코드·helper·의존성 변경은 없다. 모바일·태블릿은 웹, 설치형은 Windows/macOS 범위를 유지한다.
 
 ## 검증 대상과 결과
 
-[QF-04의 늦은 복구 오류 수정](STUDIO_DOCUMENT_CONTRACTS.md)을 포함한 runtime 소스17개를 직전 기준과 전수 SHA 대조했다. main은 `48695bee1d88`, 실행파일은 새 빌드 `d1da36e38326`이다. native frontend는8파일·290,584B이며 웹 staging의9파일·291,664B와 LICENSE1,080B만 다르다. 공통8파일의 SHA가 모두 같고 entry는 `assets/index-DIgO41Ne.js`다. 이전9f01 바이너리의 통과와 구분한다.
+[QF-04의 늦은 복구 오류 수정](../STUDIO_DOCUMENT_CONTRACTS.md)을 포함한 runtime 소스17개를 직전 기준과 전수 SHA 대조했다. main은 `48695bee1d88`, 실행파일은 새 빌드 `d1da36e38326`이다. native frontend는8파일·290,584B이며 웹 staging의9파일·291,664B와 LICENSE1,080B만 다르다. 공통8파일의 SHA가 모두 같고 entry는 `assets/index-DIgO41Ne.js`다. 이전9f01 바이너리의 통과와 구분한다.
 
 | 실제 macOS WKWebView 분기 | 결과 |
 | --- | --- |
@@ -19,7 +21,7 @@ LaunchServices 기본 foreground 방식으로 네 번 실행했다. 각 `/usr/bi
 
 ## 해석과 남은 검증
 
-이번 실행은 최신 소스를 포함한 일반 native 통합 검증의 공백을 해소한다. 다만 늦은 A 복구 목록 오류가 B 문서 상태를 덮는 경합을 실제 OS에서 주입한 시험은 아니다. 그 수정의 결정적 회귀는 [기존 Chromium IPC 모형 검사](STUDIO_DOCUMENT_CONTRACTS.md)로 구분한다.
+이번 실행은 최신 소스를 포함한 일반 native 통합 검증의 공백을 해소한다. 다만 늦은 A 복구 목록 오류가 B 문서 상태를 덮는 경합을 실제 OS에서 주입한 시험은 아니다. 그 수정의 결정적 회귀는 [기존 Chromium IPC 모형 검사](../STUDIO_DOCUMENT_CONTRACTS.md)로 구분한다.
 
 실행 전후 콘솔 잠금은 false였지만 모든 순간의 focus/visibility나 과거 실패의 원인을 증명하지 않는다. 기존20초 `project-read-large` 실패와120초 완료 신호 없음은 그대로 보존한다. 이번1회 통과로 간헐적 실패가 해결됐다고 단정하지 않으며 production 코덱20초·검증 watchdog120초도 늘리지 않았다.
 

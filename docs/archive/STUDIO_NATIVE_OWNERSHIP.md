@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 네이티브 저장 기준과 복구 조회 소유권
 
-2026-11-06. [재현·수정·독립 검토·실행 근거](evidence/studio-native-ownership.json). 이번 단계에서 저장 기준과 복구 조회의 두 결함을 수정했다. 전체 전환·출시 완료가 아니다. 당시 대기한 GUI 재검증은 후속 [최신 소스 macOS 앱 검증](STUDIO_NATIVE_CURRENT.md)에서4분기 통과했으며, 아래 실패 기록은 당시 근거로 보존한다. 모바일·태블릿은 웹, 실행파일은 Windows/macOS 전용이다.
+2026-11-06. [재현·수정·독립 검토·실행 근거](../evidence/studio-native-ownership.json). 이번 단계에서 저장 기준과 복구 조회의 두 결함을 수정했다. 전체 전환·출시 완료가 아니다. 당시 대기한 GUI 재검증은 후속 [최신 소스 macOS 앱 검증](STUDIO_NATIVE_CURRENT.md)에서4분기 통과했으며, 아래 실패 기록은 당시 근거로 보존한다. 모바일·태블릿은 웹, 실행파일은 Windows/macOS 전용이다.
 
 ## 확인한 결함과 수정
 
@@ -46,4 +48,4 @@ Chrome의 native bridge는 in-memory 모형이다. 실제 OS 파일 선택기·W
 
 entry는 `assets/index-DLvOR2As.js`, 라이선스·고지를 포함한 웹 payload는 9파일·291,639B다. 빌드 입력115개와 runtime 소스17개를 고정했고 실제 시험한 앱 자산8개가 최종 payload와 같다. 제품 소스 변경은 main.ts와 persistence.rs 두 곳이며 import 관계는 유지한다. 홈페이지 쓰기·Git commit/push·게시를 하지 않았다.
 
-당시 후속 항목이던 독립 기준 목록·QF-04 계약과 최신 소스 macOS 일반4분기는 이후 검증했다. 현재 우선순위와 전체 자체 판정7입증·25부분·2미구현, 선행 완료QF-01/02/04는 [최신 완료 감사](STUDIO_COMPLETION_AUDIT.md)를 따른다. 목표 장치·메모리/입력 예산과 Android 웹·Windows·OS picker/IME 인수는 계속 남는다.
+당시 후속 항목이던 독립 기준 목록·QF-04 계약과 최신 소스 macOS 일반4분기는 이후 검증했다. 현재 우선순위와 전체 자체 판정7입증·25부분·2미구현, 선행 완료QF-01/02/04는 [최신 완료 감사](../STUDIO_COMPLETION_AUDIT.md)를 따른다. 목표 장치·메모리/입력 예산과 Android 웹·Windows·OS picker/IME 인수는 계속 남는다.

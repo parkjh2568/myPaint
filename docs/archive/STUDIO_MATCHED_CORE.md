@@ -1,12 +1,14 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # Qt·Studio 공통 코어 fixture — QF-03 진행
 
-2026-11-06. [입력·소스·실행·독립 검토 근거](evidence/studio-matched-core.json). QF-03의 **같은 입력·operation 경계**를 코어 API 네 종류에서 고정하고 실제 두 구현을 검증했다. 전체 QF-03·성능 예산·물리 장치·출시 인수는 미완료다. 제품 소스와 payload는 [QF-04](STUDIO_DOCUMENT_CONTRACTS.md) 그대로다.
+2026-11-06. [입력·소스·실행·독립 검토 근거](../evidence/studio-matched-core.json). QF-03의 **같은 입력·operation 경계**를 코어 API 네 종류에서 고정하고 실제 두 구현을 검증했다. 전체 QF-03·성능 예산·물리 장치·출시 인수는 미완료다. 제품 소스와 payload는 [QF-04](../STUDIO_DOCUMENT_CONTRACTS.md) 그대로다.
 
 ## 같은 입력과 다른 구현을 구분
 
-[고정 명세](../web-app/tests/fixtures/matched-core.json)는800×600×1,2048²×1,1536×2048×2의 RGB 프로젝트와 크기별 단일 흰색 plane을 정의한다. RGBA는 전부 alpha255다. 독립 Python 정수 계산으로7개 원본 plane과3개 빨강 출력 SHA를 먼저 도출했다. Node zlib/CRC와 직접 쓴 RPAINT01 레코드로6파일·37,681,237B를 생성했으며 제품 encoder를 기준 생성기로 사용하지 않았다.
+[고정 명세](../../web-app/tests/fixtures/matched-core.json)는800×600×1,2048²×1,1536×2048×2의 RGB 프로젝트와 크기별 단일 흰색 plane을 정의한다. RGBA는 전부 alpha255다. 독립 Python 정수 계산으로7개 원본 plane과3개 빨강 출력 SHA를 먼저 도출했다. Node zlib/CRC와 직접 쓴 RPAINT01 레코드로6파일·37,681,237B를 생성했으며 제품 encoder를 기준 생성기로 사용하지 않았다.
 
-Qt와 Studio는 각 파일의 **같은 전체 wire SHA**를 확인하고, 크기·active/background·레이어 이름/visible/순서와 숨은 레이어를 포함한 전체 canonical RGBA SHA를 대조했다. Qt 내부 ARGB/BGRA bytes는 직접 비교하지 않고 타이머 밖에서 RGBA로 변환해 stride를 지켜 해시했다. alpha0/반투명 표현 차이·모든 도구·최대 desktop 문서의 인수는 이 opaque fixture와 구분하며 [문서·알파 계약](STUDIO_DOCUMENT_CONTRACTS.md)을 유지한다.
+Qt와 Studio는 각 파일의 **같은 전체 wire SHA**를 확인하고, 크기·active/background·레이어 이름/visible/순서와 숨은 레이어를 포함한 전체 canonical RGBA SHA를 대조했다. Qt 내부 ARGB/BGRA bytes는 직접 비교하지 않고 타이머 밖에서 RGBA로 변환해 stride를 지켜 해시했다. alpha0/반투명 표현 차이·모든 도구·최대 desktop 문서의 인수는 이 opaque fixture와 구분하며 [문서·알파 계약](../STUDIO_DOCUMENT_CONTRACTS.md)을 유지한다.
 
 | 작업 | 공통 외부 계약 | 포함/제외한 비용 |
 | --- | --- | --- |
@@ -54,4 +56,4 @@ Qt는 현재 native `QImageWriter` PNG 기본 설정이고 Wasm compression0 분
 
 다음은 같은 fixture의 decode/fill을 Node와 실제 shipped Worker에서 CPU profile해 압축 해제·CRC·PNG sample/unfilter·할당/GC 비용을 분리하는 일이다. 기존 raw RGBA/알파·malformed PNG/프로젝트 한도와 취소·20초 제한을 유지한 채 병목이 확인된 부분만 후보로 만든다. 프로파일 계측과 비계측 표본은 분리하고 같은 입력/검증/소스 대조로 후보를 평가한다. 공통 실제 UI trace와 대상 기기별 반복/tail·예산 확정도 계속 진행한다.
 
-[실행 안내](../web-app/tests/fixtures/matched-core-README.md)에 새 디렉터리 생성·fixture 생성·양쪽 probe·교차 읽기 명령을 정리했다. 생성한 대용량 fixture/encoded outputs는 `build-web-work` 검증 산출물이며 웹 bundle에 넣지 않는다. 모바일/태블릿은 웹만, 실행파일은 Windows/macOS만 제공한다. 홈페이지 쓰기·commit/push·공개 배포는 하지 않았다. QF-03과 전체 목표는 계속 진행 중이다.
+[실행 안내](../../web-app/tests/fixtures/matched-core-README.md)에 새 디렉터리 생성·fixture 생성·양쪽 probe·교차 읽기 명령을 정리했다. 생성한 대용량 fixture/encoded outputs는 `build-web-work` 검증 산출물이며 웹 bundle에 넣지 않는다. 모바일/태블릿은 웹만, 실행파일은 Windows/macOS만 제공한다. 홈페이지 쓰기·commit/push·공개 배포는 하지 않았다. QF-03과 전체 목표는 계속 진행 중이다.

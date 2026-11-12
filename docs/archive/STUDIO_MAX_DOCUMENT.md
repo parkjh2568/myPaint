@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 최대 문서 편집·표시 성능과 PNG 호환성 검증
 
-2026-11-05. 모바일·태블릿은 웹만, 설치형은 Windows/macOS만 대상으로 한다. 이번 단계는 최대 문서의 실제 병목과 파일 오류를 수정한 기록이다. **초기 표시·다층 1:1 표시·일부 동기 작업의 인수는 아직 끝나지 않았다.** 전체 전환 완료로 표시하지 않는다. 코드/번들 해시와 표본은 [이전 최대 문서 근거](evidence/studio-max-document.json)와 [후속 최종 화면 통합 근거](evidence/studio-scene-integration.json)에서 구분한다.
+2026-11-05. 모바일·태블릿은 웹만, 설치형은 Windows/macOS만 대상으로 한다. 이번 단계는 최대 문서의 실제 병목과 파일 오류를 수정한 기록이다. **초기 표시·다층 1:1 표시·일부 동기 작업의 인수는 아직 끝나지 않았다.** 전체 전환 완료로 표시하지 않는다. 코드/번들 해시와 표본은 [이전 최대 문서 근거](../evidence/studio-max-document.json)와 [후속 최종 화면 통합 근거](../evidence/studio-scene-integration.json)에서 구분한다.
 
 ## 실제 원인과 변경
 
@@ -63,7 +65,7 @@ Surface 최대 축 512, global cache 64개, ImageData+Canvas 추정 RGBA와 mip 
 
 통합 전에는 2048²×16 문서와 1072×944 viewport의 가시 타일 96개가 64개 cache를 넘었다. 변경 없는 재표시에도 96개 재업로드/퇴출과 100,499,520바이트 업로드가 발생했다. 이를 줄이기 위해 기존 Canvas가 배경까지 합성한 불투명 최종 화면을 보관하는 방식을 검토했다. 아래 시제품 수치는 당시의 독립 실험이며, 실제 제품 통합 결과는 다음 절에서 구분한다.
 
-후속 [분리된 scene cache 실험](evidence/studio-scene-prototype.json)은 실제 제품 통합 전의 설계 검증이다. 물리 배율 1에서 33개 기능·12개 측정 frame, Retina/물리 1.25·1.5·2·3에서 64개 기능·12개 측정 frame의 전체 RGBA가 비교 경로와 일치했다. 원본 256MiB RGBA 해시도 유지됐다. 비교 Canvas의 수명과 readback 순서를 맞춘 결과이며 원인이 입증되지 않은 CPU/GPU 차이를 사실로 단정하지 않는다.
+후속 [분리된 scene cache 실험](../evidence/studio-scene-prototype.json)은 실제 제품 통합 전의 설계 검증이다. 물리 배율 1에서 33개 기능·12개 측정 frame, Retina/물리 1.25·1.5·2·3에서 64개 기능·12개 측정 frame의 전체 RGBA가 비교 경로와 일치했다. 원본 256MiB RGBA 해시도 유지됐다. 비교 Canvas의 수명과 readback 순서를 맞춘 결과이며 원인이 입증되지 않은 CPU/GPU 차이를 사실로 단정하지 않는다.
 
 Retina 2144×1888 시제품의 변경 없는 frame은 업로드 96회/100,499,520바이트에서 0으로 줄었다. 호출 중앙값은 130.30→0.50ms, render 구간과 일치하는 Long Task 관측은 9/9→0/9였다. 반면 최초 호출 중앙값은 140.50→175.30ms로 증가했고 Long Task 3/3이 남았다. 이 값은 SwiftShader Chrome의 3개 cold/9개 steady 표본이며 presentation/실제 펜 지연이나 제품 앱 개선률이 아니다. source+scene 최대 64개, RGBA 추정 125,449,328바이트와 surface 최대 512px를 유지했으나 브라우저/GPU 내부 메모리는 포함하지 않는다.
 
@@ -71,7 +73,7 @@ Retina 2144×1888 시제품의 변경 없는 frame은 업로드 96회/100,499,52
 
 ## 실제 앱의 최종 화면 캐시 통합
 
-[통합 근거](evidence/studio-scene-integration.json)는 배경 수정만 적용한 원본 source renderer, 1차 scene 통합, source 경계 정렬과 완전 적중 생략을 추가한 최종 후보를 각각의 소스·번들 해시로 구분한다. `FinalSceneCache`는 원래 레이어 순서와 알파 합성을 그대로 사용하고, 임시 선택 테두리·도형 표시 전에 불투명 화면만 캡처한다. main은 물리 backing 전체에 배경을 채워 분수 CSS 높이의 마지막 행에 이전 frame이 누적되던 문제도 수정했다.
+[통합 근거](../evidence/studio-scene-integration.json)는 배경 수정만 적용한 원본 source renderer, 1차 scene 통합, source 경계 정렬과 완전 적중 생략을 추가한 최종 후보를 각각의 소스·번들 해시로 구분한다. `FinalSceneCache`는 원래 레이어 순서와 알파 합성을 그대로 사용하고, 임시 선택 테두리·도형 표시 전에 불투명 화면만 캡처한다. main은 물리 backing 전체에 배경을 채워 분수 CSS 높이의 마지막 행에 이전 frame이 누적되던 문제도 수정했다.
 
 Source와 scene은 합계 64개/추정 RGBA 128MiB, 각 surface 축 512px 제한을 공유한다. source 510px 경계를 화면에 투영하고 큰 셀만 분할한다. 변경 영역은 한 번 등록하며, 표시 화면에 없는 dirty도 source에 남긴다. pan·zoom·DPR·스킨·종이 범위·레이어 순서·선택 소유권이 바뀌면 재구성한다. 할당·캡처·크기 변경·중단 실패는 부분 자원을 해제한다. 정상 적중에서는 흰색·체커보드·source 반복 그리기를 생략한다.
 
@@ -113,7 +115,7 @@ Source와 scene은 합계 64개/추정 RGBA 128MiB, 각 surface 축 512px 제한
 
 ## Metal 선택 환경의 후속 비교
 
-도구 계약 수정 중 [별도 Metal 실험](evidence/studio-tool-contracts.json)을 수행했다. Playwright 추가 args는 없고, 4개 새 Chrome의 실행 전/후 CDP 장치가 Apple M1 Pro/ANGLE_METAL·GraphiteDawnMetal이었다. 기존 옵션을 재현한 작은 capability 검사는 SwiftShader/GraphiteDawnVulkan을 관측했다. 개별 Canvas의 가속 지속이나 물리 입력 지연을 이 정보만으로 확정하지 않는다.
+도구 계약 수정 중 [별도 Metal 실험](../evidence/studio-tool-contracts.json)을 수행했다. Playwright 추가 args는 없고, 4개 새 Chrome의 실행 전/후 CDP 장치가 Apple M1 Pro/ANGLE_METAL·GraphiteDawnMetal이었다. 기존 옵션을 재현한 작은 capability 검사는 SwiftShader/GraphiteDawnVulkan을 관측했다. 개별 Canvas의 가속 지속이나 물리 입력 지연을 이 정보만으로 확정하지 않는다.
 
 비교 대상은 1차 scene 통합과 색 교체 수정 시점의 source 경계 정렬 후보다. 이후 도형·무잉크·디코더 수정의 성능 수치로 재표기하지 않는다. 동일 2048²×16/256MiB 문서에서 전체 화면과 canonical 프로젝트 해시가 일치했다.
 
@@ -152,21 +154,21 @@ Source와 scene은 합계 64개/추정 RGBA 128MiB, 각 surface 축 512px 제한
 
 재실행은 `npm --prefix web-app run test:bulk-edit`, `test:pointer-contract`, `test:tiles`, `test:native-profile`, `test:native-persistence`에 고정 정적 서버의 `PAINT_TEST_URL`을 전달한다. 최대 core 측정은 별도 `test:max-document`로 실행한다. 실제 native 검증은 호스트 빌드 후 `test:native-desktop`을 사용하며 파일 복구·코덱/렌더러·종료 보호를 각각 임시 root·비영구 WebView로 검사한다.
 
-1. **P0 데이터 인수**: [기능 인수 추적표](STUDIO_ACCEPTANCE_MATRIX.md)의 F05 16개 조합, F01/F07 clipboard payload, F03 동일 레이어와 도구별 공백을 닫는다. 테스트 개수를 전체 기능 동등성으로 간주하지 않는다.
+1. **P0 데이터 인수**: [기능 인수 추적표](../STUDIO_ACCEPTANCE_MATRIX.md)의 F05 16개 조합, F01/F07 clipboard payload, F03 동일 레이어와 도구별 공백을 닫는다. 테스트 개수를 전체 기능 동등성으로 간주하지 않는다.
 2. **P1 표시/응답성**: 최초 mip 생성의 비동기 준비, 16개 레이어 1:1 작업량, 실시간 선택 resize, 큰 pending 합성·구조 snapshot/동일성 검사와 남은 70ms 작업을 다룬다. Worker로 옮길 때 원본 snapshot 복사와 메모리를 함께 회계한다.
 3. **플랫폼/출시**: Android 실제 웹·Safari 웹·Windows 설치형, ENOSPC/OS 파일 선택기, 서명/공증/고지, 안전 manifest staging과 롤백을 검증한다. 로컬에는 ADB가 없어 Android 연결을 확인하지 못했으며 실기기 통과를 주장하지 않는다.
 
-후속 [미확정 편집·clipboard 검증](evidence/studio-pending-contracts.json)에서 F05 행렬과 F01/F07 성공 payload를 확인하고 pending Redo 우회를 수정했다. 이 문서의 성능 표본은 당시 source hash를 유지한다.
+후속 [미확정 편집·clipboard 검증](../evidence/studio-pending-contracts.json)에서 F05 행렬과 F01/F07 성공 payload를 확인하고 pending Redo 우회를 수정했다. 이 문서의 성능 표본은 당시 source hash를 유지한다.
 
-기존 Qt·홈페이지는 보존한다. 이 단계에서 commit/push/공개 배포를 수행하지 않았다. [전체 전환 백로그](QT_FREE_MIGRATION_TASKS.md)와 미완료 게이트는 유지한다.
+기존 Qt·홈페이지는 보존한다. 이 단계에서 commit/push/공개 배포를 수행하지 않았다. [전체 전환 백로그](../QT_FREE_MIGRATION_TASKS.md)와 미완료 게이트는 유지한다.
 
 
-프로젝트 디코더 후속 보완: 내부 PNG를 전부 할당한 뒤 outer 크기를 확인하던 경로에 IHDR 사전검사를 추가했다. 단독 PNG per-image 한도뿐 아니라 outer count×size의 aggregate 가정도 지킨다. CRC/전체 구조 검사는 생략하지 않는다. 자세한 before/after 할당 관측과 File adapter size/취소 경계는 [도구·입력 근거](evidence/studio-tool-contracts.json)를 따른다. GIF/JPEG/BMP의 브라우저 디코더 내부 메모리와 프로세스 전체 RSS를 이 검사로 보장하지 않는다.
+프로젝트 디코더 후속 보완: 내부 PNG를 전부 할당한 뒤 outer 크기를 확인하던 경로에 IHDR 사전검사를 추가했다. 단독 PNG per-image 한도뿐 아니라 outer count×size의 aggregate 가정도 지킨다. CRC/전체 구조 검사는 생략하지 않는다. 자세한 before/after 할당 관측과 File adapter size/취소 경계는 [도구·입력 근거](../evidence/studio-tool-contracts.json)를 따른다. GIF/JPEG/BMP의 브라우저 디코더 내부 메모리와 프로세스 전체 RSS를 이 검사로 보장하지 않는다.
 
 
 ## GIF prefix의 응답성 측정
 
-[GIF 후속 근거](evidence/studio-gif-input.json)는 논리 화면만 검사하던 원본, 동기 first-descriptor 사전검사, 협력적 사전검사를 구분한다. 성능 비교 대상은 마지막 두 단계다. Node24.22.1/macOS27/M1 Pro의 같은 8개 입력 SHA를 사용했고, 실제 픽셀 디코딩 없이 Blob과 bitmap 진입 spy를 관측했다.
+[GIF 후속 근거](../evidence/studio-gif-input.json)는 논리 화면만 검사하던 원본, 동기 first-descriptor 사전검사, 협력적 사전검사를 구분한다. 성능 비교 대상은 마지막 두 단계다. Node24.22.1/macOS27/M1 Pro의 같은 8개 입력 SHA를 사용했고, 실제 픽셀 디코딩 없이 Blob과 bitmap 진입 spy를 관측했다.
 
 | 입력·구간 | 동기 사전검사 → 시간 예산 적용 | 해석 |
 | --- | --- | --- |
@@ -180,7 +182,7 @@ Source와 scene은 합계 64개/추정 RGBA 128MiB, 각 surface 축 512px 제한
 
 ## 실제 WK 렌더 비용 분리와 단색 스캔 개선
 
-2026-11-05. [WK 통합 근거](evidence/studio-wk-render.json)는 준비된 임시 prototype을 현재 코드에 반영한 단계, 최초 계측 실패, 기준/최종 앱과 API 진단·8K 변형 앱을 구분한다. 앱 시작 500ms 복구 확인의 `run.finally`가 추가 draw를 예약해 첫 계측이 중단됐다. 입력 없는 실행의 실제 호출 stack과 동일 camera/owner를 기록하고, 검증 모드에서 이 작업을 750ms 준비 구간과 rAF drain으로 끝낸 후 target 문서를 설치했다. 일반 앱 시작에는 대기가 추가되지 않는다.
+2026-11-05. [WK 통합 근거](../evidence/studio-wk-render.json)는 준비된 임시 prototype을 현재 코드에 반영한 단계, 최초 계측 실패, 기준/최종 앱과 API 진단·8K 변형 앱을 구분한다. 앱 시작 500ms 복구 확인의 `run.finally`가 추가 draw를 예약해 첫 계측이 중단됐다. 입력 없는 실행의 실제 호출 stack과 동일 camera/owner를 기록하고, 검증 모드에서 이 작업을 750ms 준비 구간과 rAF drain으로 끝낸 후 target 문서를 설치했다. 일반 앱 시작에는 대기가 추가되지 않는다.
 
 Timing은 production `Studio.render()`의 API 반환 시간이며, production Canvas-to-Canvas 캡처는 포함하고 추가 test readback/reference/hash는 뒤로 분리한다. `setupMs`에 startup drain과 16layer 사전 hash가 포함되므로 합산하지 않는다. Cold는 renderer cache empty를 뜻하며 OS/CPU/GPU cache cold를 보장하지 않는다. 계산한 `derivedPaperMatrix`, 실제 CSS/backing/DPR과 source SHA를 함께 기록했다.
 
@@ -201,7 +203,7 @@ Timing은 production `Studio.render()`의 API 반환 시간이며, production Ca
 
 ## 화면 밖 source 초기화·업로드 축소
 
-2026-11-05. [후속 근거](evidence/studio-viewport-tiles.json)는 이전 WK 측정과 분리한 새 기준/후보 교차 실험이다. 활성 scene에서만 전체 backing Canvas의 역변환 범위와 halo에 맞춰 ImageData를 줄였다. 원래 Canvas 크기·좌표·타일 격자를 유지하며, crop 범위가 달라지면 해당 owner의 source를 폐기한다. Canvas까지 줄인 첫 후보는 엄격한 픽셀 비교에서 실패해 채택하지 않았다. 축소·일반 fallback은 기존 경로를 유지한다.
+2026-11-05. [후속 근거](../evidence/studio-viewport-tiles.json)는 이전 WK 측정과 분리한 새 기준/후보 교차 실험이다. 활성 scene에서만 전체 backing Canvas의 역변환 범위와 halo에 맞춰 ImageData를 줄였다. 원래 Canvas 크기·좌표·타일 격자를 유지하며, crop 범위가 달라지면 해당 owner의 source를 폐기한다. Canvas까지 줄인 첫 후보는 엄격한 픽셀 비교에서 실패해 채택하지 않았다. 축소·일반 fallback은 기존 경로를 유지한다.
 
 | 실제 macOS WK, 2048²×16 | 기준 | 반영 후보 |
 | --- | ---: | ---: |
@@ -218,7 +220,7 @@ A/B, B/A, A/B 순서의 6회에서 화면·원본·기하·예산 검사는 모�
 
 ## 최대 mip 준비의 다음 구현 경계
 
-2026-11-05. [계획 원문](../build-web-work/task-planning/pencil-tools/next-mip-plan/PLAN.md)의 bounded 준비를 UI4로 구현·승격했다. 현재 결과는 [통합 근거](evidence/studio-bounded-mip.json)를 따른다. 위의 과거 271~286ms 렌더 관측은 그대로 보존하며 새 측정이나 순수 mip CPU 시간으로 바꾸지 않는다.
+2026-11-05. [계획 원문](../../build-web-work/task-planning/pencil-tools/next-mip-plan/PLAN.md)의 bounded 준비를 UI4로 구현·승격했다. 현재 결과는 [통합 근거](../evidence/studio-bounded-mip.json)를 따른다. 위의 과거 271~286ms 렌더 관측은 그대로 보존하며 새 측정이나 순수 mip CPU 시간으로 바꾸지 않는다.
 
 - 동기 draw와 cooperative prepare가 같은 cursor·픽셀 알고리즘을 사용한다. 최대 65,536개 source-pixel 진행 단위와 soft 4ms 예산으로 계산을 나누고 MessageChannel로 이어서 실행한다. 타일마다 rAF를 기다리던 첫 후보는 완성 시간 퇴행 때문에 채택하지 않았다. soft 예산은 할당·transform·Canvas API·최종 합성까지 선점하는 hard deadline이 아니다.
 - 준비 중에는 이전 backing을 유지하며, Canvas save/clip과 scene target은 yield 밖에 둔다. 가시 raster 전체 준비 후 기존 순서로 한 완성 프레임을 공개한다. 직접 `render()`는 동기 drain이므로 이전 직접 API 계측과 새 UI 준비 시간을 혼합하지 않는다.
@@ -243,7 +245,7 @@ Chrome 6쌍의 전체 Canvas와 각 원본은 exact이며, 실제 WK uniform도 
 
 ## 선택 nearest·반복 크기·밀집 mask의 후속 측정
 
-[고정 근거](evidence/studio-selection-performance.json)는 cold/mip/scene 인수와 다른 선택 연산 측정이다. nearest의 view/set을 raw word/4채널과 축 표로 바꾸고 동일 rounded target/Up의 중복 생성만 생략했다. ordinary-web512×384→2048×1536 고정 trace에서 원본/raw/Canvas가 같고, callback 합계675.2→20.2ms·rAF100.6→29.3ms·시퀀스827→112.7ms·대형 출력5→1회·관측 upload30→6이었다. 버전별1회·DPR1·M1Pro Metal capability 관측이며 물리 표시·Android/WK·안정분포 검사가 아니다.
+[고정 근거](../evidence/studio-selection-performance.json)는 cold/mip/scene 인수와 다른 선택 연산 측정이다. nearest의 view/set을 raw word/4채널과 축 표로 바꾸고 동일 rounded target/Up의 중복 생성만 생략했다. ordinary-web512×384→2048×1536 고정 trace에서 원본/raw/Canvas가 같고, callback 합계675.2→20.2ms·rAF100.6→29.3ms·시퀀스827→112.7ms·대형 출력5→1회·관측 upload30→6이었다. 버전별1회·DPR1·M1Pro Metal capability 관측이며 물리 표시·Android/WK·안정분포 검사가 아니다.
 
 최종 첫 callback19.0ms/rAF27.4ms는 word-only보다 컸고 sentinel59.8ms도 word50.5ms보다 컸다. 따라서 전체50ms/p95는 미완료다. rAF의 중첩 putImageData 시간을 다시 더하지 않는다. 출력 요청62,914,560→12,582,912B는 누적 생성 요청이지 peak/live/RSS가 아니다. 새 X 표4W(최대128KiB)와 dense 열 표W+1(최대32769B)을 더하며 source 공유 view 제거를 pixel backing 감소로 세지 않는다.
 
@@ -252,27 +254,27 @@ Chrome 6쌍의 전체 Canvas와 각 원본은 exact이며, 실제 WK uniform도 
 
 ## 큰 선택 준비 후속 — 2026-11-05
 
-큰 lasso는8192점 또는 ROI262144픽셀 기준으로 취소 가능한 preparation/Worker로 넘긴다. path16P bytes, owned ROI4S, maskS, 최대열W+1이 필요하며 원래 JS path와Worker point/edge의 공존 가능성을 포함한다. 전체 점·global clipping·raw alpha/RGB·sourceMask stride는 보존한다. 현재1Mi문서/n1 논리typed합계9417743→9942031B는 RSS/peak/Canvas/GPU 측정이 아니다. actualWK 최대폭32768×2/full8193point와 channel/Worker cancel4개 correctness PASS지만 최대32Mi시간/메모리 인수는 아니다. 새ready29.2ms 증가·preview54ms와 기존 최대resize 동기 비용은 남았다. [고정 실행·리뷰 자료](evidence/studio-selection-preparation.json).
+큰 lasso는8192점 또는 ROI262144픽셀 기준으로 취소 가능한 preparation/Worker로 넘긴다. path16P bytes, owned ROI4S, maskS, 최대열W+1이 필요하며 원래 JS path와Worker point/edge의 공존 가능성을 포함한다. 전체 점·global clipping·raw alpha/RGB·sourceMask stride는 보존한다. 현재1Mi문서/n1 논리typed합계9417743→9942031B는 RSS/peak/Canvas/GPU 측정이 아니다. actualWK 최대폭32768×2/full8193point와 channel/Worker cancel4개 correctness PASS지만 최대32Mi시간/메모리 인수는 아니다. 새ready29.2ms 증가·preview54ms와 기존 최대resize 동기 비용은 남았다. [고정 실행·리뷰 자료](../evidence/studio-selection-preparation.json).
 
 
 ## 선택 첫 화면 비용 후속 — 2026-11-05
 
-이번 개선은 cut bbox 밖 순회를 생략하고 RGBA4를 직접 대입하는 인라인 변경이다. 원본 sourceMask 폭32768 addressing·unaligned byte views·부분/0 alpha rawRGB와 리사이즈 payload와의 stride 분리를 회귀했다. 새 ImageData18/8,437,836B와surface18 명목RGBA추정은 이전과 같고 전체cache/peak/RSS/GPUpool 측정이 아니다. 실측1024²/조건별n1 첫RAF58.1→15.7ms는 최대32Mi·장기 세션 성능 인수가 아니다. 전체path/최대resize/scene 활성·memory acceptance와 Android웹/Windows는 남아 있다. [고정 측정·검증 자료](evidence/studio-selection-preview.json).
+이번 개선은 cut bbox 밖 순회를 생략하고 RGBA4를 직접 대입하는 인라인 변경이다. 원본 sourceMask 폭32768 addressing·unaligned byte views·부분/0 alpha rawRGB와 리사이즈 payload와의 stride 분리를 회귀했다. 새 ImageData18/8,437,836B와surface18 명목RGBA추정은 이전과 같고 전체cache/peak/RSS/GPUpool 측정이 아니다. 실측1024²/조건별n1 첫RAF58.1→15.7ms는 최대32Mi·장기 세션 성능 인수가 아니다. 전체path/최대resize/scene 활성·memory acceptance와 Android웹/Windows는 남아 있다. [고정 측정·검증 자료](../evidence/studio-selection-preview.json).
 
 
 ## 대형 nearest 출력 후속 — 2026-11-06
 
-단일 32Mi 픽셀 출력의 128MiB 버퍼는 유지하면서 행 재사용과 정확히 2배 word 복사를 적용했다. 실제 Chromium 10회에서 전체 raw/실제 PNG·원본·취소·기존 Redo가 같았고, 별도 실제 WK에서 두 32Mi 출력과 8191px 인접 크기의 geometry Worker를 확인했다. 단위 검사의 최대 축/높이 1은 이 최대 면적 검사와 구분한다. 문서·선택 원본·새 결과의 단순 픽셀 모델 256MiB, 후속 target 교체 시 384MiB 가능성과 캐시·코덱·GPU·GC 전체 peak/RSS 미인수를 함께 유지한다. 일반 macOS 4단계도 별도로 통과했다. [측정·구현·독립 검증 근거](evidence/studio-nearest-resize.json).
+단일 32Mi 픽셀 출력의 128MiB 버퍼는 유지하면서 행 재사용과 정확히 2배 word 복사를 적용했다. 실제 Chromium 10회에서 전체 raw/실제 PNG·원본·취소·기존 Redo가 같았고, 별도 실제 WK에서 두 32Mi 출력과 8191px 인접 크기의 geometry Worker를 확인했다. 단위 검사의 최대 축/높이 1은 이 최대 면적 검사와 구분한다. 문서·선택 원본·새 결과의 단순 픽셀 모델 256MiB, 후속 target 교체 시 384MiB 가능성과 캐시·코덱·GPU·GC 전체 peak/RSS 미인수를 함께 유지한다. 일반 macOS 4단계도 별도로 통과했다. [측정·구현·독립 검증 근거](../evidence/studio-nearest-resize.json).
 
 
 ## 분할 nearest 출력 후속 — 2026-11-06
 
-실제 Chromium에서 두 32Mi 출력과 8191px 인접 출력을 분할 처리하고 전체 raw/PNG·원본·취소·Redo를 비교했다. 별도 WK는 8191×4096 near-max 출력 전체 word와 직접 Studio/MessageChannel 소유권을 검사했다. 최대 단일 출력 128MiB와 X 표 128KiB는 여전하다. 새 gesture의 문서·base·시작 snapshot·current·partial이 모두 다르면 논리 512MiB가 공존할 수 있고 폐기 후보의 GC 시점도 별개다. 65,536 출력 픽셀 작업량의 bound를 할당·시간·peak/RSS 상한으로 해석하지 않는다. [분할 resize 구현·실행·독립 검토 근거](evidence/studio-bounded-resize.json).
+실제 Chromium에서 두 32Mi 출력과 8191px 인접 출력을 분할 처리하고 전체 raw/PNG·원본·취소·Redo를 비교했다. 별도 WK는 8191×4096 near-max 출력 전체 word와 직접 Studio/MessageChannel 소유권을 검사했다. 최대 단일 출력 128MiB와 X 표 128KiB는 여전하다. 새 gesture의 문서·base·시작 snapshot·current·partial이 모두 다르면 논리 512MiB가 공존할 수 있고 폐기 후보의 GC 시점도 별개다. 65,536 출력 픽셀 작업량의 bound를 할당·시간·peak/RSS 상한으로 해석하지 않는다. [분할 resize 구현·실행·독립 검토 근거](../evidence/studio-bounded-resize.json).
 
 
 ## 선택 resize의 논리 용량과 수집 가능성 — 2026-11-06
 
-[유한 메모리 진단 근거](evidence/studio-resize-memory.json). 이전 512MiB는 doc64+base64+gesture-start128+displayed128+private128이 모두 다른 예제다. 전역 상한이 아니다. 허용되는 doc8192×4096×2layers(256MiB), 별도 base8192×4096(128MiB), start8191×4096, current8190×4096, candidate8189×4096의 합은 805,208,064B(767.90625MiB)다. 모든 목표는 원본문서 안에 있고 image32Mi/aggregate64Mi 한도를 지킨다. 이는 코드의 한도/기하를 검토한 계산이며 이번 실행에서 이 2레이어 최대 예제를 할당한 것은 아니다. 이력·mask·타일/Canvas·codec·GC 전 폐기 후보는 별도다.
+[유한 메모리 진단 근거](../evidence/studio-resize-memory.json). 이전 512MiB는 doc64+base64+gesture-start128+displayed128+private128이 모두 다른 예제다. 전역 상한이 아니다. 허용되는 doc8192×4096×2layers(256MiB), 별도 base8192×4096(128MiB), start8191×4096, current8190×4096, candidate8189×4096의 합은 805,208,064B(767.90625MiB)다. 모든 목표는 원본문서 안에 있고 image32Mi/aggregate64Mi 한도를 지킨다. 이는 코드의 한도/기하를 검토한 계산이며 이번 실행에서 이 2레이어 최대 예제를 할당한 것은 아니다. 이력·mask·타일/Canvas·codec·GC 전 폐기 후보는 별도다.
 
 실제 single-layer 진단에서도 세 partial 교체 동안 수집 전 픽셀 버퍼 용량 약 767.84MiB가 관측됐다. 그 합계에는 이미 폐기됐지만 아직 수집되지 않은 후보가 포함된다. 별도 GC 후 약 255.94MiB, 완료된 선택의 Escape·검증 후 GC 뒤 문서64MiB만 남았으며 추적한 target5개는 수집됐다. 한 owner·커서와 물리 메모리 상한을 동일시하지 않는다. partial 버퍼는 전체 용량을 모두 쓰지 않았으므로 용량을 RSS로 환산하지 않는다.
 
@@ -281,4 +283,4 @@ Node 웹/desktop 진단과 실제 Chrome 데스크톱 IPC 모델은 범위가 �
 
 ## 진행 단위와 시간 예산의 추가 진단 — 2026-11-06
 
-[동일 카메라 진단](evidence/studio-high-minification.json). 4ms deadline은 prepare 반환 뒤 확인하고, source 65536 카운터는 할당·최종 normalize/upload·합성·컴파일/GC의 시간 상한이 아니다. 실제 진단은 첫 payload next 42.8ms를 보였으나, 32768 후보에서도 첫 두 resume 42.9/14.9ms로 큰 구간이 줄지 않았다. 이후 작은 단계는 줄고 호출 수는 늘어도 전체 응답성 개선의 근거가 되지 않아 후보를 미반영했다. 이전 99ms 원인·전역 50ms·물리 입력/p95 인수는 계속 미확정이며 현재 제품은 65536을 유지한다.
+[동일 카메라 진단](../evidence/studio-high-minification.json). 4ms deadline은 prepare 반환 뒤 확인하고, source 65536 카운터는 할당·최종 normalize/upload·합성·컴파일/GC의 시간 상한이 아니다. 실제 진단은 첫 payload next 42.8ms를 보였으나, 32768 후보에서도 첫 두 resume 42.9/14.9ms로 큰 구간이 줄지 않았다. 이후 작은 단계는 줄고 호출 수는 늘어도 전체 응답성 개선의 근거가 되지 않아 후보를 미반영했다. 이전 99ms 원인·전역 50ms·물리 입력/p95 인수는 계속 미확정이며 현재 제품은 65536을 유지한다.

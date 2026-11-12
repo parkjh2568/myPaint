@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # 자동 복구의 오류 경계와 비용 분해
 
-2026-11-06. [소스·최초 실패·측정·독립 검토](evidence/studio-recovery-snapshot.json). QF-24의 확인된 복구 경계를 수정한 단계이며 전체 전환·실기기·성능 예산·출시 완료는 아니다. 모바일·태블릿은 웹 전용, 실행 파일은 Windows/macOS 전용이다.
+2026-11-06. [소스·최초 실패·측정·독립 검토](../evidence/studio-recovery-snapshot.json). QF-24의 확인된 복구 경계를 수정한 단계이며 전체 전환·실기기·성능 예산·출시 완료는 아니다. 모바일·태블릿은 웹 전용, 실행 파일은 Windows/macOS 전용이다.
 
 ## 우선순위·원인·수정
 
@@ -42,7 +44,7 @@ Worker 구간은 생성·스케줄링·인코딩을 포함한 wall time으로 �
 
 ## 구조와 남은 게이트
 
-런타임17개 중 main의 autoRecover와 storage의 request만 변경했다. 새 helper·필드·모듈·의존성·엔진/형식/codec/Rust 변경은 없다. 기존 중복 byte 검사만 공통 owner로 옮겼으며 sequential 작업은 소유 함수 안에 둔다. [현재 의존성·AST 기록](evidence/studio-recovery-snapshot-module-graph.json)의 source runtime 순환0·배포 정적 평가 순환0과 기존 동적 SCC2를 유지한다.
+런타임17개 중 main의 autoRecover와 storage의 request만 변경했다. 새 helper·필드·모듈·의존성·엔진/형식/codec/Rust 변경은 없다. 기존 중복 byte 검사만 공통 owner로 옮겼으며 sequential 작업은 소유 함수 안에 둔다. [현재 의존성·AST 기록](../evidence/studio-recovery-snapshot-module-graph.json)의 source runtime 순환0·배포 정적 평가 순환0과 기존 동적 SCC2를 유지한다.
 
 최종 main `809e911ded98`, storage `6e3da32de5fe`, entry `assets/index-BZZOX9cr.js`다. 웹 payload는 LICENSE 포함9파일·288,837B이며 manifest는 별도다. 실제 홈페이지·Git commit/push·공개 배포를 변경하지 않았다.
 

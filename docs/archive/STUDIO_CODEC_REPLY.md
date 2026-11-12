@@ -1,6 +1,8 @@
+> 과거 검증·설계 기록입니다. 현재 실행 방법은 [루트 안내](../../README.md)를 따르세요. 아래 수치는 기록 당시 환경에만 적용됩니다.
+
 # Codec 응답 계약과 Worker 비용 분해
 
-2026-11-06. [소스·최초 실패·수정·독립 검증](evidence/studio-codec-reply.json). 확정된10개 Worker 작업의 성공/오류 계약을 보완했다. 전체 전환·실기기·출시·네이티브 안정성 완료나 성능 개선 선언이 아니다. 모바일·태블릿은 웹, 실행 파일은 Windows/macOS 전용이다.
+2026-11-06. [소스·최초 실패·수정·독립 검증](../evidence/studio-codec-reply.json). 확정된10개 Worker 작업의 성공/오류 계약을 보완했다. 전체 전환·실기기·출시·네이티브 안정성 완료나 성능 개선 선언이 아니다. 모바일·태블릿은 웹, 실행 파일은 Windows/macOS 전용이다.
 
 ## 재현과 우선순위
 
@@ -49,7 +51,7 @@ CRC의 for-of를 indexed loop로 바꾼 임시 후보42작업은 바이트·전�
 
 ## 구조·산출물·다음 순서
 
-런타임17개 중 platform/codec.ts의 기존 runCodec만 바뀌었다. 함수의 공개 signature, 다른 codec 함수, 엔진/형식/Worker/Rust는 유지한다. [현재 소스·배포 그래프](evidence/studio-codec-reply-module-graph.json)의 source runtime 순환0·정적 평가 순환0과 기존 동적 SCC2를 확인했다.
+런타임17개 중 platform/codec.ts의 기존 runCodec만 바뀌었다. 함수의 공개 signature, 다른 codec 함수, 엔진/형식/Worker/Rust는 유지한다. [현재 소스·배포 그래프](../evidence/studio-codec-reply-module-graph.json)의 source runtime 순환0·정적 평가 순환0과 기존 동적 SCC2를 확인했다.
 
 최종 codec `01499abbdac7`, entry `assets/index-CnFyP_9m.js`다. payload는 LICENSE·고지 포함9파일·290,519B, 검증 manifest는 별도다. 실제 홈페이지 쓰기·Git commit/push·공개 배포는 하지 않았다.
 

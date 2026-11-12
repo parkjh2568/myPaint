@@ -1,8 +1,8 @@
 # Qt-free 기능 인수 추적표
 
-QF-02의 유한한 입력·예상 상태·기준 데이터와 허용차는 [독립 기준 목록](STUDIO_FIXTURE_BASELINE.md) 및 [canonical JSON](../web-app/tests/fixtures/legacy-contracts.json)으로 고정했다. 아래 날짜별 인수 범위를 전체 옵션 승인으로 확대하지 않는다.
+QF-02의 유한한 입력·예상 상태·기준 데이터와 허용차는 [독립 기준 목록](archive/STUDIO_FIXTURE_BASELINE.md) 및 [canonical JSON](../web-app/tests/fixtures/legacy-contracts.json)으로 고정했다. 아래 날짜별 인수 범위를 전체 옵션 승인으로 확대하지 않는다.
 
-최신 로컬 제품·검증 범위는 [QF-04 문서 계약](STUDIO_DOCUMENT_CONTRACTS.md)의 `index-DIgO41Ne.js`, [최신 소스 macOS 앱4분기 재검증](STUDIO_NATIVE_CURRENT.md), [전체 완료 감사](STUDIO_COMPLETION_AUDIT.md)를 따른다. 아래 기능별 실행 기록은 각각 당시 snapshot이며 최신 실행 개수로 합산하지 않는다.
+최신 로컬 제품·검증 범위는 [QF-04 문서 계약](STUDIO_DOCUMENT_CONTRACTS.md)의 `index-DIgO41Ne.js`, [최신 소스 macOS 앱4분기 재검증](archive/STUDIO_NATIVE_CURRENT.md), [전체 완료 감사](STUDIO_COMPLETION_AUDIT.md)를 따른다. 아래 기능별 실행 기록은 각각 당시 snapshot이며 최신 실행 개수로 합산하지 않는다.
 
 둥근 사각형 단계의 제품 기준은 2026-11-06의 `index-BL54aMU4.js`와 [둥근 사각형·컨텍스트 실패 채택 근거](evidence/studio-roundrect-contract.json)다. 공개24·기존도형23/pending36/웹48·전체Canvas56/저장12/재시도2·Node229·실제macOS4단계를 각각의 범위로 확인했다. [전체 완료 조건 감사](STUDIO_COMPLETION_AUDIT.md)는 남은 태스크 기준이며, 아래 날짜별 실행은 당시 소스 snapshot이다. WK 추출 알고리즘의 기존 strict seam 실패와 실기기/Windows·공개인수는 별도 미완료다.
 
@@ -14,7 +14,7 @@ QF-02의 유한한 입력·예상 상태·기준 데이터와 허용차는 [독�
 
 직전 [팔레트·키보드·연필 단계](evidence/studio-pencil-palette.json)는 `index-D4CivZOE.js`에서 연필10+기존31, 사각35, 웹13·동시성3·편집13, 스킨/뷰포트4환경과 macOS4단계를 검증했다. 아래 과거 결과는 각각 당시 snapshot에 한정하며 현재 alpha 배치에서 다시 실행한 횟수로 합산하지 않는다.
 
-기준: 2026-11-05, [`IMPLEMENTATION_RESULTS.md`](IMPLEMENTATION_RESULTS.md)의 F01–F10과 [`toolDefinitions`](../web-app/src/ui/icons.ts)의 17개 도구. 이 문서는 구현 여부와 실제로 실행한 회귀의 범위를 구별한다. 검사 개수나 아이콘 존재만으로 레거시 전체 기능 동등성을 판정하지 않는다.
+기준: 2026-11-05, [`IMPLEMENTATION_RESULTS.md`](archive/IMPLEMENTATION_RESULTS.md)의 F01–F10과 [`toolDefinitions`](../web-app/src/ui/icons.ts)의 17개 도구. 이 문서는 구현 여부와 실제로 실행한 회귀의 범위를 구별한다. 검사 개수나 아이콘 존재만으로 레거시 전체 기능 동등성을 판정하지 않는다.
 
 이전 기본 기능 회귀 묶음의 검증 대상은 `http://127.0.0.1:8965/mypaint/`의 `index-CVIk2cDl.js`이다. [`accepted-manifest.json`](../build-web-work/task-planning/max-document/accepted-manifest.json)에 번들 해시가 있다. F02 버튼 소유권과 F09 즉시 이력 가지치기가 모두 포함된 같은 번들에서 bulk 16개, pointer 7개, native profile 17개, persistence 12개를 순차 실행했고 `errors`/`failures`는 모두 비어 있다. 기존 공개 웹 45개와 Node 107개도 아래 해당 아티팩트에서 확인했다. Chromium·모델 native bridge 결과를 실제 OS 파일시스템·WKWebView·Windows·Android 실기기 결과로 해석하지 않는다. 후속 종료 보호는 `8966`의 `index-Bshc9KRt.js`에서 공개 UI persistence 15개를 확인했다. 실제 macOS 종료 경계는 별도 release 앱의 WKWebView·Rust/AppKit 3단계 검증으로 구분한다.
 
@@ -262,14 +262,14 @@ actual ordinary-web n1/variant는 원본/raw/Canvas 동일과 출력 요청5→1
 
 ## 2026-11-06 카메라·VisualViewport·무변형 선택
 
-[수정·원인·검증·정정](STUDIO_CAMERA_VIEWPORT.md), [고정 근거](evidence/studio-camera-viewport.json). 새 공개17개·Node232와 최종 기존 입력/선택/웹/출력·macOS 회귀를 통과했다. 휠 중 투영 Major, VV 확대·문자 원점/중복 observer·밀도 취소 Minor를 수정했다. 미변형 선택4K 두 레이어의 동기 slice는128MiB→0이며 draw(true)·엔진 검증·NoOp/Redo를 유지한다. 과거 forced-gutter42/48px 추론은 실제 hit 증거에 따라 철회하고 본문에 범위를 명시했다. 물리 Android 웹·OS IME/파일·Windows·보조공학·출시 및 선행 게이트는 남기며 전체 체크를 닫지 않는다.
+[수정·원인·검증·정정](archive/STUDIO_CAMERA_VIEWPORT.md), [고정 근거](evidence/studio-camera-viewport.json). 새 공개17개·Node232와 최종 기존 입력/선택/웹/출력·macOS 회귀를 통과했다. 휠 중 투영 Major, VV 확대·문자 원점/중복 observer·밀도 취소 Minor를 수정했다. 미변형 선택4K 두 레이어의 동기 slice는128MiB→0이며 draw(true)·엔진 검증·NoOp/Redo를 유지한다. 과거 forced-gutter42/48px 추론은 실제 hit 증거에 따라 철회하고 본문에 범위를 명시했다. 물리 Android 웹·OS IME/파일·Windows·보조공학·출시 및 선행 게이트는 남기며 전체 체크를 닫지 않는다.
 
 
 ## 2026-11-06 자동 복구의 오류 경계와 비용
 
-[현재 분석·수정·검증](STUDIO_RECOVERY_SNAPSHOT.md), [고정 근거](evidence/studio-recovery-snapshot.json). injected missing/null 출력의 false success→같은 revision 재시도 억제와 이전 epoch 오류 표시를 수정했다. 공개5·단위234·저장13·native IPC 모델15·웹48·실제 macOS4단계를 확인했다. 기준 clone/Worker/storage n3는 모델·실제 IDB를 분리하며, 성능 개선이나 실제 OS I/O/물리 장치 인수로 세지 않는다. full codec 응답 계약·Worker 내부 CPU/entropy·실제 플랫폼·전체 선행 게이트는 남는다.
+[현재 분석·수정·검증](archive/STUDIO_RECOVERY_SNAPSHOT.md), [고정 근거](evidence/studio-recovery-snapshot.json). injected missing/null 출력의 false success→같은 revision 재시도 억제와 이전 epoch 오류 표시를 수정했다. 공개5·단위234·저장13·native IPC 모델15·웹48·실제 macOS4단계를 확인했다. 기준 clone/Worker/storage n3는 모델·실제 IDB를 분리하며, 성능 개선이나 실제 OS I/O/물리 장치 인수로 세지 않는다. full codec 응답 계약·Worker 내부 CPU/entropy·실제 플랫폼·전체 선행 게이트는 남는다.
 
 
 ## 2026-11-06 Codec10 응답과 Worker 비용
 
-[분석·수정·검증·잔여 조건](STUDIO_CODEC_REPLY.md), [고정 근거](evidence/studio-codec-reply.json). 잘못된파일 성공표시·조건부clipboard cut·typed state/sparse색상·fill응답 경계를 owner에서 닫았다. 동일공개27개 기준22실패/5대조통과→후보27통과, 독립계약89·전체Node323과기존회귀를확인했다. macOS최초20초timeout을보존하며동일binary재시도4단계는통과했다. Worker의지배비용은입력에따른압축·CRC였고CRC임시후보는low혼재로비채택했다. 정상Worker자연장애·OSclipboard·실기기·무회귀성능·전체출시완료로확대하지않는다.
+[분석·수정·검증·잔여 조건](archive/STUDIO_CODEC_REPLY.md), [고정 근거](evidence/studio-codec-reply.json). 잘못된파일 성공표시·조건부clipboard cut·typed state/sparse색상·fill응답 경계를 owner에서 닫았다. 동일공개27개 기준22실패/5대조통과→후보27통과, 독립계약89·전체Node323과기존회귀를확인했다. macOS최초20초timeout을보존하며동일binary재시도4단계는통과했다. Worker의지배비용은입력에따른압축·CRC였고CRC임시후보는low혼재로비채택했다. 정상Worker자연장애·OSclipboard·실기기·무회귀성능·전체출시완료로확대하지않는다.
