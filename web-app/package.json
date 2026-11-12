@@ -51,7 +51,8 @@
         "test:fixture-inventory": "tsx --test tests/fixture-inventory.test.ts",
         "test:matched-core": "node --import tsx tests/matched-core.mjs",
         "test:core-fixtures": "node tests/core-fixtures.mjs",
-        "test:usability": "node --import tsx tests/usability.mjs"
+        "test:usability": "node --import tsx tests/usability.mjs",
+        "test:eraser-settings": "node --import tsx tests/eraser-settings.mjs"
     },
     "dependencies": {
         "buffer": "6.0.3",

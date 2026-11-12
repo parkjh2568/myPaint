@@ -1186,3 +1186,26 @@ dialog p {
         min-height: 44px;
     }
 }
+
+.eraser-options {
+    display: grid;
+    gap: 6px;
+    margin: 0 0 12px;
+    padding: 8px;
+    border: 1px solid var(--line);
+}
+.eraser-options select {
+    width: 100%;
+}
+.eraser-options small {
+    line-height: 1.4;
+}
+@media (max-width: 599px) {
+    .topbar .settings-button {
+        gap: 2px;
+        padding-inline: 4px;
+    }
+    .settings-button svg {
+        display: none;
+    }
+}

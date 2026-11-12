@@ -18,6 +18,7 @@ import { applySelectionMask, resizeState, resizeNearestSteps, snapLineDelta } fr
 import { runCodec, runGeometry, readArtwork, exportBytes, type Raster } from './platform/codec';
 import { RecoveryStore, type RecoveryEntry } from './platform/storage';
 import { icon, toolDefinitions, type Tool } from './ui/icons';
+import { readEraserPreferences, eraserColor } from './ui/eraser';
 interface Point {
     x: number;
     y: number;
@@ -74,8 +75,9 @@ interface Field {
 const runtimeProfile = window.__TAURI__?.core ? desktopLimits : webLimits;
 const minZoom = Math.min(1 / 64, 32 / runtimeProfile.dimension);
 class Studio {
-    doc = new PaintDocument(createState(800, 600, [255, 255, 255, 255], runtimeProfile), runtimeProfile);
+    doc = new PaintDocument(createState(800, 600, [0, 0, 0, 0], runtimeProfile), runtimeProfile);
     tool: Tool = 'brush';
+    eraserPreferences = readEraserPreferences(null);
     foreground: Color = [22, 121, 234, 255];
     secondary: Color = [255, 255, 255, 255];
     size = 12;
@@ -182,7 +184,7 @@ class Studio {
     };
     constructor() {
         this.root = document.getElementById('app')!;
-        this.root.innerHTML = `<header class="topbar"><strong class="brand">myPaint</strong><button data-command="menu" aria-label="파일 및 편집 메뉴">${icon('menu')}</button><button data-command="open" aria-label="파일 열기">${icon('open')}<span class="button-text">열기</span></button><button data-command="undo" aria-label="실행 취소">${icon('undo')}</button><button data-command="redo" aria-label="다시 실행">${icon('redo')}</button><span class="title"></span><button class="mobile-only" data-command="properties" aria-label="색상과 브러시">${icon('palette')}</button><button class="mobile-only" data-command="layers" aria-label="레이어 패널">${icon('layers')}</button><button data-command="settings" class="desktop-secondary" aria-label="환경설정">${icon('settings')}</button><button data-command="export" aria-label="이미지 내보내기">${icon('export')}<span class="button-text">내보내기</span></button><button data-command="save" class="primary" aria-label="프로젝트 저장 또는 다운로드">${icon('save')}<span class="button-text">프로젝트</span></button></header><main class="body"><nav class="tools" aria-label="그리기 도구"></nav><section class="workspace"><canvas tabindex="0" aria-label="그리기 캔버스. B 브러시, E 지우개, V 선택, H 화면 이동"></canvas><button class="resize-cancel" hidden aria-label="선택 크기 변경 취소">${icon('close')}<span>크기 변경 취소</span></button></section><aside class="inspector" aria-label="색상, 브러시, 레이어"><h2>색상 · 브러시 <button class="mobile-only close-panel" data-command="close-panel" aria-label="패널 닫기">${icon('close')}</button></h2><div class="properties"><div class="color-preview" role="img" aria-label="현재 전경색"></div><div class="color-row"><input id="color" type="color" aria-label="전경색"><input id="hex" type="text" maxlength="7" aria-label="HEX 색상" spellcheck="false"></div><label>보조색 <input id="secondary" type="color" aria-label="보조색"><button data-command="swap" aria-label="전경색 보조색 바꾸기">↔</button></label><div class="presets"><button data-preset="ink">잉크</button><button data-preset="soft">부드러운 붓</button><button data-preset="pixel">픽셀</button></div><div class="control"><label for="size">크기 <output id="size-value">12 px</output></label><input id="size" type="range" min="1" max="100" value="12"></div><div class="control"><label for="opacity">불투명도 <output id="opacity-value">100%</output></label><input id="opacity" type="range" min="1" max="100" value="100"></div><div class="control"><label for="hardness">경도 <output id="hardness-value">100%</output></label><input id="hardness" type="range" min="0" max="100" value="100"></div><div class="control"><label for="stabilization">선 보정 <output id="stabilization-value">25</output></label><input id="stabilization" type="range" min="0" max="75" value="25"></div><label><input id="pressure" type="checkbox" checked>펜 필압으로 크기 조절</label><label><input id="finger" type="checkbox" checked>손가락으로 그리기</label><label><input id="square" type="checkbox">사각 브러시</label><p class="square-hint" hidden>사각 도구는 픽셀 경계가 선명한 선을 그립니다. 불투명도·경도·선 보정·필압 설정은 둥근 도구에 적용됩니다.</p><label><input id="fill-shape" type="checkbox">도형 내부 채우기</label><label><input id="outline-shape" type="checkbox" checked>도형 윤곽선</label><label><input id="transparent-selection" type="checkbox">선택의 보조색을 투명하게</label><div class="swatches" aria-label="색상 모음"></div><button data-command="text-options">글꼴 · 문자 설정</button></div><section class="layers"><h2>레이어 · 위 → 아래</h2><div class="layer-list"></div><div class="layer-actions"><button data-command="layer-add" aria-label="레이어 추가">${icon('plus')}</button><button data-command="layer-delete" aria-label="레이어 삭제">${icon('minus')}</button><button data-command="layer-up" aria-label="레이어 위로 이동">↑</button><button data-command="layer-down" aria-label="레이어 아래로 이동">↓</button><button data-command="layer-merge" aria-label="아래 레이어와 병합">⇣</button><button data-command="layer-rename" aria-label="레이어 이름 변경">✎</button></div></section></aside></main><footer class="statusbar"><span class="tool-name">브러시</span><span class="document-info"></span><span class="status" role="status" aria-live="polite">기기 안에서 편집 · 파일을 업로드하지 않습니다</span><div class="zoom-controls"><button data-command="zoom-out" aria-label="축소">${icon('minus')}</button><span id="zoom">100%</span><button data-command="zoom-in" aria-label="확대">${icon('plus')}</button><button data-command="fit" aria-label="화면에 맞추기">${icon('fit')}</button></div></footer>`;
+        this.root.innerHTML = `<header class="topbar"><strong class="brand">myPaint</strong><button data-command="menu" aria-label="파일 및 편집 메뉴">${icon('menu')}</button><button data-command="open" aria-label="파일 열기">${icon('open')}<span class="button-text">열기</span></button><button data-command="undo" aria-label="실행 취소">${icon('undo')}</button><button data-command="redo" aria-label="다시 실행">${icon('redo')}</button><span class="title"></span><button class="mobile-only" data-command="properties" aria-label="색상과 브러시">${icon('palette')}</button><button class="mobile-only" data-command="layers" aria-label="레이어 패널">${icon('layers')}</button><button data-command="settings" class="settings-button" aria-label="테마 · 환경설정">${icon('settings')}<span>설정</span></button><button data-command="export" aria-label="이미지 내보내기">${icon('export')}<span class="button-text">내보내기</span></button><button data-command="save" class="primary" aria-label="프로젝트 저장 또는 다운로드">${icon('save')}<span class="button-text">프로젝트</span></button></header><main class="body"><nav class="tools" aria-label="그리기 도구"></nav><section class="workspace"><canvas tabindex="0" aria-label="그리기 캔버스. B 브러시, E 지우개, V 선택, H 화면 이동"></canvas><button class="resize-cancel" hidden aria-label="선택 크기 변경 취소">${icon('close')}<span>크기 변경 취소</span></button></section><aside class="inspector" aria-label="색상, 브러시, 레이어"><h2>색상 · 브러시 <button class="mobile-only close-panel" data-command="close-panel" aria-label="패널 닫기">${icon('close')}</button></h2><div class="properties"><fieldset class="eraser-options"><legend>지우개 설정</legend><label for="eraser-mode">지우는 방식</label><select id="eraser-mode"><option value="transparent">투명하게 지우기</option><option value="background">배경색으로 지우기</option></select><label for="eraser-color">지우개 배경색 <input id="eraser-color" type="color" value="#ffffff"></label><small>활성 레이어에만 적용 · 기존 그림과 문서 바탕은 유지</small></fieldset><div class="color-preview" role="img" aria-label="현재 전경색"></div><div class="color-row"><input id="color" type="color" aria-label="전경색"><input id="hex" type="text" maxlength="7" aria-label="HEX 색상" spellcheck="false"></div><label>보조색 <input id="secondary" type="color" aria-label="보조색"><button data-command="swap" aria-label="전경색 보조색 바꾸기">↔</button></label><div class="presets"><button data-preset="ink">잉크</button><button data-preset="soft">부드러운 붓</button><button data-preset="pixel">픽셀</button></div><div class="control"><label for="size">크기 <output id="size-value">12 px</output></label><input id="size" type="range" min="1" max="100" value="12"></div><div class="control"><label for="opacity">불투명도 <output id="opacity-value">100%</output></label><input id="opacity" type="range" min="1" max="100" value="100"></div><div class="control"><label for="hardness">경도 <output id="hardness-value">100%</output></label><input id="hardness" type="range" min="0" max="100" value="100"></div><div class="control"><label for="stabilization">선 보정 <output id="stabilization-value">25</output></label><input id="stabilization" type="range" min="0" max="75" value="25"></div><label><input id="pressure" type="checkbox" checked>펜 필압으로 크기 조절</label><label><input id="finger" type="checkbox" checked>손가락으로 그리기</label><label><input id="square" type="checkbox">사각 브러시</label><p class="square-hint" hidden>사각 도구는 픽셀 경계가 선명한 선을 그립니다. 불투명도·경도·선 보정·필압 설정은 둥근 도구에 적용됩니다.</p><label><input id="fill-shape" type="checkbox">도형 내부 채우기</label><label><input id="outline-shape" type="checkbox" checked>도형 윤곽선</label><label><input id="transparent-selection" type="checkbox">선택의 보조색을 투명하게</label><div class="swatches" aria-label="색상 모음"></div><button data-command="text-options">글꼴 · 문자 설정</button></div><section class="layers"><h2>레이어 · 위 → 아래</h2><div class="layer-list"></div><div class="layer-actions"><button data-command="layer-add" aria-label="레이어 추가">${icon('plus')}</button><button data-command="layer-delete" aria-label="레이어 삭제">${icon('minus')}</button><button data-command="layer-up" aria-label="레이어 위로 이동">↑</button><button data-command="layer-down" aria-label="레이어 아래로 이동">↓</button><button data-command="layer-merge" aria-label="아래 레이어와 병합">⇣</button><button data-command="layer-rename" aria-label="레이어 이름 변경">✎</button></div></section></aside></main><footer class="statusbar"><span class="tool-name">브러시</span><span class="document-info"></span><span class="status" role="status" aria-live="polite">기기 안에서 편집 · 파일을 업로드하지 않습니다</span><div class="zoom-controls"><button data-command="zoom-out" aria-label="축소">${icon('minus')}</button><span id="zoom">100%</span><button data-command="zoom-in" aria-label="확대">${icon('plus')}</button><button data-command="fit" aria-label="화면에 맞추기">${icon('fit')}</button></div></footer>`;
         this.workspace = this.root.querySelector('.workspace')!;
         this.canvas = this.workspace.querySelector('canvas')!;
         this.canvasBounds = document.createElement('div');
@@ -320,6 +322,20 @@ class Studio {
                 }
             });
         });
+        for (const id of ['eraser-mode', 'eraser-color'])
+            this.root.querySelector<HTMLInputElement | HTMLSelectElement>('#' + id)!.onchange = (e) => {
+                if (this.busy || this.drag || this.doc.stroke) {
+                    this.sync(false);
+                    return;
+                }
+                const value = (e.target as HTMLInputElement).value;
+                this.eraserPreferences = readEraserPreferences({
+                    ...this.eraserPreferences,
+                    [id === 'eraser-mode' ? 'mode' : 'background']: value,
+                });
+                this.applyPreferences();
+                this.sync(false);
+            };
         for (const id of ['size', 'opacity', 'hardness', 'stabilization'])
             this.root.querySelector<HTMLInputElement>('#' + id)!.oninput = (e) => {
                 const value = Number((e.target as HTMLInputElement).value);
@@ -567,6 +583,7 @@ class Studio {
             const prefs = JSON.parse(localStorage.getItem('mypaint.ui.v1') || '{}');
             if (['studio', 'classic'].includes(prefs.skin)) this.skin = prefs.skin;
             if (['auto', 'touch', 'mouse'].includes(prefs.density)) this.density = prefs.density;
+            this.eraserPreferences = readEraserPreferences(prefs.eraser);
         } catch {
             this.message('설정을 읽지 못했습니다. 기본 설정을 사용합니다.');
         }
@@ -720,6 +737,10 @@ class Studio {
                   : this.tool === 'text'
                     ? 'text'
                     : 'crosshair';
+        this.root.querySelector<HTMLSelectElement>('#eraser-mode')!.value = this.eraserPreferences.mode;
+        const eraserInput = this.root.querySelector<HTMLInputElement>('#eraser-color')!;
+        eraserInput.value = this.eraserPreferences.background;
+        eraserInput.disabled = this.eraserPreferences.mode !== 'background';
         const pencil = this.tool === 'pencil',
             hardSquare = this.square && (this.tool === 'brush' || this.tool === 'eraser'),
             pixelHint = this.root.querySelector<HTMLElement>('.square-hint')!;
@@ -933,7 +954,10 @@ class Studio {
                     : 'mouse'
                 : this.density;
         try {
-            localStorage.setItem('mypaint.ui.v1', JSON.stringify({ skin: this.skin, density: this.density }));
+            localStorage.setItem(
+                'mypaint.ui.v1',
+                JSON.stringify({ skin: this.skin, density: this.density, eraser: this.eraserPreferences }),
+            );
         } catch {
             this.message('설정은 이번 세션에만 적용됩니다.');
         }
@@ -1694,13 +1718,7 @@ class Studio {
             const eraser = this.tool === 'eraser',
                 matchColor = this.tool === 'color-eraser' ? this.foreground : undefined;
             const settings = {
-                color: matchColor
-                    ? this.secondary
-                    : eraser
-                      ? this.doc.state.layers.length > 1
-                          ? ([0, 0, 0, 0] as Color)
-                          : this.doc.state.background
-                      : color,
+                color: matchColor ? this.secondary : eraser ? eraserColor(this.eraserPreferences) : color,
                 size: this.tool === 'pencil' || this.tool === 'spray' ? 1 : this.size,
                 opacity: this.opacity / 100,
                 hardness: this.tool === 'pencil' || this.tool === 'spray' ? 1 : this.hardness / 100,
@@ -3111,7 +3129,7 @@ class Studio {
                       ['clear', '활성 레이어 지우기', 'eraser'],
                       ['background', '문서 지우기 바탕', 'palette'],
                       ['text-options', '문자 설정', 'text'],
-                      ['settings', '환경설정', 'settings'],
+                      ['settings', '테마 · 환경설정', 'settings'],
                       ['help', '사용 방법', 'menu'],
                   ];
         for (const [command, label, image] of commands) {
@@ -4171,7 +4189,7 @@ class Studio {
                     max: runtimeProfile.dimension,
                     value: '600',
                 },
-                { key: 'background', label: '배경', options: ['흰색', '투명'], value: '흰색' },
+                { key: 'background', label: '배경', options: ['투명', '흰색'], value: '투명' },
             ]);
             if (result) {
                 const state = createState(
