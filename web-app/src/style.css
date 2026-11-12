@@ -455,38 +455,343 @@ dialog p {
 [hidden] {
     display: none !important;
 }
+/* Paint-only skin inspired by https://jdan.github.io/98.css/.
+   Keep the Studio DOM, grid, responsive rules and usable target sizes.
+   Everything is bundled locally: no remote CSS, fonts or runtime dependencies. */
 :root[data-skin='classic'] {
+    font-family: Tahoma, 'MS Sans Serif', 'Gulim', '굴림', sans-serif;
     color-scheme: light;
     --bg: #808080;
     --panel: #c0c0c0;
     --field: #fff;
     --line: #808080;
-    --fg: #101010;
-    --muted: #363636;
+    --fg: #000;
+    --muted: #333;
     --accent: #000080;
     --on: #fff;
     --radius: 0;
+    --classic-raised:
+        inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+    --classic-sunken:
+        inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
+    --classic-pressed: inset -1px -1px #fff, inset 1px 1px #808080;
+    --classic-checker: repeating-conic-gradient(#fff 0% 25%, #c0c0c0 0% 50%);
+    --classic-caption: linear-gradient(90deg, #000080, #1084d0);
 }
-:root[data-skin='classic'] button {
-    border: 2px outset #eee;
-    background: var(--swatch, var(--panel));
+:root[data-skin='classic'] button:not(.canvas-handle) {
+    border: 1px solid transparent;
+    border-radius: 0;
+    background: var(--panel);
+    color: var(--fg);
+    box-shadow: var(--classic-raised);
+    font-weight: 400;
 }
-:root[data-skin='classic'] button.primary {
+:root[data-skin='classic'] button:not(.canvas-handle):not(:disabled):active,
+:root[data-skin='classic'] button:not(.canvas-handle)[aria-pressed='true'],
+:root[data-skin='classic'] button.selected {
+    box-shadow: var(--classic-sunken);
+    background: var(--classic-checker) 0 0 / 2px 2px;
     color: var(--fg);
 }
-:root[data-skin='classic'] button:active,
-:root[data-skin='classic'] button[aria-pressed='true'] {
-    border-style: inset;
-    background: var(--swatch, var(--accent));
-    color: var(--on);
+:root[data-skin='classic'] button.primary {
+    outline: 1px solid #0a0a0a;
+    outline-offset: -1px;
+}
+:root[data-skin='classic'] button:disabled {
+    opacity: 1;
+    color: #808080;
+    text-shadow: 1px 1px #fff;
+}
+:root[data-skin='classic'] button:disabled svg {
+    filter: drop-shadow(1px 1px 0 #fff);
+}
+:root[data-skin='classic'] button svg {
+    stroke-width: 1.5;
+    stroke-linecap: square;
+    stroke-linejoin: miter;
+}
+:root[data-skin='classic'] button:focus-visible,
+:root[data-skin='classic'] input:focus-visible,
+:root[data-skin='classic'] select:focus-visible,
+:root[data-skin='classic'] textarea:focus-visible {
+    outline: 1px dotted var(--fg);
+    outline-offset: -4px;
+}
+:root[data-skin='classic'] input:not([type='range']):not([type='checkbox']),
+:root[data-skin='classic'] select,
+:root[data-skin='classic'] textarea:not(.text-editor) {
+    border: 1px solid transparent;
+    border-radius: 0;
+    box-shadow: var(--classic-sunken);
+    background-color: var(--field);
+}
+:root[data-skin='classic'] input:not([type='range']):not([type='checkbox']):disabled,
+:root[data-skin='classic'] select:disabled,
+:root[data-skin='classic'] textarea:not(.text-editor):disabled {
+    background-color: var(--panel);
+    color: #808080;
+}
+:root[data-skin='classic'] input[type='color']::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+:root[data-skin='classic'] input[type='color']::-webkit-color-swatch {
+    border: 1px solid #808080;
+    border-radius: 0;
+}
+:root[data-skin='classic'] input[type='color']::-moz-color-swatch {
+    border: 1px solid #808080;
+    border-radius: 0;
+}
+:root[data-skin='classic'] input[type='checkbox'] {
+    appearance: none;
+    flex: 0 0 13px;
+    width: 13px;
+    height: 13px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--field);
+    box-shadow: var(--classic-sunken);
+}
+:root[data-skin='classic'] input[type='checkbox']:checked {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 13 13'%3E%3Cpath d='M3 6v3l2 2 5-5V3L5 8z' fill='black'/%3E%3C/svg%3E");
+}
+:root[data-skin='classic'] input[type='checkbox']:disabled {
+    background-color: var(--panel);
+    opacity: 0.6;
+}
+:root[data-skin='classic'] input[type='checkbox']:focus-visible {
+    outline-offset: 2px;
+}
+:root[data-skin='classic'] input[type='range'] {
+    appearance: none;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+:root[data-skin='classic'] input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+    background: var(--panel);
+    box-shadow: var(--classic-sunken);
+}
+:root[data-skin='classic'] input[type='range']::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 22px;
+    margin-top: -9px;
+    border: 0;
+    border-radius: 0;
+    background: var(--panel);
+    box-shadow: var(--classic-raised);
+}
+:root[data-skin='classic'] input[type='range']::-moz-range-track {
+    height: 4px;
+    background: var(--panel);
+    box-shadow: var(--classic-sunken);
+}
+:root[data-skin='classic'] input[type='range']::-moz-range-thumb {
+    width: 12px;
+    height: 22px;
+    border: 0;
+    border-radius: 0;
+    background: var(--panel);
+    box-shadow: var(--classic-raised);
+}
+:root[data-skin='classic'] input[type='range']:disabled {
+    opacity: 0.5;
 }
 :root[data-skin='classic'] .topbar {
-    border-bottom: 2px outset #fff;
+    border-bottom: 1px solid #808080;
+    box-shadow:
+        inset 0 1px #fff,
+        inset 0 -1px #fff;
 }
 :root[data-skin='classic'] .brand {
-    background: #000080;
-    color: white;
-    padding: 5px;
+    color: var(--fg);
+    font-weight: 700;
+    text-shadow: 1px 1px #fff;
+}
+:root[data-skin='classic'] .title {
+    background: var(--classic-caption);
+    color: var(--on);
+    font-weight: 700;
+    padding: 5px 7px;
+}
+:root[data-skin='classic'] .tools {
+    box-shadow:
+        inset -1px 0 #808080,
+        inset 1px 0 #fff;
+}
+:root[data-skin='classic'] .workspace::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: var(--classic-sunken);
+    pointer-events: none;
+}
+:root[data-skin='classic'] .inspector {
+    border-radius: 0;
+    border-color: #808080;
+    box-shadow: inset 1px 0 #fff;
+}
+:root[data-skin='classic'] .inspector h2 {
+    color: var(--fg);
+    font-weight: 700;
+    border-bottom: 1px solid #808080;
+    box-shadow: inset 0 -1px #fff;
+}
+:root[data-skin='classic'] .color-preview {
+    border-radius: 0;
+    box-shadow: var(--classic-sunken);
+}
+:root[data-skin='classic'] .swatches {
+    padding: 4px;
+    box-shadow: var(--classic-pressed);
+}
+:root[data-skin='classic'] .swatches button,
+:root[data-skin='classic'] .swatches button:not(:disabled):active {
+    border: 1px solid #808080;
+    border-radius: 0;
+    background: var(--swatch);
+    box-shadow:
+        inset 1px 1px #0a0a0a,
+        inset -1px -1px #fff;
+}
+:root[data-skin='classic'] .swatches button:focus-visible,
+:root[data-skin='classic'] .swatches button:not(:disabled):active:focus-visible {
+    outline: 1px dotted #000;
+    outline-offset: -4px;
+    box-shadow:
+        inset 0 0 0 4px #fff,
+        inset 0 0 0 5px #000;
+}
+:root[data-skin='classic'] .layers {
+    box-shadow: inset 0 1px #fff;
+}
+:root[data-skin='classic'] .layer-list {
+    background: var(--field);
+    box-shadow: var(--classic-sunken);
+}
+:root[data-skin='classic'] .layer-row.selected,
+:root[data-skin='classic'] .layer-row.selected .name {
+    background: var(--accent);
+    color: var(--on);
+}
+:root[data-skin='classic'] .layer-row .name {
+    background: transparent;
+    box-shadow: none;
+}
+:root[data-skin='classic'] .layer-row.selected .name:focus-visible {
+    outline-color: var(--on);
+}
+:root[data-skin='classic'] .statusbar {
+    background: var(--panel);
+    color: var(--fg);
+    border-color: #fff;
+    box-shadow: inset 0 1px #808080;
+}
+:root[data-skin='classic'] .statusbar > span {
+    padding: 3px 5px;
+    box-shadow: var(--classic-pressed);
+}
+:root[data-skin='classic'] dialog {
+    border: 3px solid transparent;
+    border-radius: 0;
+    background: var(--panel);
+    box-shadow:
+        var(--classic-raised),
+        2px 2px 0 #0006;
+}
+:root[data-skin='classic'] dialog::backdrop {
+    background: #0004;
+}
+:root[data-skin='classic'] dialog h2 {
+    margin: -18px -18px 18px;
+    padding: 5px 7px;
+    background: var(--classic-caption);
+    color: var(--on);
+    font-size: 13px;
+    font-weight: 700;
+}
+:root[data-skin='classic'] dialog footer button {
+    min-width: 75px;
+}
+:root[data-skin='classic'] .download,
+:root[data-skin='classic'] .busy span {
+    border: 1px solid transparent;
+    border-radius: 0;
+    box-shadow:
+        var(--classic-raised),
+        2px 2px 0 #0006;
+}
+/* Do not paint large buttons over the canvas resize hit areas. */
+:root[data-skin='classic'] .canvas-handle,
+:root[data-skin='classic'] .canvas-handle:hover,
+:root[data-skin='classic'] .canvas-handle:active {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+:root[data-skin='classic'] .canvas-handle::after {
+    border-color: #0a0a0a;
+}
+:root[data-skin='classic'] .text-editor {
+    box-shadow: none;
+}
+:root[data-skin='classic'] ::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+:root[data-skin='classic'] ::-webkit-scrollbar-track,
+:root[data-skin='classic'] ::-webkit-scrollbar-corner {
+    background: var(--classic-checker) 0 0 / 2px 2px;
+}
+:root[data-skin='classic'] ::-webkit-scrollbar-thumb {
+    background: var(--panel);
+    box-shadow: var(--classic-raised);
+}
+@media (forced-colors: active) {
+    :root[data-skin='classic'] button:not(.canvas-handle),
+    :root[data-skin='classic'] input:not([type='range']):not([type='checkbox']),
+    :root[data-skin='classic'] select,
+    :root[data-skin='classic'] textarea:not(.text-editor) {
+        border: 1px solid ButtonText;
+    }
+    :root[data-skin='classic'] input[type='checkbox'],
+    :root[data-skin='classic'] input[type='checkbox']:checked,
+    :root[data-skin='classic'] input[type='range'] {
+        appearance: auto;
+        background-image: none;
+        box-shadow: none;
+        accent-color: auto;
+    }
+    :root[data-skin='classic'] input[type='range']::-webkit-slider-runnable-track {
+        background: Canvas;
+        border: 1px solid ButtonText;
+        box-shadow: none;
+    }
+    :root[data-skin='classic'] input[type='range']::-webkit-slider-thumb {
+        background: ButtonFace;
+        border: 1px solid ButtonText;
+        box-shadow: none;
+    }
+    :root[data-skin='classic'] input[type='range']::-moz-range-track {
+        background: Canvas;
+        border: 1px solid ButtonText;
+        box-shadow: none;
+    }
+    :root[data-skin='classic'] input[type='range']::-moz-range-thumb {
+        background: ButtonFace;
+        border: 1px solid ButtonText;
+        box-shadow: none;
+    }
+    :root[data-skin='classic'] .layer-row.selected,
+    :root[data-skin='classic'] .layer-row.selected .name {
+        background: Highlight;
+        color: HighlightText;
+        forced-color-adjust: none;
+    }
 }
 :root[data-density='touch'] {
     --target: 48px;

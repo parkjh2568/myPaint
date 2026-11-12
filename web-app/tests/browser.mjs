@@ -82,12 +82,33 @@ try {
     await page.getByRole('button', { name: '다시 실행', exact: true }).press('Space');
     assert.deepEqual((await snapshot()).layers[0].pixels, drawn.layers[0].pixels);
     results.checks.push('Downloads preserve Undo/Redo');
+    const studioLayout = await page.locator('.body').evaluate((body) => ({
+        columns: getComputedStyle(body).gridTemplateColumns,
+        children: [...body.children].map((child) => child.className),
+        tools: [...body.querySelectorAll('[data-tool]')].map((button) => button.dataset.tool),
+    }));
     await page.getByRole('button', { name: '환경설정', exact: true }).click();
     await page.getByLabel('스킨', { exact: true }).selectOption('Classic 98');
     await page.getByRole('dialog').getByRole('button', { name: '확인', exact: true }).click();
     await page.waitForFunction(() => document.documentElement.dataset.skin === 'classic');
     assert.deepEqual((await snapshot()).layers[0].pixels, drawn.layers[0].pixels);
     results.checks.push('Skin changes preserve exact pixels');
+    assert.deepEqual(
+        await page.locator('.body').evaluate((body) => ({
+            columns: getComputedStyle(body).gridTemplateColumns,
+            children: [...body.children].map((child) => child.className),
+            tools: [...body.querySelectorAll('[data-tool]')].map((button) => button.dataset.tool),
+        })),
+        studioLayout,
+    );
+    for (const handle of await page.locator('.canvas-handle').all()) {
+        const style = await handle.evaluate((element) => {
+            const css = getComputedStyle(element);
+            return { background: css.backgroundColor, shadow: css.boxShadow, border: css.borderTopWidth };
+        });
+        assert.deepEqual(style, { background: 'rgba(0, 0, 0, 0)', shadow: 'none', border: '0px' });
+    }
+    results.checks.push('Classic skin retains layout/tool order and invisible canvas resize hit areas');
     const palette = await page.locator('.swatches button').evaluateAll((buttons) =>
         buttons.map((button) => ({
             label: button.getAttribute('aria-label'),
@@ -100,6 +121,44 @@ try {
             rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
         assert.equal(swatch.background, `rgb(${rgb.join(', ')})`, swatch.label);
     }
+    for (const hex of ['#000000', '#ffffff']) {
+        const swatch = page.getByRole('button', { name: '전경색 ' + hex, exact: true });
+        await swatch.focus();
+        await page.keyboard.down('Space');
+        const pressed = await swatch.evaluate((element) => {
+            const css = getComputedStyle(element);
+            return {
+                active: element.matches(':active'),
+                background: css.backgroundColor,
+                image: css.backgroundImage,
+                outline: css.outlineStyle,
+                shadow: css.boxShadow,
+            };
+        });
+        await page.keyboard.up('Space');
+        assert.equal(pressed.active, true);
+        assert.equal(pressed.background, hex === '#000000' ? 'rgb(0, 0, 0)' : 'rgb(255, 255, 255)');
+        assert.equal(pressed.image, 'none');
+        assert.equal(pressed.outline, 'dotted');
+        assert.match(pressed.shadow, /rgb\(255, 255, 255\)/);
+        assert.match(pressed.shadow, /rgb\(0, 0, 0\)/);
+    }
+    await page.emulateMedia({ forcedColors: 'active' });
+    assert.equal(
+        await page.locator('#pressure').evaluate((element) => getComputedStyle(element).backgroundImage),
+        'none',
+    );
+    const forcedField = await page.locator('#hex').evaluate((element) => {
+        const css = getComputedStyle(element);
+        return { border: css.borderTopWidth, color: css.borderTopColor, style: css.borderTopStyle };
+    });
+    assert.equal(forcedField.border, '1px');
+    assert.equal(forcedField.style, 'solid');
+    assert.notEqual(forcedField.color, 'rgba(0, 0, 0, 0)');
+    await page.emulateMedia({ forcedColors: 'none' });
+    results.checks.push(
+        'Classic palette stays true while Space-pressed; focus and forced-color fields remain visible',
+    );
     await page.getByRole('button', { name: '전경색 #8058e8', exact: true }).press('Enter');
     assert.equal(await page.getByLabel('HEX 색상', { exact: true }).inputValue(), '#8058e8');
     await page.getByRole('button', { name: '전경색 #1679ea', exact: true }).press('Space');
