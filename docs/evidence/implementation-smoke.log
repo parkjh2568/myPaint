@@ -1,2 +1,0 @@
-qt.qpa.fonts: Populating font family aliases took 61 ms. Replace uses of missing font family "Sans Serif" with one that exists to avoid this cost. 
-This plugin does not support propagateSizeHints()

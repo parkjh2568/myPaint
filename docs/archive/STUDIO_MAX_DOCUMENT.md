@@ -160,7 +160,7 @@ Source와 scene은 합계 64개/추정 RGBA 128MiB, 각 surface 축 512px 제한
 
 후속 [미확정 편집·clipboard 검증](../evidence/studio-pending-contracts.json)에서 F05 행렬과 F01/F07 성공 payload를 확인하고 pending Redo 우회를 수정했다. 이 문서의 성능 표본은 당시 source hash를 유지한다.
 
-기존 Qt·홈페이지는 보존한다. 이 단계에서 commit/push/공개 배포를 수행하지 않았다. [전체 전환 백로그](../QT_FREE_MIGRATION_TASKS.md)와 미완료 게이트는 유지한다.
+기존 Qt·홈페이지는 보존한다. 이 단계에서 commit/push/공개 배포를 수행하지 않았다. [전체 전환 백로그](https://github.com/parkjh2568/myPaint/blob/c10a29a397aa77bb946c84406fd661db747164c0/docs/QT_FREE_MIGRATION_TASKS.md)와 미완료 게이트는 유지한다.
 
 
 프로젝트 디코더 후속 보완: 내부 PNG를 전부 할당한 뒤 outer 크기를 확인하던 경로에 IHDR 사전검사를 추가했다. 단독 PNG per-image 한도뿐 아니라 outer count×size의 aggregate 가정도 지킨다. CRC/전체 구조 검사는 생략하지 않는다. 자세한 before/after 할당 관측과 File adapter size/취소 경계는 [도구·입력 근거](../evidence/studio-tool-contracts.json)를 따른다. GIF/JPEG/BMP의 브라우저 디코더 내부 메모리와 프로세스 전체 RSS를 이 검사로 보장하지 않는다.

@@ -1,5 +1,7 @@
 # Studio 네이티브 저장·복구 구현과 독립 검증
 
+> 현재 Studio 실행·빌드만 유지합니다. 아래 과거 Qt 비교/검증 기록은 역사적 근거이며 제거된 경로를 실행하라는 안내가 아닙니다. 최신 제거 범위와 미완료 항목은 [정리 결과](LEGACY_REMOVAL.md)를 보세요.
+
 2026-11-04. 모바일·태블릿은 웹만, 실행파일은 Windows/macOS만 대상으로 한다. 이 기록은 저장·복구 작업의 결과이며 전체 Qt 전환이나 출시 완료 보고가 아니다. 원시 결과와 코드/번들 해시는 [검증 근거](evidence/studio-native-persistence.json)에 기록한다.
 
 ## 변경한 동작과 경계
@@ -123,7 +125,7 @@ npm --prefix web-app run test:native-desktop
 
 게시 전후 identity, 외부 공유 잠금 실패 후 원본 보존·임시파일 해제·재시도, 부분 실패 때 복구 사본 보존 회귀를 추가했다. 부분 실패 테스트는 문서화된 OS 결과를 모델링하며 실제 Windows 오류를 주입하지 않는다. 이 후속 수정도 바로 위 동일 SHA의 Windows/macOS CI에서 컴파일·rustfmt·Clippy·실패 경로 테스트·host 패키징을 통과했다. 과거 앱 smoke 결과와 이번 호스트 CI 결과를 구분하며, 실제 OS 오류 주입과 사용자 실기기 인수는 여전히 별도 조건이다. 참고: [ReplaceFileW 계약](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-replacefilew).
 
-기존 홈페이지·Qt 실행 경로는 보존했다. 초기 검증 이후 2026-11-08 리팩터링은 [PR #1](https://github.com/parkjh2568/myPaint/pull/1) 브랜치에 커밋·푸시했으며 공개 배포는 수행하지 않았다. [전체 전환 백로그](QT_FREE_MIGRATION_TASKS.md)의 미충족 완료 조건은 계속 열어 둔다.
+기존 홈페이지·Qt 실행 경로는 보존했다. 초기 검증 이후 2026-11-08 리팩터링은 [PR #1](https://github.com/parkjh2568/myPaint/pull/1) 브랜치에 커밋·푸시했으며 공개 배포는 수행하지 않았다. [전체 전환 백로그](https://github.com/parkjh2568/myPaint/blob/c10a29a397aa77bb946c84406fd661db747164c0/docs/QT_FREE_MIGRATION_TASKS.md)의 미충족 완료 조건은 계속 열어 둔다.
 
 후속 [미확정 편집 계약 검사](evidence/studio-pending-contracts.json)는 Redo 가드가 포함된 macOS 앱에서 같은 복구·코덱·종료 3단계를 다시 통과했다. 위 앱 해시와 해당 후속 앱 해시는 서로 다른 검증 snapshot이다.
 

@@ -59,7 +59,7 @@
 
 ## 예산과 다음 실행
 
-[원래 태스크와 초기 예산 후보](../QT_FREE_MIGRATION_TASKS.md)의2MiB 필수 전송·3초 준비·8ms 획 처리·33ms 표시·50ms long task·메모리/장기 사용 목표를 그대로 유지한다. 이번 proxy에 맞춰 목표를 낮추거나 완료 처리하지 않는다.
+[원래 태스크와 초기 예산 후보](https://github.com/parkjh2568/myPaint/blob/c10a29a397aa77bb946c84406fd661db747164c0/docs/QT_FREE_MIGRATION_TASKS.md)의2MiB 필수 전송·3초 준비·8ms 획 처리·33ms 표시·50ms long task·메모리/장기 사용 목표를 그대로 유지한다. 이번 proxy에 맞춰 목표를 낮추거나 완료 처리하지 않는다.
 
 | 대상 | 현재 고정한 것 | 남은 인수 |
 | --- | --- | --- |

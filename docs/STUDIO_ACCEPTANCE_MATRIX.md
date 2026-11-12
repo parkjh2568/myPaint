@@ -1,4 +1,6 @@
-# Qt-free 기능 인수 추적표
+# Studio 기능 인수 추적표
+
+> 현재 Studio 실행·빌드만 유지합니다. 아래 과거 Qt 비교/검증 기록은 역사적 근거이며 제거된 경로를 실행하라는 안내가 아닙니다. 최신 제거 범위와 미완료 항목은 [정리 결과](LEGACY_REMOVAL.md)를 보세요.
 
 QF-02의 유한한 입력·예상 상태·기준 데이터와 허용차는 [독립 기준 목록](archive/STUDIO_FIXTURE_BASELINE.md) 및 [canonical JSON](../web-app/tests/fixtures/legacy-contracts.json)으로 고정했다. 아래 날짜별 인수 범위를 전체 옵션 승인으로 확대하지 않는다.
 
@@ -14,7 +16,7 @@ QF-02의 유한한 입력·예상 상태·기준 데이터와 허용차는 [독�
 
 직전 [팔레트·키보드·연필 단계](evidence/studio-pencil-palette.json)는 `index-D4CivZOE.js`에서 연필10+기존31, 사각35, 웹13·동시성3·편집13, 스킨/뷰포트4환경과 macOS4단계를 검증했다. 아래 과거 결과는 각각 당시 snapshot에 한정하며 현재 alpha 배치에서 다시 실행한 횟수로 합산하지 않는다.
 
-기준: 2026-11-05, [`IMPLEMENTATION_RESULTS.md`](archive/IMPLEMENTATION_RESULTS.md)의 F01–F10과 [`toolDefinitions`](../web-app/src/ui/icons.ts)의 17개 도구. 이 문서는 구현 여부와 실제로 실행한 회귀의 범위를 구별한다. 검사 개수나 아이콘 존재만으로 레거시 전체 기능 동등성을 판정하지 않는다.
+기준: 2026-11-05, [`IMPLEMENTATION_RESULTS.md`](https://github.com/parkjh2568/myPaint/blob/c10a29a397aa77bb946c84406fd661db747164c0/docs/archive/IMPLEMENTATION_RESULTS.md)의 F01–F10과 [`toolDefinitions`](../web-app/src/ui/icons.ts)의 17개 도구. 이 문서는 구현 여부와 실제로 실행한 회귀의 범위를 구별한다. 검사 개수나 아이콘 존재만으로 레거시 전체 기능 동등성을 판정하지 않는다.
 
 이전 기본 기능 회귀 묶음의 검증 대상은 `http://127.0.0.1:8965/mypaint/`의 `index-CVIk2cDl.js`이다. [`accepted-manifest.json`](../build-web-work/task-planning/max-document/accepted-manifest.json)에 번들 해시가 있다. F02 버튼 소유권과 F09 즉시 이력 가지치기가 모두 포함된 같은 번들에서 bulk 16개, pointer 7개, native profile 17개, persistence 12개를 순차 실행했고 `errors`/`failures`는 모두 비어 있다. 기존 공개 웹 45개와 Node 107개도 아래 해당 아티팩트에서 확인했다. Chromium·모델 native bridge 결과를 실제 OS 파일시스템·WKWebView·Windows·Android 실기기 결과로 해석하지 않는다. 후속 종료 보호는 `8966`의 `index-Bshc9KRt.js`에서 공개 UI persistence 15개를 확인했다. 실제 macOS 종료 경계는 별도 release 앱의 WKWebView·Rust/AppKit 3단계 검증으로 구분한다.
 

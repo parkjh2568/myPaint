@@ -10,7 +10,7 @@
 | 웹 개발·배포용 빌드 테스트 | [Windows 웹 테스트](WINDOWS_WEB_TEST.md) | [macOS 웹 테스트](MACOS_WEB_TEST.md) |
 
 - **앱**: Tauri/Rust가 로컬 파일·창을 관리합니다. Windows는 NSIS 설치 파일, macOS는 `.app`을 만듭니다.
-- **웹**: 같은 편집기를 브라우저로 실행합니다. Rust/Qt 없이 Node만으로 개발·빌드할 수 있습니다. 모바일·태블릿도 웹 전용입니다.
+- **웹**: 같은 편집기를 브라우저로 실행합니다. Rust 없이 Node만으로 개발·빌드할 수 있습니다. 모바일·태블릿도 웹 전용입니다.
 - 테마는 상단 톱니 또는 메뉴 → 환경설정에서 Classic 98을 선택합니다. 기존 배치·기능을 유지하며 CSS 룩앤필만 변경했습니다.
 - 개발용 패키지는 정식 서명·공증·배포 완료 제품이 아닙니다. 다른 OS에서 빌드 성공했다고 내 OS의 파일 대화상자·한글 입력까지 검증된 것은 아닙니다.
 
@@ -30,6 +30,6 @@
 
 [필수 기술 문서와 남은 검증](docs/README.md) · [웹 배포 절차](docs/WEB_BUILD.md) · [Classic 98 변경·검증 한계](docs/STUDIO_CLASSIC98_SKIN.md)
 
-과거 조사 보고서는 `docs/archive/`로 분리했고 중복된 초기 계획·환경 안내는 Git 이력에 남겼습니다. `src/`, `web/`, 루트 CMake는 Qt 호환성 기준 구현으로 보존하며 신규 Studio 실행 경로가 아닙니다. fixture, evidence, 라이선스는 삭제하지 않았습니다.
+과거 조사 보고서는 `docs/archive/`로 분리했고 중복된 초기 계획·환경 안내는 Git 이력에 남겼습니다. 기존 C++ 앱과 빌드 경로는 제거했습니다. 복구가 필요하면 Git 이력을 확인하세요. Studio 회귀 검사용 고정 픽셀 fixture는 유지합니다.
 
 앱 소스: [MIT](LICENSE) · 외부 의존성: [NOTICE.md](NOTICE.md) · 작업 규칙: [AGENTS.md](AGENTS.md)

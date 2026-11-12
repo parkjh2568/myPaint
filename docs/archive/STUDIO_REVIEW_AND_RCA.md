@@ -85,7 +85,7 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 4. **Major / M~L**: 현재 staging의 Qt 고정 가정을 새 manifest와 안전하게 공존시켜 수동/staged 파일·이전 탭 자산·롤백을 보존.
 5. **Blocker / 외부 인수**: Windows 실행, Android 실기기 웹과 Safari 웹, 깨끗한 macOS·서명/공증/고지·공개 배포 인수. 현재 자동화의 통과로 대체하지 않는다.
 
-전체 목표는 active로 유지한다. 다음 단계는 위 순서와 [전환 백로그](../QT_FREE_MIGRATION_TASKS.md)의 선행 조건을 따른다.
+전체 목표는 active로 유지한다. 다음 단계는 위 순서와 [전환 백로그](https://github.com/parkjh2568/myPaint/blob/c10a29a397aa77bb946c84406fd661db747164c0/docs/QT_FREE_MIGRATION_TASKS.md)의 선행 조건을 따른다.
 
 
 ## 최종 화면 캐시의 추가 RCA

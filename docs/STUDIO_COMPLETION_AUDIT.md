@@ -1,5 +1,7 @@
 # Studio 전체 완료 조건 감사
 
+> 현재 Studio 실행·빌드만 유지합니다. 아래 과거 Qt 비교/검증 기록은 역사적 근거이며 제거된 경로를 실행하라는 안내가 아닙니다. 최신 제거 범위와 미완료 항목은 [정리 결과](LEGACY_REMOVAL.md)를 보세요.
+
 2026-11-06. [조건별 원문과 현재 소스·검증 근거](evidence/studio-completion-audit.json). 이 감사는 구현 존재, 실제 검증 범위, 선행·플랫폼 게이트를 분리한다. 전체 목표의 완료 선언이 아니다.
 
 최초 감사에서는 34개 중 자체 조건 입증 6개, 부분 충족 25개, 미구현 3개였다. [Studio 로컬 staging](evidence/studio-staging.json) 구현 뒤 당시 판정은 6/26/2였다. 원문 JSON의 6/25/3은 수정 전 snapshot으로 보존한다. 후속 [독립 기준 목록](archive/STUDIO_FIXTURE_BASELINE.md) 완료로 현재 판정은7/25/2, 후속 [QF-04 계약 감사](STUDIO_DOCUMENT_CONTRACTS.md)까지 완료해 선행까지 닫힌 항목은 QF-01/QF-02/QF-04다. 자체 집계7/25/2는 그대로이며 다른 태스크의 최신 조건별 인수는 별도다.

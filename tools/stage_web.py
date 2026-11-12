@@ -80,30 +80,21 @@ class BundleHtml(HTMLParser):
 
 def readBundle(folder):
     bundle = readManifest(folder, "bundle.json", "myPaint-web-bundle")
-    target = bundle.get("target", "qt")
-    if target not in ("qt", "studio"):
+    target = bundle.get("target")
+    if target != "studio":
         raise RuntimeError("Unknown web bundle target")
     files = bundle["files"]
     if any(any(part.startswith(".") for part in PurePosixPath(rel).parts) for rel in files):
         raise RuntimeError("Hidden bundle paths are not supported")
-    if target == "qt":
-        allowed = {"index.html", "retropaint.js", "retropaint.wasm", "qtloader.js", "licenses.html", "BUILDING.txt"}
-        if any(rel not in allowed and not rel.startswith("shared/") for rel in files):
-            raise RuntimeError("Unknown web bundle layout")
-        if not {"index.html", "retropaint.js", "retropaint.wasm", "qtloader.js", "licenses.html"}.issubset(files):
-            raise RuntimeError("Incomplete web bundle")
-        if (folder / "retropaint.wasm").read_bytes()[:8] != b"\0asm\x01\0\0\0":
+    allowed = {"index.html", "LICENSE", "THIRD_PARTY_NOTICES.txt"}
+    extensions = {".js", ".css", ".png", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".wasm"}
+    if any(rel not in allowed and not (rel.startswith("assets/") and PurePosixPath(rel).suffix in extensions) for rel in files):
+        raise RuntimeError("Unknown Studio bundle layout")
+    if not allowed.issubset(files) or not any(rel.startswith("assets/") and rel.endswith(".js") for rel in files):
+        raise RuntimeError("Incomplete Studio bundle")
+    for rel in files:
+        if rel.endswith(".wasm") and (folder / rel).read_bytes()[:8] != b"\0asm\x01\0\0\0":
             raise RuntimeError("Invalid WebAssembly module")
-    else:
-        allowed = {"index.html", "LICENSE", "THIRD_PARTY_NOTICES.txt"}
-        extensions = {".js", ".css", ".png", ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".wasm"}
-        if any(rel not in allowed and not (rel.startswith("assets/") and PurePosixPath(rel).suffix in extensions) for rel in files):
-            raise RuntimeError("Unknown Studio bundle layout")
-        if not allowed.issubset(files) or not any(rel.startswith("assets/") and rel.endswith(".js") for rel in files):
-            raise RuntimeError("Incomplete Studio bundle")
-        for rel in files:
-            if rel.endswith(".wasm") and (folder / rel).read_bytes()[:8] != b"\0asm\x01\0\0\0":
-                raise RuntimeError("Invalid WebAssembly module")
     html = (folder / "index.html").read_text(encoding="utf-8")
     if html.count("<head>") != 1 or "<base" in html.lower():
         raise RuntimeError("The application shell must have one head and no base element")
@@ -139,17 +130,12 @@ def stageBundle(source, homepage, check=False, prune=False):
     if staged.returncode:
         raise RuntimeError("Commit or review staged mypaint changes before rebuilding")
     bundle = readBundle(source)
-    bundleTarget = bundle.get("target", "qt")
+    bundleTarget = bundle.get("target")
     original = readManifest(target, "manifest.json", "myPaint-web-output") if target.exists() else None
     if original and any(rel != "index.html" and not rel.startswith(("shared/", "releases/")) for rel in original["files"]):
         raise RuntimeError("Unknown previous output layout")
     # Git commit/dirty metadata must not create another copy of identical runtime files.
     release = hashlib.sha256(json.dumps(bundle["files"], sort_keys=True).encode()).hexdigest()[:24]
-    if original and bundleTarget == "qt":
-        active = original.get("release", "")
-        runtime = ("index.html", "retropaint.js", "retropaint.wasm", "qtloader.js")
-        if active and all(original["files"].get(f"releases/{active}/{name}") == bundle["files"][name] for name in runtime):
-            release = active
     files = dict(original["files"]) if original and not prune else {}
     payload = {}
     for rel in bundle["files"]:
@@ -161,20 +147,11 @@ def stageBundle(source, homepage, check=False, prune=False):
         raise RuntimeError("The application shell must have one head and no base element")
     index = html.replace("<head>", f'<head>\n<base href="./releases/{release}/">', 1).encode()
     files["index.html"] = hashlib.sha256(index).hexdigest()
-    licensePath = None
-    licenseBytes = None
-    if bundleTarget == "qt":
-        licensePath = f"releases/{release}/licenses.html"
-        licenseHtml = (source / "licenses.html").read_text(encoding="utf-8")
-        if licenseHtml.count("<head>") != 1 or "<base" in licenseHtml.lower():
-            raise RuntimeError("Invalid license page")
-        licenseBytes = licenseHtml.replace("<head>", '<head>\n<base href="../../">', 1).encode()
-        files[licensePath] = hashlib.sha256(licenseBytes).hexdigest()
     total = len(index)
     for rel in files:
         if rel == "index.html":
             continue
-        total += len(licenseBytes) if rel == licensePath else (payload.get(rel) or target / rel).stat().st_size
+        total += (payload.get(rel) or target / rel).stat().st_size
     if total > MAX_SITE or len(files) > 8192:
         raise RuntimeError("Retained releases exceed the local site budget; review old releases manually")
     manifest = {"schema": 1, "owner": "myPaint-web-output", "release": release, "target": bundleTarget,
@@ -198,8 +175,6 @@ def stageBundle(source, homepage, check=False, prune=False):
             out.parent.mkdir(parents=True, exist_ok=True)
             if rel == "index.html":
                 out.write_bytes(index)
-            elif rel == licensePath:
-                out.write_bytes(licenseBytes)
             else:
                 shutil.copyfile(payload.get(rel) or target / rel, out)
         (staging / "manifest.json").write_bytes(metadata)

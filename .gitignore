@@ -5,7 +5,6 @@
 *.png
 !docs/*.png
 /out/
-/CMakeUserPresets.json
 /.cache/
 /.idea/
 /.vscode/

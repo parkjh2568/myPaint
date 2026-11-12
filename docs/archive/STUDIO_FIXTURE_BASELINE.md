@@ -19,7 +19,7 @@
 
 ## 실제 보완·검증
 
-기존 Qt 프로젝트 producer가 임시 phase에만 있었으므로 [영구 C++ producer](../../web-app/tests/fixtures/qt-project-oracle.cpp)로 보존했다. Qt6.12.0의 실제 paintcore/Core/Gui에서 재실행한 RPAINT01 전체4,173B와 Qt RGBA 두 plane(각3,072B), metadata가 기존 파일과 모두 일치했다. JSON 텍스트 formatting만 달랐으며 expected는 바꾸지 않았다. README의 직접 c++/pkg-config 명령도 별도로 실행해 parsed fixture 전체 일치를 확인했다. Node 소비자는 Qt 설치 없이 실행된다.
+기존 Qt 프로젝트 producer가 임시 phase에만 있었으므로 [영구 C++ producer](https://github.com/parkjh2568/myPaint/blob/c10a29a397aa77bb946c84406fd661db747164c0/web-app/tests/fixtures/qt-project-oracle.cpp)로 보존했다. Qt6.12.0의 실제 paintcore/Core/Gui에서 재실행한 RPAINT01 전체4,173B와 Qt RGBA 두 plane(각3,072B), metadata가 기존 파일과 모두 일치했다. JSON 텍스트 formatting만 달랐으며 expected는 바꾸지 않았다. README의 직접 c++/pkg-config 명령도 별도로 실행해 parsed fixture 전체 일치를 확인했다. Node 소비자는 Qt 설치 없이 실행된다.
 
 스프레이에는 [고정 RNG/시간·literal5점](../../web-app/tests/fixtures/spray-literal.json)을 추가했다. 공개 도구에서35ms 가상 tick의16난수 호출과 literal raster, release/Undo/Redo, Escape 뒤 원본·기존 Redo, timer/capture 정리·늦은 release를2case로 확인했다. expected를 제품 rasterizer로 만들지 않았다. 실제 난수 분포나 물리 타이밍·Qt 난수 동등성의 검증은 아니다. `test:spray-contract`를 기존 CI에 연결했다.
 

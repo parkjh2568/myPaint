@@ -34,7 +34,9 @@ test('legacy reference inventory retains all fixes, tool inputs, policy owners a
         assert(entry.policies.length > 0, entry.id);
         for (const policy of entry.policies) assert(inventory.policies[policy], `${entry.id}: ${policy}`);
         assert(
-            entry.references.some((ref: { role: string }) => ref.role === 'legacy-input-and-assertion'),
+            [...entry.references, ...(entry.historicalReferences || [])].some(
+                (ref: { role: string }) => ref.role === 'legacy-input-and-assertion',
+            ),
             entry.id,
         );
         assert(

@@ -48,17 +48,20 @@
             "policies": ["stored-rgba", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "resizedSelectionCopyAndRotate",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/clipboard-contract.mjs",
                     "anchor": "Resized pending selection copies 30x25 exact",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "OS clipboard permission and arbitrary transform order remain platform/feature acceptance."
+            "deferred": "OS clipboard permission and arbitrary transform order remain platform/feature acceptance.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "resizedSelectionCopyAndRotate",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F02",
@@ -75,17 +78,20 @@
             "policies": ["state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "gestureOwnsItsButton",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/pointer-contract.mjs",
                     "anchor": "owner",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Other device mixtures are separate input acceptance."
+            "deferred": "Other device mixtures are separate input acceptance.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "gestureOwnsItsButton",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F03",
@@ -102,17 +108,20 @@
             "policies": ["state-exact"],
             "references": [
                 {
-                    "path": "tests/core_tests.cpp",
-                    "anchor": "reorderedIdenticalLayers",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/metadata.test.ts",
                     "anchor": "identical layer names and RGBA still reorder",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Full layer UI/device permutations remain feature acceptance."
+            "deferred": "Full layer UI/device permutations remain feature acceptance.",
+            "historicalReferences": [
+                {
+                    "path": "tests/core_tests.cpp",
+                    "anchor": "reorderedIdenticalLayers",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F04",
@@ -128,17 +137,20 @@
             "policies": ["state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "pendingActionsAndReleaseModifiers",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/pending-contract.mjs",
                     "anchor": "redo",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "These are command ownership baselines, not every device/option."
+            "deferred": "These are command ownership baselines, not every device/option.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "pendingActionsAndReleaseModifiers",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F05",
@@ -157,17 +169,20 @@
             "policies": ["state-exact", "stored-rgba"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "pendingCommandsPreserveState",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/pending-contract.mjs",
                     "anchor": "save_cancel",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "OS picker, ENOSPC and other host failure acceptance are separate."
+            "deferred": "OS picker, ENOSPC and other host failure acceptance are separate.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "pendingCommandsPreserveState",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F06",
@@ -187,19 +202,9 @@
             "policies": ["state-exact", "stored-rgba"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "rejectedSelectionMoveIsUnchanged",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/crop.test.ts",
                     "anchor": "crop rejects non-integer coordinates",
                     "role": "studio-consumer"
-                },
-                {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "void UiTests::resizedSelectionCopyAndRotate()",
-                    "role": "legacy-input-and-assertion"
                 },
                 {
                     "path": "web-app/tests/editing.mjs",
@@ -207,7 +212,21 @@
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "All transform-order and device combinations are not implied."
+            "deferred": "All transform-order and device combinations are not implied.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "rejectedSelectionMoveIsUnchanged",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                },
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::resizedSelectionCopyAndRotate()",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F07",
@@ -225,17 +244,20 @@
             "policies": ["stored-rgba", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "cutUsesActiveLayer",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/clipboard-contract.mjs",
                     "anchor": "cut",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Actual OS clipboard delivery remains separate."
+            "deferred": "Actual OS clipboard delivery remains separate.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "cutUsesActiveLayer",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F08",
@@ -250,17 +272,20 @@
             "policies": ["raster-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "pendingActionsAndReleaseModifiers",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/pointer-contract.mjs",
                     "anchor": "Shift",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Physical modifier delivery and other options remain separate."
+            "deferred": "Physical modifier delivery and other options remain separate.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "pendingActionsAndReleaseModifiers",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F09",
@@ -279,17 +304,20 @@
             "policies": ["state-exact"],
             "references": [
                 {
-                    "path": "tests/core_tests.cpp",
-                    "anchor": "historyLimitsAtUndoPosition",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/history.test.ts",
                     "anchor": "4096 history boundary",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "History byte accounting is not total process memory."
+            "deferred": "History byte accounting is not total process memory.",
+            "historicalReferences": [
+                {
+                    "path": "tests/core_tests.cpp",
+                    "anchor": "historyLimitsAtUndoPosition",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "F10",
@@ -309,17 +337,20 @@
             "policies": ["state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "recoveryDiscardsStaleSnapshot",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/native-persistence.mjs",
                     "anchor": "old generation",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Performance targets, tail latency and RSS are QF-03/QF-24, not fixture acceptance."
+            "deferred": "Performance targets, tail latency and RSS are QF-03/QF-24, not fixture acceptance.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "recoveryDiscardsStaleSnapshot",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         }
     ],
     "tools": [
@@ -333,17 +364,20 @@
             "policies": ["raster-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "smoothBrushEndpointsAndUndo",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/core.test.ts",
                     "anchor": "stroke overlap opacity",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "smoothBrushEndpointsAndUndo",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "pencil",
@@ -355,17 +389,20 @@
             "policies": ["qt-premultiplied", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "pencilAndUndo",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/eraser-picker-contract.mjs",
                     "anchor": "pencil-Qt-slope-7-1-literal",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "pencilAndUndo",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "eraser",
@@ -377,17 +414,20 @@
             "policies": ["stored-rgba", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "brushEraserAndPicker",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/eraser-picker-contract.mjs",
                     "anchor": "transparent-half",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "brushEraserAndPicker",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "fill",
@@ -399,17 +439,20 @@
             "policies": ["stored-rgba", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "fillAndHiddenLayer",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/flood-key.test.ts",
                     "anchor": "actual Qt fill membership",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "fillAndHiddenLayer",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "picker",
@@ -422,17 +465,20 @@
             "policies": ["state-exact", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "brushEraserAndPicker",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/eraser-picker-contract.mjs",
                     "anchor": "스포이트",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "brushEraserAndPicker",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "spray",
@@ -444,17 +490,20 @@
             "policies": ["stored-rgba", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "lostMouseGrabStopsSpray",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/spray-contract.mjs",
                     "anchor": "spray-literal.json",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "lostMouseGrabStopsSpray",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "color-eraser",
@@ -466,17 +515,20 @@
             "policies": ["qt-premultiplied", "state-exact"],
             "references": [
                 {
-                    "path": "web-app/tests/fixtures/color-eraser-qt-oracle.cpp",
-                    "anchor": "click-local-disk",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/color-eraser-qt.test.ts",
                     "anchor": "all 18 captures",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "web-app/tests/fixtures/color-eraser-qt-oracle.cpp",
+                    "anchor": "click-local-disk",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "line",
@@ -488,17 +540,20 @@
             "policies": ["raster-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "shapes_data",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/shape-color-contract.mjs",
                     "anchor": "직선",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "shapes_data",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "curve",
@@ -511,17 +566,20 @@
             "policies": ["raster-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "curveAndPolygon",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/shape-color-contract.mjs",
                     "anchor": "curve",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "curveAndPolygon",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "rectangle",
@@ -533,17 +591,20 @@
             "policies": ["raster-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "shapes_data",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/shape-color-contract.mjs",
                     "anchor": "사각형",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "shapes_data",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "roundrect",
@@ -558,17 +619,20 @@
             "policies": ["raster-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "shapes_data",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/roundrect-contract.mjs",
                     "anchor": "roundrect",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "shapes_data",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "ellipse",
@@ -580,17 +644,20 @@
             "policies": ["raster-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "shapes_data",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/shape-color-contract.mjs",
                     "anchor": "타원",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "shapes_data",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "polygon",
@@ -603,17 +670,20 @@
             "policies": ["raster-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "curveAndPolygon",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/shape-color-contract.mjs",
                     "anchor": "polygon",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "curveAndPolygon",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "select",
@@ -626,17 +696,20 @@
             "policies": ["stored-rgba", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "resizedSelectionCopyAndRotate",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/selection-alpha-contract.mjs",
                     "anchor": "alpha",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "resizedSelectionCopyAndRotate",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "lasso",
@@ -649,17 +722,20 @@
             "policies": ["stored-rgba", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "freeSelectionKeepsOutsidePixels",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/polygon-mask.test.ts",
                     "anchor": "polygon mask matches 871 literal Qt aliased clips",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "freeSelectionKeepsOutsidePixels",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "text",
@@ -672,17 +748,20 @@
             "policies": ["text-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "koreanTextCommit",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/text-alpha-contract.mjs",
                     "anchor": "문자",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "koreanTextCommit",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "pan",
@@ -695,17 +774,20 @@
             "policies": ["state-exact", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "panDoesNotEdit",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/scene-contract.mjs",
                     "anchor": "name: '화면 이동'",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity."
+            "deferred": "Remaining options, physical input and full platform acceptance follow QF-07/QF-12–QF-22; reference existence is not full parity.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "panDoesNotEdit",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         }
     ],
     "data": [
@@ -794,12 +876,6 @@
             "scope": "UI-independent producer. PNG wire builder uses Node zlib/bitwise CRC plus literal expected values; Qt producer links paintcore/QtCore/Gui."
         },
         {
-            "path": "web-app/tests/fixtures/qt-project-oracle.cpp",
-            "sha256": "80f6e3d972bd0bdc8ff8ce574d786e8f1dd3a3c5939390a6ac84eea5631b985e",
-            "kind": "legacy-qt-producer",
-            "scope": "UI-independent producer. PNG wire builder uses Node zlib/bitwise CRC plus literal expected values; Qt producer links paintcore/QtCore/Gui."
-        },
-        {
             "path": "web-app/tests/fixtures/spray-literal.json",
             "sha256": "60a9555e9a7ecfe87c68fc3ea65862aa6853406d5a33fe69f69cc9a957087005",
             "kind": "independent-literal",
@@ -837,17 +913,20 @@
             "policies": ["state-exact", "stored-rgba"],
             "references": [
                 {
-                    "path": "tests/core_tests.cpp",
-                    "anchor": "void CoreTests::layerHistory()",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/metadata.test.ts",
                     "anchor": "metadata history owns no pixel buffers",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Public add/delete button parity is not established by these engine/reference cases; QF-16 remains separate."
+            "deferred": "Public add/delete button parity is not established by these engine/reference cases; QF-16 remains separate.",
+            "historicalReferences": [
+                {
+                    "path": "tests/core_tests.cpp",
+                    "anchor": "void CoreTests::layerHistory()",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "undo",
@@ -856,17 +935,20 @@
             "policies": ["state-exact"],
             "references": [
                 {
-                    "path": "tests/core_tests.cpp",
-                    "anchor": "void CoreTests::preparedEditPreservesRedo()",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/core.test.ts",
                     "anchor": "save revision remains unique across branch",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Preparation ownership is not every OS write-failure mode."
+            "deferred": "Preparation ownership is not every OS write-failure mode.",
+            "historicalReferences": [
+                {
+                    "path": "tests/core_tests.cpp",
+                    "anchor": "void CoreTests::preparedEditPreservesRedo()",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "pending-selection",
@@ -875,17 +957,20 @@
             "policies": ["stored-rgba", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "void UiTests::pasteMoveResizeUndo()",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/pending-contract.mjs",
                     "anchor": "selection",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "All transform orders and physical input are feature/platform acceptance."
+            "deferred": "All transform orders and physical input are feature/platform acceptance.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::pasteMoveResizeUndo()",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "pending-text",
@@ -894,17 +979,20 @@
             "policies": ["text-local", "state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "void UiTests::preeditCannotBeSilentlyDiscarded()",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/pending-contract.mjs",
                     "anchor": "text",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Actual OS IME/glyph/font acceptance is separate."
+            "deferred": "Actual OS IME/glyph/font acceptance is separate.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::preeditCannotBeSilentlyDiscarded()",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "storage-failure",
@@ -913,17 +1001,20 @@
             "policies": ["state-exact"],
             "references": [
                 {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "void UiTests::cancelStagedSavePreservesFile()",
-                    "role": "legacy-input-and-assertion"
-                },
-                {
                     "path": "web-app/tests/native-persistence.mjs",
                     "anchor": "save",
                     "role": "studio-consumer"
                 }
             ],
-            "deferred": "Mock IPC is not actual OS picker/ENOSPC/Windows I/O."
+            "deferred": "Mock IPC is not actual OS picker/ENOSPC/Windows I/O.",
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::cancelStagedSavePreservesFile()",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
+                }
+            ]
         },
         {
             "id": "clipboard-recovery",
@@ -931,11 +1022,6 @@
             "expected": "Text cut does not clear layer pixels; image payload follows F07; stale work preserves current document/new recovery.",
             "policies": ["stored-rgba", "state-exact"],
             "references": [
-                {
-                    "path": "tests/ui_tests.cpp",
-                    "anchor": "void UiTests::textClipboardDoesNotCutLayer()",
-                    "role": "legacy-input-and-assertion"
-                },
                 {
                     "path": "web-app/tests/native-persistence.mjs",
                     "anchor": "old generation",
@@ -945,15 +1031,33 @@
                     "path": "web-app/tests/clipboard-contract.mjs",
                     "anchor": "cut",
                     "role": "studio-consumer"
+                }
+            ],
+            "deferred": "OS clipboard permissions and full recovery migration/platform gates remain.",
+            "relatedFixes": ["F07", "F10"],
+            "historicalReferences": [
+                {
+                    "path": "tests/ui_tests.cpp",
+                    "anchor": "void UiTests::textClipboardDoesNotCutLayer()",
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
                 },
                 {
                     "path": "tests/ui_tests.cpp",
                     "anchor": "void UiTests::recoveryDiscardsStaleSnapshot()",
-                    "role": "legacy-input-and-assertion"
+                    "role": "legacy-input-and-assertion",
+                    "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
                 }
-            ],
-            "deferred": "OS clipboard permissions and full recovery migration/platform gates remain.",
-            "relatedFixes": ["F07", "F10"]
+            ]
+        }
+    ],
+    "historicalData": [
+        {
+            "path": "web-app/tests/fixtures/qt-project-oracle.cpp",
+            "sha256": "80f6e3d972bd0bdc8ff8ce574d786e8f1dd3a3c5939390a6ac84eea5631b985e",
+            "kind": "legacy-qt-producer",
+            "scope": "UI-independent producer. PNG wire builder uses Node zlib/bitwise CRC plus literal expected values; Qt producer links paintcore/QtCore/Gui.",
+            "commit": "c10a29a397aa77bb946c84406fd661db747164c0"
         }
     ]
 }

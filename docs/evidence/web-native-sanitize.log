@@ -1,9 +1,0 @@
-Test project /Users/jhpark/code/myService/myPaint/build-native-web-sanitize
-    Start 2: core
-1/2 Test #2: core .............................   Passed    0.24 sec
-    Start 5: ui
-2/2 Test #5: ui ...............................   Passed    1.80 sec
-
-100% tests passed out of 2
-
-Total Test time (real) =   2.04 sec

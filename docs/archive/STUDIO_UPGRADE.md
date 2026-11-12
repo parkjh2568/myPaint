@@ -49,7 +49,7 @@ macOS ARM64의 offscreen Qt UI, ASan/UBSan, 로컬 Chrome의 실제 Wasm 앱을 
 
 ## 홈페이지 반영
 
-최종 `mypaint/`는 21,385,630바이트(20.40 MiB)다. 최초 109,532,751바이트(104.46 MiB)보다 80.48% 감소했다. 활성 release `29dda4272737fff6f21839c8` 한 개, Wasm 한 개이며 앱 소스·라이선스·빌드 안내를 유지한다. Qt의 수정 없는 대응 소스는 정확한 공식 commit 다운로드 링크로 제공한다. [정리 원인과 정책](WEB_SIZE_CLEANUP.md)을 참고한다.
+최종 `mypaint/`는 21,385,630바이트(20.40 MiB)다. 최초 109,532,751바이트(104.46 MiB)보다 80.48% 감소했다. 활성 release `29dda4272737fff6f21839c8` 한 개, Wasm 한 개이며 앱 소스·라이선스·빌드 안내를 유지한다. Qt의 수정 없는 대응 소스는 정확한 공식 commit 다운로드 링크로 제공한다. [정리 원인과 정책](https://github.com/parkjh2568/myPaint/blob/c10a29a397aa77bb946c84406fd661db747164c0/docs/archive/WEB_SIZE_CLEANUP.md)을 참고한다.
 
 마지막 주석 정정에 따른 앱 소스 압축파일 갱신 후에도 실행 파일 네 개의 해시와 release 경로가 동일한지 확인했다. 최종 라이선스 페이지의 같은 사이트 링크 48개가 HTTP 200이며, 공식 Qt 소스 링크는 패키지 브라우저 검사에서 확인했다. [링크 확인 기록](../evidence/studio-package-links.json)을 남겼다.
 

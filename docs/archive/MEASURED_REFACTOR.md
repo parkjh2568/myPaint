@@ -31,7 +31,7 @@ npm ci
 node --import tsx tools/benchmark-composite.ts > /tmp/composite.json
 ```
 
-[이번 원시 표본과 환경](../evidence/composite-refactor-20261108.json): Node 워밍업 5회, 번갈아 실행한 21개 표본, 1024×1024의 두 레이어, 출력 할당 포함. 원본 알고리즘과 결과 바이트를 측정 전에 비교한다. 공유 호스트 한 회차이며 통계적 유의성·실제 UI·시작 속도·RSS 감소를 입증하지 않는다.
+[이번 원시 표본과 환경](https://github.com/parkjh2568/myPaint/blob/c10a29a397aa77bb946c84406fd661db747164c0/docs/evidence/composite-refactor-20261108.json): Node 워밍업 5회, 번갈아 실행한 21개 표본, 1024×1024의 두 레이어, 출력 할당 포함. 원본 알고리즘과 결과 바이트를 측정 전에 비교한다. 공유 호스트 한 회차이며 통계적 유의성·실제 UI·시작 속도·RSS 감소를 입증하지 않는다.
 
 | 작업 | 원본 중앙값 ms | 변경 중앙값 ms |
 | --- | ---: | ---: |

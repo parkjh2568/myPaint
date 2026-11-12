@@ -31,15 +31,7 @@ class StageWebTests(unittest.TestCase):
         self.writeBundle()
 
     def writeBundle(self, version="one"):
-        files = {"index.html": b"<html><head><title>Paint</title></head><body></body></html>",
-                 "licenses.html": b"<html><head><title>License</title></head><body></body></html>",
-                 "retropaint.js": version.encode(), "retropaint.wasm": b"\0asm\x01\0\0\0",
-                 "qtloader.js": b"loader"}
-        for name, data in files.items():
-            (self.source / name).write_bytes(data)
-        manifest = {"schema": 1, "owner": "myPaint-web-bundle", "source": {"commit": "fixture"},
-                    "files": {name: hashlib.sha256(data).hexdigest() for name, data in files.items()}}
-        (self.source / "bundle.json").write_text(json.dumps(manifest))
+        self.writeStudioBundle(version)
 
     def test_preserves_homepage_index_and_retains_old_release(self):
         first = stage.stageBundle(self.source, self.site)
@@ -47,7 +39,7 @@ class StageWebTests(unittest.TestCase):
         second = stage.stageBundle(self.source, self.site)
         self.assertNotEqual(first["release"], second["release"])
         target = self.site / "mypaint"
-        self.assertTrue((target / "releases" / first["release"] / "retropaint.js").exists())
+        self.assertTrue((target / "releases" / first["release"] / "assets/main-one.js").exists())
         self.assertIn(second["release"], (target / "index.html").read_text())
         self.assertEqual((self.site / "index.html").read_text(), "existing homepage")
         self.assertEqual((self.site / ".git/index").read_bytes(), self.index)
@@ -61,19 +53,19 @@ class StageWebTests(unittest.TestCase):
         path.write_text(json.dumps(manifest))
         second = stage.stageBundle(self.source, self.site)
         self.assertEqual(first["release"], second["release"])
-        self.assertEqual(len(list((self.site / "mypaint").rglob("*.wasm"))), 1)
+        self.assertEqual(len(list((self.site / "mypaint").rglob("main-*.js"))), 1)
 
-    def test_license_change_reuses_current_runtime_path(self):
+    def test_notice_change_creates_immutable_release(self):
         first = stage.stageBundle(self.source, self.site)
-        licenseFile = self.source / "licenses.html"
+        licenseFile = self.source / "THIRD_PARTY_NOTICES.txt"
         licenseFile.write_text("<html><head></head><body>Updated source offer</body></html>")
         path = self.source / "bundle.json"
         manifest = json.loads(path.read_text())
-        manifest["files"]["licenses.html"] = hashlib.sha256(licenseFile.read_bytes()).hexdigest()
+        manifest["files"]["THIRD_PARTY_NOTICES.txt"] = hashlib.sha256(licenseFile.read_bytes()).hexdigest()
         path.write_text(json.dumps(manifest))
         second = stage.stageBundle(self.source, self.site)
-        self.assertEqual(first["release"], second["release"])
-        self.assertIn("Updated source offer", (self.site / "mypaint/releases" / second["release"] / "licenses.html").read_text())
+        self.assertNotEqual(first["release"], second["release"])
+        self.assertIn("Updated source offer", (self.site / "mypaint/releases" / second["release"] / "THIRD_PARTY_NOTICES.txt").read_text())
 
     def test_prune_removes_only_validated_old_output(self):
         first = stage.stageBundle(self.source, self.site)
@@ -85,7 +77,7 @@ class StageWebTests(unittest.TestCase):
         self.assertTrue((target / "releases" / first["release"]).is_dir())
         stage.stageBundle(self.source, self.site, prune=True)
         self.assertFalse((target / "releases" / first["release"]).exists())
-        self.assertTrue((target / "releases" / second["release"] / "retropaint.wasm").is_file())
+        self.assertTrue((target / "releases" / second["release"] / "assets/main-two.js").is_file())
         self.assertEqual((self.site / ".git/index").read_bytes(), self.index)
         self.assertEqual((self.site / "index.html").read_text(), "existing homepage")
 
@@ -225,24 +217,6 @@ class StageWebTests(unittest.TestCase):
         self.assertEqual((self.site / "index.html").read_text(), "existing homepage")
         self.assertEqual((self.site / ".git/index").read_bytes(), self.index)
 
-    def test_mixed_qt_studio_releases_and_qt_rollback_keep_old_assets(self):
-        qt = stage.stageBundle(self.source, self.site)
-        self.writeStudioBundle()
-        first = stage.stageBundle(self.source, self.site)
-        self.writeStudioBundle("two")
-        second = stage.stageBundle(self.source, self.site)
-        shutil.rmtree(self.source)
-        self.source.mkdir()
-        self.writeBundle()
-        restored = stage.stageBundle(self.source, self.site)
-        self.assertEqual(restored["release"], qt["release"])
-        target = self.site / "mypaint/releases"
-        self.assertTrue((target / qt["release"] / "retropaint.wasm").is_file())
-        for result, version in [(first, "one"), (second, "two")]:
-            for name in ["main", "lazy", "worker"]:
-                self.assertTrue((target / result["release"] / f"assets/{name}-{version}.js").is_file())
-        self.assertEqual((self.site / ".git/index").read_bytes(), self.index)
-
     def test_studio_metadata_change_reuses_immutable_release(self):
         self.writeStudioBundle()
         first = stage.stageBundle(self.source, self.site)
@@ -254,27 +228,17 @@ class StageWebTests(unittest.TestCase):
         self.assertEqual(first["release"], second["release"])
         self.assertEqual(len(list((self.site / "mypaint/releases").iterdir())), 1)
 
-    def test_studio_retains_qt_shared_until_explicit_checked_prune(self):
-        shared = self.source / "shared/hash/license.txt"
-        shared.parent.mkdir(parents=True)
-        shared.write_bytes(b"Qt source and license offer")
+    def test_removed_target_is_rejected_without_modifying_output(self):
+        stage.stageBundle(self.source, self.site)
+        before = (self.site / "mypaint/manifest.json").read_bytes()
         path = self.source / "bundle.json"
         manifest = json.loads(path.read_text())
-        manifest["files"]["shared/hash/license.txt"] = hashlib.sha256(shared.read_bytes()).hexdigest()
-        path.write_text(json.dumps(manifest))
-        first = stage.stageBundle(self.source, self.site)
-        self.writeStudioBundle()
-        studio = stage.stageBundle(self.source, self.site)
-        target = self.site / "mypaint"
-        self.assertTrue((target / "shared/hash/license.txt").is_file())
-        plan = stage.stageBundle(self.source, self.site, check=True, prune=True)
-        self.assertGreater(plan["removedFiles"], 0)
-        self.assertGreater(plan["removedBytes"], 0)
-        self.assertTrue((target / "releases" / first["release"]).is_dir())
-        stage.stageBundle(self.source, self.site, prune=True)
-        self.assertFalse((target / "shared").exists())
-        self.assertFalse((target / "releases" / first["release"]).exists())
-        self.assertTrue((target / "releases" / studio["release"] / "assets/lazy-one.js").is_file())
+        for oldTarget in [None, "qt"]:
+            manifest["target"] = oldTarget
+            path.write_text(json.dumps(manifest))
+            with self.assertRaises(RuntimeError):
+                stage.stageBundle(self.source, self.site)
+            self.assertEqual((self.site / "mypaint/manifest.json").read_bytes(), before)
 
     def test_studio_rejects_external_absolute_and_missing_entry_resources(self):
         for url in ["/assets/main-one.js", "https://example.invalid/main.js", "//example.invalid/main.js", "./assets/missing.js", "./assets/%2e%2e/main-one.js"]:
@@ -318,21 +282,21 @@ class StageWebTests(unittest.TestCase):
             stage.stageBundle(self.source, self.site)
         self.assertFalse((self.site / "mypaint").exists())
 
-    def test_studio_copy_failure_preserves_previous_qt_output(self):
+    def test_studio_copy_failure_preserves_previous_output(self):
         stage.stageBundle(self.source, self.site)
         before = (self.site / "mypaint/manifest.json").read_bytes()
-        self.writeStudioBundle()
+        self.writeStudioBundle("two")
         with patch.object(shutil, "copyfile", side_effect=OSError("injected copy failure")):
             with self.assertRaises(OSError):
                 stage.stageBundle(self.source, self.site)
         self.assertEqual((self.site / "mypaint/manifest.json").read_bytes(), before)
         self.assertFalse((self.site / ".mypaint-build-lock").exists())
 
-    def test_studio_install_failure_restores_previous_qt_output(self):
+    def test_studio_install_failure_restores_previous_output(self):
         stage.stageBundle(self.source, self.site)
         target = self.site / "mypaint"
         before = (target / "manifest.json").read_bytes()
-        self.writeStudioBundle()
+        self.writeStudioBundle("two")
         replace = os.replace
         def failInstall(source, destination):
             if Path(source).name.startswith(".mypaint-stage-") and Path(destination) == target:
@@ -348,7 +312,7 @@ class StageWebTests(unittest.TestCase):
         stage.stageBundle(self.source, self.site)
         target = self.site / "mypaint"
         before = (target / "manifest.json").read_bytes()
-        self.writeStudioBundle()
+        self.writeStudioBundle("two")
         replace = os.replace
         def failInstallAndRollback(source, destination):
             if Path(destination) == target:
@@ -365,7 +329,7 @@ class StageWebTests(unittest.TestCase):
     def test_new_staged_changes_during_copy_are_preserved(self):
         stage.stageBundle(self.source, self.site)
         before = (self.site / "mypaint/manifest.json").read_bytes()
-        self.writeStudioBundle()
+        self.writeStudioBundle("two")
         copy = shutil.copyfile
         stagedIndex = []
         def stageDuringCopy(source, destination):

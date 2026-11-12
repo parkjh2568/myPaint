@@ -5,7 +5,7 @@
 ## 1. 도구 준비 (처음 한 번)
 
 - [Git](https://git-scm.com/downloads), [Node.js 24](https://nodejs.org/en/download)를 설치합니다. 설치 후 새 터미널을 열고 `git --version`, `node --version`, `npm --version`을 확인합니다.
-- Chrome 또는 Edge를 준비합니다. macOS에서는 Safari에서도 수동 동작을 확인하세요. Rust·Qt·Visual Studio는 웹 테스트에 필요하지 않습니다.
+- Chrome 또는 Edge를 준비합니다. macOS에서는 Safari에서도 수동 동작을 확인하세요. Rust·Visual Studio는 웹 테스트에 필요하지 않습니다.
 
 ## 2. 소스 받기
 

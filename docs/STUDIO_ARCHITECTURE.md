@@ -1,6 +1,8 @@
 # Studio 제품·도메인·로컬 계약
 
-2026-11-05 / Qt-free 전환의 현재 구조와 목표 계약. 실제 검증 상태와 남은 차이는 [구현 기록](STUDIO_IMPLEMENTATION.md), [독립 리뷰/RCA](archive/STUDIO_REVIEW_AND_RCA.md)를 기준으로 한다.
+> 현재 Studio 실행·빌드만 유지합니다. 아래 과거 Qt 비교/검증 기록은 역사적 근거이며 제거된 경로를 실행하라는 안내가 아닙니다. 최신 제거 범위와 미완료 항목은 [정리 결과](LEGACY_REMOVAL.md)를 보세요.
+
+2026-11-05 / Studio 전환의 현재 구조와 목표 계약. 실제 검증 상태와 남은 차이는 [구현 기록](STUDIO_IMPLEMENTATION.md), [독립 리뷰/RCA](archive/STUDIO_REVIEW_AND_RCA.md)를 기준으로 한다.
 
 [문서·알파·비동기 확정의 명시 계약과 최신 QF-04 감사](STUDIO_DOCUMENT_CONTRACTS.md)를 따른다. 아래 날짜별 실행 기록은 각각 당시 소스에 한정한다.
 

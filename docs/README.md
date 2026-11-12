@@ -9,13 +9,13 @@
 | 실제 파일 저장·복구 | [네이티브 저장 계약](STUDIO_NATIVE_PERSISTENCE.md) |
 | 프로젝트 형식 | [RPAINT01](FILE_FORMAT.md) |
 | 확인된 기능과 아직 남은 검증 | [인수표](STUDIO_ACCEPTANCE_MATRIX.md), [완료 감사](STUDIO_COMPLETION_AUDIT.md) |
-| Qt 제거 전 필요한 조건 | [전환 작업](QT_FREE_MIGRATION_TASKS.md) |
+| 이전 구현 제거 범위 | [정리 결과와 남은 검증](LEGACY_REMOVAL.md) |
 | 정적 번들·별도 홈페이지 반영 | [웹 빌드](WEB_BUILD.md) |
 | Windows 98 외관 변경 범위 | [Classic 98](STUDIO_CLASSIC98_SKIN.md) |
 
 ## 기록은 필요할 때만
 
-- [과거 기록 안내](archive/README.md): 개별 성능·디버깅·Qt 조사. 기록 당시 수치를 최신 빌드의 검증으로 해석하지 마세요.
+- [과거 기록 안내](archive/README.md): 개별 성능·디버깅 과거 조사. 기록 당시 수치를 최신 빌드의 검증으로 해석하지 마세요.
 - `evidence/`와 fixture는 재현 근거이므로 보존합니다. `build-web-work/`를 가리키는 일부 과거 링크는 당시 로컬 산출물이며 새 clone에는 없을 수 있습니다.
 - 2026-11-12 문서 정리: 초기 중복 계획 7개 제거, 상세 보고서 23개를 archive로 이동, 긴 구현 일지는 시작 안내로 축약했습니다. 삭제한 원문은 정리 전 커밋 `cc5f099`에서 복구할 수 있습니다. 제품 코드·테스트·라이선스는 이 정리에서 변경하지 않았습니다.
 
