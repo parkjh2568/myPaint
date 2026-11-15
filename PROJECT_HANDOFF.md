@@ -1,51 +1,23 @@
-# myPaint 세션 인수인계
+# myPaint 인수인계
 
-기준일 **2026-11-15**. 로컬 `codex/studio-recovery`는 Qt 제거가 반영된 `48e4058`을 기반으로 웹 복구 저장소 분리와 문서 탭의 복구·저장 수명 수정을 담고 있습니다. 실제 검증 범위와 남은 플랫폼 인수는 [현재 상태와 검증 대장](docs/CURRENT_STATUS.md)을 따릅니다.
+2026-11-15 기준. myPaint Studio는 로컬에서 편집하고 `.rpaint` 프로젝트나 이미지로 저장하는 그림판입니다. 현재 제품 경로는 TypeScript 픽셀 엔진·DOM UI와 Tauri/Rust 저장 경계가 있는 `web-app/`입니다. 초기 Qt/C++ 실행 및 빌드 경로를 제거한 뒤에도 고정 픽셀 fixture와 이전 복구 파일 보호는 유지합니다.
 
-## 1. 이 프로젝트는 무엇인가
+## 브랜치와 기준
 
-myPaint Studio 0.2.0은 계정 없이 로컬 그림을 편집하고 `.rpaint` 프로젝트 또는 이미지로 저장하는 그림판입니다. 브러시·선·도형·선택·문자·레이어·변형·Undo/Redo·복구를 제공하며, Studio Dark와 Classic 98 외관을 지원합니다. Windows/macOS 앱과 같은 편집기를 사용하는 웹 버전이 대상이고 모바일/태블릿은 웹 전용입니다. 현재 구조는 **TypeScript 픽셀 엔진 + DOM/CSS UI + Tauri/Rust 데스크톱 경계**입니다. GPUI 제품이 아닙니다.
+| 브랜치 | 역할과 기준 |
+| --- | --- |
+| `codex/studio-recovery` | Qt 제거 반영 지점 `48e4058`에서 복구 저장소와 탭 수명을 정리했습니다. 제품 코드 기준은 `04a2c5d`입니다. |
+| `codex/gpui-compare` | `04a2c5d` Tauri 기준에 별도 `gpui-app/`과 `bench/`를 추가했습니다. `620584c` 첫 비교, `ea24e72` 기능 이식, `f4e2095` Windows 화면·입력 비교로 이어졌습니다. [Windows 비교 보고서](https://github.com/parkjh2568/myPaint/blob/codex/gpui-compare/docs/GPUI_WINDOWS_COMPARISON.md) |
 
-Qt/C++ 앱은 초기 구현이었으나 현재 실행·빌드 경로에서 제거했습니다. 고정 JSON 픽셀 기준 데이터의 출처와 기존 사본/잠금 보호는 보존합니다. 이를 남은 Qt 런타임으로 오해해 삭제하지 마세요.
+## 확인된 범위
 
-## 2. 새 세션에서 읽을 순서
+- 웹 복구 사본은 Studio 전용 DB에 기록합니다. 탭을 전환하면 떠나는 탭의 편집을 확정하고 복구를 예약합니다. 열린 탭만 네이티브 저장 경로를 사용하며 닫힌 탭의 늦은 쓰기는 거절합니다.
+- Windows MSVC로 Tauri NSIS를 빌드했습니다. 실제 Windows 앱에서 탭을 전환한 편집을 재시작 뒤 복구하고, 탭을 닫은 뒤 저장 경로가 해제되는 것을 확인했습니다.
+- GPUI는 Tauri와 호환되는 `.rpaint`, 복구, 내보내기 미리보기와 설정 재시작을 확인했습니다. 공통 Windows GDI 화면 관측값은 [현재 검증 범위](docs/CURRENT_STATUS.md)에 있습니다.
 
-1. 이 문서: 목적·현재 상태·다음 작업.
-2. [작업 연혁](docs/PROJECT_HISTORY.md): 요청, 결정 이유, 실제 커밋, 전체 커밋 목록.
-3. [현재 상태와 검증 대장](docs/CURRENT_STATUS.md): 구현과 검증을 구별.
-4. [문서 계약](docs/STUDIO_DOCUMENT_CONTRACTS.md), [네이티브 저장](docs/STUDIO_NATIVE_PERSISTENCE.md), [형식](docs/FILE_FORMAT.md).
-5. [기술 문서 색인](docs/README.md), 필요한 경우만 `docs/archive/`와 `docs/evidence/`.
+## 이어서 검증할 항목
 
-과거 문서의 “최신”은 해당 문서 날짜의 스냅샷입니다. 현재 코드 → 현재 상태 대장 → 날짜별 기록 순서로 대조하고, 근거 없는 완료 상태로 합치지 마세요. 전체 대화 녹취를 복제한 문서는 아니며, 저장소·확인된 작업 기록을 프로젝트에 필요한 맥락으로 통합했습니다.
+- Tauri에서 수정된 비활성 탭의 닫기 취소가 현재 탭의 편집과 Redo를 바꾸는 경로가 재현됐습니다. 내보내기 대상과 열려 있는 프로젝트 경로의 충돌, 종료 취소 시 편집 보존도 확인이 필요합니다. [2026-11-15 코드베이스 감사](docs/archive/STUDIO_CODEBASE_REAUDIT.md)
+- GPUI 한글 글리프 표시는 확인했습니다. Windows IME 조합, 물리 펜 필압, 실제 두 손가락 제스처, macOS 설치본은 남아 있습니다. GDI 관측값은 하드웨어 펜 지연을 포함하지 않습니다.
 
-## 3. 현재 작업 위치와 안전 규칙
-
-- 저장소: https://github.com/parkjh2568/myPaint
-- 작업 브랜치는 `codex/studio-recovery`, 기반은 로컬 추적 ref `origin/style/win98-paint-skin`의 `48e4058`입니다. 기준 `main`은 `c4e8608`입니다.
-- 사용자가 브랜치 삭제는 직접 하기로 했습니다. 문서의 명령은 푸시·병합·배포·삭제 승인을 대신하지 않습니다.
-- 시작 시 `git status --short`, `git branch --show-current`, `git log -5 --oneline`을 확인하고 기존 변경을 보존합니다. 원격 변경이 있으면 비교한 뒤 작업합니다.
-- 기능 변경은 `web-app/`; 루트 및 `web-app/AGENTS.md`를 읽습니다. 런타임에 업로드·텔레메트리·원격 콘텐츠를 추가하지 않습니다.
-- 기존 문서 픽셀, 프로젝트 호환, 알파, 복구와 atomic save를 보존합니다. 취소·실패에서 Redo와 미확정 편집을 손상시키지 않습니다.
-
-## 4. 현재 사용할 수 있는 기능
-
-- 투명한 시작/새 그림. 기존 프로젝트 배경·픽셀은 그대로 유지.
-- 우측 패널 지우개 `투명하게 / 배경색으로`, 색상 선택·로컬 설정 보존. 레이어 수와 무관하게 활성 레이어에 적용.
-- 상단 `설정`, 메뉴의 테마 설정. 메뉴 범주: 파일/편집/이미지/레이어/설정/도움말.
-- 여러 그림 탭: 문서별 픽셀·이력·뷰·복구·저장 대상 분리. 새 그림/열기는 새 탭, 사진 삽입은 현재 탭.
-- 성공한 탭 전환에서 이전 탭의 미확정 편집을 확정하고 그 탭의 복구를 예약합니다. 닫기는 다음 활성화가 성공할 때 이전 저장 바인딩을 해제합니다. 구 웹 사본은 읽기 전용이며, 열어서 검증한 bytes를 Studio 복구 DB에 복제합니다.
-- 최대 12탭. 웹은 여러 파일 선택 가능, 앱은 열기를 반복. 탭 목록의 재시작 자동 복원은 아직 없음.
-
-## 5. 바로 이어 할 작업
-
-1. [코드베이스 재감사](docs/STUDIO_CODEBASE_REAUDIT.md)의 작업 순서에 따라 이미지 내보내기의 열린 프로젝트 보호와 탭 닫기·종료 취소의 편집 보존을 우선 확인합니다.
-2. Windows x64 NSIS 패키지는 로컬 `dist/windows-x64`에 있으며, 추출한 앱에서 `.rpaint` 복구 재시작과 닫힌 탭의 저장 경로 해제를 확인했습니다. 설치 마법사와 macOS 앱의 탭·저장·닫기·종료 인수는 [검증 대장](docs/CURRENT_STATUS.md#windows-x64-설치-패키지와-앱-실행-후속-검증)을 따릅니다.
-3. 브라우저 UI 회귀, PNG 알파, 설정 지속성, 펜·한글 IME·HiDPI, 좁은 화면을 검수합니다.
-4. 실제 UI 응답 시간과 장기 메모리를 측정합니다. 코어 벤치를 화면 프레임/사용자 체감 성능으로 대신하지 않습니다.
-5. 배포가 승인된 경우에만 Windows 서명과 Apple 서명·공증을 안전한 설정 경로로 준비합니다. 인증서 비밀값은 문서에 넣지 않습니다.
-
-실행은 루트 [Windows 앱](WINDOWS_APP_TEST.md) / [macOS 앱](MACOS_APP_TEST.md) / [Windows 웹](WINDOWS_WEB_TEST.md) / [macOS 웹](MACOS_WEB_TEST.md)을 따릅니다.
-
-## 6. 세션 종료 때 갱신할 것
-
-변경 커밋, 이유, 테스트 명령·실행 환경·통과/실패/미실행, 원격 게시 여부, 남은 위험을 `docs/CURRENT_STATUS.md`와 `docs/PROJECT_HISTORY.md`에 추가합니다. 코드 변경 없이 조사만 한 경우도 명시합니다. 이전 증거를 삭제하거나 최신 성공으로 덮어쓰지 않습니다.
+[설치·실행 안내](README.md) · [현재 상태](docs/CURRENT_STATUS.md) · [기술 문서](docs/README.md) · [작업 연혁](docs/PROJECT_HISTORY.md) · [과거 기록](docs/archive/README.md)

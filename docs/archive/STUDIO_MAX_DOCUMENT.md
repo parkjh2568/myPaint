@@ -154,7 +154,7 @@ Source와 scene은 합계 64개/추정 RGBA 128MiB, 각 surface 축 512px 제한
 
 재실행은 `npm --prefix web-app run test:bulk-edit`, `test:pointer-contract`, `test:tiles`, `test:native-profile`, `test:native-persistence`에 고정 정적 서버의 `PAINT_TEST_URL`을 전달한다. 최대 core 측정은 별도 `test:max-document`로 실행한다. 실제 native 검증은 호스트 빌드 후 `test:native-desktop`을 사용하며 파일 복구·코덱/렌더러·종료 보호를 각각 임시 root·비영구 WebView로 검사한다.
 
-1. **P0 데이터 인수**: [기능 인수 추적표](../STUDIO_ACCEPTANCE_MATRIX.md)의 F05 16개 조합, F01/F07 clipboard payload, F03 동일 레이어와 도구별 공백을 닫는다. 테스트 개수를 전체 기능 동등성으로 간주하지 않는다.
+1. **P0 데이터 인수**: [기능 인수 추적표](STUDIO_ACCEPTANCE_MATRIX.md)의 F05 16개 조합, F01/F07 clipboard payload, F03 동일 레이어와 도구별 공백을 닫는다. 테스트 개수를 전체 기능 동등성으로 간주하지 않는다.
 2. **P1 표시/응답성**: 최초 mip 생성의 비동기 준비, 16개 레이어 1:1 작업량, 실시간 선택 resize, 큰 pending 합성·구조 snapshot/동일성 검사와 남은 70ms 작업을 다룬다. Worker로 옮길 때 원본 snapshot 복사와 메모리를 함께 회계한다.
 3. **플랫폼/출시**: Android 실제 웹·Safari 웹·Windows 설치형, ENOSPC/OS 파일 선택기, 서명/공증/고지, 안전 manifest staging과 롤백을 검증한다. 로컬에는 ADB가 없어 Android 연결을 확인하지 못했으며 실기기 통과를 주장하지 않는다.
 
@@ -220,7 +220,7 @@ A/B, B/A, A/B 순서의 6회에서 화면·원본·기하·예산 검사는 모�
 
 ## 최대 mip 준비의 다음 구현 경계
 
-2026-11-05. [계획 원문](../../build-web-work/task-planning/pencil-tools/next-mip-plan/PLAN.md)의 bounded 준비를 UI4로 구현·승격했다. 현재 결과는 [통합 근거](../evidence/studio-bounded-mip.json)를 따른다. 위의 과거 271~286ms 렌더 관측은 그대로 보존하며 새 측정이나 순수 mip CPU 시간으로 바꾸지 않는다.
+2026-11-05. 계획 원문 (`build-web-work/task-planning/pencil-tools/next-mip-plan/PLAN.md`)의 bounded 준비를 UI4로 구현·승격했다. 현재 결과는 [통합 근거](../evidence/studio-bounded-mip.json)를 따른다. 위의 과거 271~286ms 렌더 관측은 그대로 보존하며 새 측정이나 순수 mip CPU 시간으로 바꾸지 않는다.
 
 - 동기 draw와 cooperative prepare가 같은 cursor·픽셀 알고리즘을 사용한다. 최대 65,536개 source-pixel 진행 단위와 soft 4ms 예산으로 계산을 나누고 MessageChannel로 이어서 실행한다. 타일마다 rAF를 기다리던 첫 후보는 완성 시간 퇴행 때문에 채택하지 않았다. soft 예산은 할당·transform·Canvas API·최종 합성까지 선점하는 hard deadline이 아니다.
 - 준비 중에는 이전 backing을 유지하며, Canvas save/clip과 scene target은 yield 밖에 둔다. 가시 raster 전체 준비 후 기존 순서로 한 완성 프레임을 공개한다. 직접 `render()`는 동기 drain이므로 이전 직접 API 계측과 새 UI 준비 시간을 혼합하지 않는다.

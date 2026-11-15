@@ -2,7 +2,7 @@
 
 2026-11-15 · `codex/studio-recovery` · 기준 커밋 `48e40587524d5b3defe2668828e517667448184e`와 기존 미커밋 복구·탭 변경을 함께 검토했다. 이번 작업은 보고서와 단계별 작업 계획을 작성했다. 픽셀·저장·UI 구현, 커밋, 배포는 기존 상태를 기준으로 한다.
 
-myPaint는 로컬에서 그림을 편집하고 프로젝트 또는 이미지로 저장하기 위해 시작한 그림판이다. 초기 C++/Qt 앱과 WebAssembly 편집 경로는 TypeScript Studio로 이어졌다. 현재 웹과 데스크톱이 DOM/CSS 편집기와 Canvas 2D 렌더러를 공유한다. Windows/macOS의 설치형 앱은 Rust/Tauri가 파일 선택기·파일시스템·창 수명을 맡는다. Classic 98은 CSS 외관이다. Qt의 CMake·앱 실행 경로는 제거됐고, 비교용 픽셀 fixture와 이전 사용자 복구 데이터의 읽기 경계는 남아 있다. GPUI는 기술 비교 단계에 머물렀으며 이번 Windows 패키지는 Tauri 계열이다. [작업 연혁](PROJECT_HISTORY.md) · [현재 검증](CURRENT_STATUS.md)
+myPaint는 로컬에서 그림을 편집하고 프로젝트 또는 이미지로 저장하기 위해 시작한 그림판이다. 초기 C++/Qt 앱과 WebAssembly 편집 경로는 TypeScript Studio로 이어졌다. 현재 웹과 데스크톱이 DOM/CSS 편집기와 Canvas 2D 렌더러를 공유한다. Windows/macOS의 설치형 앱은 Rust/Tauri가 파일 선택기·파일시스템·창 수명을 맡는다. Classic 98은 CSS 외관이다. Qt의 CMake·앱 실행 경로는 제거됐고, 비교용 픽셀 fixture와 이전 사용자 복구 데이터의 읽기 경계는 남아 있다. GPUI는 기술 비교 단계에 머물렀으며 이번 Windows 패키지는 Tauri 계열이다. [작업 연혁](../PROJECT_HISTORY.md) · [현재 검증](../CURRENT_STATUS.md)
 
 ## 모듈 경계와 의존성
 
