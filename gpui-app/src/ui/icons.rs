@@ -77,3 +77,27 @@ const PATHS: &[(&str, &str)] = &[
         "M12 3a9 9 0 1 0 0 18q3 0 2-3t4-3q4 0 3-5a9 9 0 0 0-9-7M7 8h1M12 6h1M17 9h1M6 13h1",
     ),
 ];
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use gpui::SvgRenderer;
+
+    use super::*;
+
+    #[test]
+    fn every_bundled_icon_has_a_nonempty_alpha_mask() {
+        let icons = Arc::new(Icons);
+        let renderer = SvgRenderer::new(icons.clone());
+        for (id, _) in PATHS {
+            let asset = icons.load(id).unwrap().expect("expected bundled asset");
+            let image = renderer.render_single_frame(&asset, 1.).unwrap();
+            let pixels = image.as_bytes(0).unwrap();
+            assert!(
+                pixels.chunks_exact(4).any(|pixel| pixel[3] != 0),
+                "icon {id} has no visible pixels"
+            );
+        }
+    }
+}

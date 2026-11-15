@@ -57,11 +57,17 @@ pub(super) fn icon_button(
     let mut button = super::button(id, label, p, selected).child(
         svg()
             .path(icon)
+            .text_color(rgb(if selected { p.on } else { p.text }))
             .size(px(if compact { 16. } else { 21. }))
             .flex_none(),
     );
     if compact {
-        button = button.min_h(px(26.)).min_w(px(26.)).px(px(3.));
+        let target = if p.target > px(36.) {
+            p.target
+        } else {
+            px(26.)
+        };
+        button = button.min_h(target).min_w(target).px(px(3.));
     }
     if show_label {
         button = button.child(label);
@@ -473,7 +479,7 @@ impl Studio {
     ) -> impl IntoElement + use<> {
         div()
             .id("tools")
-            .w(p.target + px(18.))
+            .w(px(if p.target > px(36.) { 78. } else { 54. }))
             .flex_none()
             .bg(rgb(p.card))
             .px(px(7.))
@@ -774,6 +780,7 @@ impl Studio {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> impl IntoElement + use<> {
+        let touch = p.target > px(36.);
         let state = self.editor.document().state();
         self.thumbnails.update(state, window);
         let layer_list = div()
@@ -807,8 +814,8 @@ impl Studio {
                             p,
                             false,
                         )
-                        .min_h(px(24.))
-                        .min_w(px(24.))
+                        .min_h(if touch { p.target } else { px(24.) })
+                        .min_w(if touch { p.target } else { px(24.) })
                         .px_0()
                         .child(if layer.visible { "✓" } else { "" })
                         .on_click(cx.listener(move |studio, _, _, cx| {
@@ -830,7 +837,7 @@ impl Studio {
                             .flex_none(),
                     )
                     .child(
-                        command_button(("layer", i), layer.name.clone(), p, false)
+                        command_button(("layer", i), layer.name.clone(), p, active)
                             .min_w_0()
                             .flex_1()
                             .justify_start()
@@ -842,7 +849,31 @@ impl Studio {
                             })),
                     )
             }));
-        let touch = p.target > px(36.);
+        let layer_commands = [
+            ("layer-add", "+"),
+            ("layer-delete", "−"),
+            ("layer-up", "↑"),
+            ("layer-down", "↓"),
+            ("layer-merge", "⇣"),
+            ("layer-rename", "✎"),
+        ];
+        let actions = div().flex().flex_col().gap(px(4.)).p(px(7.)).children(
+            layer_commands.chunks(if touch { 3 } else { 6 }).map(|row| {
+                div()
+                    .flex()
+                    .gap(px(if touch { 4. } else { 2. }))
+                    .children(row.iter().map(|&(key, symbol)| {
+                        command_button(key, symbol, p, false)
+                            .flex_1()
+                            .min_w_0()
+                            .px_0()
+                            .on_click(cx.listener(move |studio, _, window, cx| {
+                                let result = studio.command(key, window, cx);
+                                studio.report(result, cx);
+                            }))
+                    }))
+            }),
+        );
         let layers = div()
             .flex_none()
             .h(px(if touch { 250. } else { 210. }))
@@ -852,44 +883,34 @@ impl Studio {
             .border_color(rgb(p.border))
             .child(heading("레이어 · 위 → 아래", p))
             .child(layer_list)
-            .child(
-                div().flex().flex_wrap().gap(px(2.)).p(px(7.)).children(
-                    [
-                        ("layer-add", "+"),
-                        ("layer-delete", "−"),
-                        ("layer-up", "↑"),
-                        ("layer-down", "↓"),
-                        ("layer-merge", "⇣"),
-                        ("layer-rename", "✎"),
-                    ]
-                    .map(|(key, symbol)| {
-                        command_button(key, symbol, p, false)
-                            .flex_1()
-                            .min_w(px(if touch { 56. } else { 28. }))
-                            .px_0()
-                            .on_click(cx.listener(move |studio, _, window, cx| {
-                                let result = studio.command(key, window, cx);
-                                studio.report(result, cx);
-                            }))
-                    }),
-                ),
-            );
+            .child(actions);
         let settings = &self.editor.settings;
         let selected = self.preferences.eraser_mode;
         let background = self.preferences.eraser_background;
         let eraser = div()
+            .relative()
             .flex()
             .flex_col()
             .gap(px(6.))
             .border_1()
             .border_color(rgb(p.border))
             .p(px(8.))
+            .mt(px(6.))
             .mb(px(12.))
-            .child(div().text_size(px(12.)).child("지우개 설정"))
+            .child(
+                div()
+                    .absolute()
+                    .left(px(8.))
+                    .top(px(-9.))
+                    .px(px(3.))
+                    .bg(rgb(p.card))
+                    .child("지우개 설정"),
+            )
             .child("지우는 방식")
             .child(
                 button("eraser-mode", "지우는 방식", p, false)
                     .justify_between()
+                    .text_size(px(if touch { 16. } else { 13. }))
                     .bg(rgb(p.field))
                     .border_color(rgb(p.border))
                     .child(eraser_label(selected))
@@ -913,7 +934,7 @@ impl Studio {
             .child(
                 div()
                     .flex()
-                    .justify_between()
+                    .gap_2()
                     .items_center()
                     .child("지우개 배경색")
                     .child(
@@ -924,7 +945,7 @@ impl Studio {
                             p,
                         )
                         .when(selected == EraserMode::Transparent, |chip| {
-                            chip.opacity(0.45)
+                            chip.cursor_default()
                         })
                         .when(selected == EraserMode::Background, |chip| {
                             chip.on_click(cx.listener(|studio, _, w, cx| {
