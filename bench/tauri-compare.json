@@ -1,0 +1,6 @@
+{
+    "productName": "myPaint Studio Tauri Compare",
+    "identifier": "io.github.parkjh2568.mypaint.tauri.compare",
+    "app": {"windows": [{"label": "main", "title": "myPaint Studio Tauri Compare", "width": 1280, "height": 840, "minWidth": 360, "minHeight": 360}]},
+    "bundle": {"useLocalToolsDir": true, "windows": {"nsis": {"installMode": "currentUser"}}}
+}

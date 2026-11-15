@@ -1,0 +1,38 @@
+[package]
+name = "mypaint-gpui"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.98"
+license = "MIT"
+publish = false
+
+[dependencies]
+gpui = { package = "gpui-pre", version = "=0.3.12", default-features = false }
+gpui_platform = { package = "gpui-pre-platform", version = "=0.3.12", features = ["font-kit", "wayland", "x11"] }
+image = { version = "0.25", default-features = false, features = ["bmp", "gif", "jpeg", "png"] }
+smallvec = "1"
+tiny-skia = "0.11"
+cosmic-text = "0.15"
+flate2 = "1"
+crc32fast = "1"
+rfd = "0.17.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+fs2 = "0.4"
+sha2 = "=0.10.9"
+tokio = { version = "1", features = ["fs", "io-util", "sync", "rt"] }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+raw-window-handle = "0.6"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Storage_FileSystem", "Win32_UI_WindowsAndMessaging", "Win32_UI_Input_Pointer", "Win32_UI_Shell", "Win32_System_LibraryLoader"] }
+
+[dev-dependencies]
+base64 = "0.23.1"
+tempfile = "3.27.0"
+
+[profile.release]
+lto = "thin"
+codegen-units = 4
