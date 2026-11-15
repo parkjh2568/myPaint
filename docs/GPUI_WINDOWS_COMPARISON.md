@@ -2,6 +2,45 @@
 
 2026-11-15 · `codex/gpui-compare` · Tauri 기준 커밋 `04a2c5d71416aa4442623519969e7c391b13e479`
 
+## 후속 이식과 Windows 검증
+
+후속 구현은 GPUI 비교판 `620584c`에서 시작했다. Tauri의 Windows 편집 화면을 기준으로 GPUI의 상단 바, 문서 탭, 아이콘 도구 모음, 캔버스, 색상환과 지우개·브러시·레이어 패널, 상태 표시줄을 재구성했다. 기본 Studio Dark와 Classic 98의 색상, 버튼 밀도와 메뉴 범주를 이식했다. 실제 Tauri 설치본의 첫 화면을 확인했고 GPUI의 동일 항목을 소스와 대조했다. GPUI 설치본의 창은 생성됐으며, Windows 컴퓨터 사용 도구는 접근 검토에서 `Computer Use was not approved to use myPaint GPUI Compare`를 반환했다. 두 설치본의 실제 화면을 나란히 검수하는 절차와 마우스로 복구 메뉴를 여는 절차는 사용자 조작이 필요하다. [Tauri 화면 원본](../web-app/src/style.css) · [GPUI 화면 구성](../gpui-app/src/ui/chrome.rs)
+
+| 후속 범위 | 동작 |
+| --- | --- |
+| 내보내기 | 확정 전 편집이 반영된 PNG·JPG·BMP 미리보기, JPG·BMP 바탕색과 저장 이름 선택. 미리보기를 취소하거나 내보내도 편집 이력과 Redo를 보존한다. |
+| 환경 설정 | 스킨, 조작부 크기, 지우개 방식과 마지막 지우개 배경색을 프로필에 원자적으로 저장한다. 투명 모드로 전환해도 마지막 배경색을 기억한다. |
+| 멀티터치 | 캔버스의 Windows 포인터 접점에서 한 손가락 그리기 또는 이동과 두 손가락 이동·확대를 처리한다. 두 번째 접점이 닿으면 그리던 획을 취소하고 취소 전 이력과 Redo를 보존한다. |
+
+### 최종 Windows x64 설치본 검사
+
+NSIS 설치본 `myPaint-Studio-GPUI-Compare-x64-setup.exe`를 사용자 범위에 설치했다. 패키지 크기는 4,573,939 bytes, SHA-256은 `d6e3027d404fcaed8af99e86b44d80fc877e85c520c2addd1c8227d620a8cb3c`다. 설치된 실행 파일은 16,758,272 bytes이며 릴리스 산출물과 SHA-256 `01b7e1242a9410d74d123e569c00f5612e46915bd2f6dac63ac2795baa990d93`이 일치했다. 같은 테스트 프로필에 설치본 프로세스를 두 번 실행해 두 검증 JSON과 종료 코드 0을 얻었다.
+
+| 항목 | 확인 범위와 결과 |
+| --- | --- |
+| 환경 설정 재시작 | 첫 프로세스에서 실제 설정, 적용 명령을 호출했다. 두 번째 프로세스의 스킨은 Classic 98, 조작부 크기는 마우스, 지우개는 배경색 방식, 배경색은 `#255095`였다. 브러시 설정에도 같은 배경색이 적용됐다. |
+| 탭 전환과 복구 메뉴 | 미확정 픽셀을 가진 탭에서 전환해 복구 사본 하나를 저장했다. 재시작 뒤 복구 메뉴가 사용하는 명령과 사본 선택 처리를 호출해 4×3 문서, 레이어와 투명도를 포함한 RGBA 값이 일치했다. 캔버스가 48바이트 타일을 준비했다. |
+| 한글 조합 | 설치 프로세스의 실제 문자 입력 필드에서 `TextField` 핸들러를 직접 호출했다. `ㅎ → 한 → 한글`의 조합 범위 유지와 확정 후 조합 범위 해제 및 문자열 일치를 확인했다. Windows는 한국어 Microsoft IME를 열거했으며 키보드에서 IME로 들어오는 실입력 검증은 남아 있다. |
+| 펜·터치 | Windows는 ILITEK 터치스크린 1개, 동시 접점 10개, 펜 장치 0개를 열거했다. 멀티터치 상태 전이와 Redo 보존은 Windows Rust 검사에서 확인했다. 두 손가락으로 화면을 직접 조작하는 검수와 실물 펜 필압은 미검증이다. |
+| 회귀 검사 | GPUI Windows Rust 테스트 67개와 Tauri 기준 Node 테스트 359개를 통과했다. Vite 빌드 및 체크아웃 줄바꿈을 자동 판정한 Prettier 검사도 통과했다. |
+
+설치본과 로컬 원시 증거는 `dist/windows-compare/followup/`의 `evidence/gpui-final-install.json`, `gpui-installed-smoke-*.json`에 있다. 재현 시 새 테스트 폴더와 매번 새 결과 파일을 사용한다. 아래를 순서대로 실행하며 두 번째 명령은 첫 실행의 종료를 기다린다. [설치본 검증 모드](../gpui-app/src/ui/smoke.rs) · [Windows 장치 열거 API](https://learn.microsoft.com/windows/win32/api/winuser/nf-winuser-getpointerdevices)
+
+```powershell
+Start-Process $installedGpui -ArgumentList "--persistence-root `"$profile`" --windows-smoke save --windows-smoke-report `"$saveReport`"" -Wait
+Start-Process $installedGpui -ArgumentList "--persistence-root `"$profile`" --windows-smoke reload --windows-smoke-report `"$reloadReport`"" -Wait
+```
+
+### 같은 Windows 입력과 화면 표시 지연
+
+두 앱에 공통으로 쓸 Windows 계측기를 작성했다. 대상 창이 전경에 있을 때 `WH_MOUSE_LL`의 마우스 누름 QPC를 시작으로 기록한다. 화면에 표시된 클릭 주변에 같은 브러시 색이 나타나면 DXGI Desktop Duplication의 `LastPresentTime` QPC를 종료 시각으로 기록한다. 대상의 창과 클릭 주변 영역을 검증하며 클릭을 생성하거나 화면을 저장하지 않는다. 두 앱에는 같은 줌·브러시·색상·마우스 입력과 동일 디스플레이를 사용하고, 준비 클릭과 본 표본을 구분한다. 패널 주사나 펜 장치의 물리적 지연은 이 지표의 범위 밖이다. [실행 절차](../bench/windows-input-display.md) · [Windows 마우스 훅](https://learn.microsoft.com/windows/win32/winmsg/lowlevelmouseproc) · [DXGI 표시 타임스탬프](https://learn.microsoft.com/windows/win32/api/dxgi1_2/ns-dxgi1_2-dxgi_outdupl_frame_info)
+
+Windows 사용자 세션에서 두 설치본을 각각 시작해 동일한 DXGI 모드와 마우스 훅까지 연결했다. 두 창의 실제 클라이언트는 1920×1260, DPI는 144, 대상 모니터는 2560×1440이었다. 두 파일 모두 클릭 감지 없이 15초가 지나 유효 표본은 Tauri 0개, GPUI 0개다. 데스크톱 조작 도구는 Tauri 창 활성화에 실패했고 GPUI 조작은 승인하지 않았다. 아래 최초 비교의 내부 rAF·paint 수치는 각 빌드의 역사적 값이다. 후속 빌드의 입력 표시 지연 비교는 미측정이다. 로컬 원시 기록은 `evidence/desktop-benchmark-pilot*.json`과 `evidence/dxgi-pilot-*.csv`에 있다.
+
+## 최초 Windows 비교 기록
+
+아래 측정과 패키지 크기는 비교판 `620584c`의 빌드에 해당한다.
+
 ## 비교 환경과 구현 범위
 
 원래 `codex/studio-recovery`의 `48e4058`과 당시 미커밋 변경을 별도 worktree에 보존했다. 변경 파일 33개의 raw SHA-256을 복제 전후 비교했다. 비교 브랜치의 `web-app/`은 Tauri 설치형과 기존 웹 제품을 생산한다. `gpui-app/`은 Rust/GPUI만으로 그림을 편집하는 독립 실행 파일을 생산한다. `bench/`는 같은 그림과 획 입력, 파일 왕복, Windows 측정 스크립트를 제공한다.

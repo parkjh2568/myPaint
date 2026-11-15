@@ -56,6 +56,10 @@ Windows GNU의 리소스 전처리 실패 이후 Visual Studio x64 MSVC와 Windo
 
 같은 작업 트리에서 제품 모듈, 저장 권한, 렌더링, 테스트 및 배포를 다시 검토했다. 현재 동작과 기존 파일·복구 계약을 보존하는 단계별 계획과 새 검증 범위를 문서화했다. 이번 감사의 변경은 문서에 한정한다. [재감사](STUDIO_CODEBASE_REAUDIT.md)
 
+### 11. Windows GPUI 비교와 화면 후속 이식 (11/15 로컬 브랜치)
+
+`codex/gpui-compare`에서 Tauri 기준 `04a2c5d`와 GPUI 초기 비교판 `620584c`를 보존했다. 후속 작업은 Tauri 화면을 기준으로 GPUI 도구·색상·레이어 배치를 맞추고, 내보내기 미리보기와 환경 설정 저장, Windows 멀티터치를 구현했다. 또한 두 앱에서 같은 입력과 표시 시각을 수집할 DXGI 계측기를 추가했다. Windows 설치본 검증과 남은 계측 범위는 별도 비교 보고서에 기록했다. [Windows 비교](GPUI_WINDOWS_COMPARISON.md)
+
 ## 전체 커밋 목록 (2026-11-12 기준까지 도달 가능한 계보)
 
 | 커밋 | Git 날짜 | 원래 커밋 제목 |

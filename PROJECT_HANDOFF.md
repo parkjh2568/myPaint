@@ -2,6 +2,8 @@
 
 기준일 **2026-11-15**. 로컬 `codex/studio-recovery`는 Qt 제거가 반영된 `48e4058`을 기반으로 웹 복구 저장소 분리와 문서 탭의 복구·저장 수명 수정을 담고 있습니다. 실제 검증 범위와 남은 플랫폼 인수는 [현재 상태와 검증 대장](docs/CURRENT_STATUS.md)을 따릅니다.
 
+별도 `codex/gpui-compare` worktree는 `04a2c5d`로 Tauri 기준본을 보존하고 `620584c`에서 GPUI Windows 비교를 시작했습니다. 후속 화면 이식, 내보내기 미리보기, 환경 설정, 멀티터치와 실제 측정 범위는 [Windows 비교 보고서](docs/GPUI_WINDOWS_COMPARISON.md)에 기록합니다.
+
 ## 1. 이 프로젝트는 무엇인가
 
 myPaint Studio 0.2.0은 계정 없이 로컬 그림을 편집하고 `.rpaint` 프로젝트 또는 이미지로 저장하는 그림판입니다. 브러시·선·도형·선택·문자·레이어·변형·Undo/Redo·복구를 제공하며, Studio Dark와 Classic 98 외관을 지원합니다. Windows/macOS 앱과 같은 편집기를 사용하는 웹 버전이 대상이고 모바일/태블릿은 웹 전용입니다. 현재 구조는 **TypeScript 픽셀 엔진 + DOM/CSS UI + Tauri/Rust 데스크톱 경계**입니다. GPUI 제품이 아닙니다.

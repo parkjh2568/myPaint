@@ -127,7 +127,8 @@ impl NativeIo {
         let target = if let Some(target) = self.store.existing_save(generation, true, save_as)? {
             target
         } else {
-            let Some(path) = save_dialog("프로젝트 저장", "myPaint 프로젝트", &["rpaint"], name)
+            let name = project_file_name(name);
+            let Some(path) = save_dialog("프로젝트 저장", "myPaint 프로젝트", &["rpaint"], &name)
             else {
                 return Ok(None);
             };
@@ -161,10 +162,18 @@ impl NativeIo {
         generation: u64,
         format: ExportFormat,
         matte: Color,
-        name: &str,
+        stem: &str,
     ) -> Result<Option<String>, String> {
         let label = format.extension().to_ascii_uppercase();
-        save_dialog("이미지 내보내기", &label, format.extensions(), name)
+        let stem: String = stem
+            .trim()
+            .replace(['/', '\\', '\0'], "_")
+            .chars()
+            .take(256)
+            .collect();
+        let stem = if stem.is_empty() { "그림" } else { &stem };
+        let name = format!("{stem}.{}", format.extension());
+        save_dialog("이미지 내보내기", &label, format.extensions(), &name)
             .map(|path| self.export_image_path(state, generation, format, matte, &path))
             .transpose()
     }
@@ -258,7 +267,7 @@ impl NativeIo {
     }
 }
 
-fn save_dialog(title: &str, label: &str, extensions: &[&str], name: &str) -> Option<PathBuf> {
+fn project_file_name(name: &str) -> String {
     let name: String = name
         .chars()
         .filter(|c| !matches!(*c, '/' | '\\' | '\0'))
@@ -269,9 +278,13 @@ fn save_dialog(title: &str, label: &str, extensions: &[&str], name: &str) -> Opt
         .and_then(|value| value.to_str())
         .filter(|value| !value.is_empty())
         .unwrap_or("그림");
+    format!("{stem}.rpaint")
+}
+
+fn save_dialog(title: &str, label: &str, extensions: &[&str], name: &str) -> Option<PathBuf> {
     rfd::FileDialog::new()
         .set_title(title)
-        .set_file_name(format!("{stem}.{}", extensions[0]))
+        .set_file_name(name)
         .add_filter(label, extensions)
         .save_file()
 }

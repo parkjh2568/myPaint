@@ -13,7 +13,7 @@ const TAB_COUNT_LIMIT: usize = 12;
 const TAB_HISTORY_LIMIT: usize = 512 * 1024 * 1024;
 const MAX_ZOOM: f64 = 64.0;
 const MIN_ZOOM: f64 = 32.0 / 32768.0;
-const MAX_PATH_POINTS: usize = 65_536;
+pub(crate) const MAX_PATH_POINTS: usize = 65_536;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Tool {
@@ -490,6 +490,33 @@ impl Editor {
         Ok(changed)
     }
 
+    pub fn touch_down_is_provisional(&self, sample: Sample) -> bool {
+        match self.settings.tool {
+            Tool::Fill | Tool::Picker | Tool::Text => false,
+            Tool::Pan => true,
+            _ => {
+                !self.has_pending()
+                    || self.selection_at(self.document_sample(sample)).is_some()
+                    || self.editing_shape_controls()
+            }
+        }
+    }
+
+    fn selection_at(&self, point: Sample) -> Option<&Selection> {
+        self.selection.as_ref().filter(|selection| {
+            matches!(self.settings.tool, Tool::Select | Tool::Lasso)
+                && selection.region.contains(point)
+        })
+    }
+
+    fn editing_shape_controls(&self) -> bool {
+        matches!(self.settings.tool, Tool::Curve | Tool::Polygon)
+            && self
+                .shape
+                .as_ref()
+                .is_some_and(|draft| draft.tool == self.settings.tool)
+    }
+
     pub fn pointer_down(
         &mut self,
         sample: Sample,
@@ -510,10 +537,7 @@ impl Editor {
         }
 
         let point = self.document_sample(sample);
-        if matches!(tool, Tool::Select | Tool::Lasso)
-            && let Some(selection) = &self.selection
-            && selection.region.contains(point)
-        {
+        if let Some(selection) = self.selection_at(point) {
             let region = selection.region;
             let handle = 12.0 / self.viewport().zoom;
             self.drag = Some(
@@ -537,25 +561,19 @@ impl Editor {
         }
 
         let secondary = button == PointerButton::Secondary;
-        if self.shape.as_ref().is_some_and(|draft| draft.tool == tool) {
-            match tool {
-                Tool::Curve => {
-                    self.drag = Some(Drag::CurveControl {
-                        at: point,
-                        secondary,
-                    })
+        if self.editing_shape_controls() {
+            self.drag = Some(if tool == Tool::Curve {
+                Drag::CurveControl {
+                    at: point,
+                    secondary,
                 }
-                Tool::Polygon => {
-                    self.drag = Some(Drag::PolygonPoint {
-                        at: point,
-                        secondary,
-                    })
+            } else {
+                Drag::PolygonPoint {
+                    at: point,
+                    secondary,
                 }
-                _ => {}
-            }
-            if self.drag.is_some() {
-                return Ok(PointerAction::None);
-            }
+            });
+            return Ok(PointerAction::None);
         }
 
         self.commit_pending()?;
@@ -1157,6 +1175,11 @@ impl Editor {
             _ => {}
         }
         Ok(state)
+    }
+
+    pub fn export_candidate(&self) -> EngineResult<State> {
+        self.ensure_no_gesture()?;
+        self.pending_state(true, true)
     }
 
     pub fn commit_pending(&mut self) -> EngineResult<bool> {

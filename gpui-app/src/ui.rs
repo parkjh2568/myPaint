@@ -7,18 +7,28 @@ use std::{
 use gpui::{
     AnyElement, App, AppContext, Bounds, ClipboardEntry, ClipboardItem, Context, FocusHandle,
     Focusable, Image, ImageFormat, KeyDownEvent, MouseButton, MouseDownEvent, MouseMoveEvent,
-    MouseUpEvent, Pixels, Point, ScrollEvent, SharedString, Window, canvas, div, point, prelude::*,
-    px, rgb, rgba, size,
+    MouseUpEvent, ObjectFit, Pixels, Point, RenderImage, ScrollEvent, SharedString, StyledImage,
+    Subscription, Window, canvas, deferred, div, img, point, prelude::*, px, rgb, rgba, size,
 };
 
 use crate::{
     editor::{CanvasEdge, Editor, LayerEdit, PointerAction, PointerButton, Raster, Sample, Tool},
     engine::{Color, State},
+    export_preview::{ExportPreview, WHITE},
     format::{self, ExportFormat},
     input::TextField,
     io::{LoadedDocument, NativeIo, RecoveryListing},
+    preferences::{Density, EraserMode, PreferenceStore, Preferences},
     render::{CanvasCache, TextRasterizer, TextStyle},
+    touch::{Contact, NativeContact, Phase, TouchGesture},
 };
+
+mod chrome;
+mod icons;
+mod smoke;
+mod wheel;
+pub(crate) use icons::Icons;
+pub(crate) use smoke::WindowsSmoke;
 
 type Row = (&'static str, &'static str);
 const FILE: &[Row] = &[
@@ -61,11 +71,9 @@ const LAYER: &[Row] = &[
     ("clear", "활성 레이어 지우기"),
 ];
 const SETUP: &[Row] = &[
-    ("theme", "테마 전환"),
-    ("brush-options", "붓 · 지우개 설정"),
+    ("settings", "테마 · 환경설정"),
     ("text-options", "글꼴 · 문자 설정"),
     ("background", "문서 지우기 바탕"),
-    ("help", "사용 방법"),
 ];
 
 #[derive(Clone, Copy)]
@@ -80,9 +88,46 @@ struct Form {
     fields: Vec<(&'static str, gpui::Entity<TextField>)>,
 }
 
+struct ExportPanel {
+    candidate: State,
+    generation: u64,
+    preview: ExportPreview,
+    image: std::sync::Arc<RenderImage>,
+    format: ExportFormat,
+    name: gpui::Entity<TextField>,
+    matte: gpui::Entity<TextField>,
+    matte_color: Color,
+    format_menu_open: bool,
+    matte_editor_open: bool,
+    _matte_observer: Subscription,
+}
+
+const EXPORT_FORMATS: [ExportFormat; 3] =
+    [ExportFormat::Png, ExportFormat::Jpeg, ExportFormat::Bmp];
+
+impl ExportPanel {
+    fn update_image(&mut self, format: ExportFormat, matte: Color, window: &mut Window) {
+        if self.format != format || (format != ExportFormat::Png && self.matte_color != matte) {
+            let previous = std::mem::replace(&mut self.image, self.preview.image(format, matte));
+            let _ = window.drop_image(previous);
+        }
+        self.format = format;
+        self.matte_color = matte;
+    }
+
+    fn choose_format(&mut self, format: ExportFormat, window: &mut Window, cx: &mut App) {
+        if format == ExportFormat::Png && self.matte_editor_open {
+            self.matte_editor_open = false;
+            self.name.read(cx).focus_handle(cx).focus(window, cx);
+        }
+        self.update_image(format, self.matte_color, window);
+    }
+}
+
 enum Panel {
     Form(Form),
-    Export,
+    Settings(Preferences),
+    Export(ExportPanel),
     Recovery(RecoveryListing),
     Confirm(Choice),
     Help,
@@ -90,39 +135,58 @@ enum Panel {
 
 #[derive(Clone, Copy)]
 struct Palette {
+    classic: bool,
     main: u32,
     card: u32,
     canvas: u32,
+    field: u32,
     button: u32,
     active: u32,
     border: u32,
     text: u32,
     accent: u32,
+    muted: u32,
+    on: u32,
+    radius: Pixels,
+    target: Pixels,
 }
 
 impl Palette {
-    fn for_theme(classic: bool) -> Self {
+    fn for_theme(classic: bool, touch: bool) -> Self {
+        let target = px(if touch { 48. } else { 36. });
         if classic {
             Self {
-                main: 0xc0c0c0,
-                card: 0xd4d0c8,
+                classic,
+                main: 0x808080,
+                card: 0xc0c0c0,
                 canvas: 0x808080,
-                button: 0xd4d0c8,
-                active: 0x99b4db,
-                border: 0x646464,
-                text: 0x101010,
-                accent: 0x173777,
+                field: 0xffffff,
+                button: 0xc0c0c0,
+                active: 0x000080,
+                border: 0x808080,
+                text: 0x000000,
+                accent: 0x000080,
+                muted: 0x333333,
+                on: 0xffffff,
+                radius: px(0.),
+                target,
             }
         } else {
             Self {
-                main: 0x111a26,
-                card: 0x192635,
-                canvas: 0x10151c,
-                button: 0x253648,
-                active: 0x264d68,
-                border: 0x455971,
-                text: 0xeafeff,
-                accent: 0x40b6db,
+                classic,
+                main: 0x17191f,
+                card: 0x252932,
+                canvas: 0x17191f,
+                field: 0x1b1e26,
+                button: 0x252932,
+                active: 0x648cff,
+                border: 0x414957,
+                text: 0xe4e9f2,
+                accent: 0x648cff,
+                muted: 0xa8b1c0,
+                on: 0x0b1838,
+                radius: px(7.),
+                target,
             }
         }
     }
@@ -149,17 +213,37 @@ pub struct Studio {
     text: Option<gpui::Entity<TextField>>,
     text_cache: (String, Option<TextStyle>),
     text_engine: Option<TextRasterizer>,
-    classic: bool,
+    color_wheel: wheel::ColorWheel,
+    thumbnails: chrome::Thumbnails,
+    eraser_menu: bool,
+    settings_dropdown: Option<&'static str>,
+    inspector_overlay: Option<&'static str>,
+    preference_store: PreferenceStore,
+    preferences: Preferences,
+    touch_available: bool,
+    touch: TouchGesture,
     allow_close: bool,
 }
 
 impl Studio {
     pub fn new(
         io: NativeIo,
+        preference_store: PreferenceStore,
         initial: Option<&Path>,
         cx: &mut Context<Self>,
     ) -> Result<Self, String> {
-        let editor = Editor::new()?;
+        let mut editor = Editor::new()?;
+        let (preferences, status) = match preference_store.load() {
+            Ok(preferences) => (
+                preferences,
+                "기기 안에서 편집 · 파일을 업로드하지 않습니다".into(),
+            ),
+            Err(error) => (
+                Preferences::default(),
+                format!("환경 설정을 읽지 못했습니다. {error}"),
+            ),
+        };
+        editor.settings.eraser_background = preferences.eraser_color();
         let id = editor.active_tab().id;
         let stamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -182,13 +266,21 @@ impl Studio {
             last_generation: 0,
             preview_version: 1,
             had_preview: false,
-            status: "기기 안에서 편집".into(),
+            status,
             menu: None,
             panel: None,
             text: None,
             text_cache: (String::new(), None),
             text_engine: None,
-            classic: false,
+            color_wheel: wheel::ColorWheel::default(),
+            thumbnails: chrome::Thumbnails::default(),
+            eraser_menu: false,
+            settings_dropdown: None,
+            inspector_overlay: None,
+            preference_store,
+            preferences,
+            touch_available: crate::touch::touch_available(),
+            touch: TouchGesture::default(),
             allow_close: false,
         };
         if let Some(path) = initial {
@@ -198,16 +290,18 @@ impl Studio {
         Ok(app)
     }
 
-    pub fn handle_close(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> bool {
+    pub fn handle_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
         if self.allow_close {
             return true;
         }
+        self.touch.cancel(&mut self.editor);
         if self.editor.has_active_gesture() {
             self.status = "진행 중인 편집을 마친 후 닫으세요.".into();
             cx.notify();
             return false;
         }
         if self.editor.has_pending() || self.editor.tabs.iter().any(|tab| tab.document.dirty()) {
+            self.dismiss_export(window, cx);
             self.panel = Some(Panel::Confirm(Choice::Quit));
             cx.notify();
             false
@@ -309,10 +403,30 @@ impl Studio {
         Ok(())
     }
 
+    fn restore_recovery(
+        &mut self,
+        token: &str,
+        name: &str,
+        cx: &mut Context<Self>,
+    ) -> Result<(), String> {
+        let state = self.io.recover(token)?;
+        self.install_loaded(
+            LoadedDocument {
+                state,
+                name: name.into(),
+                source_token: None,
+            },
+            cx,
+        )?;
+        self.panel = None;
+        Ok(())
+    }
+
     fn switch_tab(&mut self, id: u64, cx: &mut Context<Self>) -> Result<(), String> {
         if id == self.editor.active_tab().id {
             return Ok(());
         }
+        self.touch.cancel(&mut self.editor);
         let epoch = self.epoch + 1;
         let outgoing = self.editor.activate_tab_with(id, |id| {
             self.io
@@ -328,6 +442,7 @@ impl Studio {
     }
 
     fn close_tab(&mut self, id: u64, discard: bool) -> Result<(), String> {
+        self.touch.cancel(&mut self.editor);
         let active = self.editor.active_tab().id;
         let mut epoch = self.epoch;
         let mut next = active;
@@ -430,6 +545,89 @@ impl Studio {
         }
     }
 
+    fn show_export(&mut self, window: &mut Window, cx: &mut Context<Self>) -> Result<(), String> {
+        self.update_text(cx);
+        let candidate = self.editor.export_candidate()?;
+        let preview = ExportPreview::new(&candidate)?;
+        let name = Path::new(&self.editor.active_tab().name)
+            .file_stem()
+            .and_then(|value| value.to_str())
+            .filter(|value| !value.is_empty())
+            .unwrap_or("그림")
+            .to_owned();
+        let name = cx.new(|cx| TextField::new(name, false, cx));
+        let matte = cx.new(|cx| TextField::new("#FFFFFF".into(), false, cx));
+        let matte_observer = cx.observe_in(&matte, window, |studio, field, window, cx| {
+            if let Some(Panel::Export(export)) = &mut studio.panel {
+                if let Ok(matte) = export_matte(field.read(cx).text()) {
+                    export.update_image(export.format, matte, window);
+                }
+                cx.notify();
+            }
+        });
+        let format = ExportFormat::Png;
+        let image = preview.image(format, WHITE);
+        name.read(cx).focus_handle(cx).focus(window, cx);
+        self.panel = Some(Panel::Export(ExportPanel {
+            candidate,
+            generation: self.epoch,
+            preview,
+            image,
+            format,
+            name,
+            matte,
+            matte_color: WHITE,
+            format_menu_open: false,
+            matte_editor_open: false,
+            _matte_observer: matte_observer,
+        }));
+        Ok(())
+    }
+
+    fn dismiss_export(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
+        let Some(Panel::Export(export)) = &self.panel else {
+            return false;
+        };
+        let _ = window.drop_image(export.image.clone());
+        self.panel = None;
+        let focus = self
+            .text
+            .as_ref()
+            .map_or_else(|| self.focus.clone(), |text| text.read(cx).focus_handle(cx));
+        focus.focus(window, cx);
+        true
+    }
+
+    fn save_export(&mut self, window: &mut Window, cx: &mut Context<Self>) -> Result<(), String> {
+        let Some(Panel::Export(export)) = &self.panel else {
+            return Ok(());
+        };
+        if export.generation != self.epoch {
+            return Err("그림이 변경되었습니다. 내보내기를 다시 실행하세요.".into());
+        }
+        let name = export.name.read(cx);
+        let matte = export.matte.read(cx);
+        if name.composing() || (export.format != ExportFormat::Png && matte.composing()) {
+            return Err("문자 조합을 먼저 확정하세요.".into());
+        }
+        let matte = if export.format == ExportFormat::Png {
+            WHITE
+        } else {
+            export_matte(matte.text())?
+        };
+        if let Some(file) = self.io.export_image(
+            &export.candidate,
+            export.generation,
+            export.format,
+            matte,
+            name.text(),
+        )? {
+            self.status = format!("{file} 내보내기 완료");
+            self.dismiss_export(window, cx);
+        }
+        Ok(())
+    }
+
     fn dialog(
         &mut self,
         action: &'static str,
@@ -520,22 +718,11 @@ impl Studio {
             }
             "foreground" => self.editor.settings.foreground = parse_color(&values[0])?,
             "secondary" => self.editor.settings.secondary = parse_color(&values[0])?,
-            "brush-options" => {
-                let size = number(0, 1., 100.)?;
-                let opacity = number(1, 0., 100.)?;
-                let hardness = number(2, 0., 100.)?;
-                let stabilization = number(3, 0., 75.)?;
-                let color = if values[4].is_empty() {
-                    None
-                } else {
-                    Some(parse_color(&values[4])?)
-                };
-                let settings = &mut self.editor.settings;
-                settings.size = size;
-                settings.opacity = opacity / 100.;
-                settings.hardness = hardness / 100.;
-                settings.stabilization = stabilization;
-                settings.eraser_background = color;
+            "eraser-color" => {
+                let [red, green, blue, _] = parse_color(&values[0])?;
+                let mut preferences = self.preferences.clone();
+                preferences.eraser_background = [red, green, blue];
+                self.apply_preferences(preferences)?;
             }
             "text-options" => {
                 let size = number(1, 4., 256.)?;
@@ -551,6 +738,29 @@ impl Studio {
         Ok(())
     }
 
+    fn apply_preferences(&mut self, preferences: Preferences) -> Result<(), String> {
+        if preferences != self.preferences {
+            self.preference_store.save(&preferences)?;
+            self.editor.settings.eraser_background = preferences.eraser_color();
+            self.preferences = preferences;
+        }
+        Ok(())
+    }
+
+    fn accept_preferences(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Result<(), String> {
+        if let Some(Panel::Settings(preferences)) = &self.panel {
+            self.apply_preferences(preferences.clone())?;
+            self.settings_dropdown = None;
+            self.panel = None;
+            self.focus.focus(window, cx);
+        }
+        Ok(())
+    }
+
     fn command(
         &mut self,
         action: &'static str,
@@ -558,6 +768,9 @@ impl Studio {
         cx: &mut Context<Self>,
     ) -> Result<(), String> {
         self.menu = None;
+        self.eraser_menu = false;
+        self.settings_dropdown = None;
+        self.touch.cancel(&mut self.editor);
         let state = self.editor.document().state();
         let dims = || {
             vec![
@@ -591,7 +804,7 @@ impl Studio {
             "save" | "save-as" => {
                 self.save(action == "save-as", None, cx)?;
             }
-            "export" => self.panel = Some(Panel::Export),
+            "export" => return self.show_export(window, cx),
             "recover" => self.panel = Some(Panel::Recovery(self.io.list()?)),
             "undo" => {
                 self.editor.undo();
@@ -718,20 +931,26 @@ impl Studio {
                 window,
                 cx,
             ),
-            "theme" => self.classic = !self.classic,
-            "brush-options" => self.dialog(
+            "settings" => self.panel = Some(Panel::Settings(self.preferences.clone())),
+            "properties" | "layers" => {
+                self.inspector_overlay = if self.inspector_overlay == Some(action) {
+                    None
+                } else {
+                    Some(action)
+                }
+            }
+            "eraser-color" => self.dialog(
                 action,
-                "붓 · 지우개 설정",
-                vec![
-                    ("크기", settings.size.to_string()),
-                    ("불투명도", (settings.opacity * 100.).round().to_string()),
-                    ("경도", (settings.hardness * 100.).round().to_string()),
-                    ("선 보정", settings.stabilization.to_string()),
-                    (
-                        "지우개 배경색 (빈 값은 투명)",
-                        settings.eraser_background.map(hex).unwrap_or_default(),
+                "지우개 배경색",
+                vec![(
+                    "HEX",
+                    format!(
+                        "#{:02x}{:02x}{:02x}",
+                        self.preferences.eraser_background[0],
+                        self.preferences.eraser_background[1],
+                        self.preferences.eraser_background[2]
                     ),
-                ],
+                )],
                 window,
                 cx,
             ),
@@ -779,10 +998,14 @@ impl Studio {
                 &mut self.editor.settings.secondary,
             ),
             "commit" => {
+                self.update_text(cx);
                 self.editor.commit_pending()?;
                 self.text = None;
             }
             "cancel" => {
+                if self.dismiss_export(window, cx) {
+                    return Ok(());
+                }
                 if self.panel.take().is_none() {
                     self.editor.cancel_pointer();
                     self.editor.discard_pending();
@@ -808,13 +1031,82 @@ impl Studio {
         }
     }
 
+    pub(crate) fn native_touch(
+        &mut self,
+        contact: NativeContact,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> bool {
+        let position = point(
+            px(contact.x as f32 / window.scale_factor()),
+            px(contact.y as f32 / window.scale_factor()),
+        );
+        if contact.phase == Phase::Down && !self.canvas_bounds.contains(&position) {
+            return false;
+        }
+        if contact.phase == Phase::Down && !self.touch.is_active() {
+            if self.panel.is_some()
+                || self.menu.is_some()
+                || self.text.is_some()
+                || self.editor.has_active_gesture()
+            {
+                return false;
+            }
+            self.touch_available = true;
+            self.focus.focus(window, cx);
+        } else if !self.touch.is_active() {
+            return false;
+        }
+        let sample = self.sample(position, window.modifiers().shift);
+        let spray_was_active = self.editor.spray_active();
+        match self.touch.handle(
+            &mut self.editor,
+            Contact {
+                id: contact.id,
+                phase: contact.phase,
+                x: sample.x,
+                y: sample.y,
+                shift: sample.shift,
+            },
+        ) {
+            Ok(outcome) => {
+                self.pointer_action(outcome.action, window, cx);
+                if outcome.queue_recovery {
+                    self.queue_recovery(self.editor.active_tab().id, cx);
+                }
+                if outcome.changed {
+                    self.refresh(cx);
+                }
+                if !spray_was_active && self.editor.spray_active() {
+                    self.schedule_spray(cx);
+                }
+            }
+            Err(error) => self.report(Err(error), cx),
+        }
+        true
+    }
+
+    fn pointer_action(
+        &mut self,
+        action: PointerAction,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if matches!(action, PointerAction::TextRequested { .. }) {
+            let text = cx.new(|cx| TextField::new(String::new(), true, cx));
+            text.read(cx).focus_handle(cx).focus(window, cx);
+            self.text = Some(text);
+            self.text_cache = (String::new(), None);
+        }
+    }
+
     fn pointer_down(
         &mut self,
         event: &MouseDownEvent,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.panel.is_some() {
+        if self.panel.is_some() || self.menu.is_some() || self.touch.is_active() {
             return;
         }
         self.focus.focus(window, cx);
@@ -826,40 +1118,37 @@ impl Studio {
         let result = self
             .editor
             .pointer_down(self.sample(event.position, event.modifiers.shift), button)
-            .map(|action| {
-                if matches!(action, PointerAction::TextRequested { .. }) {
-                    let text = cx.new(|cx| TextField::new(String::new(), true, cx));
-                    text.read(cx).focus_handle(cx).focus(window, cx);
-                    self.text = Some(text);
-                    self.text_cache = (String::new(), None);
-                }
-            });
+            .map(|action| self.pointer_action(action, window, cx));
         if self.editor.spray_active() {
-            cx.spawn(async move |view, app| {
-                loop {
-                    app.background_executor()
-                        .timer(Duration::from_millis(35))
-                        .await;
-                    let keep = view.update(app, |studio, cx| {
-                        if !studio.editor.spray_active() {
-                            return false;
-                        }
-                        let result = studio.editor.spray_tick().map(|_| ());
-                        studio.report(result, cx);
-                        true
-                    });
-                    if !matches!(keep, Ok(true)) {
-                        break;
-                    }
-                }
-            })
-            .detach();
+            self.schedule_spray(cx);
         }
         self.report(result, cx);
     }
 
+    fn schedule_spray(&self, cx: &mut Context<Self>) {
+        cx.spawn(async move |view, app| {
+            loop {
+                app.background_executor()
+                    .timer(Duration::from_millis(35))
+                    .await;
+                let keep = view.update(app, |studio, cx| {
+                    if !studio.editor.spray_active() {
+                        return false;
+                    }
+                    let result = studio.editor.spray_tick().map(|_| ());
+                    studio.report(result, cx);
+                    true
+                });
+                if !matches!(keep, Ok(true)) {
+                    break;
+                }
+            }
+        })
+        .detach();
+    }
+
     fn pointer_move(&mut self, event: &MouseMoveEvent, _: &mut Window, cx: &mut Context<Self>) {
-        if !self.editor.has_active_gesture() {
+        if self.touch.is_active() || !self.editor.has_active_gesture() {
             return;
         }
         let result = self
@@ -869,7 +1158,7 @@ impl Studio {
     }
 
     fn pointer_up(&mut self, event: &MouseUpEvent, _: &mut Window, cx: &mut Context<Self>) {
-        if !self.editor.has_active_gesture() {
+        if self.touch.is_active() || !self.editor.has_active_gesture() {
             return;
         }
         let result = self
@@ -881,7 +1170,7 @@ impl Studio {
     }
 
     fn wheel(&mut self, event: &ScrollEvent, _: &mut Window, cx: &mut Context<Self>) {
-        if self.panel.is_some() {
+        if self.panel.is_some() || self.menu.is_some() || self.touch.is_active() {
             return;
         }
         let sample = self.sample(event.position, event.modifiers.shift);
@@ -898,6 +1187,81 @@ impl Studio {
         let key = event.keystroke.key.as_str();
         let mods = event.keystroke.modifiers;
         let ctrl = mods.control || mods.platform;
+        if self
+            .text
+            .as_ref()
+            .is_some_and(|field| field.read(cx).composing())
+            || matches!(&self.panel, Some(Panel::Form(form)) if form.fields.iter().any(|(_, field)| field.read(cx).composing()))
+        {
+            return;
+        }
+        if let Some(current) = self.menu {
+            if key == "escape" {
+                self.menu = None;
+                self.focus.focus(window, cx);
+                cx.notify();
+                cx.stop_propagation();
+            } else if matches!(key, "left" | "right" | "home" | "end") {
+                let categories = chrome::CATEGORIES;
+                let index = categories
+                    .iter()
+                    .position(|(id, _)| *id == current)
+                    .unwrap_or(0);
+                let index = match key {
+                    "left" => (index + categories.len() - 1) % categories.len(),
+                    "right" => (index + 1) % categories.len(),
+                    "home" => 0,
+                    _ => categories.len() - 1,
+                };
+                self.menu = Some(categories[index].0);
+                cx.notify();
+                cx.stop_propagation();
+            }
+            return;
+        }
+        if matches!(self.panel, Some(Panel::Settings(_))) {
+            let result = match key {
+                "escape" if self.settings_dropdown.take().is_some() => Ok(()),
+                "enter" => self.accept_preferences(window, cx),
+                "escape" => self.command("cancel", window, cx),
+                _ => return,
+            };
+            self.report(result, cx);
+            cx.stop_propagation();
+            return;
+        }
+        if let Some(Panel::Export(export)) = &mut self.panel {
+            let result = match key {
+                "enter" | "escape" if export.format_menu_open => {
+                    export.format_menu_open = false;
+                    Ok(())
+                }
+                "up" | "down" if export.format_menu_open => {
+                    let index = EXPORT_FORMATS
+                        .iter()
+                        .position(|&format| format == export.format)
+                        .expect("preview has a supported format");
+                    let step = if key == "down" { 1 } else { 2 };
+                    export.choose_format(
+                        EXPORT_FORMATS[(index + step) % EXPORT_FORMATS.len()],
+                        window,
+                        cx,
+                    );
+                    Ok(())
+                }
+                "escape" if export.matte_editor_open => {
+                    export.matte_editor_open = false;
+                    export.name.read(cx).focus_handle(cx).focus(window, cx);
+                    Ok(())
+                }
+                "enter" => self.save_export(window, cx),
+                "escape" => self.command("cancel", window, cx),
+                _ => return,
+            };
+            self.report(result, cx);
+            cx.stop_propagation();
+            return;
+        }
         if matches!(self.panel, Some(Panel::Form(_))) && key == "enter" {
             let result = self.apply_form(window, cx);
             self.report(result, cx);
@@ -1001,11 +1365,18 @@ fn parse_color(value: &str) -> Result<Color, String> {
     Ok(color)
 }
 
+fn export_matte(value: &str) -> Result<Color, String> {
+    if value.trim().trim_start_matches('#').len() != 6 {
+        return Err("바탕색을 #RRGGBB로 입력하세요.".into());
+    }
+    parse_color(value).map_err(|_| "바탕색을 #RRGGBB로 입력하세요.".into())
+}
+
 fn hex([r, g, b, a]: Color) -> String {
     format!("#{r:02X}{g:02X}{b:02X}{a:02X}")
 }
 
-fn command_button(
+fn button(
     id: impl Into<gpui::ElementId>,
     label: impl Into<SharedString>,
     palette: Palette,
@@ -1014,19 +1385,45 @@ fn command_button(
     div()
         .id(id)
         .role(gpui::Role::Button)
+        .aria_label(label)
+        .flex()
+        .items_center()
+        .justify_center()
+        .gap(px(7.))
+        .min_w(palette.target)
+        .min_h(palette.target)
+        .rounded(palette.radius)
         .bg(rgb(if selected {
             palette.active
         } else {
             palette.button
         }))
+        .text_color(rgb(if selected { palette.on } else { palette.text }))
         .border_1()
-        .border_color(rgb(palette.border))
-        .px_2()
-        .py_1()
-        .text_sm()
+        .border_color(if palette.classic {
+            rgba(0x707070ff)
+        } else {
+            rgba(0x00000000)
+        })
+        .px(px(9.))
         .cursor_pointer()
-        .hover(move |style| style.bg(rgb(palette.active)))
-        .child(label.into())
+        .hover(move |style| {
+            style.bg(rgb(if selected {
+                palette.active
+            } else {
+                palette.border
+            }))
+        })
+}
+
+fn command_button(
+    id: impl Into<gpui::ElementId>,
+    label: impl Into<SharedString>,
+    palette: Palette,
+    selected: bool,
+) -> gpui::Stateful<gpui::Div> {
+    let label = label.into();
+    button(id, label.clone(), palette, selected).child(label)
 }
 
 impl Focusable for Studio {
@@ -1052,6 +1449,213 @@ impl Studio {
             .into_any_element()
     }
 
+    fn view_export_panel(
+        &self,
+        export: &ExportPanel,
+        p: Palette,
+        cx: &mut Context<Self>,
+    ) -> AnyElement {
+        let opaque = export.format != ExportFormat::Png;
+        let invalid_matte = opaque && export_matte(export.matte.read(cx).text()).is_err();
+        let (width, height) = export.preview.display_size();
+        let [r, g, b, _] = export.matte_color;
+        let title = div()
+            .font_weight(gpui::FontWeight::BOLD)
+            .child("이미지 내보내기");
+        let title = if p.classic {
+            title
+                .bg(rgb(p.accent))
+                .text_color(rgb(p.on))
+                .text_size(px(13.))
+                .px_2()
+                .py_1()
+        } else {
+            title.text_size(px(18.))
+        };
+        let mut format = div().relative().child(
+            command_button(
+                "export-format",
+                format!("{} ▾", export.format.extension()),
+                p,
+                false,
+            )
+            .on_click(cx.listener(|studio, _, _, cx| {
+                if let Some(Panel::Export(export)) = &mut studio.panel {
+                    export.format_menu_open = !export.format_menu_open;
+                    cx.notify();
+                }
+            })),
+        );
+        if export.format_menu_open {
+            let choices = div()
+                .absolute()
+                .top(px(29.))
+                .right_0()
+                .min_w(px(65.))
+                .p_1()
+                .bg(rgb(p.card))
+                .border_1()
+                .border_color(rgb(p.border))
+                .shadow_lg()
+                .occlude()
+                .children(EXPORT_FORMATS.map(|kind| {
+                    command_button(
+                        ("export-format-choice", kind as usize),
+                        kind.extension(),
+                        p,
+                        kind == export.format,
+                    )
+                    .on_click(cx.listener(move |studio, _, window, cx| {
+                        if let Some(Panel::Export(export)) = &mut studio.panel {
+                            export.format_menu_open = false;
+                            export.choose_format(kind, window, cx);
+                            cx.notify();
+                        }
+                    }))
+                }));
+            format = format.child(deferred(choices).with_priority(1));
+        }
+        let swatch = div()
+            .id("export-matte")
+            .role(gpui::Role::Button)
+            .w(px(50.))
+            .h(px(28.))
+            .p_1()
+            .bg(rgb(p.field))
+            .border_1()
+            .border_color(rgb(p.border))
+            .child(div().size_full().bg(rgb(u32::from_be_bytes([0, r, g, b]))));
+        let swatch = if opaque {
+            swatch
+                .cursor_pointer()
+                .on_click(cx.listener(|studio, _, window, cx| {
+                    if let Some(Panel::Export(export)) = &mut studio.panel {
+                        export.matte_editor_open = !export.matte_editor_open;
+                        if export.matte_editor_open {
+                            export.matte.read(cx).focus_handle(cx).focus(window, cx);
+                        } else {
+                            export.name.read(cx).focus_handle(cx).focus(window, cx);
+                        }
+                        cx.notify();
+                    }
+                }))
+        } else {
+            swatch.opacity(0.45)
+        };
+        let mut matte = div()
+            .flex()
+            .items_center()
+            .justify_between()
+            .gap_2()
+            .child("JPG/BMP 바탕색")
+            .child(
+                div()
+                    .flex()
+                    .items_center()
+                    .gap_1()
+                    .when(opaque && export.matte_editor_open, |row| {
+                        row.child(div().w(px(114.)).child(export.matte.clone()))
+                    })
+                    .child(swatch),
+            );
+        if invalid_matte {
+            matte = matte.text_color(rgb(if p.classic { 0x9e2727 } else { 0xff8989 }));
+        }
+        let description = if opaque {
+            "투명한 부분에 선택한 바탕색을 적용합니다. JPG는 저장 시 색이 조금 달라질 수 있습니다."
+        } else {
+            "PNG는 투명도를 유지합니다."
+        };
+        let submit = command_button("export-save", "내보내기", p, true);
+        let submit = if invalid_matte {
+            submit.opacity(0.45)
+        } else {
+            submit.on_click(cx.listener(|studio, _, window, cx| {
+                let result = studio.save_export(window, cx);
+                studio.report(result, cx);
+            }))
+        };
+        let content = div()
+            .id("export-dialog")
+            .w(px(420.))
+            .max_w_full()
+            .max_h_full()
+            .overflow_y_scroll()
+            .p_5()
+            .flex()
+            .flex_col()
+            .gap(px(15.))
+            .bg(rgb(p.card))
+            .border_1()
+            .border_color(rgb(p.border))
+            .shadow_lg()
+            .rounded(p.radius)
+            .child(title)
+            .child(
+                div()
+                    .flex()
+                    .items_center()
+                    .justify_between()
+                    .gap_2()
+                    .child("파일 이름")
+                    .child(div().w(px(240.)).child(export.name.clone())),
+            )
+            .child(
+                div()
+                    .flex()
+                    .items_center()
+                    .justify_between()
+                    .gap_2()
+                    .child("형식")
+                    .child(format),
+            )
+            .child(matte)
+            .when(invalid_matte, |panel| {
+                panel.child(div().text_xs().child("바탕색을 #RRGGBB로 입력하세요."))
+            })
+            .child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .items_center()
+                    .gap(px(10.))
+                    .child(
+                        div()
+                            .border_1()
+                            .border_color(rgb(p.border))
+                            .child(
+                                img(export.image.clone())
+                                    .w(px(width as f32))
+                                    .h(px(height as f32))
+                                    .object_fit(ObjectFit::Fill),
+                            ),
+                    )
+                    .child(div().w_full().text_xs().text_color(rgb(p.muted)).child(format!(
+                            "{description} 축소 미리보기에서는 작은 세부와 가장자리가 실제 출력과 다를 수 있습니다."
+                    ))),
+            )
+            .child(
+                div()
+                    .mt_1()
+                    .flex()
+                    .justify_end()
+                    .gap(px(7.))
+                    .child(self.action_button("cancel", "취소", p, false, cx))
+                    .child(submit),
+            );
+        div()
+            .absolute()
+            .inset_0()
+            .occlude()
+            .p_3()
+            .bg(rgba(if p.classic { 0x00000044 } else { 0x00000088 }))
+            .flex()
+            .items_center()
+            .justify_center()
+            .child(content)
+            .into_any_element()
+    }
+
     fn view_panel(&self, p: Palette, cx: &mut Context<Self>) -> AnyElement {
         let mut content = div()
             .min_w(px(340.))
@@ -1064,8 +1668,16 @@ impl Studio {
             .bg(rgb(p.card))
             .border_1()
             .border_color(rgb(p.border))
+            .rounded(p.radius)
             .shadow_lg();
         match &self.panel {
+            Some(Panel::Settings(preferences)) => {
+                content =
+                    content
+                        .w(px(420.))
+                        .p(px(20.))
+                        .child(self.settings_view(preferences, p, cx));
+            }
             Some(Panel::Form(form)) => {
                 content = content.child(div().text_lg().child(form.title));
                 for (name, field) in &form.fields {
@@ -1113,33 +1725,7 @@ impl Studio {
                             .child(self.action_button("cancel", "취소", p, false, cx)),
                     );
             }
-            Some(Panel::Export) => {
-                content = content.child(div().text_lg().child("이미지 내보내기"));
-                for (format, label) in [
-                    (ExportFormat::Png, "PNG"),
-                    (ExportFormat::Jpeg, "JPEG"),
-                    (ExportFormat::Bmp, "BMP"),
-                ] {
-                    content = content.child(command_button(label, label, p, false).on_click(
-                        cx.listener(move |studio, _, _, cx| {
-                            let result = (|| {
-                                let state = studio.editor.preview_state()?;
-                                studio.io.export_image(
-                                    &state,
-                                    studio.epoch,
-                                    format,
-                                    studio.editor.settings.secondary,
-                                    &studio.editor.active_tab().name,
-                                )?;
-                                studio.panel = None;
-                                Ok(())
-                            })();
-                            studio.report(result, cx);
-                        }),
-                    ));
-                }
-                content = content.child(self.action_button("cancel", "취소", p, false, cx));
-            }
+            Some(Panel::Export(export)) => return self.view_export_panel(export, p, cx),
             Some(Panel::Recovery(list)) => {
                 content = content.child(div().text_lg().child("복구 사본"));
                 if list.entries.is_empty() {
@@ -1167,19 +1753,7 @@ impl Studio {
                             false,
                         )
                         .on_click(cx.listener(move |studio, _, _, cx| {
-                            let result = (|| {
-                                let state = studio.io.recover(&token)?;
-                                studio.install_loaded(
-                                    LoadedDocument {
-                                        state,
-                                        name: name.clone(),
-                                        source_token: None,
-                                    },
-                                    cx,
-                                )?;
-                                studio.panel = None;
-                                Ok(())
-                            })();
+                            let result = studio.restore_recovery(&token, &name, cx);
                             studio.report(result, cx);
                         })),
                     );
@@ -1219,243 +1793,31 @@ impl Studio {
             .flex()
             .items_center()
             .justify_center()
+            .occlude()
             .child(content)
             .into_any_element()
     }
 }
 
 impl Render for Studio {
-    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.update_text(cx);
-        let p = Palette::for_theme(self.classic);
+        let touch = match self.preferences.density {
+            Density::Auto => self.touch_available,
+            Density::Touch => true,
+            Density::Mouse => false,
+        };
+        let p = Palette::for_theme(self.preferences.classic, touch);
+        let width = window.viewport_size().width;
+        let narrow = width < px(840.);
+        let show_labels = width >= px(1200.);
+        let header = self.topbar(p, narrow, show_labels, cx);
+        let tabs = self.tabs_view(p, cx);
+        let tools = self.tools_view(p, cx);
+        let footer = self.footer(p, cx);
+        let inspector = (!narrow).then(|| self.inspector(p, narrow, window, cx));
         let state = self.editor.document().state();
-        let active = self.editor.active_tab().id;
-        let mut menu = div().flex().gap_1().items_center().child(
-            div()
-                .font_weight(gpui::FontWeight::BOLD)
-                .px_2()
-                .child("myPaint Studio · GPUI"),
-        );
-        for (id, label) in [
-            ("file", "파일"),
-            ("edit", "편집"),
-            ("image", "이미지"),
-            ("layer", "레이어"),
-            ("setup", "설정"),
-        ] {
-            menu = menu.child(
-                command_button(id, label, p, self.menu == Some(id)).on_click(cx.listener(
-                    move |studio, _, _, cx| {
-                        studio.menu = if studio.menu == Some(id) {
-                            None
-                        } else {
-                            Some(id)
-                        };
-                        cx.notify();
-                    },
-                )),
-            );
-        }
-        menu = menu
-            .child(self.action_button("open", "열기", p, false, cx))
-            .child(self.action_button("save", "프로젝트", p, true, cx))
-            .child(self.action_button("export", "내보내기", p, false, cx));
-        let mut tabs = div().id("documents").flex().gap_1().overflow_x_scroll();
-        for tab in &self.editor.tabs {
-            let id = tab.id;
-            let label = format!(
-                "{}{}",
-                if tab.document.dirty() { "• " } else { "" },
-                tab.name
-            );
-            tabs = tabs.child(
-                div()
-                    .flex()
-                    .child(
-                        command_button(("tab", id as usize), label, p, id == active).on_click(
-                            cx.listener(move |studio, _, _, cx| {
-                                let result = studio.switch_tab(id, cx);
-                                studio.report(result, cx);
-                            }),
-                        ),
-                    )
-                    .child(
-                        command_button(("close-tab", id as usize), "×", p, false).on_click(
-                            cx.listener(move |studio, _, _, cx| {
-                                let result = studio.close_tab(id, false);
-                                studio.report(result, cx);
-                            }),
-                        ),
-                    ),
-            );
-        }
-        tabs = tabs.child(self.action_button("new", "+", p, false, cx));
-        let tools = div()
-            .id("tools")
-            .w(px(112.))
-            .flex_none()
-            .bg(rgb(p.card))
-            .p_1()
-            .flex()
-            .flex_col()
-            .gap_1()
-            .overflow_y_scroll()
-            .children(Tool::ALL.into_iter().map(|tool| {
-                command_button(
-                    ("tool", tool as usize),
-                    tool.label(),
-                    p,
-                    self.editor.settings.tool == tool,
-                )
-                .on_click(cx.listener(move |studio, _, _, cx| {
-                    let result = studio.editor.choose_tool(tool).map(|_| ());
-                    studio.text = None;
-                    studio.report(result, cx);
-                }))
-            }));
-        let mut layers = div()
-            .flex()
-            .flex_col()
-            .gap_1()
-            .child(div().font_weight(gpui::FontWeight::BOLD).child("레이어"));
-        for (i, layer) in state.layers.iter().enumerate().rev() {
-            let desired = !layer.visible;
-            layers = layers.child(
-                div()
-                    .flex()
-                    .gap_1()
-                    .child(
-                        command_button(
-                            ("visibility", i),
-                            if layer.visible { "●" } else { "○" },
-                            p,
-                            false,
-                        )
-                        .on_click(cx.listener(move |studio, _, _, cx| {
-                            let result = studio
-                                .editor
-                                .layer_edit(LayerEdit::SetVisible {
-                                    index: i,
-                                    visible: desired,
-                                })
-                                .map(|_| ());
-                            studio.queue_recovery(studio.editor.active_tab().id, cx);
-                            studio.report(result, cx);
-                        })),
-                    )
-                    .child(
-                        command_button(
-                            ("active-layer", i),
-                            layer.name.clone(),
-                            p,
-                            state.active == i,
-                        )
-                        .on_click(cx.listener(move |studio, _, _, cx| {
-                            let result = studio.editor.set_active_layer(i).map(|_| ());
-                            studio.report(result, cx);
-                        })),
-                    ),
-            );
-        }
-        layers = layers.child(
-            div()
-                .flex()
-                .gap_1()
-                .child(self.action_button("layer-add", "+", p, false, cx))
-                .child(self.action_button("layer-delete", "−", p, false, cx))
-                .child(self.action_button("layer-up", "↑", p, false, cx))
-                .child(self.action_button("layer-down", "↓", p, false, cx))
-                .child(self.action_button("layer-merge", "⇣", p, false, cx)),
-        );
-        let settings = &self.editor.settings;
-        let mut properties = div()
-            .id("properties")
-            .w(px(203.))
-            .flex_none()
-            .bg(rgb(p.card))
-            .p_2()
-            .flex()
-            .flex_col()
-            .gap_1()
-            .overflow_y_scroll()
-            .child(
-                div()
-                    .font_weight(gpui::FontWeight::BOLD)
-                    .child("색상 · 브러시"),
-            )
-            .child(self.action_button(
-                "foreground",
-                format!("전경색 {}", hex(settings.foreground)),
-                p,
-                false,
-                cx,
-            ))
-            .child(self.action_button(
-                "secondary",
-                format!("보조색 {}", hex(settings.secondary)),
-                p,
-                false,
-                cx,
-            ))
-            .child(self.action_button("swap", "전경색 ↔ 보조색", p, false, cx))
-            .child(self.action_button(
-                "brush-options",
-                format!("붓 {} px · 지우개", settings.size),
-                p,
-                false,
-                cx,
-            ));
-        for (key, label, on) in [
-            ("square", "사각 붓", settings.square),
-            ("pressure", "펜 필압", settings.pressure),
-            ("fill-shape", "도형 채우기", settings.fill_shape),
-            ("outline-shape", "도형 윤곽", settings.outline_shape),
-            (
-                "transparent-selection",
-                "보조색 투명 선택",
-                settings.transparent_selection,
-            ),
-            ("finger", "손가락 그리기", settings.finger_draw),
-        ] {
-            properties = properties.child(self.action_button(
-                key,
-                format!("{} {label}", if on { "✓" } else { "○" }),
-                p,
-                on,
-                cx,
-            ));
-        }
-        let mut swatches = div().flex().flex_wrap().gap_1();
-        for (index, [r, g, b]) in [
-            [0, 0, 0],
-            [255, 255, 255],
-            [239, 46, 53],
-            [255, 165, 0],
-            [255, 224, 70],
-            [33, 164, 74],
-            [19, 108, 219],
-            [112, 43, 167],
-            [104, 64, 27],
-            [128, 128, 128],
-        ]
-        .into_iter()
-        .enumerate()
-        {
-            swatches = swatches.child(
-                div()
-                    .id(("swatch", index))
-                    .size(px(24.))
-                    .bg(rgb(u32::from_be_bytes([0, r, g, b])))
-                    .border_1()
-                    .border_color(rgb(p.border))
-                    .cursor_pointer()
-                    .on_click(cx.listener(move |studio, _, _, cx| {
-                        studio.editor.settings.foreground = [r, g, b, 255];
-                        studio.refresh(cx);
-                    })),
-            );
-        }
-        properties = properties.child(swatches).child(layers);
+
         let view = cx.entity();
         let paint_view = cx.weak_entity();
         let measure = self.benchmark.is_some();
@@ -1636,7 +1998,9 @@ impl Render for Studio {
                 }
             }
         }
-        if let Some(text) = &self.text {
+        if let Some(text) = &self.text
+            && !matches!(self.panel, Some(Panel::Export(_)))
+        {
             workspace = workspace.child(
                 div()
                     .absolute()
@@ -1661,74 +2025,46 @@ impl Render for Studio {
                     ),
             );
         }
-        let footer = div()
+        let mut body = div()
             .flex()
-            .items_center()
-            .gap_2()
-            .child(div().flex_1().text_sm().child(format!(
-                "{} · {} × {} · {}",
-                self.editor.settings.tool.label(),
-                state.width,
-                state.height,
-                self.status
-            )))
-            .child(self.action_button("zoom-out", "−", p, false, cx))
-            .child(format!("{:.0}%", self.editor.viewport().zoom * 100.))
-            .child(self.action_button("zoom-in", "+", p, false, cx))
-            .child(self.action_button("fit", "맞춤", p, false, cx));
+            .flex_1()
+            .min_h_0()
+            .child(tools)
+            .child(workspace);
+        if !narrow && let Some(inspector) = inspector {
+            body = body.child(inspector);
+        }
         let mut root = div()
             .relative()
             .track_focus(&self.focus)
             .on_key_down(cx.listener(Self::keyboard))
             .size_full()
-            .p_2()
             .bg(rgb(p.main))
             .text_color(rgb(p.text))
-            .font_family("Malgun Gothic")
+            .text_size(px(13.))
+            .font_family(if p.classic { "Tahoma" } else { "Segoe UI" })
             .flex()
             .flex_col()
-            .gap_1()
-            .child(menu)
+            .child(header)
             .child(tabs)
-            .child(
-                div()
-                    .flex()
-                    .flex_1()
-                    .min_h_0()
-                    .gap_1()
-                    .child(tools)
-                    .child(workspace)
-                    .child(properties),
-            )
+            .child(body)
             .child(footer);
-        if let Some(menu) = self.menu {
-            let entries = match menu {
-                "file" => FILE,
-                "edit" => EDIT,
-                "image" => IMAGE,
-                "layer" => LAYER,
-                _ => SETUP,
-            };
+        if narrow && self.inspector_overlay.is_some() {
             root = root.child(
                 div()
                     .absolute()
-                    .left(px(150.))
-                    .top(px(40.))
-                    .bg(rgb(p.card))
-                    .border_1()
-                    .border_color(rgb(p.accent))
-                    .p_1()
+                    .right(px(8.))
+                    .top(p.target + px(21.))
+                    .bottom(px(8.))
                     .shadow_lg()
-                    .flex()
-                    .flex_col()
-                    .gap_1()
-                    .children(
-                        entries
-                            .iter()
-                            .map(|(id, label)| self.action_button(id, *label, p, false, cx)),
-                    ),
+                    .occlude()
+                    .child(self.inspector(p, true, window, cx)),
             );
         }
+        if let Some(category) = self.menu {
+            root = root.child(self.categorized_menu(category, p, cx));
+        }
+
         if self.panel.is_some() {
             root = root.child(self.view_panel(p, cx));
         }

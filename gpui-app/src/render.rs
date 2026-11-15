@@ -191,14 +191,14 @@ fn checker_bgra(rgba: &[u8], left: u32, top: u32, width: u32, height: u32, facto
             let index = 4 * (y as usize * width as usize + x as usize);
             let alpha = u32::from(rgba[index + 3]);
             let background = if ((top + y) / 12 + (left + x) / 12).is_multiple_of(2) {
-                248
+                [221, 224, 229]
             } else {
-                221
+                [255, 255, 255]
             };
             for c in [2, 1, 0] {
                 result.push(
-                    ((u32::from(rgba[index + c]) * alpha + background * (255 - alpha) + 127) / 255)
-                        as u8,
+                    ((u32::from(rgba[index + c]) * alpha + background[c] * (255 - alpha) + 127)
+                        / 255) as u8,
                 );
             }
             result.push(255);

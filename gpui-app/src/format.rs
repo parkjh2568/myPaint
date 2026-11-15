@@ -336,6 +336,14 @@ fn decode_gif(bytes: &[u8]) -> Result<Raster, String> {
     })
 }
 
+pub(crate) fn matte_pixel(pixel: Color, matte: Color) -> [u8; 3] {
+    let alpha = u32::from(pixel[3]);
+    std::array::from_fn(|channel| {
+        ((u32::from(pixel[channel]) * alpha + u32::from(matte[channel]) * (255 - alpha) + 127)
+            / 255) as u8
+    })
+}
+
 pub fn export_image(state: &State, format: ExportFormat, matte: Color) -> Result<Vec<u8>, String> {
     let pixels = state.composite()?;
     let width = state.width;
@@ -343,11 +351,6 @@ pub fn export_image(state: &State, format: ExportFormat, matte: Color) -> Result
     if format == ExportFormat::Png {
         return encode_png(width, height, &pixels);
     }
-    let blended = |pixel: &[u8], channel: usize| {
-        let alpha = u32::from(pixel[3]);
-        ((u32::from(pixel[channel]) * alpha + u32::from(matte[channel]) * (255 - alpha) + 127)
-            / 255) as u8
-    };
     if format == ExportFormat::Bmp {
         let stride = width as usize * 4;
         let size = 54 + height as usize * stride;
@@ -365,20 +368,26 @@ pub fn export_image(state: &State, format: ExportFormat, matte: Color) -> Result
             .rev()
             .zip(bytes[54..].chunks_exact_mut(stride))
         {
-            for (pixel, color) in source.chunks_exact(4).zip(destination.chunks_exact_mut(4)) {
-                color.copy_from_slice(&[
-                    blended(pixel, 2),
-                    blended(pixel, 1),
-                    blended(pixel, 0),
-                    255,
-                ]);
+            for (&pixel, color) in source
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .zip(destination.as_chunks_mut::<4>().0)
+            {
+                let [r, g, b] = matte_pixel(pixel, matte);
+                *color = [b, g, r, 255];
             }
         }
         return Ok(bytes);
     }
     let mut rgb = pixel_buffer(width as usize * height as usize * 3)?;
-    for (pixel, color) in pixels.chunks_exact(4).zip(rgb.chunks_exact_mut(3)) {
-        color.copy_from_slice(&[blended(pixel, 0), blended(pixel, 1), blended(pixel, 2)]);
+    for (&pixel, color) in pixels
+        .as_chunks::<4>()
+        .0
+        .iter()
+        .zip(rgb.as_chunks_mut::<3>().0)
+    {
+        *color = matte_pixel(pixel, matte);
     }
     let mut bytes = Vec::new();
     JpegEncoder::new_with_quality(&mut bytes, 95)

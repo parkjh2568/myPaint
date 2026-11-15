@@ -2,6 +2,10 @@
 
 [인수인계](../PROJECT_HANDOFF.md)로 돌아가기.
 
+## 2026-11-15 GPUI Windows 비교판 후속
+
+로컬 `codex/gpui-compare`의 `620584c`를 바탕으로 Tauri의 Windows UI 구조와 두 스킨을 GPUI에 이식했다. 내보내기 미리보기, 재실행 뒤 환경 설정, Windows 멀티터치를 추가했다. 설치본과 앱 소유 검증 모드의 결과, 실물 입력과 공통 화면 계측에서 아직 확인할 항목은 [Windows 비교 보고서](GPUI_WINDOWS_COMPARISON.md)에 기록했다.
+
 ## 2026-11-15 복구 저장소와 문서 탭 수명
 
 작업 브랜치는 `codex/studio-recovery`이며 기반은 Qt 제거가 반영된 `48e4058`이다. 아래 변경은 로컬 작업 트리 기준이다.
