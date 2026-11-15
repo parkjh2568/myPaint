@@ -48,4 +48,4 @@ Chrome의 native bridge는 in-memory 모형이다. 실제 OS 파일 선택기·W
 
 entry는 `assets/index-DLvOR2As.js`, 라이선스·고지를 포함한 웹 payload는 9파일·291,639B다. 빌드 입력115개와 runtime 소스17개를 고정했고 실제 시험한 앱 자산8개가 최종 payload와 같다. 제품 소스 변경은 main.ts와 persistence.rs 두 곳이며 import 관계는 유지한다. 홈페이지 쓰기·Git commit/push·게시를 하지 않았다.
 
-당시 후속 항목이던 독립 기준 목록·QF-04 계약과 최신 소스 macOS 일반4분기는 이후 검증했다. 현재 우선순위와 전체 자체 판정7입증·25부분·2미구현, 선행 완료QF-01/02/04는 [최신 완료 감사](../STUDIO_COMPLETION_AUDIT.md)를 따른다. 목표 장치·메모리/입력 예산과 Android 웹·Windows·OS picker/IME 인수는 계속 남는다.
+당시 후속 항목이던 독립 기준 목록·QF-04 계약과 최신 소스 macOS 일반4분기는 이후 검증했다. 현재 우선순위와 전체 자체 판정7입증·25부분·2미구현, 선행 완료QF-01/02/04는 [최신 완료 감사](STUDIO_COMPLETION_AUDIT.md)를 따른다. 목표 장치·메모리/입력 예산과 Android 웹·Windows·OS picker/IME 인수는 계속 남는다.

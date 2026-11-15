@@ -2,6 +2,15 @@
 
 현재 실행 방법은 [루트 README](../../README.md)를 사용하세요. 이곳은 재현·호환성 검토가 필요할 때만 읽는 기록입니다. 테스트 숫자와 경로는 작성 당시 기준이며 현재 제품 전체의 통과를 뜻하지 않습니다. 일부 로컬 산출물은 clone에 포함되지 않습니다.
 
+## 분기별 구현과 감사 기록
+
+- [프로젝트 리팩터링 최초 감사](PROJECT_REFACTOR_AUDIT.md)와 [Studio 코드베이스 재감사](STUDIO_CODEBASE_REAUDIT.md). 재감사 부록은 [편집기](audit/EDITOR.md), [엔진·렌더](audit/ENGINE_AND_RENDER.md), [파일 저장·복구](audit/PERSISTENCE.md), [검증·배포](audit/VERIFICATION_AND_DELIVERY.md)를 참조하세요.
+- [실측 전 Tauri·GPUI 영향 평가](GPUI_MIGRATION_ASSESSMENT.md)
+- [Studio 인수표](STUDIO_ACCEPTANCE_MATRIX.md), [완료 조건 감사](STUDIO_COMPLETION_AUDIT.md), [개발 시작 안내](STUDIO_IMPLEMENTATION.md)
+- [이전 구현 제거](LEGACY_REMOVAL.md), [초기 Classic 98 스킨](STUDIO_CLASSIC98_SKIN.md), [설정 전환 성능](PREFERENCES_PERFORMANCE.md)
+
+## 기능별 초기 기록
+
 - [MEASURED_REFACTOR](MEASURED_REFACTOR.md)
 - [STUDIO_BASIC_USABILITY](STUDIO_BASIC_USABILITY.md)
 - [STUDIO_CAMERA_VIEWPORT](STUDIO_CAMERA_VIEWPORT.md)

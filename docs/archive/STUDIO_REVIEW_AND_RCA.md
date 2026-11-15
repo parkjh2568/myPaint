@@ -67,7 +67,7 @@ Qt +45° Fast 변환의 마지막 texel 중복은 원시 소스 픽셀을 한 �
 - CI는 실패 시 nonzero로 검사 실패를 알린다. 새 브라우저 검사군과 lockfile Playwright를 연결했다. 실제 원격 CI 실행은 미확인이다.
 - 소프트쿼터와 transaction abort, 단발 raster 예외 주입은 확인했지만 실제 브라우저 디스크 고갈·실제 GPU/context 상실·OS 강제 종료 시험과 같다고 기록하지 않는다.
 
-후속 [최대 문서·PNG·계약 검증](STUDIO_MAX_DOCUMENT.md)에서 metadata 전체 복사, 상수색/행 복사, 축소 cache와 종료 dirty 전달, PNG 오류, F02/F09와 macOS 앱 종료의 미저장 확인 우회를 수정·검증했다. 현재 미완료 조건은 [기능 인수표](../STUDIO_ACCEPTANCE_MATRIX.md)와 해당 성능 기록을 따른다.
+후속 [최대 문서·PNG·계약 검증](STUDIO_MAX_DOCUMENT.md)에서 metadata 전체 복사, 상수색/행 복사, 축소 cache와 종료 dirty 전달, PNG 오류, F02/F09와 macOS 앱 종료의 미저장 확인 우회를 수정·검증했다. 현재 미완료 조건은 [기능 인수표](STUDIO_ACCEPTANCE_MATRIX.md)와 해당 성능 기록을 따른다.
 
 ## 구조적으로 남은 부채
 

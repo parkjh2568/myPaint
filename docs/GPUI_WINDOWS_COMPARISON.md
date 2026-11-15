@@ -24,7 +24,7 @@ Windows 컴퓨터 사용 권한을 다시 받아 두 앱을 조작했다. 처음
 
 마우스 훅의 QPC부터 클릭 주변 17×17 픽셀에서 브러시 색이 처음 검출된 GDI `BitBlt` 읽기 시각까지 재었다. Tauri의 DXGI 예비 실행에서 클릭과 실제 점은 확인했으나 해당 색을 관측한 DXGI 프레임을 기록하지 못해 두 앱 모두 GDI로 측정했다. 이 실행의 GPUI 값이 더 작았고 중앙값 차이는 약 4.14 ms다. 화면 읽기에는 폴링 대기가 포함된다. 단일 세션의 브러시 점 입력 비교이며 물리 펜, 연속 획, 디스플레이 주사 지연은 측정 범위 밖이다.
 
-새 설치본은 `dist/windows-compare/followup/myPaint-Studio-GPUI-Compare-validated-x64-setup.exe`에 있다. 두 앱의 원시 표본과 집계는 같은 폴더 아래 `evidence/approved-desktop/`의 `gpui-gdi-formal.csv`, `tauri-gdi-formal.csv`, `gdi-formal-summary.json`에 있다. `gdi-conditions.json`에서 양쪽 33개 위치가 같은 문서 좌표였음을 검증했다.
+두 앱의 원시 표본, 집계, 좌표·바이너리 해시와 검증 결과는 [Windows GDI 측정 증거](evidence/windows-gdi-2026-11-15/README.md)에 있다. 로컬 NSIS 빌드 파일은 `dist/windows-compare/followup/myPaint-Studio-GPUI-Compare-validated-x64-setup.exe`에 보존했다.
 
 ## 후속 이식과 Windows 검증
 
@@ -71,7 +71,7 @@ Windows 사용자 세션에서 두 설치본을 각각 시작해 동일한 DXGI 
 
 원래 `codex/studio-recovery`의 `48e4058`과 당시 미커밋 변경을 별도 worktree에 보존했다. 변경 파일 33개의 raw SHA-256을 복제 전후 비교했다. 비교 브랜치의 `web-app/`은 Tauri 설치형과 기존 웹 제품을 생산한다. `gpui-app/`은 Rust/GPUI만으로 그림을 편집하는 독립 실행 파일을 생산한다. `bench/`는 같은 그림과 획 입력, 파일 왕복, Windows 측정 스크립트를 제공한다.
 
-MSVC x64, Microsoft Visual Studio Build Tools 17.11.5, Windows SDK 10.0.22621.0, Rust 1.100.0을 사용했다. Tauri는 잠금 파일의 2.12.5와 Windows WebView2 157.0.4341.46을 사용했다. GPUI는 Zed GPUI의 registry 재패키징 `gpui-pre`와 `gpui-pre-platform`을 각각 0.3.12로 고정했다. Windows 설치본은 사용자 범위에 다른 제품명·App ID·설치 경로로 등록했다. 측정은 매 실행에 별도 `--persistence-root`를 사용했다. 패키지는 로컬 비교용 미서명 빌드다. [GPUI 의존성 잠금 파일](../gpui-app/Cargo.lock) · [GPUI 설치 스크립트](../gpui-app/windows/installer.nsi) · [기존 기술 비교](GPUI_MIGRATION_ASSESSMENT.md)
+MSVC x64, Microsoft Visual Studio Build Tools 17.11.5, Windows SDK 10.0.22621.0, Rust 1.100.0을 사용했다. Tauri는 잠금 파일의 2.12.5와 Windows WebView2 157.0.4341.46을 사용했다. GPUI는 Zed GPUI의 registry 재패키징 `gpui-pre`와 `gpui-pre-platform`을 각각 0.3.12로 고정했다. Windows 설치본은 사용자 범위에 다른 제품명·App ID·설치 경로로 등록했다. 측정은 매 실행에 별도 `--persistence-root`를 사용했다. 패키지는 로컬 비교용 미서명 빌드다. [GPUI 의존성 잠금 파일](../gpui-app/Cargo.lock) · [GPUI 설치 스크립트](../gpui-app/windows/installer.nsi) · [기존 기술 비교](archive/GPUI_MIGRATION_ASSESSMENT.md)
 
 | 영역 | GPUI 이식 범위 |
 | --- | --- |

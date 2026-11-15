@@ -1,0 +1,182 @@
+{
+  "mode": "gdi",
+  "rawPairs": 33,
+  "inputs": "synthetic Windows left-button clicks",
+  "windowDpi": 144,
+  "displayScalePercent": 150,
+  "clientPx": {
+    "width": 1920,
+    "height": 1260
+  },
+  "monitorPx": {
+    "width": 2560,
+    "height": 1440
+  },
+  "document": {
+    "width": 800,
+    "height": 600,
+    "layers": 1,
+    "background": "transparent"
+  },
+  "documentZoom": 1,
+  "theme": "Studio Dark",
+  "brush": {
+    "sizePx": 12,
+    "rgb": "#1679EA"
+  },
+  "paperOrigins": {
+    "tauri": [
+      204,
+      220
+    ],
+    "gpui": [
+      206,
+      220
+    ]
+  },
+  "documentGrid": [
+    {
+      "x": 120,
+      "y": 100
+    },
+    {
+      "x": 200,
+      "y": 100
+    },
+    {
+      "x": 280,
+      "y": 100
+    },
+    {
+      "x": 360,
+      "y": 100
+    },
+    {
+      "x": 440,
+      "y": 100
+    },
+    {
+      "x": 520,
+      "y": 100
+    },
+    {
+      "x": 600,
+      "y": 100
+    },
+    {
+      "x": 120,
+      "y": 170
+    },
+    {
+      "x": 200,
+      "y": 170
+    },
+    {
+      "x": 280,
+      "y": 170
+    },
+    {
+      "x": 360,
+      "y": 170
+    },
+    {
+      "x": 440,
+      "y": 170
+    },
+    {
+      "x": 520,
+      "y": 170
+    },
+    {
+      "x": 600,
+      "y": 170
+    },
+    {
+      "x": 120,
+      "y": 250
+    },
+    {
+      "x": 200,
+      "y": 250
+    },
+    {
+      "x": 280,
+      "y": 250
+    },
+    {
+      "x": 360,
+      "y": 250
+    },
+    {
+      "x": 440,
+      "y": 250
+    },
+    {
+      "x": 520,
+      "y": 250
+    },
+    {
+      "x": 600,
+      "y": 250
+    },
+    {
+      "x": 120,
+      "y": 330
+    },
+    {
+      "x": 200,
+      "y": 330
+    },
+    {
+      "x": 280,
+      "y": 330
+    },
+    {
+      "x": 360,
+      "y": 330
+    },
+    {
+      "x": 440,
+      "y": 330
+    },
+    {
+      "x": 520,
+      "y": 330
+    },
+    {
+      "x": 600,
+      "y": 330
+    },
+    {
+      "x": 120,
+      "y": 410
+    },
+    {
+      "x": 200,
+      "y": 410
+    },
+    {
+      "x": 280,
+      "y": 410
+    },
+    {
+      "x": 360,
+      "y": 410
+    },
+    {
+      "x": 440,
+      "y": 410
+    }
+  ],
+  "observerCommit": "ea24e7214d1108359ee2359420ff36a205195f60",
+  "observerSourceGitBlob": "1bb5d4f84fe43c089e6024d471716786acde181f",
+  "observerSha256": "64f9b5b366515c1dadbb8cb424896469442d5521c24f58a398ecb280ec7da61e",
+  "gpuiSourceCommit": "f4e2095bd782d6b7de25a162725af7d9d104f003",
+  "gpuiExeSha256": "3ef351675ce639c3fd229e96d6c35a51d29c207bb8448d65623876edc8e6f25f",
+  "tauriSourceCommit": "04a2c5d71416aa4442623519969e7c391b13e479",
+  "tauriExeSha256": "ff481b92f2d071dc0fb02e203aa1d3d185710953657db2fa35d16b6dfb4bf611",
+  "rawFiles": [
+    "gpui-gdi-formal.csv",
+    "tauri-gdi-formal.csv"
+  ]
+}

@@ -1,31 +1,16 @@
-# 필요한 개발 문서
+# 개발 문서
 
-처음 작업하는 세션은 [프로젝트 인수인계](../PROJECT_HANDOFF.md) → [작업 연혁](PROJECT_HISTORY.md) → [현재 상태·미검증 항목](CURRENT_STATUS.md) 순서로 읽습니다. 아래 과거 감사 수치는 해당 날짜 기준입니다.
-
-실행부터 하려면 [루트 README의 OS별 안내](../README.md)를 보세요. 이 폴더는 현재 계약·검증·배포 기준만 앞에 둡니다.
+[프로젝트 인수인계](../PROJECT_HANDOFF.md)에서 브랜치와 제품 범위를 확인하고, [현재 상태·검증 범위](CURRENT_STATUS.md)에서 실행 결과와 남은 항목을 봅니다. 설치와 실행은 [루트 README](../README.md)를 따릅니다.
 
 | 확인할 내용 | 문서 |
 | --- | --- |
-| 코드베이스 재감사, 위험도와 수정 순서 | [Studio 코드베이스 재감사](STUDIO_CODEBASE_REAUDIT.md) |
-| GPUI 전환의 성능·사용성 비교 | [Tauri와 GPUI 영향 평가](GPUI_MIGRATION_ASSESSMENT.md) |
-| Windows 설치형 비교 실험 | [Tauri와 GPUI 실측](GPUI_WINDOWS_COMPARISON.md) |
-| 모듈·상태 소유권 | [Studio 아키텍처](STUDIO_ARCHITECTURE.md) |
-| 픽셀·알파·취소·확정 규칙 | [문서 계약](STUDIO_DOCUMENT_CONTRACTS.md) |
-| 실제 파일 저장·복구 | [네이티브 저장 계약](STUDIO_NATIVE_PERSISTENCE.md) |
-| 프로젝트 형식 | [RPAINT01](FILE_FORMAT.md) |
-| 확인된 기능과 아직 남은 검증 | [인수표](STUDIO_ACCEPTANCE_MATRIX.md), [완료 감사](STUDIO_COMPLETION_AUDIT.md) |
-| 이전 구현 제거 범위 | [정리 결과와 남은 검증](LEGACY_REMOVAL.md) |
-| 정적 번들·별도 홈페이지 반영 | [웹 빌드](WEB_BUILD.md) |
-| Windows 98 외관 변경 범위 | [Classic 98](STUDIO_CLASSIC98_SKIN.md) |
+| 모듈, 의존성, 상태 소유권 | [Studio 아키텍처](STUDIO_ARCHITECTURE.md) |
+| 픽셀·알파·편집 후보와 취소 | [문서 계약](STUDIO_DOCUMENT_CONTRACTS.md) |
+| 열린 탭, 복구, 저장 대상의 수명 | [문서 탭](DOCUMENT_TABS.md) · [네이티브 저장](STUDIO_NATIVE_PERSISTENCE.md) |
+| 프로젝트 포맷과 호환성 | [RPAINT01](FILE_FORMAT.md) |
+| 지우개 모드와 보존 규칙 | [투명 배경과 지우개](TRANSPARENT_ERASER.md) |
+| 웹 개발과 배포 빌드 | [웹 빌드](WEB_BUILD.md) |
+| Windows Tauri·GPUI 화면과 지연 비교 | [Windows 비교 보고서](GPUI_WINDOWS_COMPARISON.md) |
+| 주요 변경과 결정의 이력 | [프로젝트 연혁](PROJECT_HISTORY.md) |
 
-## 기록은 필요할 때만
-
-- [과거 기록 안내](archive/README.md): 개별 성능·디버깅 과거 조사. 기록 당시 수치를 최신 빌드의 검증으로 해석하지 마세요.
-- `evidence/`와 fixture는 재현 근거이므로 보존합니다. `build-web-work/`를 가리키는 일부 과거 링크는 당시 로컬 산출물이며 새 clone에는 없을 수 있습니다.
-- 2026-11-12 문서 정리: 초기 중복 계획 7개 제거, 상세 보고서 23개를 archive로 이동, 긴 구현 일지는 시작 안내로 축약했습니다. 삭제한 원문은 정리 전 커밋 `cc5f099`에서 복구할 수 있습니다. 제품 코드·테스트·라이선스는 이 정리에서 변경하지 않았습니다.
-
-## 이번 문서 정리의 검증 범위 (2026-11-12)
-
-새 안내의 명령은 `package.json`, `desktop.mjs`, Tauri 설정, CI와 대조했습니다. Linux에서 Node 337개, Python 44개, 포맷·타입·Vite 빌드가 통과했습니다. `npm test`의 tsx IPC가 환경 제한으로 막혀 같은 테스트 파일을 `node --import tsx --test tests/*.test.ts`로 실행했습니다. 새 안내/이동 문서에 도입한 깨진 상대 링크는 없습니다.
-
-Chromium은 이 환경의 socket 권한 제한으로 시작하지 못했습니다. Windows NSIS 설치, macOS `.app` 실행, 실제 OS 파일 선택기·IME·스킨 화면은 이번 문서 작업에서 실행하지 않았습니다. OS별 안내의 체크리스트는 사용자가 수행할 절차이지 완료 보고가 아닙니다.
+날짜가 붙은 이전 감사, 실험과 Qt 제거 기록은 [보관 문서](archive/README.md)에서 찾을 수 있습니다. 검증 증거와 픽셀 fixture는 재현에 사용합니다.

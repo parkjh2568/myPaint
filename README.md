@@ -1,39 +1,21 @@
 # myPaint Studio
 
-로컬에서 그림을 그리고 `.rpaint` 프로젝트와 이미지로 저장하는 그림판입니다. 현재 개발 버전은 **Studio 0.2.0**이며 `web-app/`을 사용합니다. 이번 작업 브랜치는 `style/win98-paint-skin`입니다.
+myPaint Studio 0.2.0은 로컬에서 그림을 그리고 `.rpaint` 프로젝트나 이미지로 저장하는 그림판입니다. 브러시·도형·선택·문자·레이어와 여러 문서 탭을 지원합니다. Studio Dark와 Classic 98은 상단 **설정**에서 선택합니다.
 
-## 다른 세션에서 이어서 작업하기
+## 빌드 및 실행
 
-**[프로젝트 인수인계](PROJECT_HANDOFF.md)**부터 읽으세요. 프로젝트 목적, 결정 이유, 작업 이력, 현재 검증 상태와 다음 작업을 연결했습니다. [전체 작업 연혁](docs/PROJECT_HISTORY.md) · [현재 상태](docs/CURRENT_STATUS.md)
-
-## 내 컴퓨터에서 따라 하기
-
-| 목적 | Windows (PowerShell) | macOS (터미널) |
+| 대상 | Windows | macOS |
 | --- | --- | --- |
-| 실제 앱 패키지 빌드·실행 | [Windows 앱 테스트](WINDOWS_APP_TEST.md) | [macOS 앱 테스트](MACOS_APP_TEST.md) |
-| 웹 개발·배포용 빌드 테스트 | [Windows 웹 테스트](WINDOWS_WEB_TEST.md) | [macOS 웹 테스트](MACOS_WEB_TEST.md) |
+| Tauri 데스크톱 앱 | [앱 테스트](WINDOWS_APP_TEST.md) | [앱 테스트](MACOS_APP_TEST.md) |
+| 웹 편집기 | [웹 테스트](WINDOWS_WEB_TEST.md) | [웹 테스트](MACOS_WEB_TEST.md) |
 
-- **앱**: Tauri/Rust가 로컬 파일·창을 관리합니다. Windows는 NSIS 설치 파일, macOS는 `.app`을 만듭니다.
-- **웹**: 같은 편집기를 브라우저로 실행합니다. Rust 없이 Node만으로 개발·빌드할 수 있습니다. 모바일·태블릿도 웹 전용입니다.
-- 테마는 상단 **설정** 또는 메뉴 → 설정 → 테마 · 환경설정에서 Classic 98을 선택합니다. 최초 스킨 작업은 CSS 중심이었고, 이후 메뉴 범주와 문서 탭을 추가했습니다.
-- 개발용 패키지는 정식 서명·공증·배포 완료 제품이 아닙니다. 다른 OS에서 빌드 성공했다고 내 OS의 파일 대화상자·한글 입력까지 검증된 것은 아닙니다.
+- `web-app/`에는 TypeScript 편집기와 Tauri/Rust 데스크톱 앱이 있습니다. 모바일과 태블릿에서는 웹 편집기를 사용합니다.
+- `gpui-app/`은 별도의 Rust/GPUI Windows 비교판입니다. [Windows 실측과 재현 절차](docs/GPUI_WINDOWS_COMPARISON.md)에 빌드, 파일 호환, 복구와 입력 지연을 기록했습니다.
 
-## 먼저 해볼 것
+## 개발과 검증
 
-1. 브러시로 선을 그리고 Undo/Redo를 해봅니다.
-2. 레이어를 추가하고 한글 문자를 입력합니다.
-3. `.rpaint`로 저장한 다음 다시 열어 레이어와 그림을 확인합니다. 웹에서는 실제 다운로드 파일을 확인합니다.
-4. PNG로 내보내고, 저장 취소·미저장 상태의 종료 취소가 원래 그림을 유지하는지 확인합니다.
-5. Classic 98 ↔ Studio 스킨을 전환해 도구·팔레트·대화상자·창 크기를 확인합니다.
+[프로젝트 인수인계](PROJECT_HANDOFF.md) · [현재 상태와 검증 범위](docs/CURRENT_STATUS.md) · [기술 문서](docs/README.md) · [작업 연혁](docs/PROJECT_HISTORY.md)
 
-시작/새 캔버스의 기본 배경은 투명입니다. 우측 색상·브러시 패널의 지우개 설정에서 투명/배경색을 선택할 수 있습니다. 이는 기존 그림이나 문서 바탕을 변경하지 않습니다. 상단 **설정** 또는 메뉴의 **테마 · 환경설정**에서 스킨을 바꿉니다.
+작업 중인 그림은 **프로젝트**에서 `.rpaint`로 저장하고, PNG·JPG·BMP 파일은 **내보내기**에서 만듭니다. 새 그림은 투명으로 시작하며 지우개의 투명·배경색 모드는 우측 색상·브러시 패널에서 바꿉니다. 저장 전에 종료된 편집 사본은 메뉴의 **복구 사본**에서 찾을 수 있습니다.
 
-중요한 원본 대신 테스트용 파일로 진행하세요. 복구 사본은 별도 파일 백업을 대신하지 않습니다.
-
-## 개발 문서
-
-[필수 기술 문서와 남은 검증](docs/README.md) · [웹 배포 절차](docs/WEB_BUILD.md) · [Classic 98 변경·검증 한계](docs/STUDIO_CLASSIC98_SKIN.md)
-
-과거 조사 보고서는 `docs/archive/`로 분리했고 중복된 초기 계획·환경 안내는 Git 이력에 남겼습니다. 기존 C++ 앱과 빌드 경로는 제거했습니다. 복구가 필요하면 Git 이력을 확인하세요. Studio 회귀 검사용 고정 픽셀 fixture는 유지합니다.
-
-앱 소스: [MIT](LICENSE) · 외부 의존성: [NOTICE.md](NOTICE.md) · 작업 규칙: [AGENTS.md](AGENTS.md)
+[MIT 라이선스](LICENSE) · [외부 의존성 고지](NOTICE.md) · [작업 규칙](AGENTS.md)

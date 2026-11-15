@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-11-15T22:37:16.2003964+09:00",
+  "nativeUiApproved": true,
+  "installedExeSha256": "3EF351675CE639C3FD229E96D6C35A51D29C207BB8448D65623876EDC8E6F25F",
+  "baselineRecoverySha256": "F0861D47828C7D1C86CFD3F3FCD60A9802F46D9165CC8F78588FF8314A4B85E4",
+  "recoverySha256After": "F0861D47828C7D1C86CFD3F3FCD60A9802F46D9165CC8F78588FF8314A4B85E4",
+  "recoveryMenu": "clicked File > recovery copy > legacy RPAINT, new 2048 x 2048 tab with red and blue marks",
+  "exportPreview": [
+    "PNG transparency checker",
+    "JPG composited white matte"
+  ],
+  "koreanDisplay": "direct Unicode text typed and applied to canvas",
+  "windowsImeComposition": "unverified: Hangul unsupported, OSK high-integrity target did not produce composition, ordinary keys displayed Latin",
+  "penDevices": 0,
+  "touchDevices": 1,
+  "simultaneousTouchLimit": 10,
+  "realTouchGesture": "not exercised",
+  "rustTestCount": 68
+}

@@ -1,0 +1,44 @@
+{
+  "tauri": {
+    "valid": 30,
+    "warmup": 3,
+    "excluded": 0,
+    "mode": "gdi",
+    "injected": true,
+    "medianMS": 24.332050000000002,
+    "nearestRankP95MS": 34.9302,
+    "minMS": 18.1405,
+    "maxMS": 35.83,
+    "trialMaxPollMS": 15.889,
+    "medianOfTrialMaxPollMS": 12.8315,
+    "firstClient": [
+      "744",
+      "370"
+    ],
+    "lastClient": [
+      "864",
+      "835"
+    ]
+  },
+  "gpui": {
+    "valid": 30,
+    "warmup": 3,
+    "excluded": 0,
+    "mode": "gdi",
+    "injected": true,
+    "medianMS": 20.19495,
+    "nearestRankP95MS": 25.5538,
+    "minMS": 16.5189,
+    "maxMS": 25.856,
+    "trialMaxPollMS": 13.664,
+    "medianOfTrialMaxPollMS": 11.312000000000001,
+    "firstClient": [
+      "746",
+      "370"
+    ],
+    "lastClient": [
+      "866",
+      "835"
+    ]
+  }
+}
