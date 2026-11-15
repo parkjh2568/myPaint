@@ -6,10 +6,42 @@ export interface RecoveryEntry {
     size: number;
     name: string;
     at: number;
-    source?: 'browser' | 'native' | 'legacy';
+    source?: 'browser' | 'legacy-browser' | 'native' | 'legacy';
     token?: string;
     readOnly?: boolean;
 }
+const browserDatabase = 'mypaint-studio-recovery-v2';
+const legacyBrowserDatabase = 'retropaint-local-v1';
+const maxBrowserHeads = 32;
+const maxBrowserBytes = 64 * 1024 * 1024;
+
+function openBrowserRecovery(legacy: boolean): Promise<IDBDatabase | undefined> {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(legacy ? legacyBrowserDatabase : browserDatabase, 1);
+        let absent = false,
+            blocked = false;
+        request.onupgradeneeded = () => {
+            if (legacy) {
+                // Abort database creation when this origin has no legacy store.
+                absent = true;
+                request.transaction!.abort();
+                return;
+            }
+            request.result.createObjectStore('heads');
+            request.result.createObjectStore('snapshots');
+        };
+        request.onerror = () => (absent ? resolve(undefined) : reject(request.error));
+        request.onblocked = () => {
+            blocked = true;
+            reject(Error('다른 탭에서 복구 저장소를 사용 중입니다.'));
+        };
+        request.onsuccess = () => {
+            if (blocked) request.result.close();
+            else resolve(request.result);
+        };
+    });
+}
+
 function validEntry(value: unknown, key: IDBValidKey, profile: ResourceProfile): value is RecoveryEntry {
     if (!value || typeof value !== 'object') return false;
     const entry = value as RecoveryEntry;
@@ -30,6 +62,22 @@ function validEntry(value: unknown, key: IDBValidKey, profile: ResourceProfile):
         entry.at <= 8640000000000000
     );
 }
+
+function sameBrowserEntry(value: unknown, expected: RecoveryEntry): value is RecoveryEntry {
+    return (
+        validEntry(value, expected.key, webLimits) &&
+        value.sequence === expected.sequence &&
+        value.size === expected.size &&
+        value.at === expected.at &&
+        value.name === expected.name
+    );
+}
+
+async function sha256(bytes: ArrayBuffer | Uint8Array<ArrayBuffer>): Promise<string> {
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 export class RecoveryStore {
     constructor(readonly profile: ResourceProfile = webLimits) {
         validateProfile(profile);
@@ -71,7 +119,7 @@ export class RecoveryStore {
                 });
                 return;
             }
-            if (operation === 'clear' && entry?.source !== 'browser') {
+            if (operation === 'clear' && entry?.source !== 'browser' && entry?.source !== 'legacy-browser') {
                 if (!entry?.token || entry.readOnly || entry.source !== 'native')
                     throw Error('이전 앱의 복구 원본은 삭제하지 않습니다.');
                 await invoke('recovery_clear', { token: entry.token });
@@ -106,160 +154,207 @@ export class RecoveryStore {
                 this.warnings = result.warnings;
             }
         }
-        if (operation === 'clear' && (!entry || !validEntry(entry, entry.key, profile)))
-            throw Error('복구 사본 정보가 올바르지 않습니다.');
-        const key = this.key,
-            serial = ++this.sequence;
-        const db = await new Promise<IDBDatabase>((resolve, reject) => {
-            const r = indexedDB.open('retropaint-local-v1', 1);
-            let blocked = false;
-            r.onupgradeneeded = () => {
-                r.result.createObjectStore('heads');
-                r.result.createObjectStore('snapshots');
-            };
-            r.onerror = () => reject(r.error);
-            r.onblocked = () => {
-                blocked = true;
-                reject(Error('다른 탭에서 복구 저장소를 사용 중입니다.'));
-            };
-            r.onsuccess = () => {
-                if (blocked) {
-                    r.result.close();
-                    return;
-                }
-                resolve(r.result);
-            };
-        }).catch((error) => {
-            if (nativeEntries) {
-                this.warnings.push('이전 웹 복구 저장소를 읽지 못했습니다. 기존 사본은 보존합니다.');
-                console.warn('myPaint previous browser recovery unavailable', error);
-                return undefined;
-            }
-            throw error;
-        });
-        if (!db) return nativeEntries;
-        try {
-            const result = await new Promise<RecoveryEntry[] | Uint8Array | void>((resolve, reject) => {
-                const tx = db.transaction(
-                    ['heads', 'snapshots'],
-                    operation === 'list' ? 'readonly' : 'readwrite',
-                );
-                let value: RecoveryEntry[] | Uint8Array | undefined;
-                let failure: unknown;
-                const heads = tx.objectStore('heads'),
-                    snapshots = tx.objectStore('snapshots');
-                tx.oncomplete = () => resolve(value);
-                tx.onabort = () => reject(failure || tx.error || Error('복구 작업 실패'));
-                tx.onerror = () => reject(failure || tx.error);
-                if (operation === 'list') {
-                    const entries: RecoveryEntry[] = [];
-                    const r = heads.openCursor();
-                    r.onsuccess = () => {
-                        const cursor = r.result;
-                        if (!cursor) {
-                            value = entries.sort((a, b) => b.at - a.at);
-                            return;
-                        }
-                        const entry: unknown = cursor.value;
-                        if (entries.length >= 32 || !validEntry(entry, cursor.primaryKey, profile)) {
-                            failure = Error('복구 사본 정보가 올바르지 않습니다. 기존 사본을 보존합니다.');
-                            tx.abort();
-                            return;
-                        }
-                        entries.push(entry);
-                        cursor.continue();
-                    };
-                } else if (operation === 'write' && bytes) {
-                    if (key !== this.key) {
-                        failure = Error('오래된 문서의 복구 요청입니다.');
-                        tx.abort();
-                        return;
-                    }
-                    let count = 0,
-                        otherCount = 0,
-                        total = bytes.length;
-                    const r = heads.openCursor();
-                    r.onsuccess = () => {
-                        const cursor = r.result;
-                        if (cursor) {
-                            const current: unknown = cursor.value;
-                            if (count >= 32 || !validEntry(current, cursor.primaryKey, profile)) {
-                                failure = Error(
-                                    '복구 사본 정보가 올바르지 않습니다. 기존 사본을 보존합니다.',
-                                );
-                                tx.abort();
-                                return;
-                            }
-                            count++;
-                            if (current.key !== key) {
-                                otherCount++;
-                                total += current.size;
-                            }
-                            cursor.continue();
-                            return;
-                        }
-                        if (key !== this.key) {
-                            failure = Error('이전 문서의 복구 요청입니다.');
-                            tx.abort();
-                            return;
-                        }
-                        if (otherCount >= 32 || total > 64 * 1024 * 1024) {
-                            failure = Error(
-                                '복구 저장소 한도입니다. 프로젝트를 다운로드하거나 복구 사본을 정리하세요.',
-                            );
-                            tx.abort();
-                            return;
-                        }
-                        snapshots.put(new Blob([bytes as Uint8Array<ArrayBuffer>]), key);
-                        heads.put(
-                            {
-                                key,
-                                sequence: serial,
-                                size: bytes.length,
-                                name: name.slice(0, 256),
-                                at: Date.now(),
-                            },
-                            key,
-                        );
-                    };
-                } else if (operation === 'clear' && entry) {
-                    const r = heads.get(entry.key);
-                    r.onsuccess = () => {
-                        const current = r.result as RecoveryEntry | undefined;
-                        if (
-                            !validEntry(current, entry.key, profile) ||
-                            current.sequence !== entry.sequence ||
-                            current.size !== entry.size
-                        ) {
-                            failure = Error('복구 사본이 변경됐습니다. 목록을 다시 여세요.');
+        if (operation === 'write' && bytes) {
+            if (bytes.length > webLimits.inputBytes)
+                throw Error(`복구 파일은 ${webLimits.inputBytes / 1048576} MiB 이내여야 합니다.`);
+            await this.writeBrowser(
+                {
+                    key: this.key,
+                    sequence: ++this.sequence,
+                    size: bytes.length,
+                    name: name.slice(0, 256),
+                    at: Date.now(),
+                },
+                new Blob([bytes as Uint8Array<ArrayBuffer>]),
+            );
+            return;
+        }
+        if (operation === 'clear') {
+            if (!entry || !validEntry(entry, entry.key, webLimits))
+                throw Error('복구 사본 정보가 올바르지 않습니다.');
+            if (entry.readOnly || entry.source === 'legacy-browser')
+                throw Error('이전 웹의 복구 원본은 삭제하지 않습니다.');
+            const db = (await openBrowserRecovery(false))!;
+            try {
+                await new Promise<void>((resolve, reject) => {
+                    const tx = db.transaction(['heads', 'snapshots'], 'readwrite'),
+                        heads = tx.objectStore('heads');
+                    let changed = false;
+                    tx.oncomplete = () => resolve();
+                    tx.onabort = () =>
+                        reject(changed ? Error('복구 사본이 변경됐습니다. 목록을 다시 여세요.') : tx.error);
+                    const current = heads.get(entry.key);
+                    current.onsuccess = () => {
+                        if (!sameBrowserEntry(current.result, entry)) {
+                            changed = true;
                             tx.abort();
                             return;
                         }
                         heads.delete(entry.key);
-                        snapshots.delete(entry.key);
+                        tx.objectStore('snapshots').delete(entry.key);
                     };
-                }
-            });
-            if (nativeEntries && Array.isArray(result))
-                return [
-                    ...nativeEntries,
-                    ...result.map((entry) => ({ ...entry, source: 'browser' as const })),
-                ].sort((a, b) => b.at - a.at);
-            return result;
-        } catch (error) {
-            if (nativeEntries) {
-                this.warnings.push('이전 웹 복구 저장소를 읽지 못했습니다. 기존 사본은 보존합니다.');
-                console.warn('myPaint previous browser recovery unavailable', error);
-                return nativeEntries;
+                });
+            } finally {
+                db.close();
             }
-            throw error;
+            return;
+        }
+        const [current, legacy] = await Promise.allSettled([this.listBrowser(false), this.listBrowser(true)]);
+        if (!nativeEntries && current.status === 'rejected' && legacy.status === 'rejected')
+            throw current.reason;
+        const entries = [...(nativeEntries ?? [])];
+        for (const result of [current, legacy]) {
+            if (result.status === 'fulfilled') entries.push(...result.value);
+            else this.warnings.push('일부 웹 복구 저장소를 읽지 못했습니다. 기존 사본은 보존합니다.');
+        }
+        return entries.sort((a, b) => b.at - a.at);
+    }
+
+    private async listBrowser(legacy: boolean): Promise<RecoveryEntry[]> {
+        const db = await openBrowserRecovery(legacy);
+        if (!db) return [];
+        try {
+            return await new Promise<RecoveryEntry[]>((resolve, reject) => {
+                const tx = db.transaction(['heads', 'snapshots']),
+                    request = tx.objectStore('heads').openCursor();
+                const entries: RecoveryEntry[] = [];
+                let count = 0,
+                    damaged = false;
+                tx.oncomplete = () => {
+                    if (damaged)
+                        this.warnings.push(
+                            '복구 사본 정보가 올바르지 않은 항목을 건너뛰었습니다. 기존 사본은 보존합니다.',
+                        );
+                    resolve(entries);
+                };
+                tx.onabort = () => reject(tx.error || Error('복구 목록 읽기 실패'));
+                request.onsuccess = () => {
+                    const cursor = request.result;
+                    if (!cursor) return;
+                    if (++count > maxBrowserHeads) {
+                        damaged = true;
+                        return;
+                    }
+                    const entry: unknown = cursor.value;
+                    if (validEntry(entry, cursor.primaryKey, webLimits)) {
+                        const { key, sequence, size, name, at } = entry;
+                        entries.push({
+                            key,
+                            sequence,
+                            size,
+                            name,
+                            at,
+                            source: legacy ? 'legacy-browser' : 'browser',
+                            readOnly: legacy,
+                        });
+                    } else damaged = true;
+                    cursor.continue();
+                };
+            });
         } finally {
             db.close();
         }
     }
+
+    private async writeBrowser(
+        head: RecoveryEntry,
+        snapshot: Blob,
+        importing = false,
+    ): Promise<Blob | undefined> {
+        const db = (await openBrowserRecovery(false))!;
+        try {
+            return await new Promise<Blob | undefined>((resolve, reject) => {
+                const tx = db.transaction(['heads', 'snapshots'], 'readwrite'),
+                    heads = tx.objectStore('heads'),
+                    snapshots = tx.objectStore('snapshots');
+                let failure: string | undefined, copied: Blob | undefined;
+                const fail = (message: string) => {
+                    failure = message;
+                    tx.abort();
+                };
+                tx.oncomplete = () => resolve(copied);
+                tx.onabort = () => reject(failure ? Error(failure) : tx.error || Error('복구 저장 실패'));
+                let count = 0,
+                    otherCount = 0,
+                    total = snapshot.size,
+                    present = false;
+                const request = heads.openCursor();
+                request.onsuccess = () => {
+                    if (!importing && head.key !== this.key) {
+                        fail('이전 문서의 복구 요청입니다.');
+                        return;
+                    }
+                    const cursor = request.result;
+                    if (cursor) {
+                        const current: unknown = cursor.value;
+                        if (++count > maxBrowserHeads || !validEntry(current, cursor.primaryKey, webLimits)) {
+                            fail('복구 사본 정보가 올바르지 않습니다. 기존 사본을 보존합니다.');
+                            return;
+                        }
+                        if (current.key === head.key) {
+                            if (importing && !sameBrowserEntry(current, head)) {
+                                fail('복제한 복구 사본 정보가 올바르지 않습니다.');
+                                return;
+                            }
+                            if (!importing && current.sequence >= head.sequence) {
+                                fail('이전 문서의 복구 요청입니다.');
+                                return;
+                            }
+                            present = true;
+                        } else {
+                            otherCount++;
+                            total += current.size;
+                        }
+                        cursor.continue();
+                        return;
+                    }
+                    if (importing && present) {
+                        const existing = snapshots.get(head.key);
+                        existing.onsuccess = () => {
+                            if (!(existing.result instanceof Blob) || existing.result.size !== head.size)
+                                fail('복제한 복구 사본이 손상됐습니다.');
+                            else copied = existing.result;
+                        };
+                        return;
+                    }
+                    if (otherCount >= maxBrowserHeads || total > maxBrowserBytes) {
+                        fail('복구 저장소 한도입니다. 프로젝트를 다운로드하거나 복구 사본을 정리하세요.');
+                        return;
+                    }
+                    snapshots.put(snapshot, head.key);
+                    heads.put(head, head.key);
+                };
+            });
+        } finally {
+            db.close();
+        }
+    }
+
+    // The caller validates the complete project with the decoder before copying the same bytes.
+    async copyLegacyBrowser(entry: RecoveryEntry, snapshot: Blob): Promise<void> {
+        if (
+            entry.source !== 'legacy-browser' ||
+            !entry.readOnly ||
+            !validEntry(entry, entry.key, webLimits) ||
+            snapshot.size !== entry.size
+        )
+            throw Error('이전 웹 복구 사본 정보가 올바르지 않습니다.');
+        const digest = await sha256(await snapshot.arrayBuffer());
+        const identity = new TextEncoder().encode(
+            JSON.stringify([entry.key, entry.sequence, entry.size, entry.name, entry.at, digest]),
+        );
+        const key = await sha256(identity);
+        const copied = await this.writeBrowser(
+            { key, sequence: entry.sequence, size: entry.size, name: entry.name, at: entry.at },
+            snapshot,
+            true,
+        );
+        if (copied && (await sha256(await copied.arrayBuffer())) !== digest)
+            throw Error('복제한 복구 사본이 손상됐습니다.');
+    }
     async read(entry: RecoveryEntry): Promise<Uint8Array> {
         const profile = this.profile;
-        if (isDesktop() && entry.source !== 'browser') {
+        if (isDesktop() && entry.source !== 'browser' && entry.source !== 'legacy-browser') {
             if (!entry.token || !validEntry(entry, entry.key, profile))
                 throw Error('복구 사본 정보가 올바르지 않습니다.');
             const data = await window.__TAURI__!.core.invoke<ArrayBuffer>('recovery_read', {
@@ -273,13 +368,10 @@ export class RecoveryStore {
                 throw Error('복구 사본이 변경됐거나 손상됐습니다.');
             return new Uint8Array(data);
         }
-        if (!entry || !validEntry(entry, entry.key, profile))
+        if (!entry || !validEntry(entry, entry.key, webLimits))
             throw Error('복구 사본 정보가 올바르지 않습니다.');
-        const db = await new Promise<IDBDatabase>((resolve, reject) => {
-            const r = indexedDB.open('retropaint-local-v1', 1);
-            r.onsuccess = () => resolve(r.result);
-            r.onerror = () => reject(r.error);
-        });
+        const db = await openBrowserRecovery(entry.source === 'legacy-browser');
+        if (!db) throw Error('복구 사본 없음');
         try {
             const blob = await new Promise<Blob>((resolve, reject) => {
                 const tx = db.transaction(['heads', 'snapshots']),
@@ -287,12 +379,7 @@ export class RecoveryStore {
                 let found: Blob | undefined;
                 let error: unknown;
                 h.onsuccess = () => {
-                    const current = h.result as RecoveryEntry | undefined;
-                    if (
-                        !validEntry(current, entry.key, profile) ||
-                        current.sequence !== entry.sequence ||
-                        current.size !== entry.size
-                    ) {
+                    if (!sameBrowserEntry(h.result, entry)) {
                         error = Error('복구 사본이 변경됐습니다.');
                         tx.abort();
                         return;

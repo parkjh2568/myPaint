@@ -20,7 +20,7 @@ await page.addInitScript(() => {
     const transaction = IDBDatabase.prototype.transaction;
     IDBDatabase.prototype.transaction = function (...args) {
         const tx = transaction.apply(this, args);
-        if (this.name === 'retropaint-local-v1' && tx.mode === 'readonly')
+        if (this.name === 'mypaint-studio-recovery-v2' && tx.mode === 'readonly')
             tx.addEventListener(
                 'complete',
                 () => {
@@ -43,11 +43,12 @@ const first = Array.from(encodeProject(original));
 const updated = createState(9, 8, [0, 0, 0, 0]);
 updated.layers[0].pixels.set([22, 121, 234, 191]);
 const latest = Array.from(encodeProject(updated));
-async function putSnapshot(bytes, sequence, fixtureKey = key) {
-    await page.evaluate(
-        async ({ bytes, sequence, key }) => {
+async function putSnapshot(bytes, sequence, fixtureKey = key, options = {}) {
+    const { target = page, database = 'mypaint-studio-recovery-v2', name = '복구 경쟁 fixture' } = options;
+    await target.evaluate(
+        async ({ bytes, sequence, key, database, name }) => {
             const db = await new Promise((resolve, reject) => {
-                const request = indexedDB.open('retropaint-local-v1', 1);
+                const request = indexedDB.open(database, 1);
                 request.onupgradeneeded = () => {
                     request.result.createObjectStore('heads');
                     request.result.createObjectStore('snapshots');
@@ -59,7 +60,7 @@ async function putSnapshot(bytes, sequence, fixtureKey = key) {
                 await new Promise((resolve, reject) => {
                     const tx = db.transaction(['heads', 'snapshots'], 'readwrite');
                     tx.objectStore('heads').put(
-                        { key, sequence, size: bytes.length, name: '복구 경쟁 fixture', at: Date.now() },
+                        { key, sequence, size: bytes.length, name, at: Date.now() },
                         key,
                     );
                     tx.objectStore('snapshots').put(new Blob([Uint8Array.from(bytes)]), key);
@@ -70,37 +71,48 @@ async function putSnapshot(bytes, sequence, fixtureKey = key) {
                 db.close();
             }
         },
-        { bytes, sequence, key: fixtureKey },
+        { bytes, sequence, key: fixtureKey, database, name },
     );
 }
-async function readSnapshot(fixtureKey = key) {
-    return await page.evaluate(async (key) => {
-        const db = await new Promise((resolve, reject) => {
-            const request = indexedDB.open('retropaint-local-v1', 1);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-        try {
-            const result = await new Promise((resolve, reject) => {
-                const tx = db.transaction(['heads', 'snapshots']),
-                    head = tx.objectStore('heads').get(key),
-                    blob = tx.objectStore('snapshots').get(key);
-                tx.oncomplete = () => resolve({ head: head.result, blob: blob.result });
-                tx.onabort = () => reject(tx.error);
+async function readSnapshot(fixtureKey = key, options = {}) {
+    const { target = page, database = 'mypaint-studio-recovery-v2' } = options;
+    return await target.evaluate(
+        async ({ key, database }) => {
+            const db = await new Promise((resolve, reject) => {
+                const request = indexedDB.open(database, 1);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
             });
-            return {
-                head: result.head,
-                bytes: result.blob ? Array.from(new Uint8Array(await result.blob.arrayBuffer())) : undefined,
-            };
-        } finally {
-            db.close();
-        }
-    }, fixtureKey);
+            try {
+                const result = await new Promise((resolve, reject) => {
+                    const tx = db.transaction(['heads', 'snapshots']),
+                        head = tx.objectStore('heads').get(key),
+                        blob = tx.objectStore('snapshots').get(key);
+                    tx.oncomplete = () => resolve({ head: head.result, blob: blob.result });
+                    tx.onabort = () => reject(tx.error);
+                });
+                return {
+                    head: result.head,
+                    bytes: result.blob
+                        ? Array.from(new Uint8Array(await result.blob.arrayBuffer()))
+                        : undefined,
+                };
+            } finally {
+                db.close();
+            }
+        },
+        { key: fixtureKey, database },
+    );
 }
-async function recoveryDialog() {
-    await page.getByRole('button', { name: '파일 및 편집 메뉴', exact: true }).click();
-    await page.getByRole('dialog').getByRole('button', { name: '복구 사본', exact: true }).click();
-    await page.getByLabel('시각 · 이름', { exact: true }).selectOption({ index: 0 });
+async function recoveryDialog(target = page, name) {
+    await target.getByRole('button', { name: '파일 및 편집 메뉴', exact: true }).click();
+    await target.getByRole('dialog').getByRole('button', { name: '복구 사본', exact: true }).click();
+    const picker = target.getByLabel('시각 · 이름', { exact: true });
+    if (name)
+        await picker.selectOption(
+            await picker.locator('option').filter({ hasText: name }).getAttribute('value'),
+        );
+    else await picker.selectOption({ index: 0 });
 }
 try {
     await page.goto(process.env.PAINT_TEST_URL || 'http://127.0.0.1:8922/');
@@ -153,7 +165,7 @@ try {
     await page.evaluate(
         async ({ key, head }) => {
             const db = await new Promise((resolve, reject) => {
-                const request = indexedDB.open('retropaint-local-v1', 1);
+                const request = indexedDB.open('mypaint-studio-recovery-v2', 1);
                 request.onsuccess = () => resolve(request.result);
                 request.onerror = () => reject(request.error);
             });
@@ -171,20 +183,20 @@ try {
         },
         { key: 'corrupt-recovery-fixture', head: validBeforeCorruption.head },
     );
-    await page.getByRole('button', { name: '파일 및 편집 메뉴', exact: true }).click();
-    await page.getByRole('dialog').getByRole('button', { name: '복구 사본', exact: true }).click();
+    await recoveryDialog();
     await page
-        .getByRole('status')
-        .filter({ hasText: '브라우저 복구 저장소에 접근할 수 없습니다.' })
+        .getByRole('dialog')
+        .getByText(/복구 사본 정보가 올바르지 않은 항목을 건너뛰었습니다/)
         .waitFor();
     assert.deepEqual(await readSnapshot(), validBeforeCorruption);
     assert.deepEqual((await readSnapshot('corrupt-recovery-fixture')).bytes, first);
-    assert.equal(await page.getByRole('dialog').count(), 0);
+    assert.equal(await page.getByLabel('시각 · 이름', { exact: true }).locator('option').count(), 1);
+    await page.getByRole('dialog').getByRole('button', { name: '취소', exact: true }).click();
     results.checks.push('A recovery value cannot alias another primary key or delete its valid snapshot');
 
     await page.evaluate(async () => {
         const db = await new Promise((resolve, reject) => {
-            const request = indexedDB.open('retropaint-local-v1', 1);
+            const request = indexedDB.open('mypaint-studio-recovery-v2', 1);
             request.onsuccess = () => resolve(request.result);
             request.onerror = () => reject(request.error);
         });
@@ -199,19 +211,19 @@ try {
             db.close();
         }
     });
-    await page.getByRole('button', { name: '파일 및 편집 메뉴', exact: true }).click();
-    await page.getByRole('dialog').getByRole('button', { name: '복구 사본', exact: true }).click();
+    await recoveryDialog();
     await page
-        .getByRole('status')
-        .filter({ hasText: '브라우저 복구 저장소에 접근할 수 없습니다.' })
+        .getByRole('dialog')
+        .getByText(/복구 사본 정보가 올바르지 않은 항목을 건너뛰었습니다/)
         .waitFor();
     assert.deepEqual(await readSnapshot(), validBeforeCorruption);
     const corrupt = await readSnapshot('corrupt-recovery-fixture');
     assert.equal(corrupt.head, null);
     assert.deepEqual(corrupt.bytes, first);
-    assert.equal(await page.getByRole('dialog').count(), 0);
+    assert.equal(await page.getByLabel('시각 · 이름', { exact: true }).locator('option').count(), 1);
+    await page.getByRole('dialog').getByRole('button', { name: '취소', exact: true }).click();
     results.checks.push(
-        'Malformed null metadata rejects safely without callbacks throwing or removing backups',
+        'Malformed null metadata is skipped without hiding healthy backups or removing bytes',
     );
     assert.deepEqual(results.errors, []);
     await context.close();
@@ -234,7 +246,7 @@ try {
         const transaction = IDBDatabase.prototype.transaction;
         IDBDatabase.prototype.transaction = function (...args) {
             const tx = transaction.apply(this, args);
-            if (this.name === 'retropaint-local-v1' && tx.mode === 'readonly')
+            if (this.name === 'mypaint-studio-recovery-v2' && tx.mode === 'readonly')
                 tx.addEventListener(
                     'complete',
                     () => {
@@ -281,7 +293,7 @@ try {
     async function quotaState() {
         return await quotaPage.evaluate(async () => {
             const db = await new Promise((resolve, reject) => {
-                const request = indexedDB.open('retropaint-local-v1', 1);
+                const request = indexedDB.open('mypaint-studio-recovery-v2', 1);
                 request.onsuccess = () => resolve(request.result);
                 request.onerror = () => reject(request.error);
             });
@@ -325,7 +337,7 @@ try {
         await quotaPage.evaluate(
             async ({ foreignCount, totalForeignBytes, keepOwn, first }) => {
                 const db = await new Promise((resolve, reject) => {
-                    const request = indexedDB.open('retropaint-local-v1', 1);
+                    const request = indexedDB.open('mypaint-studio-recovery-v2', 1);
                     request.onsuccess = () => resolve(request.result);
                     request.onerror = () => reject(request.error);
                 });
@@ -481,7 +493,7 @@ try {
 
     await quotaPage.evaluate(async (key) => {
         const db = await new Promise((resolve, reject) => {
-            const r = indexedDB.open('retropaint-local-v1', 1);
+            const r = indexedDB.open('mypaint-studio-recovery-v2', 1);
             r.onsuccess = () => resolve(r.result);
             r.onerror = () => reject(r.error);
         });
@@ -507,6 +519,136 @@ try {
         'Application 32-head/64 MiB soft quota and transaction rollback only; physical browser storage exhaustion was not exercised';
     assert.deepEqual(results.errors, []);
     await quotaContext.close();
+
+    const migration = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const legacyPage = await migration.newPage();
+    legacyPage.on('pageerror', (error) => results.errors.push(error.message));
+    await legacyPage.addInitScript(() => {
+        const open = IDBFactory.prototype.open;
+        IDBFactory.prototype.open = function (...args) {
+            const request = open.apply(this, args);
+            if (args[0] === 'retropaint-local-v1') {
+                const complete = () => (window.testLegacyLookupCompleted = true);
+                request.addEventListener('success', complete, { once: true });
+                request.addEventListener('error', complete, { once: true });
+            }
+            return request;
+        };
+        const transaction = IDBDatabase.prototype.transaction;
+        IDBDatabase.prototype.transaction = function (...args) {
+            const tx = transaction.apply(this, args);
+            if (this.name === 'mypaint-studio-recovery-v2' && tx.mode === 'readonly')
+                tx.addEventListener('complete', () => (window.testInitialRecoveryChecked = true), {
+                    once: true,
+                });
+            return tx;
+        };
+    });
+    const appUrl = process.env.PAINT_TEST_URL || 'http://127.0.0.1:8922/';
+    await legacyPage.goto(appUrl);
+    await legacyPage.waitForFunction(
+        () => window.testInitialRecoveryChecked && window.testLegacyLookupCompleted,
+    );
+    const legacyDatabase = 'retropaint-local-v1',
+        legacyKey = 'legacy-copy-fixture',
+        legacyOptions = { target: legacyPage, database: legacyDatabase, name: '이전 세대 복구' };
+    assert.equal(
+        await legacyPage.evaluate(
+            async (name) => (await indexedDB.databases()).some((db) => db.name === name),
+            legacyDatabase,
+        ),
+        false,
+    );
+    await putSnapshot(first, 2, legacyKey, legacyOptions);
+    const previous = await readSnapshot(legacyKey, legacyOptions);
+    async function studioKeys() {
+        return await legacyPage.evaluate(async () => {
+            const db = await new Promise((resolve, reject) => {
+                const request = indexedDB.open('mypaint-studio-recovery-v2', 1);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+            try {
+                return await new Promise((resolve, reject) => {
+                    const tx = db.transaction('heads'),
+                        rows = tx.objectStore('heads').getAllKeys();
+                    tx.oncomplete = () => resolve(rows.result);
+                    tx.onabort = () => reject(tx.error);
+                });
+            } finally {
+                db.close();
+            }
+        });
+    }
+    for (let i = 0; i < 2; i++) {
+        await recoveryDialog(legacyPage, /이전 웹 \(읽기 전용\) · 이전 세대 복구/);
+        if (i === 0)
+            assert.deepEqual(
+                await legacyPage.getByLabel('동작', { exact: true }).locator('option').allTextContents(),
+                ['열기'],
+            );
+        await legacyPage.locator('.status[role="status"]').evaluate((status) => (status.textContent = ''));
+        await legacyPage.getByRole('dialog').getByRole('button', { name: '확인', exact: true }).click();
+        await legacyPage
+            .getByRole('status')
+            .filter({ hasText: '복구했습니다. 프로젝트를 별도로 저장하세요.' })
+            .waitFor();
+        assert.deepEqual(await readSnapshot(legacyKey, legacyOptions), previous);
+    }
+    const copies = (await studioKeys()).filter(
+        (key) => typeof key === 'string' && /^[0-9a-f]{64}$/.test(key),
+    );
+    assert.equal(copies.length, 1);
+    const imported = await readSnapshot(copies[0], { target: legacyPage });
+    assert.deepEqual(imported.bytes, first);
+    assert.deepEqual(decodeProject(Uint8Array.from(imported.bytes)), original);
+    assert.equal(imported.head.name, previous.head.name);
+    results.checks.push(
+        'Selected legacy project is opened and copied exactly once; the read-only source is preserved',
+    );
+
+    const badKey = 'broken-legacy-copy',
+        broken = [17, 23, 1];
+    await putSnapshot(broken, 1, badKey, { ...legacyOptions, name: '손상된 이전 사본' });
+    await recoveryDialog(legacyPage, /손상된 이전 사본/);
+    await legacyPage.getByRole('dialog').getByRole('button', { name: '확인', exact: true }).click();
+    await legacyPage.getByRole('status').filter({ hasText: '올바른 프로젝트가 아닙니다.' }).waitFor();
+    assert.deepEqual((await readSnapshot(badKey, legacyOptions)).bytes, broken);
+    assert.deepEqual(
+        (await studioKeys()).filter((key) => /^[0-9a-f]{64}$/.test(key)),
+        copies,
+    );
+    results.checks.push('Corrupt legacy project data is neither installed nor copied');
+
+    const oldTab = await migration.newPage(),
+        oldUrl = new URL('legacy-recovery-clear-fixture', appUrl).href;
+    await oldTab.route(oldUrl, (route) =>
+        route.fulfill({ body: '<title>Legacy recovery fixture</title>', contentType: 'text/html' }),
+    );
+    await oldTab.goto(oldUrl);
+    await oldTab.evaluate(async (name) => {
+        const db = await new Promise((resolve, reject) => {
+            const request = indexedDB.open(name, 1);
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+        try {
+            await new Promise((resolve, reject) => {
+                const tx = db.transaction(['heads', 'snapshots'], 'readwrite');
+                tx.objectStore('heads').clear();
+                tx.objectStore('snapshots').clear();
+                tx.oncomplete = () => resolve();
+                tx.onabort = () => reject(tx.error);
+            });
+        } finally {
+            db.close();
+        }
+    }, legacyDatabase);
+    assert.deepEqual(await readSnapshot(legacyKey, legacyOptions), { head: undefined, bytes: undefined });
+    assert.deepEqual(await readSnapshot(copies[0], { target: legacyPage }), imported);
+    results.checks.push('A same-origin legacy tab clearing both old stores cannot remove Studio recovery');
+    assert.deepEqual(results.errors, []);
+    await migration.close();
 } catch (error) {
     results.failure = String(error.stack || error);
     await page.screenshot({ path: output + '/failure.png' }).catch(() => {});

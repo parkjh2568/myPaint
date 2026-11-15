@@ -6,6 +6,8 @@
 
 | 확인할 내용 | 문서 |
 | --- | --- |
+| 코드베이스 재감사, 위험도와 수정 순서 | [Studio 코드베이스 재감사](STUDIO_CODEBASE_REAUDIT.md) |
+| GPUI 전환의 성능·사용성 비교 | [Tauri와 GPUI 영향 평가](GPUI_MIGRATION_ASSESSMENT.md) |
 | 모듈·상태 소유권 | [Studio 아키텍처](STUDIO_ARCHITECTURE.md) |
 | 픽셀·알파·취소·확정 규칙 | [문서 계약](STUDIO_DOCUMENT_CONTRACTS.md) |
 | 실제 파일 저장·복구 | [네이티브 저장 계약](STUDIO_NATIVE_PERSISTENCE.md) |

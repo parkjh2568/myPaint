@@ -6,6 +6,7 @@ export function installNativeHarness(options = {}) {
         key: '',
         binding: undefined,
         tabBindings: new Map(),
+        tabGenerations: new Map(),
         serial: 0,
         calls: [],
         writes: [],
@@ -165,8 +166,16 @@ export function installNativeHarness(options = {}) {
                             args.generation < state.generation
                         )
                             throw Error('Invalid mocked document generation');
-                        if (args.generation === state.generation && args.key === state.key) return;
+                        if (
+                            args.generation === state.generation &&
+                            args.key === state.key &&
+                            !args.sourceToken &&
+                            !args.closePrevious
+                        )
+                            return;
                         if (args.generation === state.generation) throw Error('Generation key changed');
+                        if (args.closePrevious && (!state.key || args.key === state.key))
+                            throw Error('Invalid mocked document close');
                         let binding;
                         if (args.sourceToken) {
                             const source = state.readTickets.get(args.sourceToken);
@@ -183,10 +192,14 @@ export function installNativeHarness(options = {}) {
                         }
                         if (!args.sourceToken && state.tabBindings.has(args.key))
                             binding = { path: state.tabBindings.get(args.key), generation: args.generation };
-                        if (state.binding) state.tabBindings.set(state.key, state.binding.path);
+                        if (args.closePrevious) {
+                            state.tabBindings.delete(state.key);
+                            state.tabGenerations.delete(state.key);
+                        } else if (state.binding) state.tabBindings.set(state.key, state.binding.path);
                         state.generation = args.generation;
                         state.key = args.key;
                         state.binding = binding;
+                        state.tabGenerations.set(args.key, args.generation);
                         state.readTickets.clear();
                         return;
                     }
@@ -313,8 +326,7 @@ export function installNativeHarness(options = {}) {
                             key = headers['x-recovery-key'],
                             sequence = Number(headers['x-recovery-sequence']);
                         if (
-                            generation !== state.generation ||
-                            key !== state.key ||
+                            generation !== state.tabGenerations.get(key) ||
                             !Number.isSafeInteger(sequence) ||
                             sequence < 1
                         )

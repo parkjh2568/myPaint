@@ -42,7 +42,7 @@ await page.addInitScript(() => {
     const transaction = IDBDatabase.prototype.transaction;
     IDBDatabase.prototype.transaction = function (...args) {
         const tx = transaction.apply(this, args);
-        if (this.name === 'retropaint-local-v1' && tx.mode === 'readonly')
+        if (this.name === 'mypaint-studio-recovery-v2' && tx.mode === 'readonly')
             tx.addEventListener(
                 'complete',
                 () => {

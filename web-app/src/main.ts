@@ -26,6 +26,7 @@ interface DocumentTab {
     name: string;
     recovery: RecoveryStore;
     recoveredRevision: number;
+    recoveryQueued: boolean;
     zoom: number;
     offsetX: number;
     offsetY: number;
@@ -181,8 +182,7 @@ class Studio {
         announced: boolean;
     };
     recovery = new RecoveryStore(runtimeProfile);
-    recoveredRevision = 0;
-    recoveryBusy = false;
+    private recoveryQueue = Promise.resolve();
     recoveryOpening = false;
     hue = 0.58;
     colorDrag = 0;
@@ -3281,16 +3281,22 @@ class Studio {
         }
     }
     captureTab(): DocumentTab {
-        return {
-            key: this.recovery.key,
-            doc: this.doc,
+        const view = {
             name: this.name,
-            recovery: this.recovery,
-            recoveredRevision: this.recoveredRevision,
             zoom: this.zoom,
             offsetX: this.offsetX,
             offsetY: this.offsetY,
             autoFit: this.autoFit,
+        };
+        const existing = this.tabs.find((tab) => tab.doc === this.doc);
+        if (existing) return Object.assign(existing, view);
+        return {
+            key: this.recovery.key,
+            doc: this.doc,
+            recovery: this.recovery,
+            recoveredRevision: 0,
+            recoveryQueued: false,
+            ...view,
         };
     }
     syncTabs(): void {
@@ -3326,31 +3332,39 @@ class Studio {
             list.append(item);
         }
     }
-    async switchTab(key: string): Promise<void> {
+    async switchTab(key: string, closePrevious = false): Promise<void> {
         const target = this.tabs.find((tab) => tab.key === key);
         if (!target || target.doc === this.doc) return;
+        await this.activateTab(target, undefined, closePrevious);
+    }
+    private async activateTab(
+        target: DocumentTab,
+        sourceToken?: string,
+        closePrevious = false,
+    ): Promise<void> {
         if (this.busy || this.drag || this.doc.stroke || this.selectionPreparation || this.selectionResize)
             throw Error('진행 중인 작업을 마친 뒤 탭을 전환하세요.');
-        const prepared = this.hasPending()
-            ? this.doc.prepareState('탭 전환', this.pendingState())
-            : undefined;
-        // Save a recovery snapshot before suspending this document; failed recovery never discards it.
-        const outgoing = this.captureTab();
-        const generation = this.epoch + 1;
-        await this.task('탭 전환 중', async (signal) => {
-            await this.autoRecover(true);
+        const prepared =
+            !closePrevious && this.hasPending()
+                ? this.doc.prepareState('탭 전환', this.pendingState())
+                : undefined;
+        const outgoing = this.captureTab(),
+            newTab = !this.tabs.includes(target),
+            generation = this.epoch + 1;
+        await this.task(newTab ? '문서 준비 중' : '탭 전환 중', async (signal) => {
             signal.throwIfAborted();
-            await activateNative(generation, target.key);
+            await activateNative(generation, target.key, sourceToken, closePrevious);
             if (prepared) this.doc.installPrepared(prepared);
             this.editor?.remove();
             this.editor = undefined;
-            this.tabs[this.tabs.findIndex((tab) => tab.doc === this.doc)] = outgoing;
+            if (closePrevious) this.tabs.splice(this.tabs.indexOf(outgoing), 1);
+            if (newTab) this.tabs.push(target);
             this.doc = target.doc;
             this.name = target.name;
             this.recovery = target.recovery;
             this.recovery.generation = generation;
-            this.recoveredRevision = target.recoveredRevision;
             this.epoch = generation;
+            this.nativeReady = Promise.resolve();
             this.zoom = target.zoom;
             this.offsetX = target.offsetX;
             this.offsetY = target.offsetY;
@@ -3366,29 +3380,43 @@ class Studio {
                 URL.revokeObjectURL(this.downloadUrl);
                 this.downloadUrl = undefined;
             }
+            if (!closePrevious) this.queueTabRecovery(outgoing);
+            if (newTab) this.fit();
             this.draw(true);
         });
     }
     async closeTab(key: string): Promise<void> {
+        const closing = this.tabs.find((tab) => tab.key === key);
+        if (!closing) return;
         await this.switchTab(key);
         if (this.busy || this.drag || this.doc.stroke) throw Error('현재 작업을 먼저 마치세요.');
         if (!(await this.replacementAllowed())) return;
-        const closing = this.tabs.find((tab) => tab.key === key);
-        if (!closing) return;
+        if (this.doc !== closing.doc) throw Error('현재 그림이 변경됐습니다. 다시 닫아 주세요.');
         if (this.tabs.length === 1) {
-            await this.replaceDocument(createState(800, 600, [0, 0, 0, 0], runtimeProfile), '제목 없음');
+            await this.replaceDocument(
+                createState(800, 600, [0, 0, 0, 0], runtimeProfile),
+                '제목 없음',
+                true,
+                undefined,
+                true,
+            );
         } else {
             const index = this.tabs.indexOf(closing);
-            // Discard only after the destination activation succeeds.
-            await this.switchTab(this.tabs[index === 0 ? 1 : index - 1].key);
+            await this.switchTab(this.tabs[index === 0 ? 1 : index - 1].key, true);
         }
-        this.tabs = this.tabs.filter((tab) => tab.key !== key);
-        this.syncTabs();
     }
-    async replaceDocument(state: State, name: string, saved = true, sourceToken?: string): Promise<void> {
+    async replaceDocument(
+        state: State,
+        name: string,
+        saved = true,
+        sourceToken?: string,
+        closePrevious = false,
+    ): Promise<void> {
         validate(state, runtimeProfile);
-        if (this.tabs.length >= 12) throw Error('최대 12개의 그림을 열 수 있습니다. 저장 후 탭을 닫으세요.');
-        const retained = this.tabs.reduce(
+        const retainedTabs = closePrevious ? this.tabs.filter((tab) => tab.doc !== this.doc) : this.tabs;
+        if (retainedTabs.length >= 12)
+            throw Error('최대 12개의 그림을 열 수 있습니다. 저장 후 탭을 닫으세요.');
+        const retained = retainedTabs.reduce(
             (sum, tab) =>
                 sum +
                 tab.doc.historyBytes +
@@ -3398,39 +3426,25 @@ class Studio {
         const incoming = state.layers.reduce((sum, layer) => sum + layer.pixels.byteLength, 0);
         if (retained + incoming > 512 * 1048576)
             throw Error('열린 그림의 메모리 한도입니다. 저장 후 다른 탭을 닫으세요.');
-        const prepared = this.hasPending()
-            ? this.doc.prepareState('탭 전환', this.pendingState())
-            : undefined;
-        const generation = this.epoch + 1,
-            key = crypto.randomUUID(),
-            outgoing = this.captureTab();
-        const next = new PaintDocument(state, runtimeProfile);
-        if (!saved) next.savedRevision = 0;
-        await this.task('문서 준비 중', async (signal) => {
-            await this.autoRecover(true);
-            signal.throwIfAborted();
-            await activateNative(generation, key, sourceToken);
-            if (prepared) this.doc.installPrepared(prepared);
-            this.editor?.remove();
-            this.editor = undefined;
-            this.tabs[this.tabs.findIndex((tab) => tab.doc === this.doc)] = outgoing;
-            this.doc = next;
-            this.recovery = new RecoveryStore(runtimeProfile);
-            this.recovery.reset(key, generation);
-            this.epoch = generation;
-            this.nativeReady = Promise.resolve();
-            this.recoveredRevision = 0;
-            this.name = name;
-            this.selection = undefined;
-            this.points = [];
-            this.curveControls = [];
-            this.cancelRenderPreparation();
-            this.sceneCache.clear();
-            this.pendingDirty.clear();
-            this.fit();
-            this.tabs.push(this.captureTab());
-            this.draw(true);
-        });
+        const doc = new PaintDocument(state, runtimeProfile),
+            recovery = new RecoveryStore(runtimeProfile);
+        if (!saved) doc.savedRevision = 0;
+        await this.activateTab(
+            {
+                key: recovery.key,
+                doc,
+                name,
+                recovery,
+                recoveredRevision: 0,
+                recoveryQueued: false,
+                zoom: 1,
+                offsetX: 0,
+                offsetY: 0,
+                autoFit: true,
+            },
+            sourceToken,
+            closePrevious,
+        );
     }
     async loadFile(
         file: Pick<File, 'name' | 'size' | 'arrayBuffer'>,
@@ -4108,33 +4122,53 @@ class Studio {
             throw Error('편집 상태가 변경되어 붙여넣지 않았습니다.');
         await this.loadFile(file!, true);
     }
-    async autoRecover(duringTransition = false): Promise<void> {
+    autoRecover(): Promise<void> {
+        if (!this.busy) for (const tab of this.tabs) this.queueTabRecovery(tab);
+        return this.recoveryQueue;
+    }
+    private queueTabRecovery(tab: DocumentTab): void {
         if (
-            this.recoveryBusy ||
-            (this.busy && !duringTransition) ||
-            this.doc.stroke ||
-            !this.doc.dirty ||
-            this.doc.revision === this.recoveredRevision
+            tab.recoveryQueued ||
+            tab.doc.stroke ||
+            !tab.doc.dirty ||
+            tab.doc.revision === tab.recoveredRevision
         )
             return;
-        const revision = this.doc.revision,
-            epoch = this.epoch;
-        this.recoveryBusy = true;
-        try {
-            await this.nativeReady;
-            if (this.doc.revision !== revision || this.epoch !== epoch) return;
-            const snapshot = cloneState(this.doc.state);
-            const bytes = (await runCodec('project-write', snapshot, undefined, undefined, runtimeProfile))
-                .bytes!;
-            if (this.doc.revision !== revision || this.epoch !== epoch) return;
-            await this.recovery.request('write', undefined, bytes, this.name);
-            if (this.doc.revision === revision && this.epoch === epoch) this.recoveredRevision = revision;
-        } catch (error) {
-            if (this.epoch === epoch)
-                this.message('복구 저장 실패: ' + (error instanceof Error ? error.message : String(error)));
-        } finally {
-            this.recoveryBusy = false;
-        }
+        tab.recoveryQueued = true;
+        this.recoveryQueue = this.recoveryQueue.then(async () => {
+            tab.recoveryQueued = false;
+            const { doc, recovery } = tab,
+                revision = doc.revision,
+                current = () => this.tabs.includes(tab) && !doc.stroke && doc.revision === revision;
+            let writeGeneration: number | undefined;
+            try {
+                await this.nativeReady;
+                if (!current() || !doc.dirty || revision === tab.recoveredRevision) return;
+                const snapshot = cloneState(doc.state);
+                const { bytes } = await runCodec(
+                    'project-write',
+                    snapshot,
+                    undefined,
+                    undefined,
+                    runtimeProfile,
+                );
+                if (!current() || !doc.dirty) return;
+                if (!(bytes instanceof Uint8Array) || !bytes.length) throw Error('복구 데이터가 없습니다.');
+                writeGeneration = recovery.generation;
+                await recovery.request('write', undefined, bytes, tab.name);
+                if (this.tabs.includes(tab)) tab.recoveredRevision = revision;
+            } catch (error) {
+                if (!current()) return;
+                if (writeGeneration !== undefined && recovery.generation !== writeGeneration) {
+                    this.queueTabRecovery(tab);
+                    return;
+                }
+                if (this.doc === doc)
+                    this.message(
+                        '복구 저장 실패: ' + (error instanceof Error ? error.message : String(error)),
+                    );
+            }
+        });
     }
     async openRecovery(startup = false): Promise<void> {
         if (this.recoveryOpening) return;
@@ -4152,10 +4186,11 @@ class Studio {
             )
                 return;
             const epoch = this.epoch,
-                revision = this.doc.revision;
+                revision = this.doc.revision,
+                recovery = this.recovery;
             let entries: RecoveryEntry[];
             try {
-                entries = (await this.recovery.request('list')) as RecoveryEntry[];
+                entries = (await recovery.request('list')) as RecoveryEntry[];
             } catch (error) {
                 if (this.epoch !== epoch) return;
                 this.message(
@@ -4179,7 +4214,7 @@ class Studio {
             )
                 return;
             if (!entries.length) {
-                if (this.recovery.warnings.length) this.message(this.recovery.warnings.join(' '));
+                if (recovery.warnings.length) this.message(recovery.warnings.join(' '));
                 else if (!startup) this.message('복구 사본이 없습니다.');
                 return;
             }
@@ -4191,7 +4226,7 @@ class Studio {
                         label: '시각 · 이름',
                         options: entries.map(
                             (e, i) =>
-                                `${i + 1}. ${new Date(e.at).toLocaleString()} · ${e.source === 'legacy' ? '이전 Qt (읽기 전용) · ' : e.source === 'browser' && isDesktop() ? '이전 웹 저장소 · ' : ''}${e.name}`,
+                                `${i + 1}. ${new Date(e.at).toLocaleString()} · ${e.source === 'legacy' ? '이전 Qt (읽기 전용) · ' : e.source === 'legacy-browser' ? '이전 웹 (읽기 전용) · ' : e.source === 'browser' && isDesktop() ? '브라우저 복구 · ' : ''}${e.name}`,
                         ),
                         value: '',
                     },
@@ -4205,26 +4240,48 @@ class Studio {
                     },
                 ],
                 '확인',
-                this.recovery.warnings.join(' '),
+                [
+                    ...recovery.warnings,
+                    entries.some((entry) => entry.source === 'legacy-browser')
+                        ? '이전 웹 사본을 열면 새 복구 저장소에도 복제합니다.'
+                        : '',
+                ]
+                    .filter(Boolean)
+                    .join(' '),
             );
-            if (!result) return;
+            if (!result || this.epoch !== epoch || this.recovery !== recovery) return;
             const entry = entries[parseInt(result.entry) - 1];
             if (!entry) return;
             if (result.action === '선택 사본 삭제') {
-                await this.recovery.request('clear', entry);
+                await recovery.request('clear', entry);
                 this.message('선택 사본을 삭제했습니다.');
                 return;
             }
-            let state: State | undefined;
+            let state: State | undefined, legacyCopy: Blob | undefined;
             await this.task('복구 사본 읽는 중', async (signal) => {
                 signal.throwIfAborted();
-                const bytes = await this.recovery.read(entry);
+                const bytes = await recovery.read(entry);
                 signal.throwIfAborted();
+                if (entry.source === 'legacy-browser')
+                    legacyCopy = new Blob([bytes as Uint8Array<ArrayBuffer>]);
                 state = (await runCodec('project-read', undefined, bytes, signal, runtimeProfile)).state;
             });
             if (state) {
                 await this.replaceDocument(state, entry.name, false);
-                this.message('복구했습니다. 프로젝트를 별도로 저장하세요.');
+                const restored = this.recovery;
+                if (legacyCopy) {
+                    try {
+                        await recovery.copyLegacyBrowser(entry, legacyCopy);
+                    } catch (error) {
+                        if (this.recovery === restored)
+                            this.message(
+                                '복구했습니다. 새 저장소에 복제하지 못했습니다. 프로젝트를 별도로 저장하세요. ' +
+                                    (error instanceof Error ? error.message : String(error)),
+                            );
+                        return;
+                    }
+                }
+                if (this.recovery === restored) this.message('복구했습니다. 프로젝트를 별도로 저장하세요.');
             }
         } finally {
             this.recoveryOpening = false;

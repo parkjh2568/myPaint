@@ -347,7 +347,12 @@ test('document activation sends the explicit generation/key and decoded source t
         },
     });
     await activateNative(9, 'doc-9', 'read-valid');
+    await activateNative(10, 'doc-10', undefined, true);
     assert.deepEqual(calls, [
         { command: 'activate_document', args: { generation: 9, key: 'doc-9', sourceToken: 'read-valid' } },
+        {
+            command: 'activate_document',
+            args: { generation: 10, key: 'doc-10', sourceToken: undefined, closePrevious: true },
+        },
     ]);
 });

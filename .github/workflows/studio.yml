@@ -14,13 +14,13 @@ jobs:
           - group: core
             suites: test:browser test:usability test:fill-failure test:gif-input test:jpeg-orientation test:native-profile test:native-persistence test:native-recovery-flow test:spray-contract test:bulk-edit test:render-preparation
           - group: drawing
-            suites: test:pointer-contract test:color-eraser-contract test:shape-color-contract test:roundrect-contract test:export-preview
+            suites: test:pointer-contract test:color-eraser-contract test:shape-color-contract test:roundrect-contract test:export-preview test:eraser-settings
           - group: viewport
             suites: test:touch-viewport test:camera-viewport test:recovery-contract test:codec-reply test:alpha-contract
           - group: selection
             suites: test:selection-preparation test:selection-resize test:selection-contract test:selection-source test:masked-transform test:fill-key test:cut-key test:eraser-picker-contract test:square-contract test:clipboard-contract
           - group: pending
-            suites: test:pending-contract
+            suites: test:pending-contract test:document-tabs test:storage
           - group: raster
             suites: test:tiles test:scene-contract
     name: web (${{ matrix.group }})
@@ -99,6 +99,9 @@ jobs:
         run: rustup toolchain install 1.94.0 --profile minimal --component rustfmt --component clippy
       - name: Install JS dependencies
         run: npm ci --no-fund
+      - name: Verify frozen fixture bytes on Windows
+        if: runner.os == 'Windows'
+        run: npm run test:fixture-inventory
       - name: Check native formatting
         run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
       - name: Lint native code

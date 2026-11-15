@@ -1,0 +1,8 @@
+# Match the project's LF formatting on Windows. The fixture inventory also
+# checks the SHA-256 of raw JSON and TypeScript bytes, including line endings.
+/web-app/**/*.css text eol=lf
+/web-app/**/*.html text eol=lf
+/web-app/**/*.json text eol=lf
+/web-app/**/*.md text eol=lf
+/web-app/**/*.mjs text eol=lf
+/web-app/**/*.ts text eol=lf

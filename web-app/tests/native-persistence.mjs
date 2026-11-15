@@ -583,7 +583,7 @@ const cases = [
         },
     ],
     [
-        'background recovery completion from an old generation cannot replace a new generation backup',
+        'old generation recovery writes to its original open tab after a different tab is created',
         async (page) => {
             await newDocument(page);
             await stroke(page);
@@ -594,12 +594,24 @@ const cases = [
             await page.evaluate(() => window.__myPaintPersistenceTest.holdNext('recovery_write'));
             await page.clock.fastForward(31000);
             await page.waitForFunction(() => window.__myPaintPersistenceTest.pending.has('recovery_write'));
-            await newDocument(page, true);
+            await newDocument(page);
             await page.evaluate(() => window.__myPaintPersistenceTest.release('recovery_write'));
+            await page.waitForFunction(
+                (key) => window.__myPaintPersistenceTest.recoveries.get(key)?.sequence === 2,
+                old.key,
+            );
             await stroke(page, 4);
             await page.clock.fastForward(31000);
-            await page.waitForFunction(() => window.__myPaintPersistenceTest.recoveryWrites.length === 2);
-            const latest = await page.evaluate(() => window.__myPaintPersistenceTest.recoveryWrites[1]);
+            await page.waitForFunction(() =>
+                window.__myPaintPersistenceTest.recoveryWrites.some(
+                    (write) => write.key === window.__myPaintPersistenceTest.key,
+                ),
+            );
+            const latest = await page.evaluate(() =>
+                window.__myPaintPersistenceTest.recoveryWrites.find(
+                    (write) => write.key === window.__myPaintPersistenceTest.key,
+                ),
+            );
             assert.notEqual(latest.generation, old.generation);
             assert.notEqual(latest.key, old.key);
             assert.equal(
@@ -607,7 +619,7 @@ const cases = [
                     (key) => window.__myPaintPersistenceTest.recoveries.get(key).sequence,
                     old.key,
                 ),
-                1,
+                2,
             );
         },
     ],

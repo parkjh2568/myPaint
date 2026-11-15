@@ -57,7 +57,7 @@ function instrument() {
     const transaction = IDBDatabase.prototype.transaction;
     IDBDatabase.prototype.transaction = function (...args) {
         const tx = Reflect.apply(transaction, this, args);
-        if (this.name === 'retropaint-local-v1' && tx.mode === 'readonly')
+        if (this.name === 'mypaint-studio-recovery-v2' && tx.mode === 'readonly')
             tx.addEventListener('complete', () => (p.initial = true), { once: true });
         return tx;
     };
@@ -104,7 +104,7 @@ async function project(page) {
 async function stored(page) {
     return page.evaluate(async () => {
         const db = await new Promise((r, j) => {
-            const q = indexedDB.open('retropaint-local-v1', 1);
+            const q = indexedDB.open('mypaint-studio-recovery-v2', 1);
             q.onsuccess = () => r(q.result);
             q.onerror = () => j(q.error);
         });
@@ -189,19 +189,27 @@ try {
                     window.recoveryFault.pending = window.recoveryFault.tick();
                 });
                 await page.waitForFunction(() => window.recoveryFault.release);
-                await page.getByRole('button', { name: '파일 및 편집 메뉴', exact: true }).click();
-                await page.getByRole('dialog').getByRole('button', { name: '새 그림', exact: true }).click();
+                await page.getByRole('button', { name: '새 그림 탭', exact: true }).click();
                 await page.getByLabel('너비', { exact: true }).fill('64');
                 await page.getByLabel('높이', { exact: true }).fill('64');
                 await page.getByRole('dialog').getByRole('button', { name: '확인', exact: true }).click();
+                await page.waitForFunction(
+                    () =>
+                        document.querySelector('.document-info')?.textContent.includes('64 × 64') &&
+                        !document.querySelector('dialog[open], .busy'),
+                );
+                const oldKey = record.seed.heads[0].key;
+                await page.locator(`[data-close-tab="${oldKey}"]`).click();
                 await page
                     .getByRole('dialog')
                     .getByRole('button', { name: '저장하지 않고 버리기', exact: true })
                     .click();
                 await page.waitForFunction(
-                    () =>
+                    (key) =>
+                        !document.querySelector(`[data-close-tab="${key}"]`) &&
                         document.querySelector('.document-info')?.textContent.includes('64 × 64') &&
-                        !document.querySelector('dialog[open]'),
+                        !document.querySelector('dialog[open], .busy'),
+                    oldKey,
                 );
                 const nextDocument = decodeProject(await project(page));
                 record.nextDocumentBefore = {

@@ -36,17 +36,17 @@ pinned Tauri 2.12.5 / runtime-wry 2.12.3 / Tao 0.37.2 / muda 0.20.0 소스를 �
 
 | 항목 | 웹 | Windows/macOS 네이티브 |
 | --- | --- | --- |
-| 복구 위치 | 같은 origin의 `retropaint-local-v1` IndexedDB | Tauri `app_local_data_dir()/recovery/` |
+| 복구 위치 | 같은 origin의 `mypaint-studio-recovery-v2` IndexedDB | Tauri `app_local_data_dir()/recovery/` |
 | 복구 payload | 사본당 웹 입력 한도 40MiB | 사본당 300MiB |
 | 복구 개수·합계 | 32개·64MiB | 32개·1GiB |
-| 이전 사본 | 기존 IndexedDB 데이터 유지 | 이전 WebView IndexedDB 읽기 + 이전 Qt 사본 읽기 전용 |
-| 삭제 | 트랜잭션에서 head/sequence 검증 | 파일 식별자·버전과 head 검증; Qt 원본 삭제 거부 |
+| 이전 사본 | `retropaint-local-v1` 읽기 전용, 열기 후 검증된 사본 복제 | 이전 WebView IndexedDB 읽기 + 이전 Qt 사본 읽기 전용 |
+| 삭제 | 트랜잭션에서 head 검증 및 해당 Studio 키만 삭제 | 파일 식별자·버전과 head 검증, 이전 Qt 원본 삭제 거부 |
 
 네이티브 `.rprec`는 12바이트 prefix, 최대 4KiB JSON header, 기존 RPAINT01 payload를 한 파일로 원자 교체한다. 외부 `.rpaint` 형식은 변경하지 않는다. 1GiB는 확정 payload 합계이며 실제 디스크 사용량 상한이 아니다. header와 최대 300MiB 복구 임시파일, 별도 수동 저장 임시파일이 추가될 수 있다. 일반 실패/취소의 임시파일은 해제하지만 강제 종료로 남은 `.mypaint-*.tmp`는 자동 삭제하지 않는다. Windows `ReplaceFileW`의 부분 실패 1176/1177에서는 마지막 복구 가능 사본을 지우지 않도록 임시파일을 보존하고 오류에 그 경로를 표시한다. 대상 원본이 이미 이동되거나 사라졌을 수 있으므로 자동 재시도나 원본 복원을 보장하지 않는다. 복구 사본 자동 prune도 하지 않는다.
 
 macOS의 이전 Qt 위치는 실제 Qt 6.12 probe로 `~/Library/Application Support/RetroPaint/RetroPaint`를 확인했다. Windows는 기존 `AppLocalDataLocation` 계약에 따라 `%LOCALAPPDATA%/RetroPaint/RetroPaint`를 사용하며 실제 Windows 인수는 남아 있다. `recovery.rpaint`와 보관된 timestamp 사본을 읽고 원본·session.lock을 수정하지 않는다. 잠금 파일의 존재만으로 복구를 차단하지 않는다. macOS 실제 Qt 프로세스를 강제 종료한 뒤 남은 stale lock에서도 읽기 전용 shared guard로 복구가 가능했고, 실행 중인 Qt의 배타 잠금은 거부했다.
 
-복구 목록은 `{entries,warnings}`를 반환한다. 손상된 사본이나 실행 중인 Qt 때문에 정상 사본까지 숨기지 않으며 경고는 대화상자에 표시한다. 쓰기·용량 계산은 잘못된 기존 metadata를 발견하면 중단하여 기존 사본을 보존한다. 네이티브/Qt 항목은 각각 최대 32개이고 이전 IndexedDB는 별도 최대 32개다.
+네이티브 복구 목록은 `{entries,warnings}`를 반환한다. 손상된 사본이나 실행 중인 Qt 때문에 정상 사본까지 숨기지 않으며 경고는 대화상자에 표시한다. 쓰기·용량 계산은 잘못된 기존 metadata를 발견하면 중단하여 기존 사본을 보존한다. 네이티브/Qt 항목과 각 IndexedDB 목록은 저장소별로 최대 32개를 검사한다.
 
 ## 재현한 문제와 수정
 

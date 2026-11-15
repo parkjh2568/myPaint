@@ -16,6 +16,7 @@ use tokio::io::AsyncWriteExt;
 pub const MAX_BYTES: u64 = 300 * 1024 * 1024;
 const MAX_TOTAL: u64 = 1024 * 1024 * 1024;
 const MAX_HEADS: usize = 32;
+const MAX_OPEN_DOCUMENTS: usize = 64;
 const MAX_SAFE: u64 = 9_007_199_254_740_991;
 const ENVELOPE: &[u8; 8] = b"RPREC001";
 const PROJECT: &[u8; 8] = b"RPAINT01";
@@ -644,17 +645,29 @@ struct SaveTicket {
     project: bool,
     cancelled: Arc<AtomicBool>,
 }
+struct Document {
+    generation: u64,
+    binding: Option<Target>,
+    recovery_cancel: Arc<AtomicBool>,
+}
 #[derive(Default)]
 struct Session {
     generation: u64,
     key: String,
-    binding: Option<Target>,
-    tab_bindings: HashMap<String, Target>,
+    documents: HashMap<String, Document>,
     reads: HashMap<String, ReadTicket>,
     saves: HashMap<String, SaveTicket>,
     recovery: HashMap<String, RecoveryTicket>,
     writing: HashMap<String, Arc<AtomicBool>>,
-    recovery_cancel: Arc<AtomicBool>,
+}
+impl Session {
+    fn active_document(&self) -> Option<&Document> {
+        self.documents.get(&self.key)
+    }
+
+    fn active_document_mut(&mut self) -> Option<&mut Document> {
+        self.documents.get_mut(&self.key)
+    }
 }
 pub struct Persistence {
     root: PathBuf,
@@ -780,16 +793,30 @@ impl Persistence {
         generation: u64,
         key: String,
         source_token: Option<String>,
+        close_previous: bool,
     ) -> Result<(), String> {
         if generation == 0 || generation > MAX_SAFE || !valid_key(&key) {
             return Err("문서 세대가 올바르지 않습니다.".into());
         }
         let mut session = self.session.lock().map_err(error)?;
-        if generation == session.generation && key == session.key && source_token.is_none() {
+        if generation == session.generation
+            && key == session.key
+            && source_token.is_none()
+            && !close_previous
+        {
             return Ok(());
         }
         if generation <= session.generation {
             return Err("문서 세대가 만료됐습니다.".into());
+        }
+        if close_previous && (session.key == key || session.active_document().is_none()) {
+            return Err("닫을 문서가 변경됐습니다.".into());
+        }
+        if !close_previous
+            && !session.documents.contains_key(&key)
+            && session.documents.len() >= MAX_OPEN_DOCUMENTS
+        {
+            return Err("열린 문서가 너무 많습니다. 다른 탭을 닫으세요.".into());
         }
         let binding = if let Some(token) = source_token {
             let ticket = session
@@ -806,27 +833,36 @@ impl Persistence {
                 Some(ticket.target.clone())
             }
         } else {
-            session.tab_bindings.get(&key).cloned()
+            session
+                .documents
+                .get(&key)
+                .and_then(|document| document.binding.clone())
         };
-        // Keep save destinations owned by document keys, never by the visible tab index.
-        let previous_key = session.key.clone();
-        if let Some(previous) = session.binding.clone() {
-            if session.tab_bindings.len() >= 64 && !session.tab_bindings.contains_key(&previous_key) {
-                return Err("저장 대상 세션 한도입니다. 저장 후 앱을 다시 여세요.".into());
-            }
-            session.tab_bindings.insert(previous_key, previous);
-        }
         for cancelled in session.writing.values() {
             cancelled.store(true, Ordering::SeqCst);
         }
         for ticket in session.saves.values() {
             ticket.cancelled.store(true, Ordering::SeqCst);
         }
-        session.recovery_cancel.store(true, Ordering::SeqCst);
-        session.recovery_cancel = Arc::new(AtomicBool::new(false));
+        // Retire the previous document only once the next activation has passed validation.
+        if close_previous {
+            let previous_key = session.key.clone();
+            if let Some(previous) = session.documents.remove(&previous_key) {
+                previous.recovery_cancel.store(true, Ordering::SeqCst);
+            }
+        }
+        if let Some(previous) = session.documents.insert(
+            key.clone(),
+            Document {
+                generation,
+                binding,
+                recovery_cancel: Arc::new(AtomicBool::new(false)),
+            },
+        ) {
+            previous.recovery_cancel.store(true, Ordering::SeqCst);
+        }
         session.generation = generation;
         session.key = key;
-        session.binding = binding;
         session.reads.clear();
         session.saves.clear();
         Ok(())
@@ -889,12 +925,13 @@ impl Persistence {
         save_as: bool,
     ) -> Result<Option<SaveTarget>, String> {
         let mut session = self.session.lock().map_err(error)?;
-        if generation != session.generation {
-            return Err("문서 세대가 만료됐습니다.".into());
-        }
+        let document = session
+            .active_document()
+            .filter(|document| generation == document.generation)
+            .ok_or("문서 세대가 만료됐습니다.")?;
         if project
             && !save_as
-            && let Some(target) = session.binding.clone()
+            && let Some(target) = document.binding.clone()
         {
             return Self::add_save(&mut session, target, generation, project).map(Some);
         }
@@ -945,11 +982,12 @@ impl Persistence {
         }
         target.capture_content()?;
         let mut session = self.session.lock().map_err(error)?;
-        if generation != session.generation {
-            return Err("문서 세대가 만료됐습니다.".into());
-        }
+        let document = session
+            .active_document()
+            .filter(|document| generation == document.generation)
+            .ok_or("문서 세대가 만료됐습니다.")?;
         if !project
-            && session.binding.as_ref().is_some_and(|b| {
+            && document.binding.as_ref().is_some_and(|b| {
                 b.path == target.path
                     || b.stamp
                         .as_ref()
@@ -1317,10 +1355,12 @@ impl Persistence {
             prefix: vec![],
         };
         let session = self.session.lock().map_err(error)?;
-        if metadata.generation != session.generation || metadata.key != session.key {
-            return Err("복구 문서 세대가 만료됐습니다.".into());
-        }
-        job.cancelled = session.recovery_cancel.clone();
+        let document = session
+            .documents
+            .get(&metadata.key)
+            .filter(|document| metadata.generation == document.generation)
+            .ok_or("복구 문서 세대가 만료됐습니다.")?;
+        job.cancelled = document.recovery_cancel.clone();
         drop(session);
         let records = self.scan()?;
         let existing = records.iter().find(|(_, h)| h.key == metadata.key);
@@ -1391,23 +1431,34 @@ impl WriteJob {
         if self.cancelled.load(Ordering::SeqCst) {
             return Err("저장을 취소했습니다.".into());
         }
-        let (generation, key) = match &self.kind {
-            JobKind::Save(ticket) => (ticket.generation, None),
-            JobKind::Recovery { generation, key } => (*generation, Some(key)),
+        let active_save_document = match &self.kind {
+            JobKind::Save(ticket) => Some(
+                session
+                    .active_document_mut()
+                    .filter(|document| ticket.generation == document.generation)
+                    .ok_or("저장 문서 세대가 변경됐습니다.")?,
+            ),
+            JobKind::Recovery { generation, key } => {
+                if session
+                    .documents
+                    .get(key)
+                    .is_none_or(|document| *generation != document.generation)
+                {
+                    return Err("저장 문서 세대가 변경됐습니다.".into());
+                }
+                self.store.root_directory.check()?;
+                None
+            }
         };
-        if generation != session.generation || key.is_some_and(|key| *key != session.key) {
-            return Err("저장 문서 세대가 변경됐습니다.".into());
-        }
-        if matches!(self.kind, JobKind::Recovery { .. }) {
-            self.store.root_directory.check()?;
-        }
         let stage = self.stage.as_mut().ok_or("임시 파일 없음")?;
         stage.commit()?;
         let receipt = match &self.kind {
             JobKind::Save(ticket) => {
-                if ticket.project {
+                if let Some(document) = active_save_document
+                    && ticket.project
+                {
                     // Keep the published file identity; reopening the path can adopt a later replacement.
-                    session.binding = stage.file.as_ref().and_then(|file| {
+                    document.binding = stage.file.as_ref().and_then(|file| {
                         Some(Target {
                             path: stage.target.path.clone(),
                             stamp: Some(metadata_stamp(file, &file.metadata().ok()?).ok()?),
@@ -1450,7 +1501,7 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let store =
             Persistence::new(&root.path().join("app"), &root.path().join("legacy")).unwrap();
-        store.activate(1, "document-a".into(), None).unwrap();
+        store.activate(1, "document-a".into(), None, false).unwrap();
         (root, store)
     }
     fn execute(job: WriteJob, bytes: &[u8]) -> Result<Option<Receipt>, String> {
@@ -1487,14 +1538,146 @@ mod tests {
         let b = root.path().join("b.rpaint");
         fs::write(&a, b"RPAINT01a").unwrap();
         fs::write(&b, b"RPAINT01b").unwrap();
-        s.session.lock().unwrap().binding = Some(Target::new(&a).unwrap());
-        s.activate(2, "document-b".into(), None).unwrap();
-        assert!(s.session.lock().unwrap().binding.is_none());
-        s.session.lock().unwrap().binding = Some(Target::new(&b).unwrap());
-        s.activate(3, "document-a".into(), None).unwrap();
-        assert_eq!(s.session.lock().unwrap().binding.as_ref().unwrap().path, a);
-        s.activate(4, "document-b".into(), None).unwrap();
-        assert_eq!(s.session.lock().unwrap().binding.as_ref().unwrap().path, b);
+        s.session
+            .lock()
+            .unwrap()
+            .active_document_mut()
+            .unwrap()
+            .binding = Some(Target::new(&a).unwrap());
+        s.activate(2, "document-b".into(), None, false).unwrap();
+        assert!(s.existing_save(2, true, false).unwrap().is_none());
+        s.session
+            .lock()
+            .unwrap()
+            .active_document_mut()
+            .unwrap()
+            .binding = Some(Target::new(&b).unwrap());
+        s.activate(3, "document-a".into(), None, false).unwrap();
+        assert_eq!(
+            s.existing_save(3, true, false).unwrap().unwrap().name,
+            "a.rpaint"
+        );
+        s.activate(4, "document-b".into(), None, false).unwrap();
+        assert_eq!(
+            s.existing_save(4, true, false).unwrap().unwrap().name,
+            "b.rpaint"
+        );
+    }
+    #[test]
+    fn closed_tabs_do_not_count_toward_the_open_document_limit() {
+        let (root, s) = store();
+        let a = root.path().join("kept.rpaint");
+        let b = root.path().join("reopened.rpaint");
+        let bytes = b"RPAINT01project";
+        fs::write(&b, bytes).unwrap();
+        let ticket = s.register_save(&a, 1, true).unwrap();
+        execute(
+            s.claim_save(&ticket.token, bytes.len(), true).unwrap(),
+            bytes,
+        )
+        .unwrap();
+
+        for generation in 2..=67 {
+            let selected = s.register_open(&b).unwrap();
+            assert_eq!(s.read_selected(&selected.token).unwrap(), bytes);
+            s.activate(
+                generation,
+                format!("scratch-{generation}"),
+                Some(selected.token),
+                generation > 2,
+            )
+            .unwrap();
+            assert_eq!(
+                s.existing_save(generation, true, false)
+                    .unwrap()
+                    .unwrap()
+                    .name,
+                "reopened.rpaint"
+            );
+            assert_eq!(s.session.lock().unwrap().documents.len(), 2);
+        }
+        s.activate(68, "document-a".into(), None, true).unwrap();
+        assert_eq!(
+            s.existing_save(68, true, false).unwrap().unwrap().name,
+            "kept.rpaint"
+        );
+        assert_eq!(s.session.lock().unwrap().documents.len(), 1);
+    }
+    #[test]
+    fn closing_tab_releases_only_its_session_after_successful_activation() {
+        let (root, s) = store();
+        let path = root.path().join("a.rpaint");
+        let original = b"RPAINT01original";
+        let replacement = b"RPAINT01late";
+        fs::write(&path, original).unwrap();
+        let selected = s.register_open(&path).unwrap();
+        s.read_selected(&selected.token).unwrap();
+        s.activate(2, "document-a".into(), Some(selected.token), false)
+            .unwrap();
+        let write = |sequence| {
+            s.claim_recovery(
+                RecoveryMetadata {
+                    generation: 2,
+                    key: "document-a".into(),
+                    sequence,
+                    name: "document-a".into(),
+                },
+                replacement.len(),
+                true,
+            )
+        };
+        execute(write(1).unwrap(), replacement).unwrap();
+        let mut job = write(2).unwrap();
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap();
+        runtime.block_on(job.write(b"RPAINT01next")).unwrap();
+        let ticket = s.existing_save(2, true, false).unwrap().unwrap();
+        assert!(
+            s.activate(3, "document-b".into(), Some("expired".into()), true)
+                .is_err()
+        );
+        assert!(s.existing_save(2, true, false).unwrap().is_some());
+        assert!(!job.cancelled.load(Ordering::SeqCst));
+
+        s.activate(3, "document-b".into(), None, true).unwrap();
+        assert!(job.commit().is_err());
+        assert!(write(3).is_err());
+        assert!(s.claim_save(&ticket.token, original.len(), true).is_err());
+        let entry = s.list().unwrap().entries.remove(0);
+        assert_eq!(s.recovery_read(&entry.token).unwrap(), replacement);
+        assert_eq!(fs::read(path).unwrap(), original);
+        // A new session for the same key does not recover the released save destination.
+        s.activate(4, "document-a".into(), None, false).unwrap();
+        assert!(s.existing_save(4, true, false).unwrap().is_none());
+    }
+    #[test]
+    fn recovery_can_publish_for_a_tab_while_it_is_inactive() {
+        let (_, s) = store();
+        recovery(&s, 1, b"RPAINT01original").unwrap();
+        let bytes = b"RPAINT01inactive";
+        let job = s
+            .claim_recovery(
+                RecoveryMetadata {
+                    generation: 1,
+                    key: "document-a".into(),
+                    sequence: 2,
+                    name: "still open".into(),
+                },
+                bytes.len(),
+                true,
+            )
+            .unwrap();
+        s.activate(2, "document-b".into(), None, false).unwrap();
+        execute(job, bytes).unwrap();
+        recovery(&s, 3, b"RPAINT01after-switch").unwrap();
+        let entry = s.list().unwrap().entries.remove(0);
+        assert_eq!(
+            s.recovery_read(&entry.token).unwrap(),
+            b"RPAINT01after-switch"
+        );
+        s.activate(3, "document-a".into(), None, false).unwrap();
+        assert!(recovery(&s, 4, b"RPAINT01obsolete").is_err());
     }
     #[test]
     fn snapshot_staleness_and_legacy_are_preserved() {
@@ -1538,7 +1721,7 @@ mod tests {
         assert_eq!(fs::read(&path).unwrap(), b"RPAINT01original");
         let t = s.register_save(&path, 1, true).unwrap();
         let job = s.claim_save(&t.token, 10, true).unwrap();
-        s.activate(2, "document-b".into(), None).unwrap();
+        s.activate(2, "document-b".into(), None, false).unwrap();
         assert!(execute(job, b"RPAINT01xx").is_err());
         let t = s.register_save(&path, 2, true).unwrap();
         fs::write(&path, b"RPAINT01external").unwrap();
@@ -1593,11 +1776,23 @@ mod tests {
                     .unwrap()
                     .target
                     .stamp = stamp(&path).unwrap();
-                assert!(s.activate(2, "opened".into(), Some(opened.token)).is_err());
+                assert!(
+                    s.activate(2, "opened".into(), Some(opened.token), false)
+                        .is_err()
+                );
             } else {
-                s.activate(2, "opened".into(), Some(opened.token)).unwrap();
+                s.activate(2, "opened".into(), Some(opened.token), false)
+                    .unwrap();
                 fs::write(&path, b"RPAINT01external").unwrap();
-                s.session.lock().unwrap().binding.as_mut().unwrap().stamp = stamp(&path).unwrap();
+                s.session
+                    .lock()
+                    .unwrap()
+                    .active_document_mut()
+                    .unwrap()
+                    .binding
+                    .as_mut()
+                    .unwrap()
+                    .stamp = stamp(&path).unwrap();
                 let next = s.existing_save(2, true, false).unwrap().unwrap();
                 assert!(s.claim_save(&next.token, 15, true).is_err());
             }
@@ -1619,6 +1814,8 @@ mod tests {
             s.session
                 .lock()
                 .unwrap()
+                .active_document()
+                .unwrap()
                 .binding
                 .as_ref()
                 .unwrap()
@@ -1626,7 +1823,15 @@ mod tests {
             Some(expected)
         );
         fs::write(&path, b"RPAINT01external").unwrap();
-        s.session.lock().unwrap().binding.as_mut().unwrap().stamp = stamp(&path).unwrap();
+        s.session
+            .lock()
+            .unwrap()
+            .active_document_mut()
+            .unwrap()
+            .binding
+            .as_mut()
+            .unwrap()
+            .stamp = stamp(&path).unwrap();
         let next = s.existing_save(1, true, false).unwrap().unwrap();
         assert!(s.claim_save(&next.token, 15, true).is_err());
         assert_eq!(fs::read(&path).unwrap(), b"RPAINT01external");
@@ -1707,7 +1912,15 @@ mod tests {
             .unwrap();
             assert_eq!(fs::read(&path).unwrap(), bytes);
             assert_eq!(
-                s.session.lock().unwrap().binding.as_ref().unwrap().stamp,
+                s.session
+                    .lock()
+                    .unwrap()
+                    .active_document()
+                    .unwrap()
+                    .binding
+                    .as_ref()
+                    .unwrap()
+                    .stamp,
                 stamp(&path).unwrap()
             );
             ticket = s.existing_save(1, true, false).unwrap().unwrap();
@@ -1847,11 +2060,11 @@ mod tests {
         fs::write(&path, b"RPAINT01source").unwrap();
         let open = s.register_open(&path).unwrap();
         assert!(
-            s.activate(2, "document-b".into(), Some(open.token.clone()))
+            s.activate(2, "document-b".into(), Some(open.token.clone()), false)
                 .is_err()
         );
         s.read_selected(&open.token).unwrap();
-        s.activate(2, "document-b".into(), Some(open.token))
+        s.activate(2, "document-b".into(), Some(open.token), false)
             .unwrap();
         assert!(s.register_save(&path, 2, false).is_err());
         let export = root.path().join("picture.png");
@@ -1918,7 +2131,7 @@ mod tests {
         let (_root, s) = store();
         for index in 0..32 {
             let key = format!("doc-{index}");
-            s.activate(index + 2, key.clone(), None).unwrap();
+            s.activate(index + 2, key.clone(), None, false).unwrap();
             let bytes = b"RPAINT01snapshot";
             let job = s
                 .claim_recovery(
@@ -1959,7 +2172,7 @@ mod tests {
             .into_iter()
             .find(|e| e.key == "doc-31")
             .unwrap();
-        s.activate(34, "doc-32".into(), None).unwrap();
+        s.activate(34, "doc-32".into(), None, false).unwrap();
         assert!(
             s.claim_recovery(
                 RecoveryMetadata {
@@ -2047,7 +2260,7 @@ mod tests {
             s.scan().unwrap().iter().map(|(_, h)| h.size).sum::<u64>(),
             MAX_TOTAL
         );
-        s.activate(2, "seed-0".into(), None).unwrap();
+        s.activate(2, "seed-0".into(), None, false).unwrap();
         let bytes = b"RPAINT01smaller";
         execute(
             s.claim_recovery(
@@ -2087,7 +2300,7 @@ mod tests {
             .build()
             .unwrap();
         runtime.block_on(job.write(b"RPAINT01late")).unwrap();
-        s.activate(2, "document-b".into(), None).unwrap();
+        s.activate(2, "document-a".into(), None, false).unwrap();
         assert!(job.commit().is_err());
         let entry = s.list().unwrap().entries.remove(0);
         assert_eq!(s.recovery_read(&entry.token).unwrap(), b"RPAINT01original");
@@ -2218,7 +2431,7 @@ mod tests {
         let path = root.path().join("legacy/RECOVERY.RPAINT");
         let opened = s.register_open(&path).unwrap();
         s.read_selected(&opened.token).unwrap();
-        s.activate(2, "next-document".into(), Some(opened.token))
+        s.activate(2, "next-document".into(), Some(opened.token), false)
             .unwrap();
         assert!(s.existing_save(2, true, false).unwrap().is_none());
     }

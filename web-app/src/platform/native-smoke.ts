@@ -857,7 +857,7 @@ export async function runNativeSmoke(studio: Studio, runtimeProfile: ResourcePro
             if (!legacyClear) throw Error('Legacy recovery deletion allowed');
             stage = 'generation-replacement';
             stageStarted = performance.now();
-            await activateNative(studio.epoch + 1, crypto.randomUUID());
+            await activateNative(studio.epoch + 1, crypto.randomUUID(), undefined, true);
             let oldGeneration = false;
             try {
                 await studio.recovery.request('write', undefined, small);

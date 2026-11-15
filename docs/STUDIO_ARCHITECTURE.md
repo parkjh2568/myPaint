@@ -59,7 +59,7 @@ Source와 scene은 합계 64타일·128MiB의 추정 RGBA 예산을 공유한다
 
 ## 저장소 스키마·파일 형식
 
-서버 RDBMS는 없다. 브라우저 DB는 같은 origin의 IndexedDB `retropaint-local-v1`, version1이다.
+브라우저 복구는 같은 origin의 IndexedDB `mypaint-studio-recovery-v2`에 저장한다. 이 DB의 스키마 버전은 1이다.
 
 | Store     | Primary key          | Value                         | 계약                                                                                         |
 | --------- | -------------------- | ----------------------------- | -------------------------------------------------------------------------------------------- |
@@ -67,6 +67,8 @@ Source와 scene은 합계 64타일·128MiB의 추정 RGBA 예산을 공유한다
 | snapshots | heads와 같은 key     | RPAINT01 Blob                 | head와 size·generation을 같은 트랜잭션으로 확인. 저장/삭제는 두 store를 함께 commit/rollback |
 
 복구 정책은 최대32개, 합계64MiB다. 자신의 기존 사본을 교체할 때 이전 크기는 새 합계에서 제외한다. 손상 메타데이터·새 generation·한도 초과·transaction abort는 기존 사본을 보존한다. 실제 디스크 quota/권한 실패는 별도 예외다. 현재 자동 복구는 확정 revision을 대상으로 하며 미확정 문자를 보장하지 않는다.
+
+이전 `retropaint-local-v1` 사본은 같은 origin의 복구 창에서 읽기 전용으로 표시한다. 사본을 선택해 열었을 때 Worker로 프로젝트를 검증한 뒤 원본 바이트를 Studio 저장소에 복제한다. 같은 원본의 반복 열기는 중복 사본을 만들지 않는다. 구형 앱의 전체 삭제는 이제 Studio의 새 사본에 영향을 주지 않는다. 손상된 head는 목록에서 건너뛰고 원본은 보존한다. 한도 계산에 신뢰할 수 없는 head가 있으면 쓰기를 중단한다.
 
 RPAINT01의 little-endian header, 크기/레이어 수/active/background, UTF-8 이름/visible/PNG 길이와 레이어 순서를 보존한다. 새 필드나 서비스 의존성을 추가하지 않는다. PNG raw RGBA 왕복과 Qt premultiplied 표시 표현을 구분한다. JPG/BMP는 명시한 바탕색으로 불투명하게 합성한다.
 

@@ -11,6 +11,7 @@
         "desktop": "node tools/desktop.mjs dev",
         "desktop:build": "node tools/desktop.mjs build",
         "test:browser": "node --import tsx tests/browser.mjs && node --import tsx tests/concurrency.mjs && node --import tsx tests/editing.mjs && node --import tsx tests/storage.mjs && node --import tsx tests/shear.mjs",
+        "test:storage": "node --import tsx tests/storage.mjs",
         "format": "prettier --write src tests tools *.json *.ts index.html",
         "format:check": "prettier --check src tests tools *.json *.ts index.html",
         "test:performance": "node --import tsx tests/performance.mjs",

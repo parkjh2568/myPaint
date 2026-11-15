@@ -6,11 +6,21 @@ export interface NativeSaveOptions {
     project: boolean;
     saveAs: boolean;
 }
-export async function activateNative(generation: number, key: string, sourceToken?: string): Promise<void> {
+export async function activateNative(
+    generation: number,
+    key: string,
+    sourceToken?: string,
+    closePrevious = false,
+): Promise<void> {
     if (!isDesktop()) return;
     if (!Number.isSafeInteger(generation) || generation < 1 || !/^[a-z0-9_-]{1,64}$/.test(key))
         throw Error('문서 세대가 올바르지 않습니다.');
-    await window.__TAURI__!.core.invoke('activate_document', { generation, key, sourceToken });
+    await window.__TAURI__!.core.invoke('activate_document', {
+        generation,
+        key,
+        sourceToken,
+        ...(closePrevious ? { closePrevious } : {}),
+    });
 }
 export async function openNative(
     signal?: AbortSignal,

@@ -43,11 +43,14 @@ impl NativeState {
         generation: u64,
         key: String,
         source_token: Option<String>,
+        close_previous: bool,
     ) -> Result<(), String> {
         let store = self.store().await?;
-        tauri::async_runtime::spawn_blocking(move || store.activate(generation, key, source_token))
-            .await
-            .map_err(|e| e.to_string())??;
+        tauri::async_runtime::spawn_blocking(move || {
+            store.activate(generation, key, source_token, close_previous)
+        })
+        .await
+        .map_err(|e| e.to_string())??;
         self.guard_armed.store(true, Ordering::SeqCst);
         Ok(())
     }
@@ -57,9 +60,17 @@ async fn activate_document(
     generation: u64,
     key: String,
     source_token: Option<String>,
+    close_previous: Option<bool>,
     state: tauri::State<'_, NativeState>,
 ) -> Result<(), String> {
-    state.activate(generation, key, source_token).await
+    state
+        .activate(
+            generation,
+            key,
+            source_token,
+            close_previous.unwrap_or(false),
+        )
+        .await
 }
 #[tauri::command]
 async fn choose_open(state: tauri::State<'_, NativeState>) -> Result<Option<OpenTarget>, String> {
@@ -368,7 +379,7 @@ fn legacy_path() -> PathBuf {
 }
 fn io_smoke(root: &Path) -> Result<(), String> {
     let store = Persistence::new(&root.join("app"), &root.join("legacy"))?;
-    store.activate(1, "io-document".into(), None)?;
+    store.activate(1, "io-document".into(), None, false)?;
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
@@ -529,24 +540,24 @@ mod tests {
         assert!(!state.guard_armed.load(Ordering::SeqCst));
         assert!(
             runtime
-                .block_on(state.activate(1, "ready".into(), None))
+                .block_on(state.activate(1, "ready".into(), None, false))
                 .is_err()
         );
         assert!(!state.guard_armed.load(Ordering::SeqCst));
         drop(other);
         assert!(
             runtime
-                .block_on(state.activate(0, "invalid".into(), None))
+                .block_on(state.activate(0, "invalid".into(), None, false))
                 .is_err()
         );
         assert!(!state.guard_armed.load(Ordering::SeqCst));
         runtime
-            .block_on(state.activate(1, "ready".into(), None))
+            .block_on(state.activate(1, "ready".into(), None, false))
             .unwrap();
         assert!(state.guard_armed.load(Ordering::SeqCst));
         assert!(
             runtime
-                .block_on(state.activate(1, "stale".into(), None))
+                .block_on(state.activate(1, "stale".into(), None, false))
                 .is_err()
         );
         assert!(state.guard_armed.load(Ordering::SeqCst));
