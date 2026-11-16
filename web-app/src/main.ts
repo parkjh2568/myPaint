@@ -1,4 +1,4 @@
-import { isDesktop, activateNative, openNative, saveNative } from './platform/native';
+import { isDesktop, activateNative, retireNative, openNative, saveNative } from './platform/native';
 import './style.css';
 import { createSurface, context2D } from './platform/surface';
 import { FinalSceneCache, type PixelRect, type SceneRaster } from './platform/tiles';
@@ -605,31 +605,7 @@ class Studio {
             this.message('설정을 읽지 못했습니다. 기본 설정을 사용합니다.');
         }
         this.applyPreferences();
-        window.addEventListener('mypaint-close-request', () =>
-            this.run(async () => {
-                if (!isDesktop()) return;
-                if (this.nativeInitialized) {
-                    if (this.busy || this.drag || this.doc.stroke || document.querySelector('dialog[open]')) {
-                        this.message('진행 중인 작업을 완료하거나 취소한 뒤 닫으세요.');
-                        return;
-                    }
-                    for (const tab of [...this.tabs]) {
-                        await this.switchTab(tab.key);
-                        if (!(await this.replacementAllowed())) return;
-                    }
-                }
-                const previousInert = this.root.inert;
-                this.busy = true;
-                this.root.inert = true;
-                try {
-                    await window.__TAURI__!.core.invoke('close_window');
-                } catch (error) {
-                    this.busy = false;
-                    this.root.inert = previousInert;
-                    throw error;
-                }
-            }),
-        );
+        window.addEventListener('mypaint-close-request', () => this.run(() => this.requestClose()));
         matchMedia('(any-pointer: coarse)').addEventListener('change', () => {
             if (this.density !== 'auto') return;
             if (this.pointers.size || this.drag || this.doc.stroke || this.navigation)
@@ -3200,8 +3176,39 @@ class Studio {
             else await this.command(selected);
         }
     }
-    async replacementAllowed(): Promise<boolean> {
-        if (!this.doc.dirty && !this.hasPending()) return true;
+    async requestClose(): Promise<void> {
+        if (!isDesktop()) return;
+        if (this.nativeInitialized) {
+            if (
+                this.busy ||
+                this.drag ||
+                this.doc.stroke ||
+                this.selectionPreparation ||
+                this.selectionResize ||
+                document.querySelector('dialog[open]')
+            ) {
+                this.message('진행 중인 작업을 완료하거나 취소한 뒤 닫으세요.');
+                return;
+            }
+            const current = this.captureTab();
+            for (const tab of [current, ...this.tabs.filter((tab) => tab !== current)]) {
+                if (!(await this.replacementAllowed(tab))) return;
+            }
+        }
+        const previousInert = this.root.inert;
+        this.busy = true;
+        this.root.inert = true;
+        try {
+            await window.__TAURI__!.core.invoke('close_window');
+        } catch (error) {
+            this.busy = false;
+            this.root.inert = previousInert;
+            throw error;
+        }
+    }
+    async replacementAllowed(tab?: DocumentTab): Promise<boolean> {
+        const doc = tab?.doc || this.doc;
+        if (!doc.dirty && !(doc === this.doc && this.hasPending())) return true;
         const previous = document.activeElement as HTMLElement | null,
             dialog = document.createElement('dialog'),
             heading = document.createElement('h2'),
@@ -3211,9 +3218,12 @@ class Studio {
         heading.id = 'unsaved-heading';
         heading.textContent = '변경한 내용을 저장하시겠습니까?';
         dialog.setAttribute('aria-labelledby', heading.id);
-        message.textContent = isDesktop()
-            ? '저장하지 않고 버리면 현재 그림의 변경 사항을 잃습니다.'
-            : '프로젝트를 다운로드하면 현재 그림은 유지됩니다. 파일을 확인한 뒤 계속하세요.';
+        message.textContent =
+            (tab?.name || this.name) +
+            ': ' +
+            (isDesktop()
+                ? '저장하지 않고 버리면 이 그림의 변경 사항을 잃습니다.'
+                : '프로젝트를 다운로드하면 이 그림은 유지됩니다. 파일을 확인한 뒤 계속하세요.');
         for (const [value, label] of [
             ['save', isDesktop() ? '저장' : '프로젝트 다운로드'],
             ['discard', '저장하지 않고 버리기'],
@@ -3245,8 +3255,8 @@ class Studio {
             if (previous?.isConnected) previous.focus();
         }
         if (choice === 'save') {
-            await this.saveProject();
-            return isDesktop() && !this.doc.dirty && !this.hasPending();
+            await this.saveProject(false, tab);
+            return isDesktop() && !doc.dirty && !(doc === this.doc && this.hasPending());
         }
         return choice === 'discard';
     }
@@ -3388,10 +3398,17 @@ class Studio {
     async closeTab(key: string): Promise<void> {
         const closing = this.tabs.find((tab) => tab.key === key);
         if (!closing) return;
-        await this.switchTab(key);
-        if (this.busy || this.drag || this.doc.stroke) throw Error('현재 작업을 먼저 마치세요.');
-        if (!(await this.replacementAllowed())) return;
-        if (this.doc !== closing.doc) throw Error('현재 그림이 변경됐습니다. 다시 닫아 주세요.');
+        if (this.busy || this.drag || this.doc.stroke || this.selectionPreparation || this.selectionResize)
+            throw Error('현재 작업을 먼저 마치세요.');
+        if (!(await this.replacementAllowed(closing))) return;
+        if (!this.tabs.includes(closing)) throw Error('그림이 변경됐습니다. 다시 닫아 주세요.');
+        if (this.doc !== closing.doc) {
+            await this.task('그림 닫는 중', async () => {
+                await retireNative(this.epoch, closing.key);
+                this.tabs.splice(this.tabs.indexOf(closing), 1);
+            });
+            return;
+        }
         if (this.tabs.length === 1) {
             await this.replaceDocument(
                 createState(800, 600, [0, 0, 0, 0], runtimeProfile),
@@ -3588,9 +3605,11 @@ class Studio {
         this.workspace.append(panel);
         this.message('파일 받기를 누르고 다운로드한 파일을 확인하세요.');
     }
-    async saveProject(saveAs = false): Promise<void> {
+    async saveProject(saveAs = false, tab?: DocumentTab): Promise<void> {
         await this.nativeReady;
-        let suggestedName = this.name.replace(/\.[^.]+$/, '') + '.rpaint';
+        const doc = tab?.doc || this.doc,
+            activeTab = doc === this.doc;
+        let suggestedName = (tab?.name || this.name).replace(/\.[^.]+$/, '') + '.rpaint';
         if (saveAs && !isDesktop()) {
             const result = await this.dialog('프로젝트 다른 이름 저장', [
                 { key: 'name', label: '파일 이름', value: suggestedName },
@@ -3599,17 +3618,23 @@ class Studio {
             suggestedName = result.name.replace(/[\\/\0]/g, '_');
             if (!/\.rpaint$/i.test(suggestedName)) suggestedName += '.rpaint';
         }
-        if (this.doc.stroke) throw Error('현재 획을 마친 뒤 저장하세요.');
-        const state = this.doc.state,
+        if (doc.stroke) throw Error('현재 획을 마친 뒤 저장하세요.');
+        const state = doc.state,
             active = state.active;
-        const candidate = this.pendingState(),
-            revision = this.doc.revision,
-            epoch = this.epoch,
-            prepared = this.hasPending() ? this.doc.prepareState('저장', candidate) : undefined;
+        const candidate = activeTab ? this.pendingState() : state,
+            revision = doc.revision,
+            epoch = activeTab ? this.epoch : tab!.recovery.generation,
+            prepared = activeTab && this.hasPending() ? doc.prepareState('저장', candidate) : undefined,
+            current = () =>
+                doc.state === state &&
+                doc.revision === revision &&
+                state.active === active &&
+                (activeTab
+                    ? this.doc === doc && this.epoch === epoch
+                    : this.tabs.includes(tab!) && tab!.recovery.generation === epoch);
         await this.task('프로젝트 준비 중', async (signal) => {
             const bytes = await exportBytes(candidate, 'rpaint', undefined, signal, runtimeProfile);
-            if (signal.aborted || revision !== this.doc.revision || epoch !== this.epoch)
-                throw Error('문서가 변경됐습니다. 다시 저장하세요.');
+            if (signal.aborted || !current()) throw Error('문서가 변경됐습니다. 다시 저장하세요.');
             const name = suggestedName;
             if (isDesktop()) {
                 const saved = await saveNative(bytes, name, signal, {
@@ -3618,25 +3643,23 @@ class Studio {
                     saveAs,
                 });
                 if (saved) {
-                    if (
-                        this.doc.state !== state ||
-                        this.doc.revision !== revision ||
-                        this.epoch !== epoch ||
-                        state.active !== active
-                    ) {
+                    if (!current()) {
                         this.message(
                             '파일은 저장됐습니다. 이후 변경된 현재 편집은 유지합니다. 다시 저장하세요.',
                         );
                         return;
                     }
-                    if (prepared) this.doc.installPrepared(prepared);
-                    this.selection = undefined;
-                    this.editor?.remove();
-                    this.editor = undefined;
-                    this.points = [];
-                    this.curveControls = [];
-                    this.doc.markSaved(this.doc.revision);
-                    this.name = saved;
+                    if (prepared) doc.installPrepared(prepared);
+                    if (activeTab) {
+                        this.selection = undefined;
+                        this.editor?.remove();
+                        this.editor = undefined;
+                        this.points = [];
+                        this.curveControls = [];
+                        this.name = saved;
+                    }
+                    doc.markSaved(doc.revision);
+                    if (tab) tab.name = saved;
                     this.message('프로젝트를 저장했습니다.');
                 }
             } else this.showDownload(bytes, name, 'application/octet-stream');

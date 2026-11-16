@@ -4,15 +4,16 @@
 
 ## 이번 커밋의 변경과 검증
 
-`codex/gpui-compare`의 `6efb9d3cbaf0e50c6583c146949364da99f852b9`를 기반으로 공유 저장 모듈의 테스트 두 곳과 인수인계 문서를 수정했습니다. 제품 저장 로직과 의존성 잠금 파일은 그대로입니다.
+이번 변경은 `codex/gpui-compare`의 `21ea74f`를 기반으로 합니다. 앞선 복구·ACL 테스트 수정에 이어, 탭 닫기·앱 종료 취소와 열린 프로젝트의 내보내기 충돌을 수정했습니다. 저장·닫기 계약, 회귀 테스트와 CI 등록을 함께 반영했습니다.
 
-- 복구 테스트: `TempDir`을 테스트 끝까지 유지하고, 비활성 탭에서 완료된 복구 쓰기의 바이트를 직접 읽어 비교합니다.
-- macOS ACL 테스트: `USER` 기반 사용자 ACL을 `everyone deny write`로 바꾸고, OS가 직접 쓰기 열기를 `PermissionDenied`로 거부하는지 먼저 확인합니다. 원본 보존과 임시 stage 제거 검증은 유지합니다.
-- 최종 macOS arm64 결과: Tauri 31개·GPUI 68개·Node 359개·Python 43개 통과. Rust·웹 포맷 및 TypeScript·Vite 빌드 통과. `USER`를 제거한 ACL 검사도 두 앱에서 각각 20회 통과했습니다. [명령과 검증 한계](docs/CURRENT_STATUS.md#2026-11-16-macos-acl-테스트-안정화)
+- Tauri는 닫기 확인과 종료 확인을 위해 탭을 활성화하지 않습니다. 대상 문서를 직접 저장하고, 비활성 닫기는 해당 네이티브 키만 해제합니다. 취소·저장 창 취소·쓰기 실패·종료 IPC 실패 시 현재 미확정 편집과 Redo를 유지합니다.
+- GPUI도 비활성 탭의 저장을 위해 현재 탭을 전환하지 않습니다. 전체 종료의 저장은 비활성 문서부터 처리하고 현재 미확정 편집은 마지막에 저장합니다.
+- 공유 Rust 저장소는 모든 열린 프로젝트의 경로·파일 identity를 저장 대상 선택, 쓰기 준비, 최종 교체 직전에 확인해 이미지 덮어쓰기를 거절합니다.
+- 최종 macOS arm64 결과: Tauri 33개·GPUI 71개·Node 362개·Python 43개 통과. 새 Chromium 회귀 14개와 기존 문서 탭 회귀 통과. [명령과 검증 한계](docs/CURRENT_STATUS.md#2026-11-16-닫기종료-취소와-내보내기-충돌-수정)
 
 ## 로컬 실행 준비
 
-이번 Apple Silicon Mac에는 Rust 1.100.0과 Xcode Metal Toolchain을 추가했습니다. Tauri 검사는 Rust 1.94.0을 사용했습니다. `gpui-app/`의 rustup 디렉터리 override는 이 Mac에만 등록된 설정이며 저장소에 포함되지 않습니다. GPUI 개발 실행 파일 빌드는 통과했고 GUI는 실행하지 않았습니다.
+이번 Apple Silicon Mac에는 Rust 1.100.0과 Xcode Metal Toolchain을 추가했습니다. Tauri 검사는 Rust 1.94.0을 사용했습니다. `gpui-app/`의 rustup 디렉터리 override는 이 Mac에만 등록된 설정이며 저장소에 포함되지 않습니다. 최신 수정의 Rust 전체 테스트와 브라우저 검증은 통과했으며 GPUI GUI·설치 패키지 검수는 남아 있습니다.
 
 Rust 1.100.0과 Metal 도구가 준비된 Mac에서는 저장소 루트에서 다음 명령으로 별도 개발 저장소를 사용하는 앱을 시작할 수 있습니다.
 
@@ -36,7 +37,7 @@ cargo +1.100.0 run --manifest-path gpui-app/Cargo.toml --locked -- --persistence
 ## 이어서 검증할 항목
 
 - 이번 커밋의 원격 CI 결과와 Windows 검사를 확인해야 합니다. macOS 로컬 단위 검사 통과는 전체 브라우저 회귀·실제 GUI·설치 패키지 검증을 포함하지 않습니다.
-- Tauri에서 수정된 비활성 탭의 닫기 취소가 현재 탭의 편집과 Redo를 바꾸는 경로가 재현됐습니다. 내보내기 대상과 열려 있는 프로젝트 경로의 충돌, 종료 취소 시 편집 보존도 확인이 필요합니다. [2026-11-15 코드베이스 감사](docs/archive/STUDIO_CODEBASE_REAUDIT.md)
+- 닫기·종료 취소와 내보내기 충돌의 로컬 회귀는 통과했습니다. 실제 OS 대화상자와 Windows/WebView 런타임 검수는 남았습니다. 나머지 편집 실패·자원 경계 항목은 [2026-11-15 코드베이스 감사](docs/archive/STUDIO_CODEBASE_REAUDIT.md)를 따릅니다.
 - GPUI 한글 글리프 표시는 확인했습니다. Windows IME 조합, 물리 펜 필압, 실제 두 손가락 제스처, macOS 설치본은 남아 있습니다. GDI 관측값은 하드웨어 펜 지연을 포함하지 않습니다.
 
 [설치·실행 안내](README.md) · [현재 상태](docs/CURRENT_STATUS.md) · [기술 문서](docs/README.md) · [작업 연혁](docs/PROJECT_HISTORY.md) · [과거 기록](docs/archive/README.md)

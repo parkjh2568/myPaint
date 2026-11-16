@@ -11,21 +11,6 @@ use std::{
 
 mod persistence {
     include!("../../web-app/src-tauri/src/persistence.rs");
-
-    impl Persistence {
-        pub(super) fn retire_inactive(&self, generation: u64, key: &str) -> Result<(), String> {
-            let mut session = self.session.lock().map_err(error)?;
-            if session.generation != generation || session.key == key || !valid_key(key) {
-                return Err("닫을 문서 또는 현재 문서가 변경됐습니다.".into());
-            }
-            let document = session
-                .documents
-                .remove(key)
-                .ok_or("닫을 문서가 이미 없습니다.")?;
-            document.recovery_cancel.store(true, Ordering::SeqCst);
-            Ok(())
-        }
-    }
 }
 
 pub use persistence::RecoveryListing;

@@ -20,7 +20,7 @@ jobs:
           - group: selection
             suites: test:selection-preparation test:selection-resize test:selection-contract test:selection-source test:masked-transform test:fill-key test:cut-key test:eraser-picker-contract test:square-contract test:clipboard-contract
           - group: pending
-            suites: test:pending-contract test:document-tabs test:storage
+            suites: test:pending-contract test:document-tabs test:close-cancel test:storage
           - group: raster
             suites: test:tiles test:scene-contract
     name: web (${{ matrix.group }})

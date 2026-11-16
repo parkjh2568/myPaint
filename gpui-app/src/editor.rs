@@ -1152,6 +1152,36 @@ impl Editor {
         Ok(true)
     }
 
+    pub fn save_tab_with(
+        &mut self,
+        id: u64,
+        write: impl FnOnce(&State, &str) -> EngineResult<Option<String>>,
+    ) -> EngineResult<bool> {
+        self.ensure_no_gesture()?;
+        let index = self.tab_index(id)?;
+        let active = index == self.active;
+        let candidate = if active {
+            self.preview_state()?
+        } else {
+            self.tabs[index].document.state().clone()
+        };
+        let prepared = if active {
+            self.prepare_pending()?
+        } else {
+            None
+        };
+        let Some(name) = write(&candidate, &self.tabs[index].name)? else {
+            return Ok(false);
+        };
+        if active {
+            self.apply_pending(prepared)?;
+        }
+        let tab = &mut self.tabs[index];
+        tab.name = name;
+        tab.document.mark_saved(tab.document.revision());
+        Ok(true)
+    }
+
     pub fn preview_state(&self) -> EngineResult<State> {
         let mut state = self.pending_state(true, false)?;
         match self.drag.as_ref() {
@@ -1882,6 +1912,54 @@ mod tests {
         editor.activate_tab(drawing).unwrap();
         assert_eq!(read_pixel(&editor, 0, 0), RED);
         assert!(!editor.document().can_redo());
+    }
+
+    #[test]
+    fn inactive_save_and_cancelled_active_save_preserve_pending_edit_and_redo() {
+        let mut editor = fixture();
+        let first = editor.active_tab().id;
+        draw_pencil(&mut editor, 3.5, 5.5);
+        assert!(editor.undo());
+        let dirty = editor.new_tab(16, 12, [0; 4]).unwrap();
+        draw_pencil(&mut editor, 4.5, 6.5);
+        editor.activate_tab(first).unwrap();
+        editor.paste_raster(one_pixel(RED)).unwrap();
+        let revision = editor.document().revision();
+        assert!(editor.document().can_redo());
+        assert!(!editor.save_tab_with(dirty, |_, _| Ok(None)).unwrap());
+        assert!(
+            editor
+                .save_tab_with(dirty, |_, _| Err("injected write failure".into()))
+                .is_err()
+        );
+        assert!(!editor.save_tab_with(first, |_, _| Ok(None)).unwrap());
+        assert!(
+            editor
+                .save_tab_with(dirty, |state, _| {
+                    assert_eq!(
+                        state.layers[0].pixels[(6 * 16 + 4) * 4..(6 * 16 + 4) * 4 + 4],
+                        RED
+                    );
+                    Ok(Some("saved-inactive.rpaint".into()))
+                })
+                .unwrap()
+        );
+        assert_eq!(editor.active_tab().id, first);
+        assert_eq!(editor.document().revision(), revision);
+        assert!(editor.has_pending());
+        assert!(editor.document().can_redo());
+        assert!(
+            !editor
+                .tabs
+                .iter()
+                .find(|tab| tab.id == dirty)
+                .unwrap()
+                .document
+                .dirty()
+        );
+        assert!(editor.undo()); // Cancel the pending paste, then exercise the original Redo.
+        assert!(editor.redo());
+        assert_eq!(read_pixel(&editor, 3, 5), RED);
     }
 
     #[test]

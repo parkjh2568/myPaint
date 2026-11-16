@@ -665,8 +665,28 @@ impl Session {
         self.documents.get(&self.key)
     }
 
+    #[cfg(test)]
     fn active_document_mut(&mut self) -> Option<&mut Document> {
         self.documents.get_mut(&self.key)
+    }
+
+    fn check_export_target(&self, target: &Target) -> Result<(), String> {
+        if self
+            .documents
+            .values()
+            .filter_map(|document| document.binding.as_ref())
+            .any(|binding| {
+                binding.path == target.path
+                    || binding
+                        .stamp
+                        .as_ref()
+                        .zip(target.stamp.as_ref())
+                        .is_some_and(|(a, b)| a.identity == b.identity)
+            })
+        {
+            return Err("이미지 내보내기는 열린 프로젝트 원본과 다른 파일을 선택하세요.".into());
+        }
+        Ok(())
     }
 }
 pub struct Persistence {
@@ -926,8 +946,11 @@ impl Persistence {
     ) -> Result<Option<SaveTarget>, String> {
         let mut session = self.session.lock().map_err(error)?;
         let document = session
-            .active_document()
-            .filter(|document| generation == document.generation)
+            .documents
+            .values()
+            .find(|document| {
+                generation == document.generation && (project || generation == session.generation)
+            })
             .ok_or("문서 세대가 만료됐습니다.")?;
         if project
             && !save_as
@@ -982,20 +1005,15 @@ impl Persistence {
         }
         target.capture_content()?;
         let mut session = self.session.lock().map_err(error)?;
-        let document = session
-            .active_document()
-            .filter(|document| generation == document.generation)
-            .ok_or("문서 세대가 만료됐습니다.")?;
-        if !project
-            && document.binding.as_ref().is_some_and(|b| {
-                b.path == target.path
-                    || b.stamp
-                        .as_ref()
-                        .zip(target.stamp.as_ref())
-                        .is_some_and(|(a, b)| a.identity == b.identity)
+        session
+            .documents
+            .values()
+            .find(|document| {
+                generation == document.generation && (project || generation == session.generation)
             })
-        {
-            return Err("이미지 내보내기는 프로젝트 원본과 다른 파일을 선택하세요.".into());
+            .ok_or("문서 세대가 만료됐습니다.")?;
+        if !project {
+            session.check_export_target(&target)?;
         }
         Self::add_save(&mut session, target, generation, project)
     }
@@ -1026,11 +1044,18 @@ impl Persistence {
             .saves
             .remove(token)
             .ok_or("저장 대상이 만료됐거나 이미 사용됐습니다.")?;
-        if ticket.generation != session.generation
+        if !session
+            .documents
+            .values()
+            .any(|document| document.generation == ticket.generation)
+            || !ticket.project && ticket.generation != session.generation
             || ticket.cancelled.load(Ordering::SeqCst)
             || ticket.project && !magic
         {
             return Err("저장 문서가 변경됐거나 올바르지 않습니다.".into());
+        }
+        if !ticket.project {
+            session.check_export_target(&ticket.target)?;
         }
         session
             .writing
@@ -1046,6 +1071,21 @@ impl Persistence {
         };
         job.stage = Some(Stage::new(ticket.target)?);
         Ok(job)
+    }
+    pub fn retire_inactive(&self, generation: u64, key: &str) -> Result<(), String> {
+        let mut session = self.session.lock().map_err(error)?;
+        if session.generation != generation || session.key == key || !valid_key(key) {
+            return Err("닫을 문서 또는 현재 문서가 변경됐습니다.".into());
+        }
+        let document = session
+            .documents
+            .remove(key)
+            .ok_or("닫을 문서가 이미 없습니다.")?;
+        document.recovery_cancel.store(true, Ordering::SeqCst);
+        session
+            .saves
+            .retain(|_, ticket| ticket.generation != document.generation);
+        Ok(())
     }
     fn scan(&self) -> Result<Vec<(Target, Head)>, String> {
         self.root_directory.check()?;
@@ -1431,11 +1471,21 @@ impl WriteJob {
         if self.cancelled.load(Ordering::SeqCst) {
             return Err("저장을 취소했습니다.".into());
         }
-        let active_save_document = match &self.kind {
+        let stage = self.stage.as_mut().ok_or("임시 파일 없음")?;
+        if let JobKind::Save(ticket) = &self.kind {
+            if !ticket.project {
+                session.check_export_target(&stage.target)?;
+            }
+            if !ticket.project && ticket.generation != session.generation {
+                return Err("저장 문서 세대가 변경됐습니다.".into());
+            }
+        }
+        let save_document = match &self.kind {
             JobKind::Save(ticket) => Some(
                 session
-                    .active_document_mut()
-                    .filter(|document| ticket.generation == document.generation)
+                    .documents
+                    .values_mut()
+                    .find(|document| ticket.generation == document.generation)
                     .ok_or("저장 문서 세대가 변경됐습니다.")?,
             ),
             JobKind::Recovery { generation, key } => {
@@ -1450,11 +1500,10 @@ impl WriteJob {
                 None
             }
         };
-        let stage = self.stage.as_mut().ok_or("임시 파일 없음")?;
         stage.commit()?;
         let receipt = match &self.kind {
             JobKind::Save(ticket) => {
-                if let Some(document) = active_save_document
+                if let Some(document) = save_document
                     && ticket.project
                 {
                     // Keep the published file identity; reopening the path can adopt a later replacement.
@@ -1530,6 +1579,91 @@ mod tests {
             bytes,
         )
         .map(|_| ())
+    }
+    #[test]
+    fn inactive_project_paths_and_hard_links_are_protected_and_save_to_their_owner() {
+        let (root, s) = store();
+        let path = root.path().join("a.rpaint");
+        let alias = root.path().join("alias.png");
+        fs::write(&path, b"RPAINT01original").unwrap();
+        fs::hard_link(&path, &alias).unwrap();
+        let opened = s.register_open(&path).unwrap();
+        s.read_selected(&opened.token).unwrap();
+        s.activate(2, "document-a".into(), Some(opened.token), false)
+            .unwrap();
+        s.activate(3, "document-b".into(), None, false).unwrap();
+        for target in [&path, &alias] {
+            assert!(s.register_save(target, 3, false).is_err());
+            assert_eq!(fs::read(target).unwrap(), b"RPAINT01original");
+        }
+        let ticket = s.existing_save(2, true, false).unwrap().unwrap();
+        execute(
+            s.claim_save(&ticket.token, 12, true).unwrap(),
+            b"RPAINT01next",
+        )
+        .unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"RPAINT01next");
+        assert_eq!(fs::read(&alias).unwrap(), b"RPAINT01original");
+        assert_eq!(s.session.lock().unwrap().key, "document-b");
+        assert!(s.existing_save(3, true, false).unwrap().is_none());
+        let in_flight = s.existing_save(2, true, false).unwrap().unwrap();
+        let mut job = s.claim_save(&in_flight.token, 12, true).unwrap();
+        tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap()
+            .block_on(job.write(b"RPAINT01late"))
+            .unwrap();
+        let stale = s.existing_save(2, true, false).unwrap().unwrap();
+        s.retire_inactive(3, "document-a").unwrap();
+        assert!(job.commit().is_err());
+        assert!(s.claim_save(&stale.token, 12, true).is_err());
+        assert!(s.existing_save(2, true, false).is_err());
+        assert_eq!(fs::read(&path).unwrap(), b"RPAINT01next");
+        let output = root.path().join("fresh.png");
+        let ticket = s.register_save(&output, 3, false).unwrap();
+        execute(s.claim_save(&ticket.token, 3, false).unwrap(), b"png").unwrap();
+        assert_eq!(fs::read(output).unwrap(), b"png");
+    }
+    #[test]
+    fn export_rechecks_all_open_bindings_at_claim_and_commit() {
+        let (root, s) = store();
+        let path = root.path().join("target.png");
+        fs::write(&path, b"RPAINT01original").unwrap();
+        s.activate(2, "document-b".into(), None, false).unwrap();
+        let ticket = s.register_save(&path, 2, false).unwrap();
+        s.session
+            .lock()
+            .unwrap()
+            .documents
+            .get_mut("document-a")
+            .unwrap()
+            .binding = Some(Target::new(&path).unwrap());
+        assert!(s.claim_save(&ticket.token, 3, false).is_err());
+        assert_eq!(fs::read(&path).unwrap(), b"RPAINT01original");
+        s.session
+            .lock()
+            .unwrap()
+            .documents
+            .get_mut("document-a")
+            .unwrap()
+            .binding = None;
+        let ticket = s.register_save(&path, 2, false).unwrap();
+        let mut job = s.claim_save(&ticket.token, 3, false).unwrap();
+        tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap()
+            .block_on(job.write(b"png"))
+            .unwrap();
+        s.session
+            .lock()
+            .unwrap()
+            .documents
+            .get_mut("document-a")
+            .unwrap()
+            .binding = Some(Target::new(&path).unwrap());
+        assert!(job.commit().is_err());
+        assert_eq!(fs::read(&path).unwrap(), b"RPAINT01original");
+        assert_eq!(fs::read_dir(root.path()).unwrap().count(), 2);
     }
     #[test]
     fn document_tabs_keep_separate_save_destinations() {

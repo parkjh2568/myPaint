@@ -105,6 +105,8 @@ function fixture(fail = false) {
             },
         }),
         closeTab: method('closeTab', { createState, runtimeProfile: webLimits }),
+        root: { inert: false },
+        nativeInitialized: true,
     };
     return { app, first, second, recoveryA, recoveryB, writes, activations };
 }
@@ -131,6 +133,62 @@ test('switch and return preserve distinct pixels, history, recovery and viewport
     assert.equal(app.epoch, 3);
     assert.equal(recoveryA.generation, 3);
 });
+test('cancelling a later quit confirmation never switches or commits the active pending edit', async () => {
+    const { app, first, second, activations, writes } = fixture();
+    first.edit('red', (state) => state.layers[0].pixels.set([255, 0, 0, 255]));
+    first.undo();
+    second.edit('blue', (state) => state.layers[0].pixels.set([0, 0, 255, 255]));
+    const editor = { remove: () => assert.fail('pending editor must survive quit cancellation') };
+    app.editor = editor;
+    app.hasPending = () => app.doc === first;
+    app.pendingState = () => createState(2, 2, [0, 255, 0, 255]);
+    const confirmed: string[] = [];
+    app.replacementAllowed = async (tab: any) => {
+        confirmed.push(tab.key);
+        return tab.key !== 'b';
+    };
+    app.requestClose = method('requestClose', {
+        isDesktop: () => true,
+        document: { querySelector: () => null },
+        window: { __TAURI__: { core: { invoke: () => assert.fail('must not close') } } },
+    });
+    await app.requestClose();
+    assert.deepEqual(confirmed, ['a', 'b']);
+    assert.equal(app.doc, first);
+    assert.equal(app.editor, editor);
+    assert.equal(app.epoch, 1);
+    assert.equal(first.cursor, 0);
+    assert.equal(first.history.length, 1);
+    first.redo();
+    assert.deepEqual([...first.state.layers[0].pixels.slice(0, 4)], [255, 0, 0, 255]);
+    assert.equal(app.busy, false);
+    assert.equal(app.root.inert, false);
+    await app.recoveryQueue;
+    assert.equal(activations.length, 0);
+    assert.equal(writes.length, 0);
+});
+test('closing an inactive tab releases its native owner without touching the active editor', async () => {
+    const { app, first, second, activations } = fixture();
+    const retired: unknown[] = [];
+    app.editor = { remove: () => assert.fail('pending editor must survive') };
+    app.hasPending = () => true;
+    app.pendingState = () => assert.fail('inactive close must not materialize active edits');
+    app.replacementAllowed = async (tab: any) => {
+        assert.equal(tab.doc, second);
+        return true;
+    };
+    app.closeTab = method('closeTab', {
+        retireNative: async (...args: unknown[]) => retired.push(args),
+        createState,
+        runtimeProfile: webLimits,
+    });
+    await app.closeTab('b');
+    assert.deepEqual(retired, [[1, 'b']]);
+    assert.equal(app.doc, first);
+    assert.equal(app.tabs.length, 1);
+    assert.equal(app.epoch, 1);
+    assert.equal(activations.length, 0);
+});
 test('failed native activation preserves current tab and all documents', async () => {
     const { app, first } = fixture(true);
     await assert.rejects(app.switchTab('b'), /activation failed/);
@@ -144,11 +202,28 @@ test('active operation prevents switching', async () => {
     await assert.rejects(app.switchTab('b'), /진행 중/);
     assert.equal(app.doc, first);
 });
-test('cancel close preserves every document', async () => {
-    const { app } = fixture();
+test('cancel an inactive dirty close preserves the active pending edit, redo and native owner', async () => {
+    const { app, first, second, activations, writes } = fixture();
+    first.edit('red', (state) => state.layers[0].pixels.set([255, 0, 0, 255]));
+    first.undo();
+    second.edit('blue', (state) => state.layers[0].pixels.set([0, 0, 255, 255]));
+    const editor = { remove: () => assert.fail('pending editor must survive') };
+    app.editor = editor;
+    app.hasPending = () => app.doc === first;
+    app.pendingState = () => createState(2, 2, [0, 255, 0, 255]);
     app.replacementAllowed = async () => false;
     await app.closeTab('b');
     assert.equal(app.tabs.length, 2);
+    assert.equal(app.doc, first);
+    assert.equal(app.editor, editor);
+    assert.equal(app.epoch, 1);
+    assert.equal(first.cursor, 0);
+    assert.equal(first.history.length, 1);
+    first.redo();
+    assert.deepEqual([...first.state.layers[0].pixels.slice(0, 4)], [255, 0, 0, 255]);
+    await app.recoveryQueue;
+    assert.equal(activations.length, 0);
+    assert.equal(writes.length, 0);
 });
 test('menu commands are unique and settings are in their own category', () => {
     const commands = documentMenuGroups.flatMap((group) => group.commands.map(([command]) => command));

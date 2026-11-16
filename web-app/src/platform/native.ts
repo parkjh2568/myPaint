@@ -45,6 +45,12 @@ export async function openNative(
             /\.rpaint$/i.test(target.name) && new TextDecoder().decode(bytes.subarray(0, 8)) === 'RPAINT01',
     };
 }
+export async function retireNative(generation: number, key: string): Promise<void> {
+    if (!isDesktop()) return;
+    if (!Number.isSafeInteger(generation) || generation < 1 || !/^[a-z0-9_-]{1,64}$/.test(key))
+        throw Error('닫을 문서 정보가 올바르지 않습니다.');
+    await window.__TAURI__!.core.invoke('retire_document', { generation, key });
+}
 export async function saveNative(
     bytes: Uint8Array,
     suggestedName: string,

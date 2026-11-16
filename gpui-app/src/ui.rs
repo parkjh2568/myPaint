@@ -478,20 +478,33 @@ impl Studio {
         path: Option<&Path>,
         cx: &mut Context<Self>,
     ) -> Result<bool, String> {
-        let candidate = self.editor.preview_state()?;
-        let name = self.editor.active_tab().name.clone();
-        let written = if let Some(path) = path {
-            Some(self.io.save_project_path(&candidate, self.epoch, path)?)
-        } else {
-            self.io
-                .save_project(&candidate, self.epoch, &name, save_as)?
-        };
-        if let Some(written) = written {
-            self.editor.commit_pending()?;
-            let tab = self.editor.active_tab_mut();
-            tab.name = written;
-            tab.document.mark_saved(tab.document.revision());
-            self.text = None;
+        self.save_tab(self.editor.active_tab().id, save_as, path, cx)
+    }
+
+    fn save_tab(
+        &mut self,
+        id: u64,
+        save_as: bool,
+        path: Option<&Path>,
+        cx: &mut Context<Self>,
+    ) -> Result<bool, String> {
+        let generation = *self
+            .generations
+            .get(&id)
+            .ok_or("저장할 그림이 닫혔습니다.")?;
+        let written = self.editor.save_tab_with(id, |candidate, name| {
+            if let Some(path) = path {
+                self.io
+                    .save_project_path(candidate, generation, path)
+                    .map(Some)
+            } else {
+                self.io.save_project(candidate, generation, name, save_as)
+            }
+        })?;
+        if written {
+            if self.editor.active_tab().id == id {
+                self.text = None;
+            }
             self.status = "프로젝트 저장 완료".into();
             cx.notify();
             Ok(true)
@@ -510,8 +523,7 @@ impl Studio {
         match choice {
             Choice::Tab(id) => {
                 if save {
-                    self.switch_tab(id, cx)?;
-                    if !self.save(false, None, cx)? {
+                    if !self.save_tab(id, false, None, cx)? {
                         return Ok(());
                     }
                 }
@@ -527,12 +539,12 @@ impl Studio {
                         .map(|tab| tab.id)
                         .collect();
                     let current = self.editor.active_tab().id;
-                    if self.editor.has_pending() && !ids.contains(&current) {
-                        ids.insert(0, current);
+                    ids.retain(|id| *id != current);
+                    if self.editor.document().dirty() || self.editor.has_pending() {
+                        ids.push(current);
                     }
                     for id in ids {
-                        self.switch_tab(id, cx)?;
-                        if !self.save(false, None, cx)? {
+                        if !self.save_tab(id, false, None, cx)? {
                             return Ok(());
                         }
                     }

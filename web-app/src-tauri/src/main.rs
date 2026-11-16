@@ -73,6 +73,17 @@ async fn activate_document(
         .await
 }
 #[tauri::command]
+async fn retire_document(
+    generation: u64,
+    key: String,
+    state: tauri::State<'_, NativeState>,
+) -> Result<(), String> {
+    let store = state.store().await?;
+    tauri::async_runtime::spawn_blocking(move || store.retire_inactive(generation, &key))
+        .await
+        .map_err(|e| e.to_string())?
+}
+#[tauri::command]
 async fn choose_open(state: tauri::State<'_, NativeState>) -> Result<Option<OpenTarget>, String> {
     let Some(file) = rfd::AsyncFileDialog::new()
         .set_title("그림 또는 프로젝트 열기")
@@ -451,6 +462,7 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![
             activate_document,
+            retire_document,
             choose_open,
             read_selected,
             choose_save,

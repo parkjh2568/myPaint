@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { isDesktop, saveNative, openNative, activateNative } from '../src/platform/native';
+import { isDesktop, saveNative, openNative, activateNative, retireNative } from '../src/platform/native';
 import { createState } from '../src/engine/document';
 import { encodeProject, encodePng } from '../src/engine/format';
 
@@ -13,6 +13,27 @@ test('browser has no native file or document activation access', async () => {
     assert.equal(await saveNative(projectBytes, 'drawing.rpaint'), undefined);
     assert.equal(await openNative(), undefined);
     await activateNative(1, 'doc-a');
+    await retireNative(1, 'doc-b');
+});
+
+test('inactive close validates the current generation and sends the target key', async () => {
+    const calls: unknown[] = [];
+    Object.assign(globalThis, {
+        window: {
+            __TAURI__: {
+                core: {
+                    invoke: async (...args: unknown[]) => {
+                        calls.push(args);
+                    },
+                },
+            },
+        },
+    });
+    await assert.rejects(retireNative(0, 'b'), /닫을 문서/);
+    await assert.rejects(retireNative(1, '../b'), /닫을 문서/);
+    assert.equal(calls.length, 0);
+    await retireNative(4, 'inactive-b');
+    assert.deepEqual(calls, [['retire_document', { generation: 4, key: 'inactive-b' }]]);
 });
 
 test('an already aborted native save never selects a target', async () => {

@@ -2,9 +2,29 @@
 
 최종 로컬 검증은 2026-11-16 기준입니다. 2026-11-15 제품 검증과 수정 전 실행 기록은 날짜별로 보존합니다. [인수인계](../PROJECT_HANDOFF.md) · [개발 문서](README.md)
 
+## 2026-11-16 닫기·종료 취소와 내보내기 충돌 수정
+
+검증 대상은 `21ea74f`를 기반으로 이 문서와 함께 커밋하는 닫기·종료·내보내기 수정입니다. Tauri에서 비활성 탭의 닫기 확인 전에 `switchTab`이 현재 미확정 편집을 확정하고 Redo를 소실하는 경로를 Node 회귀로 재현했습니다. 전체 종료도 같은 탭 전환을 사용했습니다. 이제 확인·저장을 대상 문서에서 수행하고 비활성 닫기는 `retire_document`로 해당 키만 해제합니다. GPUI의 닫기·종료 저장도 비활성 문서를 활성화하지 않습니다. 사용자가 명시적으로 완료한 저장은 유지하고, 아직 저장하지 않은 현재 편집과 Redo를 취소·실패 시 보존합니다.
+
+공유 저장소는 열린 문서별 마지막 generation으로 프로젝트 저장을 허용하고 닫힌/갱신된 세대는 거절합니다. 이미지 내보내기는 활성 문서에만 허용하며 모든 열린 프로젝트의 경로·파일 identity를 선택·claim·commit에서 검사합니다. Rust 회귀에서 비활성 프로젝트 경로와 하드 링크 거부, 늦게 추가된 바인딩의 최종 재검사, 원본 보존·stage 제거·정상 재시도와 대상 문서만 저장되는 것을 확인했습니다.
+
+| 검사 | macOS 27.0 arm64 결과 |
+| --- | --- |
+| Tauri Rust 1.94.0 `cargo test --offline --locked --all-targets` | 33개 통과 |
+| GPUI Rust 1.100.0 `cargo test --offline --locked --all-targets` | 71개 통과 |
+| Tauri `cargo clippy --offline --locked --all-targets -- -D warnings` | 통과 |
+| 웹 `npm test` | 362개 통과 |
+| `npm run test:close-cancel` | Chromium 151.0.7922.34, 실제 웹 UI와 네이티브 IPC 모형의 14개 경로 통과 |
+| `npm run test:document-tabs` | 기존 탭·복구·실패·바인딩 해제 회귀 통과 |
+| `python3 -m unittest discover -s tests` | 43개 통과 |
+
+웹 포맷·TypeScript·Vite 빌드와 두 Rust 프로젝트의 포맷 검사도 통과했습니다. 새 브라우저 회귀와 기존 문서 탭 회귀는 개발 서버와 최종 `web-app/dist/` 정적 빌드 양쪽에서 통과했습니다.
+
+새 브라우저 회귀는 미확정 문자 값, 내보내기 미리보기 픽셀, Undo로 후보를 취소한 뒤 실제 Redo 픽셀, 활성 키·generation·저장 원본을 비교합니다. 해당 suite를 CI의 pending 그룹에 추가했습니다. 실제 OS 파일 선택기·WebView와 GPUI GUI, Windows 재실행·원격 CI는 이번 검증에 포함하지 않았습니다. 과거 실패 기록은 아래에 보존합니다.
+
 ## 2026-11-16 macOS ACL 테스트 안정화
 
-검증 대상은 `6efb9d3`를 기반으로 이 문서와 함께 커밋하는 복구·ACL 테스트 수정입니다. 환경은 macOS 27.0 arm64입니다. 기존 테스트는 `USER`로 만든 사용자 ACL에 의존하면서 `chmod` 종료 코드만 확인했습니다. Tauri 단독 실패와, GPUI 전체 실행에서 `chmod` 성공 직후 직접 쓰기 열기가 허용되는 경우를 확인했습니다. 사용자 ACL이 간헐적으로 효력을 내지 않은 macOS 내부 원인은 미확정입니다.
+검증 대상은 `6efb9d3`를 기반으로 `21ea74f`에서 커밋한 복구·ACL 테스트 수정입니다. 환경은 macOS 27.0 arm64입니다. 기존 테스트는 `USER`로 만든 사용자 ACL에 의존하면서 `chmod` 종료 코드만 확인했습니다. Tauri 단독 실패와, GPUI 전체 실행에서 `chmod` 성공 직후 직접 쓰기 열기가 허용되는 경우를 확인했습니다. 사용자 ACL이 간헐적으로 효력을 내지 않은 macOS 내부 원인은 미확정입니다.
 
 테스트 파일에 `everyone deny write`를 적용해 `USER`와 사용자 이름 조회 의존성을 제거했습니다. `OpenOptions`로 직접 쓰기 열기가 `PermissionDenied`인지 확인한 뒤 저장 실패·원본 바이트 및 파일 신원 보존·임시 stage 제거를 계속 검증합니다. 제품 저장 로직과 잠금 파일은 변경하지 않았습니다. 진단 과정에서 Tauri 패키지의 로컬 빌드 캐시도 재생성했으며, 재컴파일 후 원래 검사도 통과한 이력이 있어 캐시만의 문제로 결론내리지는 않습니다.
 

@@ -158,6 +158,20 @@ export function installNativeHarness(options = {}) {
                     }
                     if (command === 'runtime_ready') return false;
                     if (command === 'set_dirty' || command === 'close_window') return;
+                    if (command === 'retire_document') {
+                        if (
+                            args.generation !== state.generation ||
+                            args.key === state.key ||
+                            !state.tabGenerations.has(args.key)
+                        )
+                            throw Error('Invalid mocked inactive close');
+                        state.tabBindings.delete(args.key);
+                        state.tabGenerations.delete(args.key);
+                        for (const [token, ticket] of state.writeTickets) {
+                            if (ticket.key === args.key) state.writeTickets.delete(token);
+                        }
+                        return;
+                    }
                     if (command === 'activate_document') {
                         if (
                             !Number.isSafeInteger(args.generation) ||
@@ -224,11 +238,15 @@ export function installNativeHarness(options = {}) {
                         );
                     }
                     if (command === 'choose_save') {
-                        if (args.generation !== state.generation)
+                        const key = [...state.tabGenerations].find(
+                            ([, generation]) => generation === args.generation,
+                        )?.[0];
+                        if (!key || (!args.project && args.generation !== state.generation))
                             throw Error('Save document generation changed');
+                        const binding = key === state.key ? state.binding?.path : state.tabBindings.get(key);
                         let path, name;
-                        if (args.project && !args.saveAs && state.binding?.generation === args.generation) {
-                            path = state.binding.path;
+                        if (args.project && !args.saveAs && binding) {
+                            path = binding;
                             name = state.files.get(path).name;
                         } else {
                             state.pickerCount++;
@@ -237,10 +255,16 @@ export function installNativeHarness(options = {}) {
                             name = selected?.name || args.name;
                             path = selected?.path || 'output:' + name;
                         }
+                        if (
+                            !args.project &&
+                            [...state.tabBindings.values(), state.binding?.path].includes(path)
+                        )
+                            throw Error('Export cannot replace an open project');
                         const token = 'write-' + ++state.serial,
                             old = state.files.get(path);
                         state.writeTickets.set(token, {
                             path,
+                            key,
                             name,
                             generation: args.generation,
                             project: args.project,
@@ -256,8 +280,18 @@ export function installNativeHarness(options = {}) {
                     }
                     if (command === 'write_selected') {
                         const ticket = state.writeTickets.get(invokeOptions?.headers?.['x-save-token']);
-                        if (!ticket || ticket.cancelled || ticket.generation !== state.generation)
+                        if (
+                            !ticket ||
+                            ticket.cancelled ||
+                            state.tabGenerations.get(ticket.key) !== ticket.generation ||
+                            (!ticket.project && ticket.generation !== state.generation)
+                        )
                             throw Error('Save cancelled or document changed');
+                        if (
+                            !ticket.project &&
+                            [...state.tabBindings.values(), state.binding?.path].includes(ticket.path)
+                        )
+                            throw Error('Export cannot replace an open project');
                         const old = state.files.get(ticket.path);
                         if (old?.version !== ticket.version) throw Error('Selected file changed');
                         if (!(args instanceof Uint8Array) || args.length < 1 || args.length > 300 * 1048576)
@@ -269,8 +303,11 @@ export function installNativeHarness(options = {}) {
                             version: (old?.version || 0) + 1,
                         };
                         state.files.set(ticket.path, file);
-                        if (ticket.project)
-                            state.binding = { path: ticket.path, generation: ticket.generation };
+                        if (ticket.project) {
+                            state.tabBindings.set(ticket.key, ticket.path);
+                            if (ticket.key === state.key)
+                                state.binding = { path: ticket.path, generation: ticket.generation };
+                        }
                         state.writeTickets.delete(invokeOptions.headers['x-save-token']);
                         state.writes.push({
                             name: ticket.name,
