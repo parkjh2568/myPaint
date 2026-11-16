@@ -85,7 +85,7 @@ Minor 1건을 수정했다. A의 수동 복구 목록 조회를 hold하고 B를 
 | 타입·포맷·로컬 build | 통과. 현재 entry `assets/index-DIgO41Ne.js`, payload9개/291,664B. 전체 runtime17개 중 main의 epoch guard 한 줄만 변경 |
 | 유지한 기준 | 이전 Node324와 Qt producer의4173B wire/두3072B RGBA plane 검증을 각각 소스·범위에 맞춰 재사용. 이번 새 Node/Qt 실행으로 세지 않음 |
 
-이 회귀는 기존 CI의 `test:native-persistence`에 포함돼 이후 누락을 감지한다. 앱 런타임에 원격 로그·텔레메트리·별도 알림 계층을 추가하지 않았다. 테스트의 hold/reject·가상32ms는 결정적 IPC 모형이며 실제 OS 장애 타이밍·물리 입력 검증이 아니다.
+이 회귀는 당시 CI의 `test:native-persistence`에 포함했다. 2026-11-16부터는 같은 스크립트를 [로컬 검사](LOCAL_CHECKS.md)의 `core` 그룹에서 실행한다. 앱 런타임에 원격 로그·텔레메트리·별도 알림 계층을 추가하지 않았다. 테스트의 hold/reject·가상32ms는 결정적 IPC 모형이며 실제 OS 장애 타이밍·물리 입력 검증이 아니다.
 
 이번에는 native 앱을 다시 빌드하거나 GUI를 재실행하지 않았다. 앞선9f01 macOS4단계 통과는 epoch guard 이전 제품의 근거로 유지한다. 120초 smoke 미완료의 실패 단계·원인 미확정과 이전20초 `project-read-large` 관측도 남긴다. 홈페이지 쓰기·commit/push·공개 배포는 수행하지 않았다.
 

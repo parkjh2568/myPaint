@@ -50,7 +50,7 @@ $env:PAINT_TEST_URL = "http://127.0.0.1:8922/"
 npm run test:browser
 ```
 
-이 명령은 기본 브라우저 회귀 묶음입니다. 모든 성능·실기기·Safari/Edge 검사를 포괄하지 않습니다. 전체 CI 묶음은 [studio.yml](.github/workflows/studio.yml)을 참고하세요.
+이 명령은 기본 브라우저 회귀 묶음입니다. 모든 성능·실기기·Safari/Edge 검사를 포괄하지 않습니다. 이전 CI의 전체 검사 목록은 [로컬 검사 안내](docs/LOCAL_CHECKS.md)로 옮겼으며 필요한 그룹만 이 컴퓨터에서 실행합니다.
 
 ## 6. 직접 확인 (테스트 파일만 사용)
 

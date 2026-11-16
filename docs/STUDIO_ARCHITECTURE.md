@@ -106,7 +106,7 @@ Vite/strict TypeScript, DOM/CSS, Canvas2D 표시와 로컬 SVG 아이콘을 쓴�
 
 소스 origin과 형제 홈페이지 저장소는 별도 디렉토리/commit/push를 유지한다. 홈페이지에는 검증된 산출물만 전달하며 SDK/node_modules/Rust target을 올리지 않는다. 새 manifest staging과 구탭 자산/롤백 인수가 끝나기 전에는 기존 공개 앱을 교체하지 않는다. release 서명·공증과 공개 URL 인수는 빌드 성공과 별개다.
 
-기본 검사는 `npm --prefix web-app run check`, `format:check`, `test`다. 브라우저는 lockfile의 Playwright로 Chromium을 준비한 뒤 고정 정적 서버에 `PAINT_TEST_URL`을 지정하고 `test:browser`를 실행한다. 명시적 성능 검사는 `test:performance`이며 환경/프로필/해시를 결과에 남긴다. CI는 실패를 검사 상태로 알리고, 앱에서는 현재 상태 메시지와 로컬 오류 로그만 제공한다. 현재 검증과 미확인 기기는 후속 기록에서 분리한다. [최대 문서 기록](archive/STUDIO_MAX_DOCUMENT.md)은 cold/steady, 2layer 축소와16layer1:1을 구분한다. [native 저장·복구 기록](STUDIO_NATIVE_PERSISTENCE.md)은 실제 OS 파일 검증과 Chromium IPC 모델 검증을 구분한다.
+기본 검사는 `npm --prefix web-app run check`, `format:check`, `test`다. 브라우저는 lockfile의 Playwright로 Chromium을 준비한 뒤 고정 정적 서버에 `PAINT_TEST_URL`을 지정하고 필요한 그룹을 실행한다. 테스트·호스트 빌드·패키징은 모두 로컬에서 수행하며 GitHub Actions 워크플로는 제거했다. 명시적 성능 검사는 `test:performance`이며 환경/프로필/해시를 결과에 남긴다. 실패는 로컬 명령의 종료 코드와 로그로 확인하고 앱에서는 현재 상태 메시지와 로컬 오류 로그만 제공한다. [로컬 검사 안내](LOCAL_CHECKS.md)를 따르며 현재 검증과 미확인 기기는 후속 기록에서 분리한다. [최대 문서 기록](archive/STUDIO_MAX_DOCUMENT.md)은 cold/steady, 2layer 축소와16layer1:1을 구분한다. [native 저장·복구 기록](STUDIO_NATIVE_PERSISTENCE.md)은 실제 OS 파일 검증과 Chromium IPC 모델 검증을 구분한다.
 
 
 ## 입력 실패의 자원 소유권 보완

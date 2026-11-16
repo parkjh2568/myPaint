@@ -14,6 +14,8 @@ myPaint Studio 0.2.0은 로컬에서 그림을 그리고 `.rpaint` 프로젝트�
 
 ## 개발과 검증
 
+테스트·빌드·패키징은 로컬에서 실행합니다. 이 브랜치의 GitHub Actions 검사 워크플로는 제거했습니다. 기본 검사와 선택형 브라우저·네이티브 실행은 [로컬 검사 안내](docs/LOCAL_CHECKS.md)를 따릅니다.
+
 [프로젝트 인수인계](PROJECT_HANDOFF.md) · [현재 상태와 검증 범위](docs/CURRENT_STATUS.md) · [기술 문서](docs/README.md) · [작업 연혁](docs/PROJECT_HISTORY.md)
 
 작업 중인 그림은 **프로젝트**에서 `.rpaint`로 저장하고, PNG·JPG·BMP 파일은 **내보내기**에서 만듭니다. 새 그림은 투명으로 시작하며 지우개의 투명·배경색 모드는 우측 색상·브러시 패널에서 바꿉니다. 저장 전에 종료된 편집 사본은 메뉴의 **복구 사본**에서 찾을 수 있습니다.

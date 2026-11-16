@@ -5,7 +5,7 @@
 ## 1. 도구 준비 (처음 한 번)
 
 - [Git](https://git-scm.com/downloads), [Node.js 24](https://nodejs.org/en/download)를 설치합니다. 설치 후 새 터미널을 열고 `git --version`, `node --version`, `npm --version`을 확인합니다.
-- [Rust 공식 설치](https://www.rust-lang.org/tools/install)로 rustup을 설치합니다. 이 프로젝트의 CI 기준은 Rust **1.94.0**입니다.
+- [Rust 공식 설치](https://www.rust-lang.org/tools/install)로 rustup을 설치합니다. Tauri 로컬 검사 기준은 Rust **1.94.0**입니다. 전체 검사 범위는 [로컬 검사 안내](docs/LOCAL_CHECKS.md)를 따릅니다.
 - `xcode-select --install`로 Xcode Command Line Tools를 설치합니다. [Tauri 공식 준비 안내](https://v2.tauri.app/start/prerequisites/#macos)
 
 ## 2. 소스 받기

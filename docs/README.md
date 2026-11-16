@@ -4,6 +4,7 @@
 
 | 확인할 내용 | 문서 |
 | --- | --- |
+| 로컬 검사·브라우저 그룹·네이티브 패키징 | [로컬 검사](LOCAL_CHECKS.md) |
 | 모듈, 의존성, 상태 소유권 | [Studio 아키텍처](STUDIO_ARCHITECTURE.md) |
 | 픽셀·알파·편집 후보와 취소 | [문서 계약](STUDIO_DOCUMENT_CONTRACTS.md) |
 | 열린 탭, 복구, 저장 대상의 수명 | [문서 탭](DOCUMENT_TABS.md) · [네이티브 저장](STUDIO_NATIVE_PERSISTENCE.md) |

@@ -7,6 +7,7 @@
 - No remote content, uploads, telemetry, updater, or shell execution in application runtime. Desktop loads only bundled local UI.
 - Bound decoded pixels, dimensions, counts and byte lengths before allocation. Preserve alpha, project format, atomic native replacement and recovery.
 - Test observable pixels, editing, persistence and failure behavior. Run Node/Python tests, formatting and build; native Rust checks run on supported hosts.
+- Run verification and packaging locally. Keep GitHub Actions tests, build matrices, scheduled checks and hosted packaging out of this branch to conserve the owner's resources; reintroduce them only on an explicit user request. Follow `docs/LOCAL_CHECKS.md`.
 - Do not claim Windows/macOS or browser UI verification from Linux unit tests.
 
 ## Session handoff
