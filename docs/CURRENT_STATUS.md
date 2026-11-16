@@ -1,8 +1,58 @@
 # 현재 상태와 검증 범위
 
-2026-11-15 기준. [인수인계](../PROJECT_HANDOFF.md) · [개발 문서](README.md)
+최종 로컬 검증은 2026-11-16 기준입니다. 2026-11-15 제품 검증과 수정 전 실행 기록은 날짜별로 보존합니다. [인수인계](../PROJECT_HANDOFF.md) · [개발 문서](README.md)
 
-## 확인된 최신 결과
+## 2026-11-16 macOS ACL 테스트 안정화
+
+검증 대상은 `6efb9d3`를 기반으로 이 문서와 함께 커밋하는 복구·ACL 테스트 수정입니다. 환경은 macOS 27.0 arm64입니다. 기존 테스트는 `USER`로 만든 사용자 ACL에 의존하면서 `chmod` 종료 코드만 확인했습니다. Tauri 단독 실패와, GPUI 전체 실행에서 `chmod` 성공 직후 직접 쓰기 열기가 허용되는 경우를 확인했습니다. 사용자 ACL이 간헐적으로 효력을 내지 않은 macOS 내부 원인은 미확정입니다.
+
+테스트 파일에 `everyone deny write`를 적용해 `USER`와 사용자 이름 조회 의존성을 제거했습니다. `OpenOptions`로 직접 쓰기 열기가 `PermissionDenied`인지 확인한 뒤 저장 실패·원본 바이트 및 파일 신원 보존·임시 stage 제거를 계속 검증합니다. 제품 저장 로직과 잠금 파일은 변경하지 않았습니다. 진단 과정에서 Tauri 패키지의 로컬 빌드 캐시도 재생성했으며, 재컴파일 후 원래 검사도 통과한 이력이 있어 캐시만의 문제로 결론내리지는 않습니다.
+
+| 검사 | 최종 결과 |
+| --- | --- |
+| `cargo +1.94.0 test --manifest-path web-app/src-tauri/Cargo.toml --offline --locked --all-targets` | Tauri 전체 31개 통과 |
+| `cargo +1.100.0 test --manifest-path gpui-app/Cargo.toml --offline --locked --all-targets` | GPUI 전체 68개 통과 |
+| ACL 단독 반복 검사 | Cargo가 반환한 두 테스트 실행 파일을 병렬로 실행. `USER` 제거 상태에서 각각 20회 통과 |
+| 두 Rust 프로젝트 `cargo fmt --check`, `git diff --check` | 통과 |
+| 웹 `npm test`, `npm run format:check`, `npm run build` | 359개, 포맷, TypeScript·Vite 빌드 통과. `npm test`는 sandbox IPC 제한 해제 후 실행 |
+| `python3 -m unittest discover -s tests` | 43개 통과 |
+
+이번 결과는 로컬 macOS 테스트 범위입니다. Windows 재실행·전체 브라우저 회귀·GUI·설치 패키지·원격 CI는 이번 작업에서 확인하지 않았습니다. 아래 실패 기록은 수정 이전 실행의 증거로 보존합니다.
+
+## 2026-11-16 GPUI 복구 테스트 수정
+
+HEAD `6efb9d3` 위 로컬 수정 기준입니다. 공유 `web-app/src-tauri/src/persistence.rs` 테스트의 `let (_, s) = store()`가 `TempDir`을 즉시 해제해 첫 복구 쓰기 전에 저장소를 삭제했습니다. `_root` 바인딩으로 테스트 끝까지 디렉터리를 유지하고, 비활성 탭 쓰기를 완료한 직후 복구 바이트를 읽어 비교하도록 보강했습니다. 제품 저장 로직과 의존성 잠금 파일은 변경하지 않았습니다.
+
+| 검사 | 수정 후 macOS arm64 결과 |
+| --- | --- |
+| GPUI `cargo test --offline --locked io::persistence::tests::recovery_can_publish_for_a_tab_while_it_is_inactive -- --exact` | 수정 전 실패 재현, 수정 후 1개 통과 |
+| GPUI `cargo test --offline --locked --all-targets` | Rust 1.100.0, 전체 68개 통과 |
+| GPUI·Tauri `cargo fmt --check` | 각각 Rust 1.100.0·1.94.0에서 통과 |
+| 웹 `npm test`, `npm run format:check`, `npm run build` | Node 359개, 포맷, TypeScript·Vite 빌드 통과. `npm test`는 sandbox IPC 제한 해제 후 실행 |
+| `python3 -m unittest discover -s tests` | 43개 통과 |
+| Tauri `cargo +1.94.0 test --manifest-path web-app/src-tauri/Cargo.toml --offline --locked` | 복구 테스트 포함 30개 통과, 별도의 `deny_write_acl_preserves_original_and_removes_stage` 1개 실패 |
+
+GPUI 명령은 `gpui-app/`의 Rust 1.100.0 override로 실행했습니다. 당시 Tauri의 ACL 실패는 sandbox 밖 재실행에서도 재현했으며 `claim_save`가 오류를 반환하리라는 기대에서 실패했습니다. 같은 실행 단계의 GPUI ACL 검사는 통과했습니다. 이 시점에는 ACL 문제가 미해결이었고, 이후 수정 결과는 위 ACL 테스트 안정화 절에 기록했습니다. GUI·전체 브라우저 회귀·Windows 실행·패키징은 이 검증에 포함하지 않았습니다.
+
+## 2026-11-16 macOS 로컬 준비 검증
+
+기준 HEAD `6efb9d3cbaf0e50c6583c146949364da99f852b9`, macOS 27.0 arm64, Node 24.22.1, npm 11.19.1, Rust 1.100.0입니다. Rust와 Metal Toolchain 27A266a를 추가 설치하고 `web-app/`의 잠금 파일로 `npm ci --no-audit --no-fund`를 실행했습니다. 제품 코드·의존성 잠금 파일은 그대로입니다.
+
+| 검사 | 이번 Mac 실행 결과 |
+| --- | --- |
+| GPUI `cargo +1.100.0 fmt --manifest-path gpui-app/Cargo.toml --check` | 통과 |
+| GPUI `cargo +1.100.0 check --manifest-path gpui-app/Cargo.toml --offline --locked --all-targets` | 통과, 미사용 코드 경고 있음 |
+| GPUI `cargo +1.100.0 build --manifest-path gpui-app/Cargo.toml --offline --locked` | 개발 실행 파일 빌드 통과, 미사용 코드 경고 있음 |
+| GPUI `cargo +1.100.0 test --manifest-path gpui-app/Cargo.toml --offline --locked` | 67개 통과, 1개 실패 |
+| 웹 `npm test` | 359개 통과. sandbox의 tsx IPC 제한을 해제한 원래 명령으로 실행 |
+| 웹 `npm run format:check`, `npm run build` | 포맷, TypeScript, Vite 빌드 통과 |
+| `python3 -m unittest discover -s tests` | 43개 통과 |
+
+당시 실패한 GPUI 검사는 공유 `web-app/src-tauri/src/persistence.rs`의 `recovery_can_publish_for_a_tab_while_it_is_inactive`입니다. 첫 복구 쓰기에서 `No such file or directory (os error 2)`가 발생했고 단독 실행에서도 재현했습니다. 이후 `TempDir` 수명 문제를 확인해 수정했으며 위 복구 테스트 수정 절에 기록했습니다.
+
+전체 브라우저 회귀, Tauri macOS 빌드·패키징, GPUI GUI·설치 패키지·IME·펜·터치는 이번 검사에 포함하지 않았습니다. 과거 Windows 검증과 이번 Mac 컴파일·단위 검사를 구별합니다. 원격 CI의 실패는 해결하지 않았습니다.
+
+## 2026-11-15 제품 검증 기록
 
 | 영역 | 구현과 확인 범위 |
 | --- | --- |

@@ -1653,7 +1653,8 @@ mod tests {
     }
     #[test]
     fn recovery_can_publish_for_a_tab_while_it_is_inactive() {
-        let (_, s) = store();
+        // Keep the temporary directory alive through the recovery writes and reads.
+        let (_root, s) = store();
         recovery(&s, 1, b"RPAINT01original").unwrap();
         let bytes = b"RPAINT01inactive";
         let job = s
@@ -1670,6 +1671,8 @@ mod tests {
             .unwrap();
         s.activate(2, "document-b".into(), None, false).unwrap();
         execute(job, bytes).unwrap();
+        let entry = s.list().unwrap().entries.remove(0);
+        assert_eq!(s.recovery_read(&entry.token).unwrap(), bytes);
         recovery(&s, 3, b"RPAINT01after-switch").unwrap();
         let entry = s.list().unwrap().entries.remove(0);
         assert_eq!(
@@ -2441,14 +2444,18 @@ mod tests {
         let (root, s) = store();
         let path = root.path().join("acl.rpaint");
         fs::write(&path, b"RPAINT01original").unwrap();
-        let account =
-            std::env::var("USER").expect("macOS ACL fixture needs the current account name");
+        // Deny every account so the fixture does not depend on USER or user lookup.
         let result = std::process::Command::new("/bin/chmod")
-            .args(["+a", &format!("user:{account} deny write")])
+            .args(["+a", "everyone deny write"])
             .arg(&path)
             .status()
             .unwrap();
         assert!(result.success());
+        let denied = OpenOptions::new()
+            .write(true)
+            .open(&path)
+            .expect_err("macOS ACL fixture must deny writable opens before testing save failure");
+        assert_eq!(denied.kind(), std::io::ErrorKind::PermissionDenied);
         let before = stamp(&path).unwrap();
         let ticket = s.register_save(&path, 1, true).unwrap();
         assert!(s.claim_save(&ticket.token, 12, true).is_err());
