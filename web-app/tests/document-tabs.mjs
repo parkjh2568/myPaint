@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { createState, desktopLimits } from '../src/engine/document.ts';
 import { encodeProject, decodeProject } from '../src/engine/format.ts';
@@ -115,6 +116,75 @@ try {
     assert.equal(closed.recoveries, 1);
     assert.deepEqual(closed.bytes, backup);
     console.log('Document tabs: bindings, pending recovery, failed close, and successful release passed.');
+
+    const web = await browser.newPage({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
+    await web.addInitScript(() => {
+        const nativeCreate = URL.createObjectURL.bind(URL),
+            nativeRevoke = URL.revokeObjectURL.bind(URL),
+            post = Worker.prototype.postMessage;
+        window.downloadTest = { created: [], revoked: [] };
+        URL.createObjectURL = (blob) => {
+            const url = nativeCreate(blob);
+            if (blob.type === 'application/octet-stream') window.downloadTest.created.push(url);
+            return url;
+        };
+        URL.revokeObjectURL = (url) => {
+            window.downloadTest.revoked.push(url);
+            nativeRevoke(url);
+        };
+        Worker.prototype.postMessage = function (message, ...options) {
+            if (window.downloadTest.hold && message.operation === 'project-write') return;
+            return post.call(this, message, ...options);
+        };
+    });
+    await web.goto(process.env.PAINT_TEST_URL || 'http://127.0.0.1:8922/');
+    const saveProject = web.getByRole('button', { name: '프로젝트 저장 또는 다운로드', exact: true });
+    const tabs = web.getByRole('tablist', { name: '그림 탭' }).getByRole('tab');
+    const file = web.getByRole('button', { name: '파일 받기', exact: true });
+    for (const key of ['Enter', 'Space', 'Escape']) {
+        await web.evaluate(() => (window.downloadTest.hold = true));
+        await saveProject.focus();
+        await web.keyboard.press('Enter');
+        const cancel = web.locator('.busy').getByRole('button', { name: '취소', exact: true });
+        await cancel.waitFor();
+        assert.equal(await cancel.evaluate((element) => element === document.activeElement), true);
+        await web.keyboard.press(key);
+        await cancel.waitFor({ state: 'detached' });
+        assert.equal(await saveProject.evaluate((element) => element === document.activeElement), true);
+        await web.locator('.status').filter({ hasText: '작업을 취소했습니다' }).waitFor();
+    }
+    await web.evaluate(() => (window.downloadTest.hold = false));
+    await saveProject.click();
+    await file.waitFor();
+    const firstUrl = await web.evaluate(() => window.downloadTest.created.at(-1));
+    await web.getByRole('button', { name: '새 그림 탭', exact: true }).click();
+    const newDialog = web.getByRole('dialog').filter({ has: web.getByLabel('너비', { exact: true }) });
+    await newDialog.getByLabel('너비', { exact: true }).fill('16');
+    await newDialog.getByLabel('높이', { exact: true }).fill('8');
+    await newDialog.getByRole('button', { name: '확인', exact: true }).click();
+    await file.waitFor({ state: 'detached' });
+    await saveProject.click();
+    await file.waitFor();
+    const secondUrl = await web.evaluate(() => window.downloadTest.created.at(-1));
+    assert.notEqual(secondUrl, firstUrl);
+    await tabs.nth(0).click();
+    await file.waitFor();
+    const downloaded = web.waitForEvent('download');
+    await file.click();
+    assert.equal(decodeProject(new Uint8Array(await readFile(await (await downloaded).path()))).width, 800);
+    const closeSecond = web.locator('.document-tab').nth(1).locator('[data-close-tab]');
+    await closeSecond.focus();
+    await web.keyboard.press('Enter');
+    await closeSecond.waitFor({ state: 'detached' });
+    assert.equal(await tabs.nth(0).evaluate((element) => element === document.activeElement), true);
+    assert.deepEqual(await web.evaluate(() => window.downloadTest.revoked), [secondUrl]);
+    await web.evaluate(() => document.querySelector('[data-command="layer-add"]').click());
+    await tabs.nth(0).filter({ hasText: '●' }).waitFor();
+    assert.equal(await tabs.nth(0).evaluate((element) => element === document.activeElement), true);
+    await web.getByRole('button', { name: '다운로드 닫기', exact: true }).click();
+    assert.deepEqual(await web.evaluate(() => window.downloadTest.revoked), [secondUrl, firstUrl]);
+    console.log('Document tabs: keyboard cancel/focus and per-tab web downloads passed.');
+    await web.close();
 } finally {
     await browser.close();
 }

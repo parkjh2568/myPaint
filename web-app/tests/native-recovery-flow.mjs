@@ -339,6 +339,85 @@ try {
             }),
         );
     }
+    for (const mode of ['rejected', 'malformed']) {
+        const record = { name: 'web-recovery-after-native-' + mode };
+        result.cases.push(record);
+        const context = await browser.newContext();
+        try {
+            await context.addInitScript(installNativeHarness, {});
+            const page = await context.newPage();
+            page.setDefaultTimeout(12000);
+            const clockTime = new Date('2026-11-06T00:00:00.000Z');
+            await page.clock.install({ time: clockTime });
+            await page.clock.pauseAt(new Date(clockTime.getTime() + 1000));
+            await page.goto(result.url);
+            await page.clock.runFor(32);
+            await page.waitForSelector('canvas[data-ready=true]');
+            await page.evaluate(
+                async ({ mode, bytes }) => {
+                    for (const [database, key] of [
+                        ['mypaint-studio-recovery-v2', 'current-browser-copy'],
+                        ['retropaint-local-v1', 'legacy-browser-copy'],
+                    ]) {
+                        const db = await new Promise((resolve, reject) => {
+                            const request = indexedDB.open(database, 1);
+                            request.onupgradeneeded = () => {
+                                request.result.createObjectStore('heads');
+                                request.result.createObjectStore('snapshots');
+                            };
+                            request.onsuccess = () => resolve(request.result);
+                            request.onerror = () => reject(request.error);
+                        });
+                        try {
+                            await new Promise((resolve, reject) => {
+                                const tx = db.transaction(['heads', 'snapshots'], 'readwrite');
+                                tx.objectStore('heads').put(
+                                    { key, sequence: 1, name: key, size: bytes.length, at: 150 },
+                                    key,
+                                );
+                                tx.objectStore('snapshots').put(new Blob([Uint8Array.from(bytes)]), key);
+                                tx.oncomplete = resolve;
+                                tx.onabort = () => reject(tx.error);
+                            });
+                        } finally {
+                            db.close();
+                        }
+                    }
+                    if (mode === 'rejected')
+                        window.__myPaintPersistenceTest.failNext(
+                            'recovery_list',
+                            'Injected recovery list failure',
+                        );
+                    else {
+                        const core = window.__TAURI__.core;
+                        const invoke = core.invoke;
+                        core.invoke = (command, ...args) =>
+                            command === 'recovery_list'
+                                ? Promise.resolve({ entries: [{ token: 'invalid' }], warnings: [] })
+                                : invoke(command, ...args);
+                    }
+                },
+                { mode, bytes: Array.from(backupBytes) },
+            );
+            await clickMenu(page, '복구 사본');
+            const listing = page.getByRole('dialog').filter({
+                has: page.getByLabel('시각 · 이름', { exact: true }),
+            });
+            await listing.waitFor();
+            assert.match(await listing.textContent(), /파일 복구 저장소를 읽지 못했습니다/);
+            const options = listing.getByLabel('시각 · 이름', { exact: true }).locator('option');
+            const labels = await options.allTextContents();
+            assert(labels.some((label) => label.includes('브라우저 복구 · current-browser-copy')));
+            assert(labels.some((label) => label.includes('이전 웹 (읽기 전용) · legacy-browser-copy')));
+            record.ok = true;
+        } catch (error) {
+            record.ok = false;
+            record.error = error.stack || String(error);
+        } finally {
+            await context.close();
+        }
+        console.log(JSON.stringify(record));
+    }
 } finally {
     await browser.close();
 }

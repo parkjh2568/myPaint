@@ -16,7 +16,7 @@ import {
 } from './engine/document';
 import { applySelectionMask, resizeState, resizeNearestSteps, snapLineDelta } from './engine/operations';
 import { runCodec, runGeometry, readArtwork, exportBytes, type Raster } from './platform/codec';
-import { RecoveryStore, type RecoveryEntry } from './platform/storage';
+import { RecoveryStore } from './platform/storage';
 import { icon, toolDefinitions, type Tool } from './ui/icons';
 import { readEraserPreferences, eraserColor } from './ui/eraser';
 import { documentMenuGroups } from './ui/menu';
@@ -27,6 +27,7 @@ interface DocumentTab {
     recovery: RecoveryStore;
     recoveredRevision: number;
     recoveryQueued: boolean;
+    download?: { url: string; panel: HTMLDivElement };
     zoom: number;
     offsetX: number;
     offsetY: number;
@@ -135,7 +136,6 @@ class Studio {
     selectionPreparation?: { abort?: () => void };
     selectionResize?: { drag: Drag; width: number; height: number; cancel?: () => void };
     mouseButtonMask = 0;
-    downloadUrl?: string;
     private currentSelection?: Selection;
     get selection(): Selection | undefined {
         return this.currentSelection;
@@ -513,6 +513,9 @@ class Studio {
                 e.preventDefault();
                 e.returnValue = '';
             }
+        });
+        window.addEventListener('pagehide', (event) => {
+            if (!event.persisted) for (const tab of this.tabs) this.clearTabDownload(tab);
         });
         document.addEventListener('dragover', (e) => {
             if (e.dataTransfer?.types.includes('Files')) e.preventDefault();
@@ -3263,7 +3266,8 @@ class Studio {
     async task(label: string, work: (signal: AbortSignal) => Promise<void>): Promise<void> {
         if (this.busy) throw Error('진행 중인 작업을 먼저 마치세요.');
         const controller = new AbortController(),
-            editor = this.editor;
+            editor = this.editor,
+            previousFocus = document.activeElement;
         const controls = [
             ...this.root.querySelectorAll<HTMLElement>('.topbar, .document-tabs, .tools, .inspector'),
         ].map((element) => ({ element, inert: element.inert }));
@@ -3272,6 +3276,7 @@ class Studio {
         const text = document.createElement('span');
         text.textContent = label + ' · 현재 그림은 보존됩니다';
         const cancel = document.createElement('button');
+        cancel.type = 'button';
         cancel.textContent = '취소';
         cancel.onclick = () => controller.abort();
         overlay.append(text, cancel);
@@ -3281,13 +3286,27 @@ class Studio {
             for (const control of controls) control.element.inert = true;
             if (editor) editor.readOnly = true;
             this.workspace.append(overlay);
+            cancel.focus({ preventScroll: true });
             await work(controller.signal);
         } finally {
+            const restoreFocus = document.activeElement === cancel;
             overlay.remove();
             if (editor) editor.readOnly = false;
             for (const control of controls) control.element.inert = control.inert;
             this.busy = false;
             this.abort = undefined;
+            if (restoreFocus) {
+                if (
+                    previousFocus instanceof HTMLElement &&
+                    previousFocus.isConnected &&
+                    !previousFocus.matches(':disabled')
+                )
+                    previousFocus.focus({ preventScroll: true });
+                else
+                    this.root
+                        .querySelector<HTMLButtonElement>('[role="tab"][aria-selected="true"]')
+                        ?.focus({ preventScroll: true });
+            }
         }
     }
     captureTab(): DocumentTab {
@@ -3323,24 +3342,45 @@ class Studio {
         if (signature === this.tabsSignature) return;
         this.tabsSignature = signature;
         const list = this.root.querySelector('[role="tablist"][aria-label="그림 탭"]')!;
-        list.replaceChildren();
-        for (const tab of this.tabs) {
-            const item = document.createElement('div');
-            item.className = 'document-tab';
-            const button = document.createElement('button');
-            button.dataset.tab = tab.key;
-            button.setAttribute('role', 'tab');
+        const previousFocus = document.activeElement;
+        const existing = new Map<string, Element>();
+        let removedFocusIndex = -1;
+        const activeKeys = new Set(this.tabs.map((tab) => tab.key));
+        for (const [index, item] of [...list.children].entries()) {
+            const key = item.querySelector<HTMLButtonElement>('[data-tab]')!.dataset.tab!;
+            if (activeKeys.has(key)) existing.set(key, item);
+            else {
+                if (item.contains(previousFocus)) removedFocusIndex = index;
+                item.remove();
+            }
+        }
+        for (const [index, tab] of this.tabs.entries()) {
+            let item = existing.get(tab.key);
+            if (!item) {
+                item = document.createElement('div');
+                item.className = 'document-tab';
+                const button = document.createElement('button'),
+                    close = document.createElement('button');
+                button.type = close.type = 'button';
+                button.dataset.tab = close.dataset.closeTab = tab.key;
+                button.setAttribute('role', 'tab');
+                close.textContent = '×';
+                item.append(button, close);
+            }
+            const button = item.querySelector<HTMLButtonElement>('[data-tab]')!;
+            const close = item.querySelector<HTMLButtonElement>('[data-close-tab]')!;
+            button.setAttribute('aria-selected', String(tab.doc === this.doc));
             button.setAttribute('aria-selected', String(tab.doc === this.doc));
             button.textContent =
                 tab.name + (tab.doc.dirty || (tab.doc === this.doc && this.hasPending()) ? ' ●' : '');
             button.title = tab.name;
-            const close = document.createElement('button');
-            close.dataset.closeTab = tab.key;
-            close.textContent = '×';
             close.setAttribute('aria-label', tab.name + ' 탭 닫기');
-            item.append(button, close);
-            list.append(item);
+            if (list.children[index] !== item) list.insertBefore(item, list.children[index] ?? null);
         }
+        if (removedFocusIndex >= 0)
+            list.children[Math.min(removedFocusIndex, this.tabs.length - 1)]
+                ?.querySelector<HTMLButtonElement>('[data-tab]')
+                ?.focus({ preventScroll: true });
     }
     async switchTab(key: string, closePrevious = false): Promise<void> {
         const target = this.tabs.find((tab) => tab.key === key);
@@ -3363,11 +3403,16 @@ class Studio {
             generation = this.epoch + 1;
         await this.task(newTab ? '문서 준비 중' : '탭 전환 중', async (signal) => {
             signal.throwIfAborted();
+            const install = prepared && outgoing.doc.prepareInstallation(prepared);
             await activateNative(generation, target.key, sourceToken, closePrevious);
-            if (prepared) this.doc.installPrepared(prepared);
+            // The busy task owns the document until the validated edit and tab identity are published.
+            install?.();
             this.editor?.remove();
             this.editor = undefined;
-            if (closePrevious) this.tabs.splice(this.tabs.indexOf(outgoing), 1);
+            if (closePrevious) {
+                this.clearTabDownload(outgoing);
+                this.tabs.splice(this.tabs.indexOf(outgoing), 1);
+            } else outgoing.download?.panel.remove();
             if (newTab) this.tabs.push(target);
             this.doc = target.doc;
             this.name = target.name;
@@ -3385,11 +3430,7 @@ class Studio {
             this.cancelRenderPreparation();
             this.sceneCache.clear();
             this.pendingDirty.clear();
-            this.workspace.querySelector('.download')?.remove();
-            if (this.downloadUrl) {
-                URL.revokeObjectURL(this.downloadUrl);
-                this.downloadUrl = undefined;
-            }
+            if (target.download) this.workspace.append(target.download.panel);
             if (!closePrevious) this.queueTabRecovery(outgoing);
             if (newTab) this.fit();
             this.draw(true);
@@ -3405,6 +3446,7 @@ class Studio {
         if (this.doc !== closing.doc) {
             await this.task('그림 닫는 중', async () => {
                 await retireNative(this.epoch, closing.key);
+                this.clearTabDownload(closing);
                 this.tabs.splice(this.tabs.indexOf(closing), 1);
             });
             return;
@@ -3569,11 +3611,17 @@ class Studio {
             input.remove();
         }
     }
-    showDownload(bytes: Uint8Array, name: string, mime: string): void {
+    private clearTabDownload(tab: DocumentTab): void {
+        if (!tab.download) return;
+        tab.download.panel.remove();
+        URL.revokeObjectURL(tab.download.url);
+        tab.download = undefined;
+    }
+    showDownload(bytes: Uint8Array, name: string, mime: string, doc = this.doc): void {
+        const tab = this.tabs.find((entry) => entry.doc === doc);
+        if (!tab) throw Error('다운로드할 그림 탭을 찾을 수 없습니다.');
         const next = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: mime }));
-        this.workspace.querySelector('.download')?.remove();
-        if (this.downloadUrl) URL.revokeObjectURL(this.downloadUrl);
-        this.downloadUrl = next;
+        this.clearTabDownload(tab);
         const panel = document.createElement('div');
         panel.className = 'download';
         panel.setAttribute('role', 'status');
@@ -3595,15 +3643,16 @@ class Studio {
         close.setAttribute('aria-label', '다운로드 닫기');
         close.innerHTML = icon('close');
         close.onclick = () => {
-            if (this.downloadUrl === next) {
-                URL.revokeObjectURL(next);
-                this.downloadUrl = undefined;
-            }
-            panel.remove();
+            if (tab.download?.url === next) this.clearTabDownload(tab);
         };
         panel.append(text, anchor, close);
-        this.workspace.append(panel);
-        this.message('파일 받기를 누르고 다운로드한 파일을 확인하세요.');
+        tab.download = { url: next, panel };
+        if (doc === this.doc) this.workspace.append(panel);
+        this.message(
+            doc === this.doc
+                ? '파일 받기를 누르고 다운로드한 파일을 확인하세요.'
+                : tab.name + ' 탭에서 준비된 다운로드를 받을 수 있습니다.',
+        );
     }
     async saveProject(saveAs = false, tab?: DocumentTab): Promise<void> {
         await this.nativeReady;
@@ -3662,7 +3711,7 @@ class Studio {
                     if (tab) tab.name = saved;
                     this.message('프로젝트를 저장했습니다.');
                 }
-            } else this.showDownload(bytes, name, 'application/octet-stream');
+            } else this.showDownload(bytes, name, 'application/octet-stream', doc);
         });
     }
     async exportImage(): Promise<void> {
@@ -4211,9 +4260,9 @@ class Studio {
             const epoch = this.epoch,
                 revision = this.doc.revision,
                 recovery = this.recovery;
-            let entries: RecoveryEntry[];
+            let listing: Awaited<ReturnType<RecoveryStore['list']>>;
             try {
-                entries = (await recovery.request('list')) as RecoveryEntry[];
+                listing = await recovery.list();
             } catch (error) {
                 if (this.epoch !== epoch) return;
                 this.message(
@@ -4236,8 +4285,9 @@ class Studio {
                         document.querySelector('dialog[open]')))
             )
                 return;
+            const { entries, warnings } = listing;
             if (!entries.length) {
-                if (recovery.warnings.length) this.message(recovery.warnings.join(' '));
+                if (warnings.length) this.message(warnings.join(' '));
                 else if (!startup) this.message('복구 사본이 없습니다.');
                 return;
             }
@@ -4264,7 +4314,7 @@ class Studio {
                 ],
                 '확인',
                 [
-                    ...recovery.warnings,
+                    ...warnings,
                     entries.some((entry) => entry.source === 'legacy-browser')
                         ? '이전 웹 사본을 열면 새 복구 저장소에도 복제합니다.'
                         : '',
@@ -4735,6 +4785,12 @@ class Studio {
             e.target instanceof HTMLTextAreaElement ||
             e.target instanceof HTMLSelectElement;
         if (this.busy) {
+            if (
+                (e.key === 'Enter' || e.key === ' ') &&
+                e.target instanceof HTMLButtonElement &&
+                e.target.closest('.busy')
+            )
+                return;
             if (e.key === 'Escape') this.abort?.abort();
             e.preventDefault();
             return;

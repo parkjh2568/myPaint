@@ -332,12 +332,13 @@ export class PaintDocument {
     markSaved(revision: number): void {
         if (this.revision === revision && !this.stroke) this.savedRevision = revision;
     }
-    private record(change: Change): void {
+    private record(change: Change, applyPixels?: () => void): void {
         const next = this.history.slice(0, this.cursor);
         next.push(change);
         let bytes = next.reduce((sum, c) => sum + c.bytes, 0);
         while ((bytes > this.historyBudget || next.length > 4096) && next.length > 1)
             bytes -= next.shift()!.bytes;
+        applyPixels?.();
         this.history = next;
         this.cursor = next.length;
         this.historyBytes = bytes;
@@ -396,7 +397,7 @@ export class PaintDocument {
             id: this.nextRevision,
         };
     }
-    installPrepared(prepared: NonNullable<ReturnType<PaintDocument['prepareState']>>): void {
+    prepareInstallation(prepared: NonNullable<ReturnType<PaintDocument['prepareState']>>): () => void {
         if (
             prepared.owner !== this ||
             prepared.base !== this.revision ||
@@ -412,12 +413,18 @@ export class PaintDocument {
         const expected = prepared.history.at(-1)?.after;
         if (!expected || !sameState(prepared.state, expected))
             throw Error('준비한 편집 후보가 변경됐습니다. 다시 실행하세요.');
-        this.state = prepared.state;
-        this.history = prepared.history;
-        this.historyBytes = prepared.bytes;
-        this.cursor = prepared.history.length;
-        this.revision = prepared.id;
-        this.nextRevision++;
+        const { state, history, bytes, id } = prepared;
+        return () => {
+            this.state = state;
+            this.history = history;
+            this.historyBytes = bytes;
+            this.cursor = history.length;
+            this.revision = id;
+            this.nextRevision++;
+        };
+    }
+    installPrepared(prepared: NonNullable<ReturnType<PaintDocument['prepareState']>>): void {
+        this.prepareInstallation(prepared)();
     }
     commitState(label: string, candidate: State): void {
         const prepared = this.prepareState(label, candidate);
@@ -582,10 +589,46 @@ export class PaintDocument {
             visible: this.state.layers[layer].visible,
             tiles: [{ x, y, width: w, height: h, before, after, coverage: new Uint8Array() }],
         };
-        this.record(change);
-        for (let row = 0; row < h; row++)
-            image.set(after.subarray(row * w * 4, (row + 1) * w * 4), ((y + row) * this.state.width + x) * 4);
-        this.state.layers[layer].visible = true;
+        this.record(change, () => this.applyPixelChange(change, true));
+    }
+    private applyPixelChange(change: Change, forward: boolean): void {
+        const layer = this.state.layers[change.layer!],
+            image = layer.pixels;
+        const rows: { offset: number; before: Uint8ClampedArray; after: Uint8ClampedArray }[] = [];
+        for (const tile of change.tiles!) {
+            const pixels = forward ? tile.after! : tile.before;
+            const stride = tile.width * 4;
+            if (
+                tile.x < 0 ||
+                tile.y < 0 ||
+                tile.x + tile.width > this.state.width ||
+                tile.y + tile.height > this.state.height ||
+                pixels.length !== stride * tile.height
+            )
+                throw Error('편집 픽셀 영역이 문서와 일치하지 않습니다.');
+            for (let y = 0; y < tile.height; y++) {
+                const offset = ((tile.y + y) * this.state.width + tile.x) * 4;
+                rows.push({
+                    offset,
+                    before: image.slice(offset, offset + stride),
+                    after: pixels.subarray(y * stride, (y + 1) * stride),
+                });
+            }
+        }
+        let written = 0;
+        try {
+            for (const row of rows) {
+                written++;
+                image.set(row.after, row.offset);
+            }
+        } catch (error) {
+            for (let i = written - 1; i >= 0; i--) {
+                const row = rows[i];
+                Uint8ClampedArray.prototype.set.call(image, row.before, row.offset);
+            }
+            throw error;
+        }
+        if (change.visible !== undefined) layer.visible = forward ? true : change.visible;
     }
     beginStroke(x: number, y: number, settings: BrushSettings, pressure = 1): void {
         if (this.stroke) throw Error('이미 그리는 중입니다.');
@@ -1239,17 +1282,7 @@ export class PaintDocument {
             validate(candidate, this.profile);
             this.state = candidate;
         } else if (c.before && c.after) this.state = cloneState(forward ? c.after : c.before);
-        else
-            for (const t of c.tiles!) {
-                const data = forward ? t.after! : t.before;
-                for (let y = 0; y < t.height; y++)
-                    this.state.layers[c.layer!].pixels.set(
-                        data.subarray(y * t.width * 4, (y + 1) * t.width * 4),
-                        ((t.y + y) * this.state.width + t.x) * 4,
-                    );
-            }
-        if (c.layer !== undefined && c.visible !== undefined)
-            this.state.layers[c.layer].visible = forward ? true : c.visible;
+        else this.applyPixelChange(c, forward);
         this.revision = forward ? c.afterId : c.beforeId;
     }
 }

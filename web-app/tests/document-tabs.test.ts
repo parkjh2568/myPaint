@@ -105,6 +105,7 @@ function fixture(fail = false) {
             },
         }),
         closeTab: method('closeTab', { createState, runtimeProfile: webLimits }),
+        clearTabDownload: method('clearTabDownload', { URL }),
         root: { inert: false },
         nativeInitialized: true,
     };

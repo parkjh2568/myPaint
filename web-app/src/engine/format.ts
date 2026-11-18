@@ -9,7 +9,8 @@ import {
     webLimits,
 } from './document';
 const encoder = new TextEncoder(),
-    decoder = new TextDecoder('utf-8', { fatal: true });
+    // Project layer names are length-prefixed UTF-8 fields. A leading U+FEFF is name data.
+    decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 const crcTable = new Uint32Array(256);
 for (let n = 0; n < 256; n++) {
     let c = n;

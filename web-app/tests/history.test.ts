@@ -299,3 +299,56 @@ test('restoring the old budget cannot make a prepared candidate resurrect alread
     document.redo();
     assert.equal(document.state.layers[0].pixels[0], 4);
 });
+
+test('failed multi-row pixel publication leaves pixels and history intact for edit, undo and redo', () => {
+    const document = new PaintDocument(createState(2, 2));
+    const red = new Uint8ClampedArray(16).fill(127);
+    const blue = Uint8ClampedArray.of(0, 0, 255, 255, 0, 0, 255, 255);
+    document.replacePixels('first', 0, 0, 0, 1, 2, blue);
+    document.undo();
+    for (const [index, operation] of [
+        () => document.replacePixels('new edit', 0, 0, 0, 2, 2, red),
+        () => document.redo(),
+        () => document.undo(),
+    ].entries()) {
+        if (index === 2) document.redo();
+        const pixels = document.state.layers[0].pixels;
+        const before = cloneState(document.state);
+        const { history, cursor, revision, nextRevision, historyBytes } = document;
+        const previousRedo = document.canRedo;
+        let writes = 0;
+        Object.defineProperty(pixels, 'set', {
+            configurable: true,
+            value(source: ArrayLike<number>, offset: number) {
+                Uint8ClampedArray.prototype.set.call(this, source, offset);
+                if (++writes === 2) throw Error('second row failed');
+            },
+        });
+        assert.throws(operation, /second row failed/);
+        Reflect.deleteProperty(pixels, 'set');
+        assert.deepEqual(document.state, before);
+        assert.deepEqual(
+            [
+                document.history,
+                document.cursor,
+                document.revision,
+                document.nextRevision,
+                document.historyBytes,
+            ],
+            [history, cursor, revision, nextRevision, historyBytes],
+        );
+        assert.equal(document.canRedo, previousRedo);
+    }
+});
+
+test('a tab transaction validates before activation and publishes only after success', () => {
+    const document = new PaintDocument(createState(2, 2));
+    const candidate = cloneState(document.state);
+    candidate.layers[0].name = 'pending text';
+    const pending = document.prepareState('switch tab', candidate)!;
+    const commit = document.prepareInstallation(pending);
+    assert.notEqual(document.state.layers[0].name, 'pending text');
+    commit();
+    assert.equal(document.state.layers[0].name, 'pending text');
+    assert.throws(() => document.prepareInstallation(pending), /문서가 변경/);
+});

@@ -85,21 +85,18 @@ export class RecoveryStore {
     key = crypto.randomUUID();
     sequence = 0;
     generation = 1;
-    warnings: string[] = [];
     async request(
-        operation: 'list' | 'write' | 'clear',
+        operation: 'write' | 'clear',
         entry?: RecoveryEntry,
         bytes?: Uint8Array,
         name = '제목 없음',
-    ): Promise<RecoveryEntry[] | Uint8Array | void> {
+    ): Promise<void> {
         const profile = this.profile;
         if (
             operation === 'write' &&
             (!(bytes instanceof Uint8Array) || bytes.length < 1 || bytes.length > profile.inputBytes)
         )
             throw Error(`복구 파일은 ${profile.inputBytes / 1048576} MiB 이내여야 합니다.`);
-        if (operation === 'list') this.warnings = [];
-        let nativeEntries: RecoveryEntry[] | undefined;
         if (isDesktop()) {
             const invoke = window.__TAURI__!.core.invoke;
             if (operation === 'write') {
@@ -124,34 +121,6 @@ export class RecoveryStore {
                     throw Error('이전 앱의 복구 원본은 삭제하지 않습니다.');
                 await invoke('recovery_clear', { token: entry.token });
                 return;
-            }
-            if (operation === 'list') {
-                const result = await invoke<{ entries: RecoveryEntry[]; warnings: string[] }>(
-                    'recovery_list',
-                );
-                if (
-                    !result ||
-                    !Array.isArray(result.warnings) ||
-                    result.warnings.length > 64 ||
-                    result.warnings.some((warning) => typeof warning !== 'string' || warning.length > 1024)
-                )
-                    throw Error('복구 목록 경고가 올바르지 않습니다.');
-                nativeEntries = result.entries;
-                if (
-                    !Array.isArray(nativeEntries) ||
-                    nativeEntries.length > 64 ||
-                    nativeEntries.some(
-                        (entry) =>
-                            !entry ||
-                            !validEntry(entry, entry.key, profile) ||
-                            typeof entry.token !== 'string' ||
-                            !entry.token ||
-                            !['native', 'legacy'].includes(entry.source || '') ||
-                            entry.readOnly !== (entry.source === 'legacy'),
-                    )
-                )
-                    throw Error('파일 복구 목록이 올바르지 않습니다.');
-                this.warnings = result.warnings;
             }
         }
         if (operation === 'write' && bytes) {
@@ -199,18 +168,67 @@ export class RecoveryStore {
             }
             return;
         }
-        const [current, legacy] = await Promise.allSettled([this.listBrowser(false), this.listBrowser(true)]);
-        if (!nativeEntries && current.status === 'rejected' && legacy.status === 'rejected')
-            throw current.reason;
-        const entries = [...(nativeEntries ?? [])];
-        for (const result of [current, legacy]) {
-            if (result.status === 'fulfilled') entries.push(...result.value);
-            else this.warnings.push('일부 웹 복구 저장소를 읽지 못했습니다. 기존 사본은 보존합니다.');
-        }
-        return entries.sort((a, b) => b.at - a.at);
     }
 
-    private async listBrowser(legacy: boolean): Promise<RecoveryEntry[]> {
+    async list(): Promise<{ entries: RecoveryEntry[]; warnings: string[] }> {
+        const warnings: string[] = [],
+            entries: RecoveryEntry[] = [],
+            browser = Promise.allSettled([
+                this.listBrowser(false, warnings),
+                this.listBrowser(true, warnings),
+            ]);
+        let nativeAvailable = false,
+            nativeFailure: unknown;
+        if (isDesktop()) {
+            try {
+                const result = await window.__TAURI__!.core.invoke<{
+                    entries: RecoveryEntry[];
+                    warnings: string[];
+                }>('recovery_list');
+                if (
+                    !result ||
+                    !Array.isArray(result.warnings) ||
+                    result.warnings.length > 64 ||
+                    result.warnings.some((warning) => typeof warning !== 'string' || warning.length > 1024)
+                )
+                    throw Error('복구 목록 경고가 올바르지 않습니다.');
+                if (
+                    !Array.isArray(result.entries) ||
+                    result.entries.length > 64 ||
+                    result.entries.some(
+                        (entry) =>
+                            !entry ||
+                            !validEntry(entry, entry.key, this.profile) ||
+                            typeof entry.token !== 'string' ||
+                            !entry.token ||
+                            !['native', 'legacy'].includes(entry.source || '') ||
+                            entry.readOnly !== (entry.source === 'legacy'),
+                    )
+                )
+                    throw Error('파일 복구 목록이 올바르지 않습니다.');
+                nativeAvailable = true;
+                entries.push(...result.entries);
+                warnings.push(...result.warnings);
+            } catch (error) {
+                nativeFailure = error;
+                const detail = error instanceof Error ? error.message : String(error);
+                warnings.push(
+                    '파일 복구 저장소를 읽지 못했습니다. 접근 가능한 웹 사본을 표시합니다. ' + detail,
+                );
+            }
+        }
+        const [current, legacy] = await browser;
+        if (!nativeAvailable && current.status === 'rejected' && legacy.status === 'rejected')
+            throw nativeFailure ?? current.reason;
+        if (current.status === 'fulfilled') entries.push(...current.value);
+        else warnings.push('현재 웹 복구 저장소를 읽지 못했습니다. 기존 사본은 보존합니다.');
+        if (legacy.status === 'fulfilled') entries.push(...legacy.value);
+        else warnings.push('이전 웹 복구 저장소를 읽지 못했습니다. 기존 사본은 보존합니다.');
+        entries.sort((a, b) => b.at - a.at);
+        return { entries, warnings };
+    }
+
+    private async listBrowser(legacy: boolean, warnings: string[]): Promise<RecoveryEntry[]> {
         const db = await openBrowserRecovery(legacy);
         if (!db) return [];
         try {
@@ -222,7 +240,7 @@ export class RecoveryStore {
                     damaged = false;
                 tx.oncomplete = () => {
                     if (damaged)
-                        this.warnings.push(
+                        warnings.push(
                             '복구 사본 정보가 올바르지 않은 항목을 건너뛰었습니다. 기존 사본은 보존합니다.',
                         );
                     resolve(entries);

@@ -1,8 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { encodePng, decodePng, decodeProject } from '../src/engine/format';
+import { encodePng, decodePng, decodeProject, encodeProject } from '../src/engine/format';
 import { readArtwork } from '../src/platform/codec';
-import { webLimits } from '../src/engine/document';
+import { createState, webLimits } from '../src/engine/document';
 
 function project(width: number, height: number, layers: Uint8Array[]): Uint8Array {
     const bytes = new Uint8Array(28 + layers.reduce((sum, layer) => sum + 10 + layer.length, 0)),
@@ -68,6 +68,19 @@ test('project preflight preserves PNG validation for truncated and bad-CRC layer
     const corrupt = png.slice();
     corrupt[29] ^= 1;
     assert.throws(() => decodeProject(project(8, 8, [corrupt])), /체크섬/);
+});
+
+test('RPAINT01 preserves leading U+FEFF as a layer name and rejects malformed UTF-8', () => {
+    const state = createState(2, 2);
+    for (const name of ['\uFEFF', '\uFEFF밑그림']) {
+        state.layers[0].name = name;
+        const bytes = encodeProject(state);
+        assert.deepEqual(decodeProject(bytes), state);
+        assert.deepEqual(encodeProject(decodeProject(bytes)), bytes);
+        const malformedName = bytes.slice();
+        malformedName[32] = 0xff;
+        assert.throws(() => decodeProject(malformedName), TypeError);
+    }
 });
 
 test('the actual project Worker reports a mismatched layer without constructing its pixel buffer', async () => {
