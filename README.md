@@ -2,6 +2,26 @@
 
 myPaint Studio 0.2.0은 로컬에서 그림을 그리고 `.rpaint` 프로젝트나 이미지로 저장하는 그림판입니다. 브러시·도형·선택·문자·레이어와 여러 문서 탭을 지원합니다. Studio Dark와 Classic 98은 상단 **설정**에서 선택합니다.
 
+## 로컬 웹 편집기 시작
+
+처음 한 번 **Node.js 24 이상과 npm**을 준비한 뒤 저장소 루트에서 `npm ci --prefix web-app`을 실행합니다. Windows PowerShell에서는 `npm.cmd ci --prefix web-app`을 사용합니다. 기존 lockfile로 웹 의존성만 준비하며 Python·Docker·Rust는 이 실행에 필요하지 않습니다. 루트에서 별도의 `npm install`은 필요 없습니다.
+
+이후 매일 저장소 루트에서 한 줄로 실행합니다.
+
+```sh
+npm run start:local
+```
+
+Windows PowerShell: `npm.cmd run start:local`. 화면은 **http://127.0.0.1:8922/** 에서 열고, 실행한 터미널의 **Ctrl+C**로 종료합니다. 환경변수 export, `$env:`, `.env` 작성은 필요 없습니다. 브라우저를 자동으로 열지 않으며 기존 Windows/Mac 웹 편집기와 같은 화면을 제공합니다. Tauri 창·설치본과 GPUI는 아래 별도 안내를 사용합니다.
+
+포트가 사용 중이면 기존 서비스를 그대로 두고 실패합니다. `npm run start:local -- --port 18922` (Windows: `npm.cmd run start:local -- --port 18922`)로 바꾸면 주소는 http://127.0.0.1:18922/ 입니다. 바인딩은 항상 loopback입니다. `--help`로 사용법을 확인할 수 있습니다.
+
+설정 우선순위는 실행기의 포트 인자 → 기본 8922이며, 호스트·strictPort·자동 브라우저 열기 여부는 실행기가 고정합니다. 나머지는 기존 `web-app/vite.config.ts`를 재사용합니다. `.env`는 필요 없고 새 로컬 설정 파일도 만들지 않습니다. 기존 Vite 환경값은 프로세스 환경 → 모드별 `.env.*.local`/`.env.*` → 일반 `.env.local`/`.env` 순으로 우선하며, 이 값으로 실행기의 호스트·포트를 바꾸지는 않습니다. `VITE_` 값은 브라우저에 노출되므로 비밀을 넣지 마세요. 기존 `web-app`의 `npm run dev -- ...` 고급 실행 경로는 유지합니다.
+
+검토에는 새 일반 브라우저 프로필과 테스트 파일 사본을 사용하세요. 실행기 자체는 복구 DB를 읽지 않지만, 브라우저에서 기존 origin을 열면 앱이 그 프로필의 기존 복구 목록을 읽을 수 있습니다. 포트를 바꾸면 origin과 복구 저장소도 달라집니다. 기존 사이트 데이터는 지우지 말고 `.rpaint` 파일로 별도 보관하세요.
+
+실제 검증 플랫폼과 남은 항목은 [현재 검증 기록](docs/CURRENT_STATUS.md)을 참고하세요.
+
 ## 빌드 및 실행
 
 | 대상 | Windows | macOS |

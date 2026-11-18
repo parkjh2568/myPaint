@@ -2,6 +2,19 @@
 
 최종 로컬 검증은 2026-11-18 기준입니다. 이전 실행 기록은 날짜별로 보존합니다. [인수인계](../PROJECT_HANDOFF.md) · [개발 문서](README.md)
 
+## 2026-11-18 루트 로컬 실행 명령
+
+원격 `codex/gpui-compare`의 `b8b2f06c572293f23611ac477a6bdce65dbb5ddf`를 기준으로 추가했습니다. 루트 `npm run start:local`은 기존 Vite 설정과 웹 편집기를 사용하며 환경변수·`.env` 없이 `127.0.0.1:8922`에서 실행합니다. 포트 충돌은 실패로 반환하고 명시적인 `-- --port`만 허용합니다. Tauri·GPUI·복구 저장 형식은 변경하지 않았습니다.
+
+Linux 클라우드, Node 24.19.0/npm 11.9.0에서 다음을 확인했습니다.
+
+- 기존 lockfile의 `npm ci`는 기본 npm 캐시 디렉터리 오류로 처음 실패했습니다. 검증용 `/tmp/mypaint-local-npm-cache`를 명령에 지정한 설치는 성공했으며 lockfile·전역 설정은 변경하지 않았습니다.
+- Python 47개(기존 43 + 실행기 4) 통과. 격리 임시 폴더에서 의존성 누락, 잘못된 포트·공개 호스트 거부, 점유 포트 보존, 공백 경로의 HTTP 응답, SIGINT/SIGTERM 후 포트 해제를 확인했습니다. SIGTERM은 Vite의 정상 정리 후 상태 143, 직접 SIGINT는 상태 0입니다.
+- Node 365개, 기존 Prettier 검사, 루트 package.json 포맷, TypeScript·Vite 빌드, `git diff --check` 통과.
+- PATH와 테스트 HOME만 있는 새 셸에서 **루트 `npm run start:local`** 실행. `/`, `/src/main.ts`, `/@vite/client`가 HTTP 200을 반환했습니다. 최초 도구 PTY의 Ctrl+C는 npm 자식을 종료하지 못해 생성한 해당 Node 프로세스에만 SIGINT를 보냈습니다. 이후 별도 실제 controlling PTY에서 npm 명령을 실행하고 Ctrl+C 문자로 서버 종료 메시지와 포트 해제를 확인했습니다(npm 부모는 SIGINT 종료).
+
+브라우저를 열거나 실제 복구 DB를 읽지 않았습니다. HTTP 검사는 UI 조작·브라우저 렌더링 인수가 아닙니다. Windows PowerShell/macOS에서 이번 실행기와 Ctrl+C를 직접 검증하지 않았고, 네이티브·전체 브라우저 회귀·배포는 수행하지 않았습니다. 새 프로필과 테스트 파일로 플랫폼별 수동 확인이 남습니다.
+
 ## 2026-11-18 레이어 이름·복구·키보드·다운로드
 
 `eefda12` 위 로컬 수정에서 TypeScript·Vite 빌드, Node 365개, Chromium 문서 탭 및 복구 9개 시나리오를 확인했습니다. RPAINT01의 선두 U+FEFF 이름을 원문대로 읽고, 네이티브 목록 실패에도 정상 웹 복구 사본을 표시합니다. 작업 중 Enter·Space·Esc로 취소하고, 탭 전환 후에도 해당 탭의 웹 다운로드를 받을 수 있습니다.

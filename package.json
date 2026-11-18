@@ -1,0 +1,7 @@
+{
+    "name": "mypaint-local",
+    "private": true,
+    "scripts": {
+        "start:local": "node web-app/tools/start-local.mjs"
+    }
+}

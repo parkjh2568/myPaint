@@ -1,5 +1,7 @@
 # Windows 웹 버전 테스트
 
+**빠른 실행:** 최초 준비 뒤 저장소 루트에서 `npm.cmd run start:local` → http://127.0.0.1:8922/ → Ctrl+C로 종료합니다. 환경변수·`.env` 없이 실행하며 [준비와 포트 변경](README.md#로컬-웹-편집기-시작)을 참고하세요. 아래 `web-app` 실행 방식도 유지합니다.
+
 현재 Studio(`web-app/`) 기준입니다. **아래 명령은 한 줄씩 실행하고 오류가 나면 다음 단계로 넘어가지 마세요.** 처음 의존성을 받을 때는 인터넷이 필요합니다.
 
 ## 1. 도구 준비 (처음 한 번)
@@ -12,7 +14,7 @@
 테스트 폴더를 만들 상위 위치에서 실행합니다. `myPaint-test`가 이미 있으면 다른 빈 폴더 이름을 사용하세요. 기존 작업 폴더를 덮어쓰지 않습니다.
 
 ```powershell
-git clone --branch style/win98-paint-skin https://github.com/parkjh2568/myPaint.git myPaint-test
+git clone --branch codex/gpui-compare https://github.com/parkjh2568/myPaint.git myPaint-test
 cd myPaint-test/web-app
 npm ci
 ```
