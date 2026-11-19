@@ -311,6 +311,43 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "manual timing with generated pixels and a temporary native store"]
+    fn profile_native_save_and_export() {
+        let root = tempfile::tempdir().unwrap();
+        let io = NativeIo::new(&root.path().join("app"), &root.path().join("legacy")).unwrap();
+        io.activate(1, "profile", None, false).unwrap();
+        let mut seed = 17_u32;
+        for size in [1024, 2048] {
+            let mut pixels = vec![0; size * size * 4];
+            for pixel in pixels.chunks_exact_mut(4) {
+                seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
+                pixel.copy_from_slice(&[seed as u8, (seed >> 16) as u8, (seed >> 24) as u8, 255]);
+            }
+            let state = State {
+                width: size as u32,
+                height: size as u32,
+                background: [0, 0, 0, 0],
+                active: 0,
+                layers: vec![Layer::new("fixture".into(), true, pixels)],
+            };
+            let project = root.path().join(format!("profile-{size}.rpaint"));
+            let output = root.path().join(format!("profile-{size}.png"));
+            let started = std::time::Instant::now();
+            io.save_project_path(&state, 1, &project).unwrap();
+            let save_ms = started.elapsed().as_secs_f64() * 1000.0;
+            let started = std::time::Instant::now();
+            io.export_image_path(&state, 1, ExportFormat::Png, [255; 4], &output)
+                .unwrap();
+            let export_ms = started.elapsed().as_secs_f64() * 1000.0;
+            let loaded = io.open_path(&project).unwrap();
+            assert_eq!(&state.layers[0].pixels, &loaded.state.layers[0].pixels);
+            let png = image::open(&output).unwrap().to_rgba8();
+            assert_eq!(png.as_raw().as_slice(), state.layers[0].pixels.as_slice());
+            println!("size={size} save_ms={save_ms:.1} png_ms={export_ms:.1}");
+        }
+    }
+
+    #[test]
     fn saves_recovers_and_reopens_the_exact_document_through_the_native_policy() {
         let root = tempfile::tempdir().unwrap();
         let app = root.path().join("app");

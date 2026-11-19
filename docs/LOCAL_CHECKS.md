@@ -102,3 +102,15 @@ Windows의 fixture 줄바꿈·바이트 검사도 `npm --prefix web-app run test
 3. 진행 중인 실행은 **Actions → 실행 항목 → Cancel workflow**로 별도 취소합니다. [취소 안내](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/cancel-a-workflow-run)
 
 특정 워크플로만 끄려면 **Actions → 해당 워크플로 → ⋯ → Disable workflow**를 선택합니다. [개별 비활성화 안내](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows)
+
+
+## 저장과 복구의 자원 계측
+
+웹 빌드를 Vite preview로 로컬에 열고 아래 명령으로 합성 문서를 사용한다. 브라우저 프로세스 RSS 계측에는 macOS 또는 Linux의 `ps`가 필요하다.
+
+```sh
+PAINT_TEST_URL=http://127.0.0.1:8922/ npm --prefix web-app run test:resource-pipeline
+TMPDIR=/private/tmp cargo +1.100.0 test --locked --manifest-path gpui-app/Cargo.toml profile_native_save_and_export -- --ignored --nocapture
+```
+
+웹 검사는 Chromium의 Worker, 실제 다운로드 파일, IndexedDB 스냅샷을 확인한다. RSS는 브라우저 전체의 샘플링 값이며 Worker나 Blob 단독 메모리와 UI 정지 시간을 대신하지 않는다. GPUI 명령은 테스트 빌드의 임시 저장소에서 엔진 인코딩과 파일 교체 시간을 관측한다.

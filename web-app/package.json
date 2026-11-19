@@ -15,6 +15,7 @@
         "format": "prettier --write src tests tools *.json *.ts index.html",
         "format:check": "prettier --check src tests tools *.json *.ts index.html",
         "test:performance": "node --import tsx tests/performance.mjs",
+        "test:resource-pipeline": "node --import tsx tests/resource-pipeline.mjs",
         "test:native-profile": "node --import tsx tests/native-profile.mjs",
         "test:tiles": "node --import tsx tests/tiles.mjs",
         "test:native-persistence": "node --import tsx tests/native-persistence.mjs",
