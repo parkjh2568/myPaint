@@ -1,5 +1,7 @@
 # myPaint 인수인계
 
+macOS GPUI 릴리스의 실제 앱에서 저장과 PNG 내보내기의 프레임 간격을 측정할 수 있습니다. [재현 명령](docs/LOCAL_CHECKS.md#저장과-복구의-자원-계측)과 [결과](docs/CURRENT_STATUS.md#2026-11-19-macos-gpui-릴리스-저장-프레임)를 참고하세요.
+
 2026-11-19에는 원격 `8332a63`을 통합하고 웹 저장·복구 RSS와 GPUI 저장·내보내기 시간을 재현 가능한 검사로 추가했습니다. 검증 결과와 환경 제한은 [현재 상태](docs/CURRENT_STATUS.md#2026-11-19-저장내보내기-자원-계측)에 기록했습니다.
 
 `b8b2f06` 기반 후속 변경은 루트 `npm run start:local` 실행기입니다. 최초 `npm ci --prefix web-app` 뒤 환경변수 없이 실행하며, 준비·주소·종료는 [README](README.md#로컬-웹-편집기-시작), Linux 검증과 Windows/Mac 미검증은 [현재 상태](docs/CURRENT_STATUS.md#2026-11-18-루트-로컬-실행-명령)에 기록했습니다. 정확한 변경 커밋은 이 문서를 포함한 Git 커밋을 기준으로 확인합니다.

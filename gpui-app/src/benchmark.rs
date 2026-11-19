@@ -7,6 +7,8 @@ use sha2::{Digest, Sha256};
 use crate::{
     editor::{PointerButton, Sample, Tool},
     engine::{Layer, State},
+    format::ExportFormat,
+    io::NativeIo,
     ui::Studio,
 };
 
@@ -237,4 +239,133 @@ pub fn paint_finished(view: &WeakEntity<Studio>, app: &mut App) {
             bench.paint_finished(uploads.0, uploads.1);
         }
     });
+}
+
+pub(crate) fn io_profile_fixture(size: u32) -> State {
+    let mut pixels = vec![0; size as usize * size as usize * 4];
+    let mut seed = 17_u32;
+    for pixel in pixels.chunks_exact_mut(4) {
+        seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
+        pixel.copy_from_slice(&[seed as u8, (seed >> 16) as u8, (seed >> 24) as u8, 255]);
+    }
+    State {
+        width: size,
+        height: size,
+        background: [0; 4],
+        active: 0,
+        layers: vec![Layer::new("fixture".into(), true, pixels)],
+    }
+}
+
+pub struct IoBenchmark {
+    output: PathBuf,
+    scratch: tempfile::TempDir,
+    native: NativeIo,
+    size_index: usize,
+    generation: Option<u64>,
+    pending: Option<(&'static str, Instant, f64)>,
+    results: Vec<IoTiming>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct IoTiming {
+    size: u32,
+    operation: &'static str,
+    handler_ms: f64,
+    until_next_frame_ms: f64,
+}
+
+impl IoBenchmark {
+    pub fn new(output: PathBuf, root: &std::path::Path, native: NativeIo) -> Result<Self, String> {
+        if output.exists() {
+            return Err("저장 계측 결과 경로는 새 파일이어야 합니다.".into());
+        }
+        let scratch = tempfile::tempdir_in(root).map_err(|error| error.to_string())?;
+        Ok(Self {
+            output,
+            scratch,
+            native,
+            size_index: 0,
+            generation: None,
+            pending: None,
+            results: Vec::new(),
+        })
+    }
+
+    pub fn schedule(mut self, window: &mut Window, view: WeakEntity<Studio>) {
+        window.on_next_frame(move |window, app| {
+            let result = view
+                .update(app, |studio, cx| -> Result<bool, String> {
+                    const SIZES: [u32; 2] = [1024, 2048];
+                    let size = SIZES[self.size_index];
+                    if let Some((operation, started, handler_ms)) = self.pending.take() {
+                        self.results.push(IoTiming {
+                            size,
+                            operation,
+                            handler_ms,
+                            until_next_frame_ms: ms(started),
+                        });
+                        if operation == "png" {
+                            self.size_index += 1;
+                            self.generation = None;
+                            if self.size_index == SIZES.len() {
+                                return Ok(true);
+                            }
+                            return Ok(false);
+                        }
+                    }
+                    if let Some(generation) = self.generation {
+                        let write_png = self.results.last().is_some_and(|last| {
+                            last.size == size && last.operation == "rpaint"
+                        });
+                        let started = Instant::now();
+                        let operation = if write_png {
+                            let path = self.scratch.path().join(format!("{size}.png"));
+                            let state = studio.editor.export_candidate()?;
+                            self.native.export_image_path(
+                                &state, generation, ExportFormat::Png, [255; 4], &path,
+                            )?;
+                            "png"
+                        } else {
+                            let path = self.scratch.path().join(format!("{size}.rpaint"));
+                            if !studio.save(false, Some(&path), cx)? {
+                                return Err("계측용 프로젝트를 저장하지 못했습니다.".into());
+                            }
+                            "rpaint"
+                        };
+                        self.pending = Some((operation, started, ms(started)));
+                    } else {
+                        self.generation = Some(studio.install_benchmark_state(io_profile_fixture(size), cx)?);
+                    }
+                    Ok(false)
+                })
+                .map_err(|error| error.to_string())
+                .and_then(|result| result);
+            if matches!(result, Ok(false)) {
+                window.refresh();
+                self.schedule(window, view);
+                return;
+            }
+            let result = match result {
+                Ok(true) => serde_json::json!({
+                    "ok": true,
+                    "scope": "GPUI frame callback through native save or export and next frame callback. File dialogs and display scanout excluded.",
+                    "timings": self.results,
+                }),
+                Err(error) => serde_json::json!({"ok": false, "error": error}),
+                Ok(false) => unreachable!(),
+            };
+            let output = OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .open(&self.output)
+                .and_then(|mut file| writeln!(file, "{result}"));
+            if let Err(error) = output {
+                eprintln!("myPaint Studio: {error}");
+            }
+            window.remove_window();
+            app.quit();
+        });
+    }
 }

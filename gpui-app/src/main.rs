@@ -40,7 +40,7 @@ fn start(args: &[OsString]) -> Result<(), String> {
     } else {
         None
     };
-    let (data, legacy) = if let Some(root) = isolated_root {
+    let (data, legacy) = if let Some(root) = &isolated_root {
         (root.join("app"), root.join("legacy"))
     } else {
         io::NativeIo::default_paths()?
@@ -54,8 +54,21 @@ fn start(args: &[OsString]) -> Result<(), String> {
     let mut benchmark = path_arg(args, "--benchmark-result")
         .map(|path| benchmark::Benchmark::new(path, layers, started))
         .transpose()?;
-    if smoke.is_some() && (initial.is_some() || benchmark.is_some()) {
-        return Err("Windows 검증과 파일 열기 또는 벤치마크를 함께 사용할 수 없습니다.".into());
+    let mut io_benchmark = path_arg(args, "--benchmark-io-result")
+        .map(|output| {
+            let root = isolated_root
+                .as_deref()
+                .ok_or("저장 계측에는 별도 --persistence-root가 필요합니다.")?;
+            benchmark::IoBenchmark::new(output, root, native.clone())
+        })
+        .transpose()?;
+    if smoke.is_some() && (initial.is_some() || benchmark.is_some() || io_benchmark.is_some())
+        || io_benchmark.is_some() && (initial.is_some() || benchmark.is_some())
+    {
+        return Err(
+            "Windows 검증 또는 저장 계측은 다른 파일·벤치마크 옵션과 함께 사용할 수 없습니다."
+                .into(),
+        );
     }
     gpui_platform::application()
         .with_assets(ui::Icons)
@@ -122,6 +135,9 @@ fn start(args: &[OsString]) -> Result<(), String> {
                     studio.read(app).focus_handle(app).focus(window, app);
                     if studio.read(app).benchmark.is_some() {
                         benchmark::schedule(window, studio.downgrade());
+                    }
+                    if let Some(profile) = io_benchmark.take() {
+                        profile.schedule(window, studio.downgrade());
                     }
                     if let Some(smoke) = smoke.take() {
                         smoke.schedule(window, studio.downgrade());

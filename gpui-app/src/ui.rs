@@ -321,7 +321,7 @@ impl Studio {
         &mut self,
         state: State,
         cx: &mut Context<Self>,
-    ) -> Result<(), String> {
+    ) -> Result<u64, String> {
         self.install_loaded(
             LoadedDocument {
                 state,
@@ -329,7 +329,8 @@ impl Studio {
                 source_token: None,
             },
             cx,
-        )
+        )?;
+        Ok(self.epoch)
     }
 
     pub(crate) fn cache_counts(&self) -> (usize, usize) {

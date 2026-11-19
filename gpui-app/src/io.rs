@@ -316,20 +316,8 @@ mod tests {
         let root = tempfile::tempdir().unwrap();
         let io = NativeIo::new(&root.path().join("app"), &root.path().join("legacy")).unwrap();
         io.activate(1, "profile", None, false).unwrap();
-        let mut seed = 17_u32;
         for size in [1024, 2048] {
-            let mut pixels = vec![0; size * size * 4];
-            for pixel in pixels.chunks_exact_mut(4) {
-                seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
-                pixel.copy_from_slice(&[seed as u8, (seed >> 16) as u8, (seed >> 24) as u8, 255]);
-            }
-            let state = State {
-                width: size as u32,
-                height: size as u32,
-                background: [0, 0, 0, 0],
-                active: 0,
-                layers: vec![Layer::new("fixture".into(), true, pixels)],
-            };
+            let state = crate::benchmark::io_profile_fixture(size);
             let project = root.path().join(format!("profile-{size}.rpaint"));
             let output = root.path().join(format!("profile-{size}.png"));
             let started = std::time::Instant::now();
