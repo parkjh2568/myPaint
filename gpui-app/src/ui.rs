@@ -368,7 +368,7 @@ impl Studio {
         (self.cache.last_uploads, self.cache.last_upload_bytes)
     }
 
-    fn report(&mut self, result: Result<(), String>, cx: &mut Context<Self>) {
+    pub(crate) fn report(&mut self, result: Result<(), String>, cx: &mut Context<Self>) {
         if let Err(message) = result {
             self.status = message;
         }
@@ -2019,11 +2019,6 @@ impl Render for Studio {
                         studio.preview_version = studio.preview_version.wrapping_add(1);
                     }
                     let dirty = studio.editor.document_mut().take_visual_dirty();
-                    let dirty = if pending || studio.had_preview {
-                        None
-                    } else {
-                        dirty
-                    };
                     studio.had_preview = pending;
                     let preview = if pending {
                         studio.editor.preview_state().ok()
@@ -2038,6 +2033,7 @@ impl Render for Studio {
                         studio.editor.active_tab().id,
                         studio.preview_version,
                         dirty,
+                        pending,
                         *studio.editor.viewport(),
                         bounds,
                         window,

@@ -48,6 +48,7 @@ fn start(args: &[OsString]) -> Result<(), String> {
     let native = io::NativeIo::new(&data, &legacy)?;
     let preferences = preferences::PreferenceStore::new(&data);
     let initial = path_arg(args, "--open");
+    let io_project = path_arg(args, "--benchmark-io-project");
     let layers = path_arg(args, "--benchmark-layers")
         .and_then(|value| value.to_str()?.parse().ok())
         .unwrap_or(1);
@@ -59,9 +60,12 @@ fn start(args: &[OsString]) -> Result<(), String> {
             let root = isolated_root
                 .as_deref()
                 .ok_or("저장 계측에는 별도 --persistence-root가 필요합니다.")?;
-            benchmark::IoBenchmark::new(output, root)
+            benchmark::IoBenchmark::new(output, root, io_project.is_some())
         })
         .transpose()?;
+    if io_project.is_some() && io_benchmark.is_none() {
+        return Err("--benchmark-io-project에는 --benchmark-io-result가 필요합니다.".into());
+    }
     if smoke.is_some() && (initial.is_some() || benchmark.is_some() || io_benchmark.is_some())
         || io_benchmark.is_some() && (initial.is_some() || benchmark.is_some())
     {
@@ -70,6 +74,7 @@ fn start(args: &[OsString]) -> Result<(), String> {
                 .into(),
         );
     }
+    let initial = initial.or(io_project);
     gpui_platform::application()
         .with_assets(ui::Icons)
         .run(move |app: &mut App| {

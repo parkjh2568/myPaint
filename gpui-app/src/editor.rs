@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{cell::RefCell, sync::Arc};
 
 use crate::engine::{
     BrushSettings, Color, EngineResult, Layer, PaintDocument, PreparedState, State,
@@ -81,7 +81,7 @@ impl Tool {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ToolSettings {
     pub tool: Tool,
     pub foreground: Color,
@@ -285,19 +285,29 @@ struct Selection {
     resize_source: Option<(u32, u32, Arc<Vec<u8>>)>,
 }
 
+#[derive(Clone)]
 struct TextDraft {
     x: i32,
     y: i32,
-    raster: Option<Raster>,
+    raster: Option<Arc<Raster>>,
     composing: bool,
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 struct ShapeDraft {
     tool: Tool,
     points: Vec<Sample>,
     controls: Vec<Sample>,
     secondary: bool,
+}
+
+struct PendingPreview {
+    document: (u64, u64, usize),
+    selection: Option<Selection>,
+    text: Option<TextDraft>,
+    shape: Option<ShapeDraft>,
+    shape_settings: Option<ToolSettings>,
+    state: State,
 }
 
 enum Drag {
@@ -379,6 +389,7 @@ pub struct Editor {
     selection: Option<Selection>,
     text: Option<TextDraft>,
     shape: Option<ShapeDraft>,
+    pending_preview: RefCell<Option<PendingPreview>>,
     random_state: u64,
 }
 
@@ -399,6 +410,7 @@ impl Editor {
             selection: None,
             text: None,
             shape: None,
+            pending_preview: RefCell::default(),
             random_state: 0x5E7F_955A_14A2_5931,
         })
     }
@@ -1287,6 +1299,7 @@ impl Editor {
         self.selection = None;
         self.text = None;
         self.shape = None;
+        self.pending_preview.get_mut().take();
         changed
     }
 
@@ -1309,7 +1322,7 @@ impl Editor {
             .text
             .as_mut()
             .ok_or("문자를 배치할 위치를 선택하세요.")?;
-        text.raster = raster;
+        text.raster = raster.map(Arc::new);
         Ok(())
     }
 
@@ -1762,7 +1775,51 @@ impl Editor {
         if validate_commit && self.text.as_ref().is_some_and(|text| text.composing) {
             return Err("문자 조합을 먼저 확정하세요.".into());
         }
-        let mut state = self.document().state().clone();
+        let document = self.document();
+        let shape = self.shape.as_ref().filter(|draft| {
+            draft.tool != Tool::Polygon || draft.points.len() >= 3 || !validate_commit
+        });
+        let cacheable = include_selection && self.drag.is_none() && self.has_pending();
+        let document_key = (
+            document.identity(),
+            document.visual_generation(),
+            document.state().active,
+        );
+        let shape_settings = shape.map(|_| &self.settings);
+        if cacheable {
+            let selection_key = |selection: Option<&Selection>| {
+                selection
+                    .filter(|selection| selection.modified)
+                    .map(|selection| {
+                        (
+                            selection.region,
+                            selection.source,
+                            Arc::as_ptr(&selection.pixels),
+                            selection.mask.as_ref().map(Arc::as_ptr),
+                        )
+                    })
+            };
+            let text_key = |text: Option<&TextDraft>| {
+                text.and_then(|text| {
+                    text.raster
+                        .as_ref()
+                        .map(|raster| (text.x, text.y, Arc::as_ptr(raster)))
+                })
+            };
+            let mut preview = self.pending_preview.borrow_mut();
+            if let Some(cached) = preview.as_ref()
+                && cached.document == document_key
+                && selection_key(cached.selection.as_ref())
+                    == selection_key(self.selection.as_ref())
+                && text_key(cached.text.as_ref()) == text_key(self.text.as_ref())
+                && cached.shape.as_ref() == shape
+                && cached.shape_settings.as_ref() == shape_settings
+            {
+                return Ok(cached.state.clone());
+            }
+            *preview = None;
+        }
+        let mut state = document.state().clone();
         if let Some(selection) = &self.selection
             && (selection.modified || !include_selection)
         {
@@ -1812,10 +1869,18 @@ impl Editor {
                 &raster.pixels,
             )?;
         }
-        if let Some(draft) = &self.shape
-            && (draft.tool != Tool::Polygon || draft.points.len() >= 3 || !validate_commit)
-        {
+        if let Some(draft) = shape {
             shape::apply(draft, &self.settings, &mut state)?;
+        }
+        if cacheable {
+            self.pending_preview.replace(Some(PendingPreview {
+                document: document_key,
+                selection: self.selection.clone(),
+                text: self.text.clone(),
+                shape: shape.cloned(),
+                shape_settings: shape_settings.cloned(),
+                state: state.clone(),
+            }));
         }
         Ok(state)
     }
@@ -2088,6 +2153,60 @@ mod tests {
     }
 
     #[test]
+    fn pending_selection_reuses_preview_pixels_until_moved_or_committed() {
+        let mut editor = fixture();
+        draw_pencil(&mut editor, 5.5, 6.5);
+        editor.select_all().unwrap();
+        editor.nudge_selection(-1, 0).unwrap();
+        let preview = editor.preview_state().unwrap();
+        let export = editor.export_candidate().unwrap();
+        assert!(Arc::ptr_eq(
+            &preview.layers[0].pixels,
+            &export.layers[0].pixels
+        ));
+
+        editor.nudge_selection(-1, 0).unwrap();
+        let moved = editor.preview_state().unwrap();
+        assert_ne!(moved, preview);
+        let save = editor.prepare_tab_save(editor.active_tab().id).unwrap();
+        assert!(Arc::ptr_eq(
+            &moved.layers[0].pixels,
+            &save.state.layers[0].pixels
+        ));
+        editor.finish_tab_save(save, "saved.rpaint".into()).unwrap();
+        assert_eq!(editor.document().state(), &moved);
+        assert!(!editor.has_pending());
+        assert!(editor.pending_preview.get_mut().is_none());
+    }
+
+    #[test]
+    fn cached_unfinished_polygon_keeps_distinct_preview_and_export_pixels() {
+        let mut editor = fixture();
+        editor.shape = Some(ShapeDraft {
+            tool: Tool::Polygon,
+            points: vec![point(6.0, 7.0), point(20.0, 9.0)],
+            controls: Vec::new(),
+            secondary: false,
+        });
+        let original = editor.document().state().clone();
+        let preview = editor.preview_state().unwrap();
+        assert_ne!(preview, original);
+        assert_eq!(editor.export_candidate().unwrap(), original);
+        assert_eq!(editor.preview_state().unwrap(), preview);
+
+        editor.settings.foreground = [11, 23, 44, 255];
+        let recolored = editor.preview_state().unwrap();
+        assert_ne!(recolored, preview);
+        let save = editor.prepare_tab_save(editor.active_tab().id).unwrap();
+        assert_eq!(save.state, recolored);
+        editor
+            .finish_tab_save(save, "polygon.rpaint".into())
+            .unwrap();
+        assert_eq!(editor.document().state(), &original);
+        assert!(!editor.has_pending());
+    }
+
+    #[test]
     fn pending_ime_text_is_locked_until_composition_finishes() {
         let mut editor = fixture();
         editor.choose_tool(Tool::Text).unwrap();
@@ -2099,7 +2218,10 @@ mod tests {
         );
         editor.set_text_raster(Some(one_pixel(RED))).unwrap();
         editor.set_text_composing(true);
+        assert_ne!(&editor.preview_state().unwrap(), editor.document().state());
         let original = editor.document().revision();
+        assert!(editor.export_candidate().is_err());
+        assert!(editor.prepare_tab_save(editor.active_tab().id).is_err());
         assert!(editor.commit_pending().is_err());
         assert_eq!(editor.document().revision(), original);
         assert!(editor.has_pending());

@@ -211,24 +211,27 @@ impl State {
         }
         let mut out = zeroed(width as usize * height as usize * 4)?;
         let row_bytes = width as usize * 4;
-        for layer in &self.layers {
-            if !layer.visible {
-                continue;
-            }
-            for (row, target) in out.chunks_exact_mut(row_bytes).enumerate() {
-                let index = ((top as usize + row) * self.width as usize + left as usize) * 4;
-                let source = &layer.pixels[index..index + row_bytes];
-                for (pixel, &origin) in target
-                    .as_chunks_mut::<4>()
-                    .0
-                    .iter_mut()
-                    .zip(source.as_chunks::<4>().0)
-                {
-                    source_over(pixel, origin);
-                }
-            }
+        for (row, target) in out.chunks_exact_mut(row_bytes).enumerate() {
+            self.composite_row(left, top + row as u32, target);
         }
         Ok(out)
+    }
+
+    // Callers validate the state and supply an in-bounds RGBA row.
+    pub(crate) fn composite_row(&self, left: u32, row: u32, target: &mut [u8]) {
+        target.fill(0);
+        let index = (row as usize * self.width as usize + left as usize) * 4;
+        for layer in self.layers.iter().filter(|layer| layer.visible) {
+            let source = &layer.pixels[index..index + target.len()];
+            for (pixel, &origin) in target
+                .as_chunks_mut::<4>()
+                .0
+                .iter_mut()
+                .zip(source.as_chunks::<4>().0)
+            {
+                source_over(pixel, origin);
+            }
+        }
     }
 
     fn raw_bytes(&self) -> usize {
@@ -444,6 +447,10 @@ impl PaintDocument {
 
     pub fn revision(&self) -> u64 {
         self.revision
+    }
+
+    pub(crate) fn identity(&self) -> u64 {
+        self.identity
     }
 
     pub fn visual_generation(&self) -> u64 {

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use std::sync::{Arc, Weak};
 
 use cosmic_text::{Attrs, Buffer, Family, FontSystem, Metrics, Shaping, SwashCache, Wrap};
 use gpui::{Bounds, Corners, Pixels, RenderImage, Window, fill, point, px, rgb, size};
@@ -17,8 +17,14 @@ pub struct CanvasCache {
     tab: u64,
     frame: u64,
     version: u64,
+    pending_preview: Option<PendingCanvas>,
     pub last_uploads: usize,
     pub last_upload_bytes: usize,
+}
+
+struct PendingCanvas {
+    dimensions: (u32, u32),
+    layers: Vec<(bool, Weak<Vec<u8>>)>,
 }
 
 struct Tile {
@@ -50,7 +56,8 @@ impl CanvasCache {
         state: &State,
         tab: u64,
         version: u64,
-        dirty: Option<Region>,
+        mut dirty: Option<Region>,
+        pending: bool,
         view: Viewport,
         viewport: Bounds<Pixels>,
         window: &mut Window,
@@ -80,6 +87,45 @@ impl CanvasCache {
         };
         self.last_uploads = 0;
         self.last_upload_bytes = 0;
+        if pending || self.pending_preview.is_some() {
+            let dimensions = (state.width, state.height);
+            let unchanged = self.tab == tab
+                && self.pending_preview.as_ref().is_some_and(|preview| {
+                    preview.dimensions == dimensions
+                        && preview.layers.len() == state.layers.len()
+                        && preview.layers.iter().zip(&state.layers).all(
+                            |((visible, pixels), layer)| {
+                                *visible == layer.visible
+                                    && pixels.as_ptr() == Arc::as_ptr(&layer.pixels)
+                            },
+                        )
+                });
+            if !unchanged && self.tab == tab && version == self.version {
+                // A settings change can request a repaint without advancing the editor's version.
+                for tile in self.tiles.values_mut() {
+                    tile.version = version.wrapping_sub(1);
+                }
+            }
+            // Committing a pending edit can preserve the exact pixel storage already displayed.
+            dirty = unchanged.then_some(Region {
+                left: 0,
+                top: 0,
+                width: 0,
+                height: 0,
+            });
+            if !pending {
+                self.pending_preview = None;
+            } else if !unchanged {
+                self.pending_preview = Some(PendingCanvas {
+                    dimensions,
+                    layers: state
+                        .layers
+                        .iter()
+                        .map(|layer| (layer.visible, Arc::downgrade(&layer.pixels)))
+                        .collect(),
+                });
+            }
+        }
         if self.tab != tab {
             for (_, tile) in self.tiles.drain() {
                 let _ = window.drop_image(tile.image);

@@ -21,10 +21,21 @@ pub fn encode_png(width: u32, height: u32, pixels: &[u8]) -> Result<Vec<u8>, Str
     if pixels.len() != stride * height as usize {
         return Err("픽셀 크기 불일치".into());
     }
+    encode_png_rows(width, height, |row, target| {
+        let start = row as usize * stride;
+        target.copy_from_slice(&pixels[start..start + stride]);
+    })
+}
+
+pub(super) fn encode_png_rows(
+    width: u32,
+    height: u32,
+    mut fill_row: impl FnMut(u32, &mut [u8]),
+) -> Result<Vec<u8>, String> {
     let mut encoder = ZlibEncoder::new(Vec::new(), Compression::fast());
-    let mut row = pixel_buffer(stride + 1)?;
-    for pixels in pixels.chunks_exact(stride) {
-        row[1..].copy_from_slice(pixels);
+    let mut row = pixel_buffer(width as usize * 4 + 1)?;
+    for y in 0..height {
+        fill_row(y, &mut row[1..]);
         encoder.write_all(&row).map_err(|e| e.to_string())?;
     }
     let data = encoder.finish().map_err(|e| e.to_string())?;

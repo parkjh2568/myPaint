@@ -345,12 +345,15 @@ pub(crate) fn matte_pixel(pixel: Color, matte: Color) -> [u8; 3] {
 }
 
 pub fn export_image(state: &State, format: ExportFormat, matte: Color) -> Result<Vec<u8>, String> {
-    let pixels = state.composite()?;
     let width = state.width;
     let height = state.height;
     if format == ExportFormat::Png {
-        return encode_png(width, height, &pixels);
+        state.validate()?;
+        return png::encode_png_rows(width, height, |row, target| {
+            state.composite_row(0, row, target);
+        });
     }
+    let pixels = state.composite()?;
     if format == ExportFormat::Bmp {
         let stride = width as usize * 4;
         let size = 54 + height as usize * stride;

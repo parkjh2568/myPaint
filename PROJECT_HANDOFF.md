@@ -1,5 +1,7 @@
 # myPaint 인수인계
 
+macOS에서 4,096×3,072 크기의 5레이어 `.rpaint`를 열어 저장과 PNG 내보내기를 다시 확인했다. 미확정 편집의 동일한 픽셀과 화면 타일을 재사용해 작업 전후의 재합성을 줄였다. [대용량 문서의 프레임과 검증 결과](docs/CURRENT_STATUS.md#2026-11-19-macos-gpui-대용량-다중-레이어-저장)
+
 GPUI의 프로젝트 저장과 PNG 내보내기는 파일 선택 후 백그라운드에서 인코딩하고 쓴다. Apple Silicon Mac에서 2,048×2,048 문서의 다음 프레임 대기 중앙값이 두 작업 모두 약 122ms에서 33.3ms로 줄었다. [동작과 회귀검증](docs/CURRENT_STATUS.md#2026-11-19-macos-gpui-저장내보내기-응답성)
 
 macOS GPUI 릴리스의 실제 앱에서 저장과 PNG 내보내기의 프레임 간격을 측정할 수 있습니다. [재현 명령](docs/LOCAL_CHECKS.md#저장과-복구의-자원-계측)과 [결과](docs/CURRENT_STATUS.md#2026-11-19-macos-gpui-릴리스-저장-프레임)를 참고하세요.

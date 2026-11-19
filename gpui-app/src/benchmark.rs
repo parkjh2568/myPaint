@@ -258,27 +258,34 @@ pub(crate) fn io_profile_fixture(size: u32) -> State {
 pub struct IoBenchmark {
     output: PathBuf,
     scratch: tempfile::TempDir,
-    size_index: usize,
+    project: bool,
+    case: usize,
+    step: usize,
     fixture_ready: bool,
-    export_ready: bool,
+    expected: Option<State>,
+    before_export: Option<(u64, bool)>,
     pending: Option<IoSample>,
     results: Vec<IoTiming>,
 }
 
 struct IoSample {
     operation: &'static str,
-    path: PathBuf,
+    path: Option<PathBuf>,
     started: Instant,
     handler_ms: f64,
     first_frame_ms: Option<f64>,
     last_frame: Instant,
     max_frame_gap_ms: f64,
+    completed_ms: Option<f64>,
 }
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct IoTiming {
     size: u32,
+    height: u32,
+    layers: usize,
+    pending_edit: bool,
     operation: &'static str,
     handler_ms: f64,
     until_next_frame_ms: f64,
@@ -287,7 +294,7 @@ struct IoTiming {
 }
 
 impl IoBenchmark {
-    pub fn new(output: PathBuf, root: &std::path::Path) -> Result<Self, String> {
+    pub fn new(output: PathBuf, root: &std::path::Path, project: bool) -> Result<Self, String> {
         if output.exists() {
             return Err("저장 계측 결과 경로는 새 파일이어야 합니다.".into());
         }
@@ -295,9 +302,12 @@ impl IoBenchmark {
         Ok(Self {
             output,
             scratch,
-            size_index: 0,
+            project,
+            case: 0,
+            step: 0,
             fixture_ready: false,
-            export_ready: false,
+            expected: None,
+            before_export: None,
             pending: None,
             results: Vec::new(),
         })
@@ -307,8 +317,34 @@ impl IoBenchmark {
         window.on_next_frame(move |window, app| {
             let result = view
                 .update(app, |studio, cx| -> Result<bool, String> {
-                    const SIZES: [u32; 2] = [1024, 2048];
-                    let size = SIZES[self.size_index];
+                    let editor = &mut studio.editor;
+                    let pending_edit = self.project && self.case == 1;
+                    if !self.fixture_ready {
+                        if self.project {
+                            if pending_edit {
+                                // Leave a Redo branch in place while the floating edit is exported.
+                                let mut state = editor.document().state().clone();
+                                state.layers[state.active].visible = !state.layers[state.active].visible;
+                                editor.document_mut().commit_state("계측", state)?;
+                                if !editor.undo() {
+                                    return Err("계측용 다시 실행 상태를 만들 수 없습니다.".into());
+                                }
+                                editor.select_all()?;
+                                let state = editor.document().state();
+                                editor.nudge_selection(-(state.width as i32 / 8), -(state.height as i32 / 8))?;
+                                if !editor.has_pending() {
+                                    return Err("계측용 미확정 편집을 만들 수 없습니다.".into());
+                                }
+                            } else {
+                                self.expected = Some(editor.document().state().clone());
+                            }
+                        } else {
+                            studio.install_benchmark_state(io_profile_fixture([1024, 2048][self.case]), cx)?;
+                        }
+                        self.fixture_ready = true;
+                        cx.notify();
+                        return Ok(false);
+                    }
                     if let Some(mut pending) = self.pending.take() {
                         let now = Instant::now();
                         let elapsed_ms = now.duration_since(pending.started).as_secs_f64() * 1000.;
@@ -316,52 +352,91 @@ impl IoBenchmark {
                         let until_next_frame_ms = *pending.first_frame_ms.get_or_insert(elapsed_ms);
                         pending.max_frame_gap_ms = pending.max_frame_gap_ms.max(gap_ms);
                         pending.last_frame = now;
-                        if studio.file_write_pending() {
+                        let Some(completed_ms) = pending.completed_ms else {
+                            if !studio.file_write_pending() {
+                                pending.completed_ms = Some(elapsed_ms);
+                            }
                             self.pending = Some(pending);
                             return Ok(false);
-                        }
-                        if !pending.path.is_file() {
+                        };
+                        if pending.path.as_ref().is_some_and(|path| !path.is_file()) {
                             return Err(format!("계측용 {} 파일을 쓰지 못했습니다.", pending.operation));
                         }
-                        self.results.push(IoTiming {
-                            size,
-                            operation: pending.operation,
-                            handler_ms: pending.handler_ms,
-                            until_next_frame_ms,
-                            completed_ms: elapsed_ms,
-                            max_frame_gap_ms: pending.max_frame_gap_ms,
-                        });
-                        if pending.operation == "png" {
-                            self.size_index += 1;
-                            self.fixture_ready = false;
-                            self.export_ready = false;
-                            return Ok(self.size_index == SIZES.len());
+                        let editor = &mut studio.editor;
+                        let document = editor.document();
+                        let state = document.state();
+                        if self.project {
+                            if pending.operation == "png"
+                                && (self.before_export != Some((document.revision(), document.can_redo()))
+                                    || editor.has_pending() != pending_edit)
+                            {
+                                return Err("PNG 내보내기가 문서 또는 다시 실행 상태를 변경했습니다.".into());
+                            }
+                            if pending.operation == "rpaint" && (editor.has_pending() || document.dirty()) {
+                                return Err("프로젝트 저장 후 편집이 확정되지 않았습니다.".into());
+                            }
                         }
-                    }
-                    if !self.fixture_ready {
-                        studio.install_benchmark_state(io_profile_fixture(size), cx)?;
-                        self.fixture_ready = true;
+                        if self.project || pending.operation != "export-preview" {
+                            self.results.push(IoTiming {
+                                size: state.width,
+                                height: state.height,
+                                layers: state.layers.len(),
+                                pending_edit,
+                                operation: pending.operation,
+                                handler_ms: pending.handler_ms,
+                                until_next_frame_ms,
+                                completed_ms,
+                                max_frame_gap_ms: pending.max_frame_gap_ms,
+                            });
+                        }
+                        self.step += 1;
+                        if self.step == 3 {
+                            if self.project && pending_edit {
+                                for (case, expected) in [
+                                    (0, self.expected.as_ref().expect("opened benchmark document")),
+                                    (1, state),
+                                ] {
+                                    let project = std::fs::read(self.scratch.path().join(format!("{case}.rpaint")))
+                                        .map_err(|error| error.to_string())?;
+                                    if crate::format::decode_project(&project)? != *expected {
+                                        return Err("저장한 프로젝트의 레이어 또는 픽셀이 다릅니다.".into());
+                                    }
+                                    let png = std::fs::read(self.scratch.path().join(format!("{case}.png")))
+                                        .map_err(|error| error.to_string())?;
+                                    if crate::format::decode_png(&png)?.pixels != expected.composite()? {
+                                        return Err("내보낸 PNG의 합성 픽셀이 다릅니다.".into());
+                                    }
+                                }
+                            }
+                            self.case += 1;
+                            self.step = 0;
+                            self.fixture_ready = false;
+                            return Ok(self.case == 2);
+                        }
                         return Ok(false);
                     }
-                    let write_png = self.results.last().is_some_and(|last| {
-                        last.size == size && last.operation == "rpaint"
-                    });
-                    if write_png && !self.export_ready {
-                        studio.show_export(window, cx)?;
-                        self.export_ready = true;
-                        return Ok(false);
-                    }
-                    let operation = if write_png { "png" } else { "rpaint" };
-                    let path = self.scratch.path().join(format!("{size}.{operation}"));
-                    let started = Instant::now();
-                    if write_png {
-                        studio.save_export(Some(&path), window, cx)?;
+                    let operation = if self.project {
+                        ["export-preview", "png", "rpaint"][self.step]
                     } else {
-                        studio.save(false, Some(&path), window, cx)?;
+                        ["rpaint", "export-preview", "png"][self.step]
+                    };
+                    let path = (operation != "export-preview").then(|| {
+                        self.scratch.path().join(format!("{}.{operation}", self.case))
+                    });
+                    if operation == "export-preview" {
+                        let document = studio.editor.document();
+                        self.before_export = Some((document.revision(), document.can_redo()));
                     }
-                    if !studio.file_write_pending() {
+                    let started = Instant::now();
+                    match operation {
+                        "export-preview" => studio.show_export(window, cx)?,
+                        "png" => studio.save_export(path.as_deref(), window, cx)?,
+                        _ => { studio.save(false, path.as_deref(), window, cx)?; }
+                    }
+                    if path.is_some() && !studio.file_write_pending() {
                         return Err(format!("계측용 {operation} 쓰기를 시작하지 못했습니다."));
                     }
+                    studio.report(Ok(()), cx);
                     self.pending = Some(IoSample {
                         operation,
                         path,
@@ -370,6 +445,7 @@ impl IoBenchmark {
                         first_frame_ms: None,
                         last_frame: started,
                         max_frame_gap_ms: 0.,
+                        completed_ms: None,
                     });
                     Ok(false)
                 })
@@ -383,7 +459,8 @@ impl IoBenchmark {
             let result = match result {
                 Ok(true) => serde_json::json!({
                     "ok": true,
-                    "scope": "GPUI frame callbacks from native save or export dispatch through observed completion. File dialogs, export preview creation and display scanout excluded.",
+                    "scope": "GPUI frame callbacks from dispatch through the first frame after observed completion. File dialogs and display scanout excluded.",
+                    "verifiedProjectAndPngPixels": self.project,
                     "timings": self.results,
                 }),
                 Err(error) => serde_json::json!({"ok": false, "error": error}),
