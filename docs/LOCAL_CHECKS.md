@@ -113,7 +113,7 @@ PAINT_TEST_URL=http://127.0.0.1:8922/ npm --prefix web-app run test:resource-pip
 TMPDIR=/private/tmp cargo +1.100.0 test --locked --manifest-path gpui-app/Cargo.toml profile_native_save_and_export -- --ignored --nocapture
 ```
 
-웹 검사는 Chromium의 Worker, 실제 다운로드 파일, IndexedDB 스냅샷을 확인한다. RSS는 브라우저 전체의 샘플링 값이며 Worker나 Blob 단독 메모리와 UI 정지 시간을 대신하지 않는다. GPUI 명령은 테스트 빌드의 임시 저장소에서 엔진 인코딩과 파일 교체 시간을 관측한다.
+웹 검사는 Chromium의 Worker, 실제 다운로드 파일, IndexedDB 스냅샷을 확인한다. RSS는 브라우저 전체의 샘플링 값이며 Worker나 Blob 단독 메모리와 UI 정지 시간을 대신하지 않는다. GPUI 명령은 릴리스 앱의 격리 프로필에서 저장과 PNG 내보내기 중 프레임 응답을 관측한다.
 
 
 macOS에서는 실제 릴리스 앱의 프레임 간격도 측정할 수 있다. 매번 새 결과 경로를 사용한다.
@@ -123,4 +123,4 @@ profile_dir=$(mktemp -d /private/tmp/mypaint-gpui-frames.XXXXXX)
 TMPDIR=/private/tmp cargo +1.100.0 run --release --locked --manifest-path gpui-app/Cargo.toml -- --persistence-root "$profile_dir/profile" --benchmark-io-result "$profile_dir/timings.json"
 ```
 
-합성 문서로 저장·내보내기를 실행하고 완료되면 계측 창을 닫는다. 결과에는 작업 핸들러 시간과 다음 GPUI 프레임 콜백까지의 시간이 각각 기록된다. OS 파일 선택기와 디스플레이 주사 시간은 포함하지 않는다.
+합성 문서로 저장·내보내기를 실행하고 완료되면 계측 창을 닫는다. 결과에는 작업 핸들러 시간, 다음 GPUI 프레임 콜백까지의 시간, 처리 중 가장 긴 프레임 간격, 완료를 관측한 시점까지의 시간이 기록된다. OS 파일 선택기, 내보내기 미리보기 생성 및 디스플레이 주사 시간은 계측 범위 밖이다.

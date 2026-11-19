@@ -361,6 +361,15 @@ pub enum LayerEdit {
     Background(Color),
 }
 
+pub(crate) struct TabSave {
+    pub(crate) id: u64,
+    revision: u64,
+    active: bool,
+    pub name: String,
+    pub state: State,
+    pending: Option<PreparedState>,
+}
+
 pub struct Editor {
     pub tabs: Vec<DocumentTab>,
     pub settings: ToolSettings,
@@ -1152,34 +1161,61 @@ impl Editor {
         Ok(true)
     }
 
+    #[cfg(test)]
     pub fn save_tab_with(
         &mut self,
         id: u64,
         write: impl FnOnce(&State, &str) -> EngineResult<Option<String>>,
     ) -> EngineResult<bool> {
+        let prepared = self.prepare_tab_save(id)?;
+        let Some(name) = write(&prepared.state, &prepared.name)? else {
+            return Ok(false);
+        };
+        self.finish_tab_save(prepared, name)?;
+        Ok(true)
+    }
+
+    pub(crate) fn prepare_tab_save(&mut self, id: u64) -> EngineResult<TabSave> {
         self.ensure_no_gesture()?;
         let index = self.tab_index(id)?;
         let active = index == self.active;
-        let candidate = if active {
+        let revision = self.tabs[index].document.revision();
+        let name = self.tabs[index].name.clone();
+        let state = if active {
             self.preview_state()?
         } else {
             self.tabs[index].document.state().clone()
         };
-        let prepared = if active {
+        let pending = if active {
             self.prepare_pending()?
         } else {
             None
         };
-        let Some(name) = write(&candidate, &self.tabs[index].name)? else {
-            return Ok(false);
-        };
-        if active {
-            self.apply_pending(prepared)?;
+        Ok(TabSave {
+            id,
+            revision,
+            active,
+            name,
+            state,
+            pending,
+        })
+    }
+
+    pub(crate) fn finish_tab_save(&mut self, prepared: TabSave, name: String) -> EngineResult<()> {
+        self.ensure_no_gesture()?;
+        let index = self.tab_index(prepared.id)?;
+        if prepared.active != (index == self.active)
+            || self.tabs[index].document.revision() != prepared.revision
+        {
+            return Err("저장을 준비한 문서가 변경됐습니다.".into());
+        }
+        if prepared.active {
+            self.apply_pending(prepared.pending)?;
         }
         let tab = &mut self.tabs[index];
         tab.name = name;
         tab.document.mark_saved(tab.document.revision());
-        Ok(true)
+        Ok(())
     }
 
     pub fn preview_state(&self) -> EngineResult<State> {
@@ -1960,6 +1996,41 @@ mod tests {
         assert!(editor.undo()); // Cancel the pending paste, then exercise the original Redo.
         assert!(editor.redo());
         assert_eq!(read_pixel(&editor, 3, 5), RED);
+    }
+
+    #[test]
+    fn delayed_save_cannot_mark_a_newer_revision_or_a_different_tab_saved() {
+        let mut editor = fixture();
+        let id = editor.active_tab().id;
+        draw_pencil(&mut editor, 3.5, 5.5);
+        let previous = editor.prepare_tab_save(id).unwrap();
+        draw_pencil(&mut editor, 4.5, 6.5);
+        assert!(
+            editor
+                .finish_tab_save(previous, "outdated.rpaint".into())
+                .is_err()
+        );
+        assert!(editor.document().dirty());
+
+        let prepared = editor.prepare_tab_save(id).unwrap();
+        let next = editor.new_tab(16, 12, [0; 4]).unwrap();
+        let next_name = editor.active_tab().name.clone();
+        assert!(
+            editor
+                .finish_tab_save(prepared, "wrong-tab.rpaint".into())
+                .is_err()
+        );
+        assert_eq!(editor.active_tab().id, next);
+        assert_eq!(editor.active_tab().name, next_name);
+        assert!(
+            editor
+                .tabs
+                .iter()
+                .find(|tab| tab.id == id)
+                .unwrap()
+                .document
+                .dirty()
+        );
     }
 
     #[test]

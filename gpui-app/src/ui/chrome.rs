@@ -376,7 +376,7 @@ impl Studio {
                     false,
                 )
                 .on_click(cx.listener(|studio, _, window, cx| {
-                    if studio.panel.is_none() {
+                    if studio.panel.is_none() && !studio.file_write_pending() {
                         studio.touch.cancel(&mut studio.editor);
                         studio.menu = Some("file");
                         studio.focus.focus(window, cx);

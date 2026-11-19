@@ -7,8 +7,6 @@ use sha2::{Digest, Sha256};
 use crate::{
     editor::{PointerButton, Sample, Tool},
     engine::{Layer, State},
-    format::ExportFormat,
-    io::NativeIo,
     ui::Studio,
 };
 
@@ -260,11 +258,21 @@ pub(crate) fn io_profile_fixture(size: u32) -> State {
 pub struct IoBenchmark {
     output: PathBuf,
     scratch: tempfile::TempDir,
-    native: NativeIo,
     size_index: usize,
-    generation: Option<u64>,
-    pending: Option<(&'static str, Instant, f64)>,
+    fixture_ready: bool,
+    export_ready: bool,
+    pending: Option<IoSample>,
     results: Vec<IoTiming>,
+}
+
+struct IoSample {
+    operation: &'static str,
+    path: PathBuf,
+    started: Instant,
+    handler_ms: f64,
+    first_frame_ms: Option<f64>,
+    last_frame: Instant,
+    max_frame_gap_ms: f64,
 }
 
 #[derive(Serialize)]
@@ -274,10 +282,12 @@ struct IoTiming {
     operation: &'static str,
     handler_ms: f64,
     until_next_frame_ms: f64,
+    completed_ms: f64,
+    max_frame_gap_ms: f64,
 }
 
 impl IoBenchmark {
-    pub fn new(output: PathBuf, root: &std::path::Path, native: NativeIo) -> Result<Self, String> {
+    pub fn new(output: PathBuf, root: &std::path::Path) -> Result<Self, String> {
         if output.exists() {
             return Err("저장 계측 결과 경로는 새 파일이어야 합니다.".into());
         }
@@ -285,9 +295,9 @@ impl IoBenchmark {
         Ok(Self {
             output,
             scratch,
-            native,
             size_index: 0,
-            generation: None,
+            fixture_ready: false,
+            export_ready: false,
             pending: None,
             results: Vec::new(),
         })
@@ -299,45 +309,68 @@ impl IoBenchmark {
                 .update(app, |studio, cx| -> Result<bool, String> {
                     const SIZES: [u32; 2] = [1024, 2048];
                     let size = SIZES[self.size_index];
-                    if let Some((operation, started, handler_ms)) = self.pending.take() {
-                        self.results.push(IoTiming {
-                            size,
-                            operation,
-                            handler_ms,
-                            until_next_frame_ms: ms(started),
-                        });
-                        if operation == "png" {
-                            self.size_index += 1;
-                            self.generation = None;
-                            if self.size_index == SIZES.len() {
-                                return Ok(true);
-                            }
+                    if let Some(mut pending) = self.pending.take() {
+                        let now = Instant::now();
+                        let elapsed_ms = now.duration_since(pending.started).as_secs_f64() * 1000.;
+                        let gap_ms = now.duration_since(pending.last_frame).as_secs_f64() * 1000.;
+                        let until_next_frame_ms = *pending.first_frame_ms.get_or_insert(elapsed_ms);
+                        pending.max_frame_gap_ms = pending.max_frame_gap_ms.max(gap_ms);
+                        pending.last_frame = now;
+                        if studio.file_write_pending() {
+                            self.pending = Some(pending);
                             return Ok(false);
                         }
-                    }
-                    if let Some(generation) = self.generation {
-                        let write_png = self.results.last().is_some_and(|last| {
-                            last.size == size && last.operation == "rpaint"
+                        if !pending.path.is_file() {
+                            return Err(format!("계측용 {} 파일을 쓰지 못했습니다.", pending.operation));
+                        }
+                        self.results.push(IoTiming {
+                            size,
+                            operation: pending.operation,
+                            handler_ms: pending.handler_ms,
+                            until_next_frame_ms,
+                            completed_ms: elapsed_ms,
+                            max_frame_gap_ms: pending.max_frame_gap_ms,
                         });
-                        let started = Instant::now();
-                        let operation = if write_png {
-                            let path = self.scratch.path().join(format!("{size}.png"));
-                            let state = studio.editor.export_candidate()?;
-                            self.native.export_image_path(
-                                &state, generation, ExportFormat::Png, [255; 4], &path,
-                            )?;
-                            "png"
-                        } else {
-                            let path = self.scratch.path().join(format!("{size}.rpaint"));
-                            if !studio.save(false, Some(&path), cx)? {
-                                return Err("계측용 프로젝트를 저장하지 못했습니다.".into());
-                            }
-                            "rpaint"
-                        };
-                        self.pending = Some((operation, started, ms(started)));
-                    } else {
-                        self.generation = Some(studio.install_benchmark_state(io_profile_fixture(size), cx)?);
+                        if pending.operation == "png" {
+                            self.size_index += 1;
+                            self.fixture_ready = false;
+                            self.export_ready = false;
+                            return Ok(self.size_index == SIZES.len());
+                        }
                     }
+                    if !self.fixture_ready {
+                        studio.install_benchmark_state(io_profile_fixture(size), cx)?;
+                        self.fixture_ready = true;
+                        return Ok(false);
+                    }
+                    let write_png = self.results.last().is_some_and(|last| {
+                        last.size == size && last.operation == "rpaint"
+                    });
+                    if write_png && !self.export_ready {
+                        studio.show_export(window, cx)?;
+                        self.export_ready = true;
+                        return Ok(false);
+                    }
+                    let operation = if write_png { "png" } else { "rpaint" };
+                    let path = self.scratch.path().join(format!("{size}.{operation}"));
+                    let started = Instant::now();
+                    if write_png {
+                        studio.save_export(Some(&path), window, cx)?;
+                    } else {
+                        studio.save(false, Some(&path), window, cx)?;
+                    }
+                    if !studio.file_write_pending() {
+                        return Err(format!("계측용 {operation} 쓰기를 시작하지 못했습니다."));
+                    }
+                    self.pending = Some(IoSample {
+                        operation,
+                        path,
+                        started,
+                        handler_ms: ms(started),
+                        first_frame_ms: None,
+                        last_frame: started,
+                        max_frame_gap_ms: 0.,
+                    });
                     Ok(false)
                 })
                 .map_err(|error| error.to_string())
@@ -350,7 +383,7 @@ impl IoBenchmark {
             let result = match result {
                 Ok(true) => serde_json::json!({
                     "ok": true,
-                    "scope": "GPUI frame callback through native save or export and next frame callback. File dialogs and display scanout excluded.",
+                    "scope": "GPUI frame callbacks from native save or export dispatch through observed completion. File dialogs, export preview creation and display scanout excluded.",
                     "timings": self.results,
                 }),
                 Err(error) => serde_json::json!({"ok": false, "error": error}),

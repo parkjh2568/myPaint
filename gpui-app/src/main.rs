@@ -59,7 +59,7 @@ fn start(args: &[OsString]) -> Result<(), String> {
             let root = isolated_root
                 .as_deref()
                 .ok_or("저장 계측에는 별도 --persistence-root가 필요합니다.")?;
-            benchmark::IoBenchmark::new(output, root, native.clone())
+            benchmark::IoBenchmark::new(output, root)
         })
         .transpose()?;
     if smoke.is_some() && (initial.is_some() || benchmark.is_some() || io_benchmark.is_some())

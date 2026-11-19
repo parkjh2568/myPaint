@@ -12,12 +12,14 @@ use gpui::{
 };
 
 use crate::{
-    editor::{CanvasEdge, Editor, LayerEdit, PointerAction, PointerButton, Raster, Sample, Tool},
+    editor::{
+        CanvasEdge, Editor, LayerEdit, PointerAction, PointerButton, Raster, Sample, TabSave, Tool,
+    },
     engine::{Color, State},
     export_preview::{ExportPreview, WHITE},
     format::{self, ExportFormat},
     input::TextField,
-    io::{LoadedDocument, NativeIo, RecoveryListing},
+    io::{FileWrite, LoadedDocument, NativeIo, RecoveryListing},
     preferences::{Density, EraserMode, PreferenceStore, Preferences},
     render::{CanvasCache, TextRasterizer, TextStyle},
     touch::{Contact, NativeContact, Phase, TouchGesture},
@@ -80,6 +82,29 @@ const SETUP: &[Row] = &[
 enum Choice {
     Tab(u64),
     Quit,
+}
+
+enum SaveAfter {
+    Stay,
+    CloseTab(u64),
+    Quit,
+}
+
+enum FileCompletion {
+    Project { prepared: TabSave, after: SaveAfter },
+    Export,
+}
+
+#[derive(Clone, Copy)]
+enum DeferredNavigation {
+    SwitchTab(u64),
+    CloseTab(u64),
+    CloseWindow,
+}
+
+struct FileInFlight {
+    export: bool,
+    navigation: Option<DeferredNavigation>,
 }
 
 struct Form {
@@ -223,6 +248,7 @@ pub struct Studio {
     touch_available: bool,
     touch: TouchGesture,
     allow_close: bool,
+    file_write: Option<FileInFlight>,
 }
 
 impl Studio {
@@ -282,6 +308,7 @@ impl Studio {
             touch_available: crate::touch::touch_available(),
             touch: TouchGesture::default(),
             allow_close: false,
+            file_write: None,
         };
         if let Some(path) = initial {
             let loaded = app.io.open_path(path)?;
@@ -293,6 +320,10 @@ impl Studio {
     pub fn handle_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
         if self.allow_close {
             return true;
+        }
+        if let Some(write) = &mut self.file_write {
+            write.navigation = Some(DeferredNavigation::CloseWindow);
+            return false;
         }
         self.touch.cancel(&mut self.editor);
         if self.editor.has_active_gesture() {
@@ -311,7 +342,7 @@ impl Studio {
     }
 
     fn refresh(&mut self, cx: &mut Context<Self>) {
-        if self.editor.has_pending() {
+        if self.file_write.is_none() && self.editor.has_pending() {
             self.preview_version = self.preview_version.wrapping_add(1);
         }
         cx.notify();
@@ -424,6 +455,13 @@ impl Studio {
     }
 
     fn switch_tab(&mut self, id: u64, cx: &mut Context<Self>) -> Result<(), String> {
+        if let Some(write) = &mut self.file_write {
+            if !write.export && !matches!(write.navigation, Some(DeferredNavigation::CloseWindow)) {
+                write.navigation = (id != self.editor.active_tab().id)
+                    .then_some(DeferredNavigation::SwitchTab(id));
+            }
+            return Ok(());
+        }
         if id == self.editor.active_tab().id {
             return Ok(());
         }
@@ -443,6 +481,12 @@ impl Studio {
     }
 
     fn close_tab(&mut self, id: u64, discard: bool) -> Result<(), String> {
+        if let Some(write) = &mut self.file_write {
+            if !write.export && !matches!(write.navigation, Some(DeferredNavigation::CloseWindow)) {
+                write.navigation = Some(DeferredNavigation::CloseTab(id));
+            }
+            return Ok(());
+        }
         self.touch.cancel(&mut self.editor);
         let active = self.editor.active_tab().id;
         let mut epoch = self.epoch;
@@ -473,13 +517,21 @@ impl Studio {
         Ok(())
     }
 
-    pub fn save(
+    pub(crate) fn save(
         &mut self,
         save_as: bool,
         path: Option<&Path>,
+        window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Result<bool, String> {
-        self.save_tab(self.editor.active_tab().id, save_as, path, cx)
+        self.save_tab(
+            self.editor.active_tab().id,
+            save_as,
+            path,
+            SaveAfter::Stay,
+            window,
+            cx,
+        )
     }
 
     fn save_tab(
@@ -487,31 +539,108 @@ impl Studio {
         id: u64,
         save_as: bool,
         path: Option<&Path>,
+        after: SaveAfter,
+        window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Result<bool, String> {
+        if self.file_write_pending() {
+            return Ok(false);
+        }
         let generation = *self
             .generations
             .get(&id)
             .ok_or("저장할 그림이 닫혔습니다.")?;
-        let written = self.editor.save_tab_with(id, |candidate, name| {
-            if let Some(path) = path {
-                self.io
-                    .save_project_path(candidate, generation, path)
-                    .map(Some)
-            } else {
-                self.io.save_project(candidate, generation, name, save_as)
-            }
-        })?;
-        if written {
-            if self.editor.active_tab().id == id {
-                self.text = None;
-            }
-            self.status = "프로젝트 저장 완료".into();
-            cx.notify();
-            Ok(true)
-        } else {
-            Ok(false)
-        }
+        let prepared = self.editor.prepare_tab_save(id)?;
+        let Some(write) =
+            self.io
+                .prepare_project_write(generation, &prepared.name, save_as, path)?
+        else {
+            return Ok(false);
+        };
+        self.start_file_write(
+            write,
+            prepared.state.clone(),
+            FileCompletion::Project { prepared, after },
+            window,
+            cx,
+        );
+        Ok(true)
+    }
+
+    pub(crate) fn file_write_pending(&self) -> bool {
+        self.file_write.is_some()
+    }
+
+    fn start_file_write(
+        &mut self,
+        write: FileWrite,
+        state: State,
+        completion: FileCompletion,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        debug_assert!(self.file_write.is_none());
+        let focus = window.focused(cx);
+        self.focus.focus(window, cx);
+        // Tab activation changes the persistence generation and cancels outstanding save tickets.
+        self.file_write = Some(FileInFlight {
+            export: matches!(completion, FileCompletion::Export),
+            navigation: None,
+        });
+        let io = self.io.clone();
+        let worker = cx.background_spawn(async move { io.write_file(write, &state) });
+        cx.spawn_in(window, async move |view, window| {
+            let result = worker.await;
+            let _ = view.update_in(window, |studio, window, cx| {
+                let navigation = studio.file_write.take().and_then(|write| write.navigation);
+                if let Some(focus) = focus {
+                    focus.focus(window, cx);
+                }
+                let result = result.and_then(|name| {
+                    match completion {
+                        FileCompletion::Project { prepared, after } => {
+                            let active = prepared.id == studio.editor.active_tab().id;
+                            studio.editor.finish_tab_save(prepared, name)?;
+                            if active {
+                                studio.text = None;
+                            }
+                            studio.status = "프로젝트 저장 완료".into();
+                            match after {
+                                SaveAfter::Stay => {}
+                                SaveAfter::CloseTab(id) => studio.close_tab(id, true)?,
+                                SaveAfter::Quit => {
+                                    return studio.confirmed(Choice::Quit, true, window, cx);
+                                }
+                            }
+                        }
+                        FileCompletion::Export => {
+                            studio.status = format!("{name} 내보내기 완료");
+                            studio.dismiss_export(window, cx);
+                        }
+                    }
+                    let navigation = navigation.filter(|navigation| match navigation {
+                        DeferredNavigation::SwitchTab(id) | DeferredNavigation::CloseTab(id) => {
+                            studio.editor.tabs.iter().any(|tab| tab.id == *id)
+                        }
+                        DeferredNavigation::CloseWindow => true,
+                    });
+                    match navigation {
+                        Some(DeferredNavigation::SwitchTab(id)) => studio.switch_tab(id, cx),
+                        Some(DeferredNavigation::CloseTab(id)) => studio.close_tab(id, false),
+                        Some(DeferredNavigation::CloseWindow) => {
+                            if studio.handle_close(window, cx) {
+                                window.remove_window();
+                            }
+                            Ok(())
+                        }
+                        None => Ok(()),
+                    }
+                });
+                studio.report(result, cx);
+            });
+        })
+        .detach();
+        cx.notify();
     }
 
     fn confirmed(
@@ -521,33 +650,34 @@ impl Studio {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Result<(), String> {
+        if self.file_write_pending() {
+            return Ok(());
+        }
         match choice {
             Choice::Tab(id) => {
                 if save {
-                    if !self.save_tab(id, false, None, cx)? {
-                        return Ok(());
-                    }
+                    self.save_tab(id, false, None, SaveAfter::CloseTab(id), window, cx)?;
+                    Ok(())
+                } else {
+                    self.close_tab(id, true)
                 }
-                self.close_tab(id, true)
             }
             Choice::Quit => {
                 if save {
-                    let mut ids: Vec<_> = self
+                    let current = self.editor.active_tab().id;
+                    let next = self
                         .editor
                         .tabs
                         .iter()
-                        .filter(|tab| tab.document.dirty())
+                        .find(|tab| tab.id != current && tab.document.dirty())
                         .map(|tab| tab.id)
-                        .collect();
-                    let current = self.editor.active_tab().id;
-                    ids.retain(|id| *id != current);
-                    if self.editor.document().dirty() || self.editor.has_pending() {
-                        ids.push(current);
-                    }
-                    for id in ids {
-                        if !self.save_tab(id, false, None, cx)? {
-                            return Ok(());
-                        }
+                        .or_else(|| {
+                            (self.editor.document().dirty() || self.editor.has_pending())
+                                .then_some(current)
+                        });
+                    if let Some(id) = next {
+                        self.save_tab(id, false, None, SaveAfter::Quit, window, cx)?;
+                        return Ok(());
                     }
                 }
                 self.allow_close = true;
@@ -558,7 +688,11 @@ impl Studio {
         }
     }
 
-    fn show_export(&mut self, window: &mut Window, cx: &mut Context<Self>) -> Result<(), String> {
+    pub(crate) fn show_export(
+        &mut self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Result<(), String> {
         self.update_text(cx);
         let candidate = self.editor.export_candidate()?;
         let preview = ExportPreview::new(&candidate)?;
@@ -611,7 +745,15 @@ impl Studio {
         true
     }
 
-    fn save_export(&mut self, window: &mut Window, cx: &mut Context<Self>) -> Result<(), String> {
+    pub(crate) fn save_export(
+        &mut self,
+        path: Option<&Path>,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Result<(), String> {
+        if self.file_write_pending() {
+            return Ok(());
+        }
         let Some(Panel::Export(export)) = &self.panel else {
             return Ok(());
         };
@@ -628,15 +770,20 @@ impl Studio {
         } else {
             export_matte(matte.text())?
         };
-        if let Some(file) = self.io.export_image(
-            &export.candidate,
+        if let Some(write) = self.io.prepare_image_write(
             export.generation,
             export.format,
             matte,
             name.text(),
+            path,
         )? {
-            self.status = format!("{file} 내보내기 완료");
-            self.dismiss_export(window, cx);
+            self.start_file_write(
+                write,
+                export.candidate.clone(),
+                FileCompletion::Export,
+                window,
+                cx,
+            );
         }
         Ok(())
     }
@@ -780,6 +927,9 @@ impl Studio {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Result<(), String> {
+        if self.file_write_pending() {
+            return Ok(());
+        }
         self.menu = None;
         self.eraser_menu = false;
         self.settings_dropdown = None;
@@ -815,7 +965,7 @@ impl Studio {
                 }
             }
             "save" | "save-as" => {
-                self.save(action == "save-as", None, cx)?;
+                self.save(action == "save-as", None, window, cx)?;
             }
             "export" => return self.show_export(window, cx),
             "recover" => self.panel = Some(Panel::Recovery(self.io.list()?)),
@@ -1050,6 +1200,9 @@ impl Studio {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> bool {
+        if self.file_write_pending() {
+            return false;
+        }
         let position = point(
             px(contact.x as f32 / window.scale_factor()),
             px(contact.y as f32 / window.scale_factor()),
@@ -1119,7 +1272,11 @@ impl Studio {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.panel.is_some() || self.menu.is_some() || self.touch.is_active() {
+        if self.file_write_pending()
+            || self.panel.is_some()
+            || self.menu.is_some()
+            || self.touch.is_active()
+        {
             return;
         }
         self.focus.focus(window, cx);
@@ -1183,7 +1340,11 @@ impl Studio {
     }
 
     fn wheel(&mut self, event: &ScrollEvent, _: &mut Window, cx: &mut Context<Self>) {
-        if self.panel.is_some() || self.menu.is_some() || self.touch.is_active() {
+        if self.file_write_pending()
+            || self.panel.is_some()
+            || self.menu.is_some()
+            || self.touch.is_active()
+        {
             return;
         }
         let sample = self.sample(event.position, event.modifiers.shift);
@@ -1197,6 +1358,10 @@ impl Studio {
     }
 
     fn keyboard(&mut self, event: &KeyDownEvent, window: &mut Window, cx: &mut Context<Self>) {
+        if self.file_write_pending() {
+            cx.stop_propagation();
+            return;
+        }
         let key = event.keystroke.key.as_str();
         let mods = event.keystroke.modifiers;
         let ctrl = mods.control || mods.platform;
@@ -1267,7 +1432,7 @@ impl Studio {
                     export.name.read(cx).focus_handle(cx).focus(window, cx);
                     Ok(())
                 }
-                "enter" => self.save_export(window, cx),
+                "enter" => self.save_export(None, window, cx),
                 "escape" => self.command("cancel", window, cx),
                 _ => return,
             };
@@ -1584,7 +1749,7 @@ impl Studio {
             submit.opacity(0.45)
         } else {
             submit.on_click(cx.listener(|studio, _, window, cx| {
-                let result = studio.save_export(window, cx);
+                let result = studio.save_export(None, window, cx);
                 studio.report(result, cx);
             }))
         };
@@ -1814,7 +1979,9 @@ impl Studio {
 
 impl Render for Studio {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        self.update_text(cx);
+        if !self.file_write_pending() {
+            self.update_text(cx);
+        }
         let touch = match self.preferences.density {
             Density::Auto => self.touch_available,
             Density::Touch => true,
@@ -2039,6 +2206,7 @@ impl Render for Studio {
             );
         }
         let mut body = div()
+            .relative()
             .flex()
             .flex_1()
             .min_h_0()
@@ -2047,6 +2215,32 @@ impl Render for Studio {
         if !narrow && let Some(inspector) = inspector {
             body = body.child(inspector);
         }
+        let (project_progress, export_progress) =
+            if let Some(write) = &self.file_write {
+                let progress =
+                    div()
+                        .absolute()
+                        .inset_0()
+                        .occlude()
+                        .flex()
+                        .items_center()
+                        .justify_center()
+                        .bg(rgba(0x00000033))
+                        .child(div().bg(rgb(p.card)).rounded(p.radius).p_3().child(
+                            if write.export {
+                                "이미지 내보내는 중…"
+                            } else {
+                                "프로젝트 저장 중…"
+                            },
+                        ));
+                if write.export {
+                    (None, Some(progress))
+                } else {
+                    (Some(progress), None)
+                }
+            } else {
+                (None, None)
+            };
         let mut root = div()
             .relative()
             .track_focus(&self.focus)
@@ -2060,9 +2254,9 @@ impl Render for Studio {
             .flex_col()
             .child(header)
             .child(tabs)
-            .child(body)
+            .child(body.children(project_progress))
             .child(footer);
-        if narrow && self.inspector_overlay.is_some() {
+        if !self.file_write_pending() && narrow && self.inspector_overlay.is_some() {
             root = root.child(
                 div()
                     .absolute()
@@ -2074,13 +2268,15 @@ impl Render for Studio {
                     .child(self.inspector(p, true, window, cx)),
             );
         }
-        if let Some(category) = self.menu {
+        if !self.file_write_pending()
+            && let Some(category) = self.menu
+        {
             root = root.child(self.categorized_menu(category, p, cx));
         }
 
         if self.panel.is_some() {
             root = root.child(self.view_panel(p, cx));
         }
-        root
+        root.children(export_progress)
     }
 }

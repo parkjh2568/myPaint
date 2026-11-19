@@ -702,6 +702,18 @@ pub struct OpenTarget {
     pub token: String,
     pub name: String,
 }
+pub(super) struct SavePath {
+    target: Target,
+    project: bool,
+}
+
+impl SavePath {
+    #[allow(dead_code)] // Used by the GPUI caller of this shared module.
+    pub(super) fn path(&self) -> &Path {
+        &self.target.path
+    }
+}
+
 #[derive(Serialize)]
 pub struct SaveTarget {
     pub token: String,
@@ -992,7 +1004,12 @@ impl Persistence {
         generation: u64,
         project: bool,
     ) -> Result<SaveTarget, String> {
-        let mut target = Target::new(path)?;
+        let target = self.prepare_save_path(path, project)?;
+        self.register_save_path(target, generation)
+    }
+
+    pub(super) fn prepare_save_path(&self, path: &Path, project: bool) -> Result<SavePath, String> {
+        let target = Target::new(path)?;
         if self.forbidden(&target.path) {
             return Err("앱의 복구 원본에는 저장할 수 없습니다.".into());
         }
@@ -1003,6 +1020,17 @@ impl Persistence {
         {
             return Err("프로젝트는 .rpaint 이름으로 저장하세요.".into());
         }
+        Ok(SavePath { target, project })
+    }
+
+    pub(super) fn register_save_path(
+        &self,
+        SavePath {
+            mut target,
+            project,
+        }: SavePath,
+        generation: u64,
+    ) -> Result<SaveTarget, String> {
         target.capture_content()?;
         let mut session = self.session.lock().map_err(error)?;
         session

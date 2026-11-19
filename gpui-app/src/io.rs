@@ -14,12 +14,23 @@ mod persistence {
 }
 
 pub use persistence::RecoveryListing;
-use persistence::{Persistence, RecoveryMetadata, SaveTarget};
+use persistence::{Persistence, RecoveryMetadata, SavePath, SaveTarget};
 
 pub struct LoadedDocument {
     pub state: State,
     pub name: String,
     pub source_token: Option<String>,
+}
+
+pub(crate) struct FileWrite {
+    destination: WriteDestination,
+    generation: u64,
+    image: Option<(ExportFormat, Color)>,
+}
+
+enum WriteDestination {
+    Bound(SaveTarget),
+    Selected(SavePath),
 }
 
 #[derive(Clone)]
@@ -102,25 +113,30 @@ impl NativeIo {
             .transpose()
     }
 
-    pub fn save_project(
+    pub(crate) fn prepare_project_write(
         &self,
-        state: &State,
         generation: u64,
         name: &str,
         save_as: bool,
-    ) -> Result<Option<String>, String> {
-        let target = if let Some(target) = self.store.existing_save(generation, true, save_as)? {
-            target
+        path: Option<&Path>,
+    ) -> Result<Option<FileWrite>, String> {
+        let destination = if let Some(path) = path {
+            WriteDestination::Selected(self.store.prepare_save_path(path, true)?)
+        } else if let Some(target) = self.store.existing_save(generation, true, save_as)? {
+            WriteDestination::Bound(target)
         } else {
             let name = project_file_name(name);
             let Some(path) = save_dialog("프로젝트 저장", "myPaint 프로젝트", &["rpaint"], &name)
             else {
                 return Ok(None);
             };
-            self.store.register_save(&path, generation, true)?
+            WriteDestination::Selected(self.store.prepare_save_path(&path, true)?)
         };
-        self.write_encoded(target, format::encode_project(state), generation, true)
-            .map(Some)
+        Ok(Some(FileWrite {
+            destination,
+            generation,
+            image: None,
+        }))
     }
 
     pub fn save_project_path(
@@ -130,7 +146,14 @@ impl NativeIo {
         path: &Path,
     ) -> Result<String, String> {
         let target = self.store.register_save(path, generation, true)?;
-        self.write_encoded(target, format::encode_project(state), generation, true)
+        self.write_file(
+            FileWrite {
+                destination: WriteDestination::Bound(target),
+                generation,
+                image: None,
+            },
+            state,
+        )
     }
 
     pub(crate) fn project_has_save_path(&self, generation: u64) -> Result<bool, String> {
@@ -141,36 +164,34 @@ impl NativeIo {
         Ok(true)
     }
 
-    pub fn export_image(
+    pub(crate) fn prepare_image_write(
         &self,
-        state: &State,
         generation: u64,
         format: ExportFormat,
         matte: Color,
         stem: &str,
-    ) -> Result<Option<String>, String> {
-        let label = format.extension().to_ascii_uppercase();
-        let stem: String = stem
-            .trim()
-            .replace(['/', '\\', '\0'], "_")
-            .chars()
-            .take(256)
-            .collect();
-        let stem = if stem.is_empty() { "그림" } else { &stem };
-        let name = format!("{stem}.{}", format.extension());
-        save_dialog("이미지 내보내기", &label, format.extensions(), &name)
-            .map(|path| self.export_image_path(state, generation, format, matte, &path))
-            .transpose()
-    }
-
-    pub fn export_image_path(
-        &self,
-        state: &State,
-        generation: u64,
-        format: ExportFormat,
-        matte: Color,
-        path: &Path,
-    ) -> Result<String, String> {
+        path: Option<&Path>,
+    ) -> Result<Option<FileWrite>, String> {
+        let selected;
+        let path = if let Some(path) = path {
+            path
+        } else {
+            let label = format.extension().to_ascii_uppercase();
+            let stem: String = stem
+                .trim()
+                .replace(['/', '\\', '\0'], "_")
+                .chars()
+                .take(256)
+                .collect();
+            let stem = if stem.is_empty() { "그림" } else { &stem };
+            let name = format!("{stem}.{}", format.extension());
+            let Some(path) = save_dialog("이미지 내보내기", &label, format.extensions(), &name)
+            else {
+                return Ok(None);
+            };
+            selected = path;
+            &selected
+        };
         if !path.extension().is_some_and(|extension| {
             format
                 .extensions()
@@ -182,22 +203,53 @@ impl NativeIo {
                 format.extension()
             ));
         }
-        let target = self.store.register_save(path, generation, false)?;
-        // The ticket captures file identity and content first. Inspecting the current file
-        // after that protects every project, including an inactive tab or a hard link.
-        let bytes = check_export_destination(path)
-            .and_then(|()| format::export_image(state, format, matte));
-        self.write_encoded(target, bytes, generation, false)
+        Ok(Some(FileWrite {
+            destination: WriteDestination::Selected(self.store.prepare_save_path(path, false)?),
+            generation,
+            image: Some((format, matte)),
+        }))
     }
 
-    fn write_encoded(
+    #[cfg(test)]
+    fn export_image_path(
         &self,
-        target: SaveTarget,
-        bytes: Result<Vec<u8>, String>,
+        state: &State,
         generation: u64,
-        project: bool,
+        format: ExportFormat,
+        matte: Color,
+        path: &Path,
     ) -> Result<String, String> {
-        debug_assert_eq!(target.generation, generation);
+        let write = self
+            .prepare_image_write(generation, format, matte, "", Some(path))?
+            .ok_or("내보낼 경로가 필요합니다.")?;
+        self.write_file(write, state)
+    }
+
+    pub(crate) fn write_file(&self, write: FileWrite, state: &State) -> Result<String, String> {
+        let FileWrite {
+            destination,
+            generation,
+            image,
+        } = write;
+        let project = image.is_none();
+        let (target, check) = match destination {
+            WriteDestination::Bound(target) => (target, Ok(())),
+            WriteDestination::Selected(path) => {
+                let export_path = image.map(|_| path.path().to_owned());
+                let target = self.store.register_save_path(path, generation)?;
+                // The ticket pins file identity and bytes before inspecting the image destination.
+                (
+                    target,
+                    export_path
+                        .as_deref()
+                        .map_or(Ok(()), check_export_destination),
+                )
+            }
+        };
+        let bytes = check.and_then(|()| match image {
+            Some((format, matte)) => format::export_image(state, format, matte),
+            None => format::encode_project(state),
+        });
         let bytes = match bytes {
             Ok(bytes) => bytes,
             Err(error) => {
@@ -205,9 +257,17 @@ impl NativeIo {
                 return Err(error);
             }
         };
-        let mut job =
-            self.store
-                .claim_save(&target.token, bytes.len(), bytes.starts_with(PROJECT_MAGIC))?;
+        let mut job = match self.store.claim_save(
+            &target.token,
+            bytes.len(),
+            bytes.starts_with(PROJECT_MAGIC),
+        ) {
+            Ok(job) => job,
+            Err(error) => {
+                self.store.cancel(&target.token)?;
+                return Err(error);
+            }
+        };
         self.runtime.block_on(job.write(&bytes))?;
         let receipt = job.commit()?.ok_or("저장 응답이 없습니다.")?;
         debug_assert_eq!(
@@ -333,6 +393,53 @@ mod tests {
             assert_eq!(png.as_raw().as_slice(), state.layers[0].pixels.as_slice());
             println!("size={size} save_ms={save_ms:.1} png_ms={export_ms:.1}");
         }
+    }
+
+    #[test]
+    fn background_write_preserves_replaced_destination_and_existing_encodings() {
+        let root = tempfile::tempdir().unwrap();
+        let io = NativeIo::new(&root.path().join("app"), &root.path().join("legacy")).unwrap();
+        io.activate(1, "background", None, false).unwrap();
+        let state = small_document();
+        let project = root.path().join("background.rpaint");
+        let png = root.path().join("background.png");
+
+        let stale = io
+            .prepare_project_write(1, "", true, Some(&project))
+            .unwrap()
+            .unwrap();
+        std::fs::write(&project, b"created after selection").unwrap();
+        let writer = io.clone();
+        let snapshot = state.clone();
+        assert!(
+            std::thread::spawn(move || writer.write_file(stale, &snapshot))
+                .join()
+                .unwrap()
+                .is_err()
+        );
+        assert_eq!(std::fs::read(&project).unwrap(), b"created after selection");
+
+        let project_write = io
+            .prepare_project_write(1, "", true, Some(&project))
+            .unwrap()
+            .unwrap();
+        let png_write = io
+            .prepare_image_write(1, ExportFormat::Png, [255; 4], "", Some(&png))
+            .unwrap()
+            .unwrap();
+        let expected_project = format::encode_project(&state).unwrap();
+        let expected_png = format::export_image(&state, ExportFormat::Png, [255; 4]).unwrap();
+        std::thread::spawn(move || {
+            assert_eq!(
+                io.write_file(project_write, &state).unwrap(),
+                "background.rpaint"
+            );
+            assert_eq!(io.write_file(png_write, &state).unwrap(), "background.png");
+        })
+        .join()
+        .unwrap();
+        assert_eq!(std::fs::read(project).unwrap(), expected_project);
+        assert_eq!(std::fs::read(png).unwrap(), expected_png);
     }
 
     #[test]
