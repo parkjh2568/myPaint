@@ -14,6 +14,8 @@ smallvec = "1"
 tiny-skia = "0.11"
 cosmic-text = "0.15"
 flate2 = "1"
+zlib-rs = "=0.6.8"
+rayon = "1"
 crc32fast = "1"
 rfd = "0.17.2"
 serde = { version = "1", features = ["derive"] }
@@ -22,6 +24,9 @@ tempfile = "3.27.0"
 fs2 = "0.4"
 sha2 = "=0.10.9"
 tokio = { version = "1", features = ["fs", "io-util", "sync", "rt"] }
+
+[target.'cfg(all(target_os = "macos", target_arch = "aarch64"))'.dependencies]
+sha2 = { version = "=0.10.9", features = ["asm"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

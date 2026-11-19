@@ -1,7 +1,8 @@
 use super::{Raster, pixel_buffer};
 use crate::engine::{MAX_INPUT_BYTES, validate_size};
-use flate2::{Compression, Decompress, FlushDecompress, Status, write::ZlibEncoder};
+use flate2::{Compression, write::ZlibEncoder};
 use std::{io::Write, ops::Range};
+use zlib_rs::{Inflate, InflateFlush, Status};
 
 pub(super) const SIGNATURE: &[u8; 8] = b"\x89PNG\r\n\x1a\n";
 
@@ -200,7 +201,7 @@ fn image_header(bytes: &[u8]) -> Result<ImageHeader<'_>, String> {
 // Scanlines own the output budget. Validated IDAT chunks are streamed in place even
 // when the zlib header or checksum straddles chunk boundaries.
 struct Inflator<'a> {
-    zlib: Decompress,
+    zlib: Inflate,
     remaining_chunks: &'a [u8],
     input: &'a [u8],
     finished: bool,
@@ -220,8 +221,8 @@ impl Inflator<'_> {
             let out_before = self.zlib.total_out();
             let status = self
                 .zlib
-                .decompress(self.input, &mut output[written..], FlushDecompress::None)
-                .map_err(|e| format!("PNG 압축 데이터 오류: {e}"))?;
+                .decompress(self.input, &mut output[written..], InflateFlush::NoFlush)
+                .map_err(|e| format!("PNG 압축 데이터 오류: {}", e.as_str()))?;
             let consumed = (self.zlib.total_in() - in_before) as usize;
             let produced = (self.zlib.total_out() - out_before) as usize;
             self.input = &self.input[consumed..];
@@ -238,7 +239,7 @@ impl Inflator<'_> {
 pub fn decode_png(bytes: &[u8]) -> Result<Raster, String> {
     let header = image_header(bytes)?;
     let mut data = Inflator {
-        zlib: Decompress::new(true),
+        zlib: Inflate::new(true, 15),
         remaining_chunks: &bytes[header.data.clone()],
         input: &[],
         finished: false,
@@ -277,27 +278,40 @@ pub fn decode_png(bytes: &[u8]) -> Result<Raster, String> {
                 return Err("PNG 해제 길이 오류".into());
             }
             let filter = scanline[0];
-            if filter > 4 {
-                return Err("PNG 필터 오류".into());
-            }
             let row = &mut scanline[1..];
-            if filter != 0 {
-                for i in 0..row_bytes {
-                    let left = (i >= filter_stride)
-                        .then(|| row[i - filter_stride])
-                        .unwrap_or(0);
-                    let up = previous[1 + i];
-                    let upper_left = (i >= filter_stride)
-                        .then(|| previous[1 + i - filter_stride])
-                        .unwrap_or(0);
-                    let predictor = match filter {
-                        1 => left,
-                        2 => up,
-                        3 => ((u16::from(left) + u16::from(up)) / 2) as u8,
-                        _ => paeth(left, up, upper_left),
-                    };
-                    row[i] = row[i].wrapping_add(predictor);
+            let above = &previous[1..];
+            match filter {
+                0 => {}
+                1 => {
+                    for i in filter_stride..row_bytes {
+                        row[i] = row[i].wrapping_add(row[i - filter_stride]);
+                    }
                 }
+                2 => {
+                    for (value, &up) in row.iter_mut().zip(above) {
+                        *value = value.wrapping_add(up);
+                    }
+                }
+                3 => {
+                    for (value, &up) in row[..filter_stride].iter_mut().zip(above) {
+                        *value = value.wrapping_add(up / 2);
+                    }
+                    for i in filter_stride..row_bytes {
+                        let left = row[i - filter_stride];
+                        row[i] = row[i].wrapping_add(left.midpoint(above[i]));
+                    }
+                }
+                4 => {
+                    for (value, &up) in row[..filter_stride].iter_mut().zip(above) {
+                        *value = value.wrapping_add(up);
+                    }
+                    for i in filter_stride..row_bytes {
+                        let left = row[i - filter_stride];
+                        row[i] =
+                            row[i].wrapping_add(paeth(left, above[i], above[i - filter_stride]));
+                    }
+                }
+                _ => return Err("PNG 필터 오류".into()),
             }
             if !header.interlaced && header.color_type == 6 && depth == 8 {
                 pixels[y * width * 4..(y + 1) * width * 4].copy_from_slice(row);
@@ -384,6 +398,50 @@ fn paeth(left: u8, up: u8, upper_left: u8) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn all_scanline_filters_preserve_rgba_and_hidden_rgb() {
+        let mut header = [0; 13];
+        header[3] = 3;
+        header[7] = 5;
+        header[8] = 8;
+        header[9] = 6;
+        let pixels: Vec<_> = (0..15)
+            .flat_map(|i| {
+                [
+                    (i * 19 + 3) as u8,
+                    (209 - i * 9) as u8,
+                    (i * 61) as u8,
+                    (i * 128) as u8,
+                ]
+            })
+            .collect();
+        let mut encoder = ZlibEncoder::new(Vec::new(), Compression::fast());
+        let mut above = [0; 12];
+        for (filter, row) in pixels.chunks_exact(12).enumerate() {
+            let mut encoded = [0; 13];
+            encoded[0] = filter as u8;
+            for (i, &value) in row.iter().enumerate() {
+                let left = if i >= 4 { row[i - 4] } else { 0 };
+                let upper_left = if i >= 4 { above[i - 4] } else { 0 };
+                let predictor = match filter {
+                    0 => 0,
+                    1 => left,
+                    2 => above[i],
+                    3 => ((u16::from(left) + u16::from(above[i])) / 2) as u8,
+                    _ => paeth(left, above[i], upper_left),
+                };
+                encoded[i + 1] = value.wrapping_sub(predictor);
+            }
+            encoder.write_all(&encoded).unwrap();
+            above.copy_from_slice(row);
+        }
+        let mut file = SIGNATURE.to_vec();
+        write_chunk(&mut file, b"IHDR", &header);
+        write_chunk(&mut file, b"IDAT", &encoder.finish().unwrap());
+        write_chunk(&mut file, b"IEND", &[]);
+        assert_eq!(decode_png(&file).unwrap().pixels, pixels);
+    }
 
     #[test]
     fn png_interleaved_rgba16_accepts_split_header_and_ignores_unused_idat() {

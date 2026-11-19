@@ -257,8 +257,10 @@ impl Studio {
         io: NativeIo,
         preference_store: PreferenceStore,
         initial: Option<&Path>,
+        mut canvas_benchmark: Option<crate::benchmark::CanvasBenchmark>,
         cx: &mut Context<Self>,
     ) -> Result<Self, String> {
+        let opened_at = canvas_benchmark.as_ref().map(|_| std::time::Instant::now());
         let mut editor = Editor::new()?;
         let (preferences, status) = match preference_store.load() {
             Ok(preferences) => (
@@ -313,9 +315,22 @@ impl Studio {
             file_write: None,
         };
         if let Some(path) = initial {
-            let loaded = app.io.open_path(path)?;
+            let loaded = app.io.open_path_measured(
+                path,
+                canvas_benchmark
+                    .as_mut()
+                    .map(|benchmark| &mut benchmark.open),
+            )?;
+            let installing = opened_at.map(|_| std::time::Instant::now());
             app.install_loaded(loaded, cx)?;
+            if let (Some(installing), Some(benchmark)) = (installing, canvas_benchmark.as_mut()) {
+                benchmark.open.install_ms = installing.elapsed().as_secs_f64() * 1000.;
+            }
         }
+        if let (Some(opened_at), Some(benchmark)) = (opened_at, canvas_benchmark.as_mut()) {
+            benchmark.document_ready_ms = opened_at.elapsed().as_secs_f64() * 1000.;
+        }
+        app.canvas_benchmark = canvas_benchmark;
         Ok(app)
     }
 

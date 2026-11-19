@@ -7,6 +7,7 @@ use std::{
     io::{ErrorKind, Read},
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
+    time::Instant,
 };
 
 mod persistence {
@@ -15,6 +16,16 @@ mod persistence {
 
 pub use persistence::RecoveryListing;
 use persistence::{Persistence, RecoveryMetadata, SavePath, SaveTarget};
+
+#[derive(Default, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct OpenTiming {
+    pub selection_ms: f64,
+    pub read_ms: f64,
+    pub decode_ms: f64,
+    pub layer_decode_ms: Vec<f64>,
+    pub install_ms: f64,
+}
 
 pub struct LoadedDocument {
     pub state: State,
@@ -87,13 +98,37 @@ impl NativeIo {
     }
 
     pub fn open_path(&self, path: &Path) -> Result<LoadedDocument, String> {
+        self.open_path_measured(path, None)
+    }
+
+    pub(crate) fn open_path_measured(
+        &self,
+        path: &Path,
+        mut timing: Option<&mut OpenTiming>,
+    ) -> Result<LoadedDocument, String> {
+        let selecting = timing.is_some().then(Instant::now);
         let target = self.store.register_open(path)?;
+        let reading = selecting.map(|_| Instant::now());
         let bytes = self.store.read_selected(&target.token)?;
+        let decoding = reading.map(|_| Instant::now());
         let project = bytes.starts_with(PROJECT_MAGIC)
             && path
                 .extension()
                 .is_some_and(|extension| extension.eq_ignore_ascii_case("rpaint"));
-        let state = format::decode_artwork(&bytes)?;
+        let state = if let Some(timing) = timing.as_mut()
+            && bytes.starts_with(PROJECT_MAGIC)
+        {
+            format::decode_project_measured(&bytes, Some(&mut timing.layer_decode_ms))?
+        } else {
+            format::decode_artwork(&bytes)?
+        };
+        if let (Some(selecting), Some(reading), Some(decoding), Some(timing)) =
+            (selecting, reading, decoding, timing)
+        {
+            timing.selection_ms = reading.duration_since(selecting).as_secs_f64() * 1000.;
+            timing.read_ms = decoding.duration_since(reading).as_secs_f64() * 1000.;
+            timing.decode_ms = decoding.elapsed().as_secs_f64() * 1000.;
+        }
         Ok(LoadedDocument {
             state,
             name: target.name,

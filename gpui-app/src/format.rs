@@ -8,7 +8,8 @@ use image::{
     AnimationDecoder, DynamicImage, ImageDecoder, ImageFormat, ImageReader, Limits,
     codecs::{gif::GifDecoder, jpeg::JpegEncoder},
 };
-use std::{borrow::Cow, io::Cursor};
+use rayon::prelude::*;
+use std::{borrow::Cow, io::Cursor, time::Instant};
 
 pub use png::{decode_png, encode_png};
 
@@ -85,6 +86,13 @@ pub fn encode_project(state: &State) -> Result<Vec<u8>, String> {
 }
 
 pub fn decode_project(bytes: &[u8]) -> Result<State, String> {
+    decode_project_measured(bytes, None)
+}
+
+pub(crate) fn decode_project_measured(
+    bytes: &[u8],
+    mut layer_timings: Option<&mut Vec<f64>>,
+) -> Result<State, String> {
     if bytes.len() > MAX_INPUT_BYTES || bytes.len() < 28 || !bytes.starts_with(PROJECT_MAGIC) {
         return Err("올바른 프로젝트가 아닙니다.".into());
     }
@@ -98,7 +106,7 @@ pub fn decode_project(bytes: &[u8]) -> Result<State, String> {
     if active >= count {
         return Err("활성 레이어 번호가 올바르지 않습니다.".into());
     }
-    let mut layers = Vec::with_capacity(count);
+    let mut records = Vec::with_capacity(count);
     for _ in 0..count {
         let length = project_u32(&mut remain)? as usize;
         if length > 1024 {
@@ -125,14 +133,37 @@ pub fn decode_project(bytes: &[u8]) -> Result<State, String> {
         {
             return Err("레이어 크기 불일치".into());
         }
-        let raster = decode_png(file)?;
-        if raster.width != width || raster.height != height {
-            return Err("레이어 크기 불일치".into());
-        }
-        layers.push(Layer::new(name.to_owned(), visible == 1, raster.pixels));
+        records.push((name, visible == 1, file));
     }
     if !remain.is_empty() {
         return Err("프로젝트 뒤에 불필요한 데이터가 있습니다.".into());
+    }
+    let measure = layer_timings.is_some();
+    let decode_layer = |(name, visible, file): (&str, bool, &[u8])| {
+        let started = measure.then(Instant::now);
+        let raster = decode_png(file)?;
+        if raster.width != width || raster.height != height {
+            return Err("레이어 크기 불일치".to_owned());
+        }
+        Ok((
+            Layer::new(name.to_owned(), visible, raster.pixels),
+            started.map(|started| started.elapsed().as_secs_f64() * 1000.),
+        ))
+    };
+    // The validated aggregate pixel budget still applies when several layers decode at once.
+    let decoded: Vec<_> =
+        if count > 1 && width as usize * height as usize * count >= 8 * 1024 * 1024 {
+            records.into_par_iter().map(decode_layer).collect()
+        } else {
+            records.into_iter().map(decode_layer).collect()
+        };
+    let mut layers = Vec::with_capacity(count);
+    for decoded in decoded {
+        let (layer, elapsed) = decoded?;
+        if let (Some(timings), Some(elapsed)) = (layer_timings.as_mut(), elapsed) {
+            timings.push(elapsed);
+        }
+        layers.push(layer);
     }
     let state = State {
         width,

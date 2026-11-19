@@ -104,12 +104,11 @@ fn start(args: &[OsString]) -> Result<(), String> {
                             native.clone(),
                             preferences.clone(),
                             initial.as_deref(),
+                            measure_canvas.then(|| benchmark::CanvasBenchmark::new(opened_at)),
                             cx,
                         ) {
                             Ok(mut studio) => {
                                 studio.benchmark = benchmark.take();
-                                studio.canvas_benchmark = measure_canvas
-                                    .then(|| benchmark::CanvasBenchmark::new(opened_at));
                                 studio
                             }
                             Err(error) => {

@@ -258,7 +258,8 @@ pub(crate) fn io_profile_fixture(size: u32) -> State {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct CanvasBenchmark {
-    document_ready_ms: f64,
+    pub document_ready_ms: f64,
+    pub open: crate::io::OpenTiming,
     #[serde(skip)]
     opened_at: Instant,
     #[serde(skip)]
@@ -278,7 +279,8 @@ struct CanvasTiming {
 impl CanvasBenchmark {
     pub fn new(opened_at: Instant) -> Self {
         Self {
-            document_ready_ms: ms(opened_at),
+            document_ready_ms: 0.,
+            open: crate::io::OpenTiming::default(),
             opened_at,
             selection_started: None,
             opening: None,

@@ -122,7 +122,7 @@ profile_dir=$(mktemp -d /private/tmp/mypaint-gpui-frames.XXXXXX)
 TMPDIR=/private/tmp cargo +1.100.0 run --release --locked --manifest-path gpui-app/Cargo.toml -- --persistence-root "$profile_dir/profile" --benchmark-io-result "$profile_dir/timings.json"
 ```
 
-기본 실행은 합성 문서로 저장·내보내기를 측정한다. 실제 프로젝트 파일을 지정하면 미확정 편집 없음과 전체 선택 이동 상태를 각각 측정한다. 이 모드는 첫 열기와 선택 이동의 캔버스 준비·그리기 시간도 `canvas`에 기록한다. 첫 열기는 파일 읽기·디코딩을 포함한 문서 준비 시간과 캔버스 준비를 구분한다. PNG 미리보기 계측은 창이 열린 뒤 12프레임을 기다려 시작한다. 저장한 프로젝트의 레이어와 PNG 합성 픽셀도 대조한다.
+기본 실행은 합성 문서로 저장·내보내기를 측정한다. 실제 프로젝트 파일을 지정하면 미확정 편집 없음과 전체 선택 이동 상태를 각각 측정한다. 이 모드는 첫 열기와 선택 이동의 캔버스 준비·그리기 시간도 `canvas`에 기록한다. 첫 열기는 파일 선택 등록, 읽기와 SHA-256, 전체·레이어별 디코딩, 탭 등록과 원본 재확인을 `canvas.open`에 기록한다. 병렬로 디코딩한 각 레이어의 시간은 서로 겹친다. 문서 준비와 캔버스 준비는 별도 항목이다. PNG 미리보기 계측은 창이 열린 뒤 12프레임을 기다려 시작한다. 저장한 프로젝트의 레이어와 PNG 합성 픽셀도 대조한다.
 
 ```sh
 profile_dir=$(mktemp -d /private/tmp/mypaint-gpui-frames.XXXXXX)
