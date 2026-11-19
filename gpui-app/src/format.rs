@@ -350,7 +350,7 @@ pub fn export_image(state: &State, format: ExportFormat, matte: Color) -> Result
     if format == ExportFormat::Png {
         state.validate()?;
         return png::encode_png_rows(width, height, |row, target| {
-            state.composite_row(0, row, target);
+            state.composite_row(0, row, 1, target);
         });
     }
     let pixels = state.composite()?;

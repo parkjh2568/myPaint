@@ -1671,24 +1671,35 @@ impl Editor {
     ) -> EngineResult<()> {
         let state = self.document().state();
         let source = &state.layers[state.active].pixels;
-        let mut pixels = zero_pixels(region.width, region.height)?;
-        let stride = region.width as usize * 4;
-        for (row, target) in pixels.chunks_exact_mut(stride).enumerate() {
-            let start = ((region.y as usize + row) * state.width as usize + region.x as usize) * 4;
-            target.copy_from_slice(&source[start..start + stride]);
-        }
-        let mask = apply_selection_mask(
-            &mut pixels,
-            region.width,
-            region.height,
-            region.x,
-            region.y,
-            path,
-            self.settings.secondary,
-            self.settings.transparent_selection,
-        )?
-        .map(Arc::new);
-        let pixels = Arc::new(pixels);
+        let (pixels, mask) = if path.is_none()
+            && !self.settings.transparent_selection
+            && region.x == 0
+            && region.y == 0
+            && region.width == state.width
+            && region.height == state.height
+        {
+            (source.clone(), None)
+        } else {
+            let mut pixels = zero_pixels(region.width, region.height)?;
+            let stride = region.width as usize * 4;
+            for (row, target) in pixels.chunks_exact_mut(stride).enumerate() {
+                let start =
+                    ((region.y as usize + row) * state.width as usize + region.x as usize) * 4;
+                target.copy_from_slice(&source[start..start + stride]);
+            }
+            let mask = apply_selection_mask(
+                &mut pixels,
+                region.width,
+                region.height,
+                region.x,
+                region.y,
+                path,
+                self.settings.secondary,
+                self.settings.transparent_selection,
+            )?
+            .map(Arc::new);
+            (Arc::new(pixels), mask)
+        };
         self.selection = Some(Selection {
             region,
             pixels: pixels.clone(),
@@ -1831,19 +1842,44 @@ impl Editor {
                 } else {
                     [0; 4]
                 };
-                let layer = state.try_pixels_mut(active)?;
-                for row in 0..source.height as usize {
-                    for column in 0..source.width as usize {
-                        if selection
-                            .mask
-                            .as_ref()
-                            .is_some_and(|mask| mask[row * source.width as usize + column] == 0)
-                        {
-                            continue;
+                if selection.mask.is_none()
+                    && source.x == 0
+                    && source.y == 0
+                    && source.width == state.width
+                    && source.height == state.height
+                {
+                    let mut pixels = zero_pixels(state.width, state.height)?;
+                    if color != [0; 4] {
+                        for pixel in pixels.as_chunks_mut::<4>().0 {
+                            *pixel = color;
                         }
-                        let offset =
-                            ((source.y as usize + row) * stride + source.x as usize + column) * 4;
-                        layer[offset..offset + 4].copy_from_slice(&color);
+                    }
+                    state.layers[active].pixels = Arc::new(pixels);
+                } else {
+                    let layer = state.try_pixels_mut(active)?;
+                    let row_bytes = source.width as usize * 4;
+                    for row in 0..source.height as usize {
+                        let offset = ((source.y as usize + row) * stride + source.x as usize) * 4;
+                        let target = &mut layer[offset..offset + row_bytes];
+                        if let Some(mask) = &selection.mask {
+                            let start = row * source.width as usize;
+                            for (pixel, &keep) in target
+                                .as_chunks_mut::<4>()
+                                .0
+                                .iter_mut()
+                                .zip(&mask[start..start + source.width as usize])
+                            {
+                                if keep != 0 {
+                                    *pixel = color;
+                                }
+                            }
+                        } else if color == [0; 4] {
+                            target.fill(0);
+                        } else {
+                            for pixel in target.as_chunks_mut::<4>().0 {
+                                *pixel = color;
+                            }
+                        }
                     }
                 }
             }
@@ -1922,21 +1958,17 @@ fn place_raster(state: &mut State, region: Region, pixels: &[u8]) -> EngineResul
     let image = state.try_pixels_mut(layer)?;
     let source_x = (target.x - region.x) as usize;
     let source_y = (target.y - region.y) as usize;
+    let row_bytes = target.width as usize * 4;
     for row in 0..target.height as usize {
         let source = ((source_y + row) * region.width as usize + source_x) * 4;
         let destination = ((target.y as usize + row) * stride + target.x as usize) * 4;
-        for column in 0..target.width as usize {
-            let from = source + column * 4;
-            let to = destination + column * 4;
-            let color = [
-                pixels[from],
-                pixels[from + 1],
-                pixels[from + 2],
-                pixels[from + 3],
-            ];
-            if color[3] != 0 {
-                source_over(&mut image[to..to + 4], color);
-            }
+        for (pixel, &color) in image[destination..destination + row_bytes]
+            .as_chunks_mut::<4>()
+            .0
+            .iter_mut()
+            .zip(pixels[source..source + row_bytes].as_chunks::<4>().0)
+        {
+            source_over(pixel, color);
         }
     }
     state.layers[layer].visible = true;
@@ -2153,10 +2185,45 @@ mod tests {
     }
 
     #[test]
+    fn moving_a_masked_selection_clears_only_covered_source_pixels() {
+        let mut editor = fixture();
+        let background = [13, 17, 5, 0];
+        let blue = [15, 90, 200, 255];
+        let mut state = State::new(32, 24, background).unwrap();
+        let inside = (32 + 1) * 4;
+        let outside = (3 * 32 + 3) * 4;
+        state.pixels_mut(0)[inside..inside + 4].copy_from_slice(&RED);
+        state.pixels_mut(0)[outside..outside + 4].copy_from_slice(&blue);
+        editor.active_tab_mut().document = PaintDocument::new(state).unwrap();
+        editor
+            .capture_selection(
+                Region {
+                    x: 1,
+                    y: 1,
+                    width: 3,
+                    height: 3,
+                },
+                Some(&[(1., 1.), (4., 1.), (1., 4.)]),
+            )
+            .unwrap();
+        editor.nudge_selection(4, 0).unwrap();
+        let candidate = editor.export_candidate().unwrap();
+        let moved = (32 + 5) * 4;
+        assert_eq!(&candidate.layers[0].pixels[inside..inside + 4], &background);
+        assert_eq!(&candidate.layers[0].pixels[outside..outside + 4], &blue);
+        assert_eq!(&candidate.layers[0].pixels[moved..moved + 4], &RED);
+        assert_eq!(read_pixel(&editor, 1, 1), RED);
+    }
+
+    #[test]
     fn pending_selection_reuses_preview_pixels_until_moved_or_committed() {
         let mut editor = fixture();
         draw_pencil(&mut editor, 5.5, 6.5);
         editor.select_all().unwrap();
+        assert!(Arc::ptr_eq(
+            &editor.selection.as_ref().unwrap().pixels,
+            &editor.document().state().layers[0].pixels,
+        ));
         editor.nudge_selection(-1, 0).unwrap();
         let preview = editor.preview_state().unwrap();
         let export = editor.export_candidate().unwrap();

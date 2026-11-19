@@ -220,6 +220,7 @@ impl Palette {
 pub struct Studio {
     pub editor: Editor,
     pub(crate) benchmark: Option<crate::benchmark::Benchmark>,
+    pub(crate) canvas_benchmark: Option<crate::benchmark::CanvasBenchmark>,
     io: NativeIo,
     session: String,
     epoch: u64,
@@ -280,6 +281,7 @@ impl Studio {
         let mut app = Self {
             editor,
             benchmark: None,
+            canvas_benchmark: None,
             io,
             session,
             epoch: 1,
@@ -2004,6 +2006,11 @@ impl Render for Studio {
         let sheet = canvas(
             move |bounds, window, app| {
                 view.update(app, |studio, _| {
+                    let sample = studio
+                        .canvas_benchmark
+                        .as_ref()
+                        .filter(|benchmark| benchmark.awaiting_paint())
+                        .map(|_| std::time::Instant::now());
                     studio.canvas_bounds = bounds;
                     studio.editor.resize_view(
                         f64::from(f32::from(bounds.size.width)),
@@ -2074,10 +2081,13 @@ impl Render for Studio {
                             ),
                         )
                     });
-                    (scene, selection, lasso, resizing)
+                    let sample = sample
+                        .filter(|_| pending || studio.cache.last_uploads > 0)
+                        .map(|started| (started, started.elapsed().as_secs_f64() * 1000.));
+                    (scene, selection, lasso, resizing, sample)
                 })
             },
-            move |bounds, (scene, selection, lasso, resizing), window, app| {
+            move |bounds, (scene, selection, lasso, resizing, sample), window, app| {
                 scene.paint(bounds, window);
                 for region in [selection, resizing].into_iter().flatten() {
                     let clipped = region.intersect(&bounds);
@@ -2098,6 +2108,13 @@ impl Render for Studio {
                     if let Ok(path) = path.build() {
                         window.paint_path(path, rgb(0x159fea));
                     }
+                }
+                if let Some((started, prepaint_ms)) = sample {
+                    let _ = paint_view.update(app, |studio, _| {
+                        if let Some(benchmark) = studio.canvas_benchmark.as_mut() {
+                            benchmark.paint_finished(started, prepaint_ms);
+                        }
+                    });
                 }
                 if measure {
                     crate::benchmark::paint_finished(&paint_view, app);

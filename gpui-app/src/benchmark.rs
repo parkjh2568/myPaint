@@ -255,6 +255,55 @@ pub(crate) fn io_profile_fixture(size: u32) -> State {
     }
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct CanvasBenchmark {
+    document_ready_ms: f64,
+    #[serde(skip)]
+    opened_at: Instant,
+    #[serde(skip)]
+    pub selection_started: Option<Instant>,
+    opening: Option<CanvasTiming>,
+    selection_move: Option<CanvasTiming>,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CanvasTiming {
+    prepaint_ms: f64,
+    through_paint_ms: f64,
+    until_paint_ms: f64,
+}
+
+impl CanvasBenchmark {
+    pub fn new(opened_at: Instant) -> Self {
+        Self {
+            document_ready_ms: ms(opened_at),
+            opened_at,
+            selection_started: None,
+            opening: None,
+            selection_move: None,
+        }
+    }
+
+    pub fn awaiting_paint(&self) -> bool {
+        self.opening.is_none() || self.selection_started.is_some()
+    }
+
+    pub fn paint_finished(&mut self, started: Instant, prepaint_ms: f64) {
+        let (operation, timing) = if let Some(selection_started) = self.selection_started.take() {
+            (selection_started, &mut self.selection_move)
+        } else {
+            (self.opened_at, &mut self.opening)
+        };
+        *timing = Some(CanvasTiming {
+            prepaint_ms,
+            through_paint_ms: ms(started),
+            until_paint_ms: ms(operation),
+        });
+    }
+}
+
 pub struct IoBenchmark {
     output: PathBuf,
     scratch: tempfile::TempDir,
@@ -262,6 +311,7 @@ pub struct IoBenchmark {
     case: usize,
     step: usize,
     fixture_ready: bool,
+    warm_frames: u8,
     expected: Option<State>,
     before_export: Option<(u64, bool)>,
     pending: Option<IoSample>,
@@ -306,6 +356,7 @@ impl IoBenchmark {
             case: 0,
             step: 0,
             fixture_ready: false,
+            warm_frames: if project { 12 } else { 0 },
             expected: None,
             before_export: None,
             pending: None,
@@ -330,6 +381,7 @@ impl IoBenchmark {
                                     return Err("계측용 다시 실행 상태를 만들 수 없습니다.".into());
                                 }
                                 editor.select_all()?;
+                                studio.canvas_benchmark.as_mut().expect("project benchmark").selection_started = Some(Instant::now());
                                 let state = editor.document().state();
                                 editor.nudge_selection(-(state.width as i32 / 8), -(state.height as i32 / 8))?;
                                 if !editor.has_pending() {
@@ -343,6 +395,10 @@ impl IoBenchmark {
                         }
                         self.fixture_ready = true;
                         cx.notify();
+                        return Ok(false);
+                    }
+                    if self.warm_frames > 0 {
+                        self.warm_frames -= 1;
                         return Ok(false);
                     }
                     if let Some(mut pending) = self.pending.take() {
@@ -461,6 +517,9 @@ impl IoBenchmark {
                     "ok": true,
                     "scope": "GPUI frame callbacks from dispatch through the first frame after observed completion. File dialogs and display scanout excluded.",
                     "verifiedProjectAndPngPixels": self.project,
+                    "canvas": view.update(app, |studio, _| {
+                        serde_json::to_value(&studio.canvas_benchmark)
+                    }).ok().and_then(Result::ok),
                     "timings": self.results,
                 }),
                 Err(error) => serde_json::json!({"ok": false, "error": error}),

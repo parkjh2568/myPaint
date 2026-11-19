@@ -174,12 +174,12 @@ impl CanvasCache {
                     .get(&key)
                     .is_some_and(|tile| tile.version == version);
                 if !current {
-                    let Ok(pixels) = state.composite_region(x, y, width, height) else {
+                    if state.validate().is_err() {
                         continue;
-                    };
+                    }
                     let image_width = width.div_ceil(factor);
                     let image_height = height.div_ceil(factor);
-                    let pixels = checker_bgra(&pixels, x, y, width, height, factor);
+                    let pixels = checker_bgra(state, x, y, width, height, factor);
                     if self.tiles.get(&key).is_some_and(|tile| {
                         tile.width == image_width
                             && tile.height == image_height
@@ -229,28 +229,35 @@ impl CanvasCache {
     }
 }
 
-fn checker_bgra(rgba: &[u8], left: u32, top: u32, width: u32, height: u32, factor: u32) -> Vec<u8> {
-    let mut result =
-        Vec::with_capacity(width.div_ceil(factor) as usize * height.div_ceil(factor) as usize * 4);
-    for y in (0..height).step_by(factor as usize) {
-        for x in (0..width).step_by(factor as usize) {
-            let index = 4 * (y as usize * width as usize + x as usize);
-            let alpha = u32::from(rgba[index + 3]);
-            let background = if ((top + y) / 12 + (left + x) / 12).is_multiple_of(2) {
+fn checker_bgra(
+    state: &State,
+    left: u32,
+    top: u32,
+    width: u32,
+    height: u32,
+    factor: u32,
+) -> Vec<u8> {
+    let row_bytes = width.div_ceil(factor) as usize * 4;
+    let mut pixels = vec![0; row_bytes * height.div_ceil(factor) as usize];
+    for (row, target) in pixels.chunks_exact_mut(row_bytes).enumerate() {
+        let y = top + row as u32 * factor;
+        state.composite_row(left, y, factor as usize, target);
+        for (column, pixel) in target.as_chunks_mut::<4>().0.iter_mut().enumerate() {
+            let x = left + column as u32 * factor;
+            let alpha = u32::from(pixel[3]);
+            let background = if (y / 12 + x / 12).is_multiple_of(2) {
                 [221, 224, 229]
             } else {
                 [255, 255, 255]
             };
-            for c in [2, 1, 0] {
-                result.push(
-                    ((u32::from(rgba[index + c]) * alpha + background[c] * (255 - alpha) + 127)
-                        / 255) as u8,
-                );
-            }
-            result.push(255);
+            let blend = |channel: usize| {
+                ((u32::from(pixel[channel]) * alpha + background[channel] * (255 - alpha) + 127)
+                    / 255) as u8
+            };
+            *pixel = [blend(2), blend(1), blend(0), 255];
         }
     }
-    result
+    pixels
 }
 
 #[derive(Clone, PartialEq)]
@@ -339,5 +346,61 @@ impl TextRasterizer {
             height,
             pixels,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::engine::Layer;
+
+    #[test]
+    fn paint_tiles_match_full_composition_then_sampling() {
+        let mut state = State::new(37, 29, [0; 4]).unwrap();
+        for (i, pixel) in state
+            .pixels_mut(0)
+            .as_chunks_mut::<4>()
+            .0
+            .iter_mut()
+            .enumerate()
+        {
+            *pixel = [(i * 3) as u8, (i * 5) as u8, (i * 11) as u8, (i * 17) as u8];
+        }
+        let overlay = (0..37 * 29)
+            .flat_map(|i| [231, (i * 21) as u8, 17, (i * 5) as u8])
+            .collect();
+        state
+            .layers
+            .push(Layer::new("overlay".into(), true, overlay));
+        state
+            .layers
+            .push(Layer::new("hidden".into(), false, vec![255; 37 * 29 * 4]));
+        let (left, top, width, height) = (3, 7, 31, 21);
+        let full = state.composite_region(left, top, width, height).unwrap();
+        for factor in [1, 2, 4, 8, 16] {
+            let mut expected = Vec::new();
+            for y in (0..height).step_by(factor as usize) {
+                for x in (0..width).step_by(factor as usize) {
+                    let offset = ((y * width + x) * 4) as usize;
+                    let a = u32::from(full[offset + 3]);
+                    let background = if ((top + y) / 12 + (left + x) / 12).is_multiple_of(2) {
+                        [221, 224, 229]
+                    } else {
+                        [255, 255, 255]
+                    };
+                    for c in [2, 1, 0] {
+                        expected.push(
+                            ((u32::from(full[offset + c]) * a + background[c] * (255 - a) + 127)
+                                / 255) as u8,
+                        );
+                    }
+                    expected.push(255);
+                }
+            }
+            assert_eq!(
+                checker_bgra(&state, left, top, width, height, factor),
+                expected
+            );
+        }
     }
 }

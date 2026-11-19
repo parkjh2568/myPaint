@@ -74,6 +74,7 @@ fn start(args: &[OsString]) -> Result<(), String> {
                 .into(),
         );
     }
+    let measure_canvas = io_project.is_some();
     let initial = initial.or(io_project);
     gpui_platform::application()
         .with_assets(ui::Icons)
@@ -98,6 +99,7 @@ fn start(args: &[OsString]) -> Result<(), String> {
                 move |window, app| {
                     let _ = pen::register(window);
                     let studio = app.new(|cx| {
+                        let opened_at = Instant::now();
                         match ui::Studio::new(
                             native.clone(),
                             preferences.clone(),
@@ -106,6 +108,8 @@ fn start(args: &[OsString]) -> Result<(), String> {
                         ) {
                             Ok(mut studio) => {
                                 studio.benchmark = benchmark.take();
+                                studio.canvas_benchmark = measure_canvas
+                                    .then(|| benchmark::CanvasBenchmark::new(opened_at));
                                 studio
                             }
                             Err(error) => {

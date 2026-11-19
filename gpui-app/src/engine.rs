@@ -98,6 +98,7 @@ pub fn source_over(destination: &mut [u8], source: Color) {
     match source[3] {
         0 => {}
         255 => destination[..4].copy_from_slice(&source),
+        _ if destination[3] == 0 => destination[..4].copy_from_slice(&source),
         source_alpha => {
             let a = f64::from(source_alpha) / 255.;
             let b = f64::from(destination[3]) / 255.;
@@ -212,22 +213,23 @@ impl State {
         let mut out = zeroed(width as usize * height as usize * 4)?;
         let row_bytes = width as usize * 4;
         for (row, target) in out.chunks_exact_mut(row_bytes).enumerate() {
-            self.composite_row(left, top + row as u32, target);
+            self.composite_row(left, top + row as u32, 1, target);
         }
         Ok(out)
     }
 
-    // Callers validate the state and supply an in-bounds RGBA row.
-    pub(crate) fn composite_row(&self, left: u32, row: u32, target: &mut [u8]) {
+    // Callers validate the state and supply a nonempty, in-bounds row and positive step.
+    pub(crate) fn composite_row(&self, left: u32, row: u32, step: usize, target: &mut [u8]) {
         target.fill(0);
         let index = (row as usize * self.width as usize + left as usize) * 4;
+        let span = ((target.len() / 4 - 1) * step + 1) * 4;
         for layer in self.layers.iter().filter(|layer| layer.visible) {
-            let source = &layer.pixels[index..index + target.len()];
+            let source = &layer.pixels[index..index + span];
             for (pixel, &origin) in target
                 .as_chunks_mut::<4>()
                 .0
                 .iter_mut()
-                .zip(source.as_chunks::<4>().0)
+                .zip(source.as_chunks::<4>().0.iter().step_by(step))
             {
                 source_over(pixel, origin);
             }
