@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::{Arc, Weak};
+use std::sync::Arc;
 
 use cosmic_text::{Attrs, Buffer, Family, FontSystem, Metrics, Shaping, SwashCache, Wrap};
 use gpui::{Bounds, Corners, Pixels, RenderImage, Window, fill, point, px, rgb, size};
@@ -24,7 +24,32 @@ pub struct CanvasCache {
 
 struct PendingCanvas {
     dimensions: (u32, u32),
-    layers: Vec<(bool, Weak<Vec<u8>>)>,
+    layers: Vec<(bool, u64)>,
+}
+
+impl PendingCanvas {
+    fn from_state(state: &State) -> Self {
+        Self {
+            dimensions: (state.width, state.height),
+            layers: state
+                .layers
+                .iter()
+                .map(|layer| (layer.visible, layer.buffer_id))
+                .collect(),
+        }
+    }
+
+    fn matches(&self, state: &State) -> bool {
+        self.dimensions == (state.width, state.height)
+            && self.layers.len() == state.layers.len()
+            && self
+                .layers
+                .iter()
+                .zip(&state.layers)
+                .all(|(&(visible, buffer_id), layer)| {
+                    visible == layer.visible && buffer_id == layer.buffer_id
+                })
+    }
 }
 
 struct Tile {
@@ -88,18 +113,11 @@ impl CanvasCache {
         self.last_uploads = 0;
         self.last_upload_bytes = 0;
         if pending || self.pending_preview.is_some() {
-            let dimensions = (state.width, state.height);
             let unchanged = self.tab == tab
-                && self.pending_preview.as_ref().is_some_and(|preview| {
-                    preview.dimensions == dimensions
-                        && preview.layers.len() == state.layers.len()
-                        && preview.layers.iter().zip(&state.layers).all(
-                            |((visible, pixels), layer)| {
-                                *visible == layer.visible
-                                    && pixels.as_ptr() == Arc::as_ptr(&layer.pixels)
-                            },
-                        )
-                });
+                && self
+                    .pending_preview
+                    .as_ref()
+                    .is_some_and(|preview| preview.matches(state));
             if !unchanged && self.tab == tab && version == self.version {
                 // A settings change can request a repaint without advancing the editor's version.
                 for tile in self.tiles.values_mut() {
@@ -116,14 +134,7 @@ impl CanvasCache {
             if !pending {
                 self.pending_preview = None;
             } else if !unchanged {
-                self.pending_preview = Some(PendingCanvas {
-                    dimensions,
-                    layers: state
-                        .layers
-                        .iter()
-                        .map(|layer| (layer.visible, Arc::downgrade(&layer.pixels)))
-                        .collect(),
-                });
+                self.pending_preview = Some(PendingCanvas::from_state(state));
             }
         }
         if self.tab != tab {
@@ -402,5 +413,52 @@ mod tests {
                 expected
             );
         }
+    }
+
+    #[test]
+    fn pending_canvas_tracks_buffer_id_across_commit_and_in_place_mutation() {
+        let mut editor = crate::editor::Editor::new().unwrap();
+        editor.active_tab_mut().document =
+            crate::engine::PaintDocument::new(State::new(16, 12, [0; 4]).unwrap()).unwrap();
+        editor.settings.foreground = [255, 0, 0, 255];
+        editor.choose_tool(crate::editor::Tool::Pencil).unwrap();
+        let sample = crate::editor::Sample {
+            x: 3.5,
+            y: 4.5,
+            pressure: 1.0,
+            ..crate::editor::Sample::default()
+        };
+        editor
+            .pointer_down(sample, crate::editor::PointerButton::Primary)
+            .unwrap();
+        editor.pointer_up(sample).unwrap();
+
+        editor.select_all().unwrap();
+        editor.nudge_selection(1, 0).unwrap();
+        let preview = editor.preview_state().unwrap();
+        let cached = PendingCanvas::from_state(&preview);
+
+        // Committing reuses the preview Arc and keeps buffer_id identical (no re-upload).
+        assert!(editor.commit_pending().unwrap());
+        assert!(cached.matches(editor.document().state()));
+        assert_eq!(
+            editor.document().state().layers[0].buffer_id,
+            preview.layers[0].buffer_id
+        );
+
+        // Dropping the extra preview handle lets try_pixels_mut mutate in place, yet buffer_id changes.
+        drop(preview);
+        let mut owned = State::new(16, 12, [0; 4]).unwrap();
+        let owned_cache = PendingCanvas::from_state(&owned);
+        let before_ptr = Arc::as_ptr(&owned.layers[0].pixels);
+        owned.try_pixels_mut(0).unwrap()[..4].copy_from_slice(&[1, 2, 3, 255]);
+        assert_eq!(Arc::as_ptr(&owned.layers[0].pixels), before_ptr);
+        assert!(!owned_cache.matches(&owned));
+
+        // Visibility change also invalidates PendingCanvas.
+        let visible_cache = PendingCanvas::from_state(&owned);
+        assert!(visible_cache.matches(&owned));
+        owned.layers[0].visible = false;
+        assert!(!visible_cache.matches(&owned));
     }
 }

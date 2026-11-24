@@ -27,6 +27,11 @@ pub const MAX_LAYER_BYTES: usize = 140 * 1024 * 1024;
 const HISTORY_LIMIT: usize = 4096;
 const HISTORY_BYTES: usize = 256 * 1024 * 1024;
 static NEXT_DOCUMENT: AtomicU64 = AtomicU64::new(1);
+static NEXT_BUFFER_ID: AtomicU64 = AtomicU64::new(1);
+
+fn next_buffer_id() -> u64 {
+    NEXT_BUFFER_ID.fetch_add(1, Ordering::Relaxed)
+}
 
 pub fn validate_size(width: u32, height: u32, layers: usize) -> EngineResult<()> {
     let pixels = u64::from(width) * u64::from(height);
@@ -115,12 +120,21 @@ pub fn source_over(destination: &mut [u8], source: Color) {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub struct Layer {
     pub name: String,
     pub visible: bool,
     pub pixels: Arc<Vec<u8>>,
+    pub(crate) buffer_id: u64,
 }
+
+impl PartialEq for Layer {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name && self.visible == other.visible && self.pixels == other.pixels
+    }
+}
+
+impl Eq for Layer {}
 
 impl Layer {
     pub fn new(name: String, visible: bool, pixels: Vec<u8>) -> Self {
@@ -128,7 +142,22 @@ impl Layer {
             name,
             visible,
             pixels: Arc::new(pixels),
+            buffer_id: next_buffer_id(),
         }
+    }
+
+    pub(crate) fn from_shared(name: String, visible: bool, pixels: Arc<Vec<u8>>) -> Self {
+        Self {
+            name,
+            visible,
+            pixels,
+            buffer_id: next_buffer_id(),
+        }
+    }
+
+    pub(crate) fn replace_pixels(&mut self, pixels: Vec<u8>) {
+        self.pixels = Arc::new(pixels);
+        self.buffer_id = next_buffer_id();
     }
 }
 
@@ -170,19 +199,21 @@ impl State {
     }
 
     pub fn pixels_mut(&mut self, layer: usize) -> &mut Vec<u8> {
-        Arc::make_mut(&mut self.layers[layer].pixels)
+        let layer = &mut self.layers[layer];
+        layer.buffer_id = next_buffer_id();
+        Arc::make_mut(&mut layer.pixels)
     }
 
     pub(crate) fn try_pixels_mut(&mut self, layer: usize) -> EngineResult<&mut Vec<u8>> {
-        let pixels = &mut self
+        let layer = self
             .layers
             .get_mut(layer)
-            .ok_or("레이어 번호가 올바르지 않습니다.")?
-            .pixels;
-        if Arc::get_mut(pixels).is_none() {
-            *pixels = Arc::new(owned_copy(pixels)?);
+            .ok_or("레이어 번호가 올바르지 않습니다.")?;
+        if Arc::get_mut(&mut layer.pixels).is_none() {
+            layer.pixels = Arc::new(owned_copy(&layer.pixels)?);
         }
-        Ok(Arc::get_mut(pixels).expect("unique owned pixel buffer"))
+        layer.buffer_id = next_buffer_id();
+        Ok(Arc::get_mut(&mut layer.pixels).expect("unique owned pixel buffer"))
     }
 
     pub fn composite(&self) -> EngineResult<Vec<u8>> {
@@ -361,6 +392,7 @@ impl MetadataFrame {
                     name: name.clone(),
                     visible: *visible,
                     pixels: Arc::clone(&state.layers[index].pixels),
+                    buffer_id: state.layers[index].buffer_id,
                 })
                 .collect(),
         }
@@ -403,6 +435,12 @@ pub struct PreparedState {
     candidate: State,
     bytes: usize,
     edit: Edit,
+}
+
+impl PreparedState {
+    pub(crate) fn candidate(&self) -> &State {
+        &self.candidate
+    }
 }
 
 pub struct PaintDocument {

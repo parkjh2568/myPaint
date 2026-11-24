@@ -1,8 +1,4 @@
-use std::{
-    cell::Cell,
-    rc::Rc,
-    sync::{Arc, Weak},
-};
+use std::{cell::Cell, rc::Rc, sync::Arc};
 
 use gpui::{FontWeight, Role, Stateful, Toggled, svg};
 
@@ -236,7 +232,7 @@ impl BrushControl {
 
 #[derive(Default)]
 pub(super) struct Thumbnails {
-    layers: Vec<(Weak<Vec<u8>>, Arc<RenderImage>)>,
+    layers: Vec<(u64, Arc<RenderImage>)>,
     dimensions: (u32, u32),
 }
 
@@ -251,11 +247,8 @@ impl Thumbnails {
             self.dimensions = dimensions;
         }
         for layer in &state.layers {
-            let pixels = Arc::downgrade(&layer.pixels);
-            if let Some(i) = previous
-                .iter()
-                .position(|(source, _)| source.ptr_eq(&pixels))
-            {
+            let buffer_id = layer.buffer_id;
+            if let Some(i) = previous.iter().position(|(source, _)| *source == buffer_id) {
                 self.layers.push(previous.swap_remove(i));
                 continue;
             }
@@ -287,7 +280,7 @@ impl Thumbnails {
             let image = Arc::new(RenderImage::new(smallvec::smallvec![image::Frame::new(
                 image
             )]));
-            self.layers.push((pixels, image));
+            self.layers.push((buffer_id, image));
         }
         for (_, image) in previous {
             let _ = window.drop_image(image);

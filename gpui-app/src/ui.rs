@@ -620,6 +620,7 @@ impl Studio {
                             studio.editor.finish_tab_save(prepared, name)?;
                             if active {
                                 studio.text = None;
+                                studio.focus.focus(window, cx);
                             }
                             studio.status = "프로젝트 저장 완료".into();
                             match after {
@@ -1457,9 +1458,14 @@ impl Studio {
             cx.stop_propagation();
             return;
         }
-        if matches!(self.panel, Some(Panel::Form(_))) && key == "enter" {
-            let result = self.apply_form(window, cx);
+        if self.panel.is_some() {
+            let result = match (self.panel.as_ref(), key) {
+                (Some(Panel::Form(_)), "enter") if !ctrl => self.apply_form(window, cx),
+                (_, "escape") => self.command("cancel", window, cx),
+                _ => return,
+            };
             self.report(result, cx);
+            cx.stop_propagation();
             return;
         }
         let command = match (ctrl, key) {
@@ -2036,7 +2042,7 @@ impl Render for Studio {
                         studio.last_generation = current;
                         studio.preview_version = studio.preview_version.wrapping_add(1);
                     }
-                    let pending = studio.editor.has_pending();
+                    let pending = studio.editor.has_visual_preview();
                     if pending != studio.had_preview {
                         studio.preview_version = studio.preview_version.wrapping_add(1);
                     }

@@ -355,3 +355,32 @@ fn flood_uses_legacy_premultiplied_keys_and_keeps_unfilled_transparent_rgb() {
     );
     assert_eq!(&channels[32..36], [80, 9, 8, 0]);
 }
+
+#[test]
+fn buffer_id_advances_on_in_place_mutation_without_cloning_unique_arc() {
+    let mut state = State::new(8, 8, [0; 4]).unwrap();
+    let cached_buffer_id = state.layers[0].buffer_id;
+    let original_ptr = Arc::as_ptr(&state.layers[0].pixels);
+
+    // Without Weak caches holding the pixel buffer, try_pixels_mut mutates in place.
+    state.try_pixels_mut(0).unwrap()[..4].copy_from_slice(&[10, 20, 30, 255]);
+    assert_eq!(Arc::as_ptr(&state.layers[0].pixels), original_ptr);
+    assert_ne!(state.layers[0].buffer_id, cached_buffer_id);
+
+    // A shared clone preserves buffer_id until mutation, when it clones on write and advances.
+    let shared = state.clone();
+    let shared_id = shared.layers[0].buffer_id;
+    assert_eq!(state.layers[0].buffer_id, shared_id);
+    assert!(Arc::ptr_eq(
+        &state.layers[0].pixels,
+        &shared.layers[0].pixels
+    ));
+
+    state.try_pixels_mut(0).unwrap()[4..8].copy_from_slice(&[40, 50, 60, 255]);
+    assert!(!Arc::ptr_eq(
+        &state.layers[0].pixels,
+        &shared.layers[0].pixels
+    ));
+    assert_ne!(state.layers[0].buffer_id, shared_id);
+    assert_eq!(shared.layers[0].buffer_id, shared_id);
+}

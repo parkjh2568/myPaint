@@ -474,6 +474,14 @@ impl Editor {
         self.selection.is_some() || self.text.is_some() || self.shape.is_some()
     }
 
+    pub fn has_visual_preview(&self) -> bool {
+        self.has_pending()
+            || matches!(
+                self.drag,
+                Some(Drag::Shape(_) | Drag::CurveControl { .. } | Drag::PolygonPoint { .. })
+            )
+    }
+
     pub fn has_active_gesture(&self) -> bool {
         self.drag.is_some()
     }
@@ -1193,16 +1201,15 @@ impl Editor {
         let active = index == self.active;
         let revision = self.tabs[index].document.revision();
         let name = self.tabs[index].name.clone();
-        let state = if active {
-            self.preview_state()?
-        } else {
-            self.tabs[index].document.state().clone()
-        };
         let pending = if active {
             self.prepare_pending()?
         } else {
             None
         };
+        let state = pending
+            .as_ref()
+            .map(|prepared| prepared.candidate().clone())
+            .unwrap_or_else(|| self.tabs[index].document.state().clone());
         Ok(TabSave {
             id,
             revision,
@@ -1615,7 +1622,7 @@ impl Editor {
                         active: 0,
                         layers: state.layers[active - 1..=active].to_vec(),
                     };
-                    state.layers[active - 1].pixels = Arc::new(overlay.composite()?);
+                    state.layers[active - 1].replace_pixels(overlay.composite()?);
                     state.layers.remove(active);
                     state.active -= 1;
                 }
@@ -1757,11 +1764,7 @@ impl Editor {
             height,
             background: [0; 4],
             active: 0,
-            layers: vec![Layer {
-                name: "선택".into(),
-                visible: true,
-                pixels: pixels.clone(),
-            }],
+            layers: vec![Layer::from_shared("선택".into(), true, pixels.clone())],
         };
         let transformed = transform(&state)?;
         let region = Region {
@@ -1854,7 +1857,7 @@ impl Editor {
                             *pixel = color;
                         }
                     }
-                    state.layers[active].pixels = Arc::new(pixels);
+                    state.layers[active].replace_pixels(pixels);
                 } else {
                     let layer = state.try_pixels_mut(active)?;
                     let row_bytes = source.width as usize * 4;
@@ -2265,12 +2268,72 @@ mod tests {
         let recolored = editor.preview_state().unwrap();
         assert_ne!(recolored, preview);
         let save = editor.prepare_tab_save(editor.active_tab().id).unwrap();
-        assert_eq!(save.state, recolored);
+        assert_eq!(save.state, original);
+        // Cancelling a prepared save preserves the live 2-point polygon preview.
+        assert_eq!(editor.preview_state().unwrap(), recolored);
         editor
             .finish_tab_save(save, "polygon.rpaint".into())
             .unwrap();
         assert_eq!(editor.document().state(), &original);
         assert!(!editor.has_pending());
+    }
+
+    #[test]
+    fn unfinished_two_point_polygon_save_matches_committed_document_pixels() {
+        let mut editor = fixture();
+        draw_pencil(&mut editor, 2.5, 3.5);
+        let committed_before_polygon = editor.document().state().clone();
+        editor.shape = Some(ShapeDraft {
+            tool: Tool::Polygon,
+            points: vec![point(6.0, 7.0), point(20.0, 9.0)],
+            controls: Vec::new(),
+            secondary: false,
+        });
+        assert_ne!(editor.preview_state().unwrap(), committed_before_polygon);
+
+        let save = editor.prepare_tab_save(editor.active_tab().id).unwrap();
+        let saved_state = save.state.clone();
+        editor
+            .finish_tab_save(save, "two-point.rpaint".into())
+            .unwrap();
+
+        assert_eq!(saved_state, *editor.document().state());
+        assert_eq!(
+            saved_state.layers[0].pixels,
+            editor.document().state().layers[0].pixels
+        );
+        assert!(!editor.document().dirty());
+        assert!(!editor.has_pending());
+    }
+
+    #[test]
+    fn shape_drag_reports_visual_preview_and_renders_preview_state() {
+        let mut editor = fixture();
+        editor.choose_tool(Tool::Rectangle).unwrap();
+        editor.settings.size = 2.0;
+        editor.settings.fill_shape = true;
+        editor.settings.secondary = [0, 0, 255, 255];
+        assert!(!editor.has_pending());
+        assert!(!editor.has_visual_preview());
+
+        editor
+            .pointer_down(point(4.0, 4.0), PointerButton::Primary)
+            .unwrap();
+        editor.pointer_move(point(20.0, 18.0)).unwrap();
+        assert!(!editor.has_pending());
+        assert!(editor.has_visual_preview());
+
+        let preview = editor.preview_state().unwrap();
+        assert_ne!(&preview, editor.document().state());
+        let interior = (10 * preview.width as usize + 10) * 4;
+        assert_eq!(
+            &preview.layers[0].pixels[interior..interior + 4],
+            &[0, 0, 255, 255]
+        );
+
+        assert!(editor.cancel_pointer());
+        assert!(!editor.has_visual_preview());
+        assert_eq!(read_pixel(&editor, 10, 10), [0; 4]);
     }
 
     #[test]
